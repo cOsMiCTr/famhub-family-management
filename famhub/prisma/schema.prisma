@@ -1,0 +1,289 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { 
+  ADMIN 
+  PLANNER 
+  VIEWER 
+}
+
+enum ContractStatus { 
+  ACTIVE 
+  CANCELLATION_SCHEDULED 
+  CANCELLED 
+  EXPIRED 
+}
+
+enum PaymentInterval { 
+  MONTHLY 
+  QUARTERLY 
+  SEMIANNUAL 
+  ANNUAL 
+}
+
+enum PaymentMethod { 
+  SEPA 
+  CARD 
+  PAYPAL 
+  OTHER 
+}
+
+enum ProviderCategory { 
+  ENERGY 
+  TELECOM 
+  INSURANCE 
+  STREAMING 
+  RENT 
+  EDUCATION 
+  MEMBERSHIP 
+  TRANSPORT 
+  LOAN 
+  OTHER 
+}
+
+enum AssetType { 
+  REAL_ESTATE 
+  VEHICLE 
+  DEVICE 
+  OTHER 
+}
+
+enum LoanType { 
+  MORTGAGE 
+  CONSUMER 
+  AUTO 
+  STUDENT 
+  OTHER 
+}
+
+enum ReminderStatus { 
+  SCHEDULED 
+  SENT 
+  SNOOZED 
+}
+
+enum RelatedType { 
+  CONTRACT 
+  FIXED_COST 
+  LOAN 
+}
+
+model Family {
+  id         String   @id @default(cuid())
+  name       String
+  createdAt  DateTime @default(now())
+  members    Member[]
+  contracts  Contract[]
+  fixedCosts FixedCost[]
+  assets     Asset[]
+  loans      Loan[]
+  reminders  Reminder[]
+  auditLogs  AuditLog[]
+
+  @@map("families")
+}
+
+model Member {
+  id        String  @id @default(cuid())
+  familyId  String
+  family    Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  email     String  @unique
+  name      String
+  role      Role
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  contracts Contract[]
+  fixedCosts FixedCost[]
+  uploadedAttachments Attachment[]
+  auditLogs AuditLog[]
+
+  @@map("members")
+}
+
+model Provider {
+  id              String           @id @default(cuid())
+  name            String
+  category        ProviderCategory
+  logoUrl         String?
+  supportChannels Json?            // { phone: string, email: string, web: string, address: string }
+  contracts       Contract[]
+
+  @@map("providers")
+}
+
+model Contract {
+  id                    String          @id @default(cuid())
+  familyId              String
+  family                Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  providerId            String?
+  provider              Provider?       @relation(fields: [providerId], references: [id])
+  title                 String
+  customerNumber        String?
+  status                ContractStatus  @default(ACTIVE)
+  startDate             DateTime
+  endDate               DateTime?       // optional; if open‑ended, use nextRenewalDate & renewalIntervalMonths
+  minTermMonths         Int?            // Mindestlaufzeit
+  cancelNoticeMonths    Int?            // Kündigungsfrist (Monate)
+  renewalIntervalMonths Int?            // z. B. 12
+  nextRenewalDate       DateTime?
+  paymentInterval       PaymentInterval?
+  paymentMethod         PaymentMethod?
+  assignedMemberId      String?
+  assignedMember        Member?         @relation(fields: [assignedMemberId], references: [id])
+  visibility            Json?           // e.g. { visibleToMemberIds: ["..."] }
+  notes                 String?
+  costs                 ContractCost[]
+  attachments           Attachment[]
+  assetId               String?
+  asset                 Asset?          @relation(fields: [assetId], references: [id])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("contracts")
+}
+
+model ContractCost {
+  id          String   @id @default(cuid())
+  contractId  String
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  amountCents Int
+  currency    String   // e.g. "EUR"
+  vatRate     Decimal? // 0..100
+  validFrom   DateTime
+  validTo     DateTime?
+  indexation  Json?    // { type: "CPI" | "cap", value: number }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contract_costs")
+}
+
+model FixedCost {
+  id           String           @id @default(cuid())
+  familyId     String
+  family       Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  title        String
+  category     String
+  amountCents  Int
+  currency     String
+  interval     PaymentInterval
+  dueDay       Int?             // 1..31
+  assignedMemberId String?
+  assignedMember   Member?       @relation(fields: [assignedMemberId], references: [id])
+  visibility   Json?
+  notes        String?
+  attachmentUrl String?
+  assetId      String?
+  asset        Asset?           @relation(fields: [assetId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("fixed_costs")
+}
+
+model Asset {
+  id            String    @id @default(cuid())
+  familyId      String
+  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  type          AssetType
+  name          String
+  address       String?
+  purchaseDate  DateTime?
+  purchasePriceCents Int?
+  currentValueCents  Int?
+  saleDate      DateTime?
+  salePriceCents Int?
+  notes         String?
+  contracts     Contract[]
+  loans         Loan[]
+  fixedCosts    FixedCost[]
+  attachments   Attachment[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("assets")
+}
+
+model Loan {
+  id              String    @id @default(cuid())
+  familyId        String
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  assetId         String?
+  asset           Asset?    @relation(fields: [assetId], references: [id])
+  lender          String
+  loanType        LoanType
+  principalCents  Int
+  interestRatePct Decimal   // nominal p.a.
+  startDate       DateTime
+  endDate         DateTime? // if known
+  installmentCents Int?     // regular payment amount
+  paymentInterval PaymentInterval @default(MONTHLY)
+  customerNumber  String?
+  notes           String?
+  attachments     Attachment[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("loans")
+}
+
+model Reminder {
+  id           String      @id @default(cuid())
+  familyId     String
+  family       Family      @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  subject      String
+  dueDate      DateTime
+  relatedType  RelatedType
+  relatedId    String
+  rule         Json?       // { offsetsDays: [60,30,7,1] }
+  channels     Json?       // { push: true, email: true }
+  status       ReminderStatus @default(SCHEDULED)
+  createdAt    DateTime @default(now())
+
+  @@map("reminders")
+}
+
+model Attachment {
+  id          String   @id @default(cuid())
+  relatedType RelatedType
+  relatedId   String
+  url         String
+  filename    String
+  mime        String
+  uploadedById String
+  uploadedBy  Member    @relation(fields: [uploadedById], references: [id])
+  contractId  String?
+  contract    Contract? @relation(fields: [contractId], references: [id])
+  loanId      String?
+  loan        Loan?     @relation(fields: [loanId], references: [id])
+  assetId     String?
+  asset       Asset?   @relation(fields: [assetId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@map("attachments")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  familyId     String
+  family       Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  actorId      String?
+  actor        Member?  @relation(fields: [actorId], references: [id])
+  action       String
+  targetType   String
+  targetId     String?
+  before       Json?
+  after        Json?
+  createdAt    DateTime @default(now())
+
+  @@map("audit_logs")
+}
