@@ -33,7 +33,8 @@ async function runMigrations(): Promise<void> {
   const client = await pool.connect();
   
   try {
-    await client.query('BEGIN');
+    // Don't use transactions for DDL operations as they can cause issues
+    // Each operation will be atomic by default
 
     // Create users table
     await client.query(`
@@ -198,10 +199,8 @@ async function runMigrations(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_token ON invitation_tokens(token)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_email ON invitation_tokens(email)`);
 
-    await client.query('COMMIT');
     console.log('✅ Database migrations completed successfully');
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('❌ Database migration failed:', error);
     throw error;
   } finally {
