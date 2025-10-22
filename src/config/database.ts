@@ -172,12 +172,19 @@ async function runMigrations(): Promise<void> {
       )
     `);
 
-    // Add foreign key constraint for users.household_id
-    await client.query(`
-      ALTER TABLE users 
-      ADD CONSTRAINT fk_users_household 
-      FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE SET NULL
-    `);
+    // Add foreign key constraint for users.household_id (if not exists)
+    try {
+      await client.query(`
+        ALTER TABLE users 
+        ADD CONSTRAINT fk_users_household 
+        FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE SET NULL
+      `);
+    } catch (error: any) {
+      if (error.code !== '42710') { // 42710 = duplicate constraint
+        throw error;
+      }
+      // Constraint already exists, continue
+    }
 
     // Create indexes for better performance
     await client.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
