@@ -35,6 +35,13 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   console.log('LoginPage rendering with theme:', isDark);
   console.log('LoginPage formData:', formData);
 
