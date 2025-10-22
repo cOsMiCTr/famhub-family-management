@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
                           type="email"
                           autoComplete="email"
                           required
-                          className="form-input pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          className="form-input pl-14 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                           placeholder="Enter your email"
                           value={formData.email}
                           onChange={handleChange}
@@ -173,7 +173,7 @@ const LoginPage: React.FC = () => {
                           type={showPassword ? 'text' : 'password'}
                           autoComplete="current-password"
                           required
-                          className="form-input pl-12 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          className="form-input pl-14 pr-14 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                           placeholder="Enter your password"
                           value={formData.password}
                           onChange={handleChange}
