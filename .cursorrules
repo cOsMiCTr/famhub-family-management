@@ -1,0 +1,25 @@
+# FamHub - Family Management Hub
+
+This is a full-stack family management application with:
+- Backend: Node.js/Express with TypeScript
+- Frontend: React with TypeScript and Tailwind CSS
+- Database: PostgreSQL
+- Authentication: JWT-based
+- Deployment: Heroku
+
+## Repository Information
+- GitHub: cOsMiCTr/famhub-family-management
+- Public repository
+- Main branch: master
+
+## Project Structure
+- `/src` - Backend server code
+- `/client` - Frontend React application
+- `/dist` - Compiled backend code
+
+## Background Agents
+This project is configured for Cursor Background Agents to:
+- Create pull requests
+- Manage GitHub integration
+- Work with the full-stack codebase
+

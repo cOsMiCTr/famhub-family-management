@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "cursor.general.enableBackgroundAgents": true,
+    "cursor.github.repository": "cOsMiCTr/famhub-family-management"
+  }
+}
+
