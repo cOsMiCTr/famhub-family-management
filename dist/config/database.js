@@ -41,7 +41,7 @@ async function runMigrations() {
         role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('admin', 'user')),
         household_id INTEGER,
         preferred_language VARCHAR(5) DEFAULT 'en' CHECK (preferred_language IN ('en', 'de', 'tr')),
-        main_currency VARCHAR(3) DEFAULT 'USD' CHECK (main_currency IN ('TRY', 'GBP', 'USD', 'EUR')),
+        main_currency VARCHAR(4) DEFAULT 'USD' CHECK (main_currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -84,7 +84,7 @@ async function runMigrations() {
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
         amount DECIMAL(15,2) NOT NULL,
-        currency VARCHAR(3) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        currency VARCHAR(4) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
         category_id INTEGER REFERENCES asset_categories(id),
         description TEXT,
         date DATE NOT NULL,
@@ -132,8 +132,8 @@ async function runMigrations() {
         await client.query(`
       CREATE TABLE IF NOT EXISTS exchange_rates (
         id SERIAL PRIMARY KEY,
-        from_currency VARCHAR(3) NOT NULL,
-        to_currency VARCHAR(3) NOT NULL,
+        from_currency VARCHAR(4) NOT NULL,
+        to_currency VARCHAR(4) NOT NULL,
         rate DECIMAL(15,8) NOT NULL,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(from_currency, to_currency)
