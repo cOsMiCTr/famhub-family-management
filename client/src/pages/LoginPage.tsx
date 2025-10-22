@@ -57,18 +57,27 @@ const LoginPage: React.FC = () => {
 
       <div className="relative flex min-h-screen">
         {/* Left side - Branding */}
-        <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-12">
-          <div className="animate-fadeIn">
-            <div className="flex items-center space-x-4 mb-8">
-              <div className="h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl">
-                <span className="text-white font-bold text-2xl">FH</span>
+        <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:items-center lg:px-12">
+          <div className="animate-fadeIn text-center">
+            <div className="mb-8">
+              <div className="h-24 w-24 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-6 relative overflow-hidden">
+                {/* Cool logo design */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-80"></div>
+                <div className="relative z-10">
+                  <svg className="h-12 w-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                    <path d="M2 17L12 22L22 17" />
+                    <path d="M2 12L12 17L22 12" />
+                  </svg>
+                </div>
+                <div className="absolute -top-1 -right-1 h-3 w-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                <div className="absolute -bottom-1 -left-1 h-2 w-2 bg-green-400 rounded-full animate-bounce"></div>
               </div>
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white">FamHub</h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300">Family Management System</p>
-              </div>
+              <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                FamHub
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 font-medium">Family Management System</p>
             </div>
-            
           </div>
         </div>
 
@@ -79,10 +88,24 @@ const LoginPage: React.FC = () => {
               {/* Mobile logo */}
               <div className="lg:hidden text-center mb-8">
                 <div className="flex items-center justify-center space-x-3 mb-4">
-                  <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">FH</span>
+                  <div className="h-16 w-16 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-80"></div>
+                    <div className="relative z-10">
+                      <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                        <path d="M2 17L12 22L22 17" />
+                        <path d="M2 12L12 17L22 12" />
+                      </svg>
+                    </div>
+                    <div className="absolute -top-1 -right-1 h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                    <div className="absolute -bottom-1 -left-1 h-1.5 w-1.5 bg-green-400 rounded-full animate-bounce"></div>
                   </div>
-                  <span className="text-2xl font-bold text-gray-900 dark:text-white">FamHub</span>
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      FamHub
+                    </h1>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Family Management System</p>
+                  </div>
                 </div>
               </div>
 
@@ -115,7 +138,7 @@ const LoginPage: React.FC = () => {
                         {t('auth.email')}
                       </label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                           <UserIcon className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
@@ -124,7 +147,7 @@ const LoginPage: React.FC = () => {
                           type="email"
                           autoComplete="email"
                           required
-                          className="form-input pl-10"
+                          className="form-input pl-12 pr-4"
                           placeholder="Enter your email"
                           value={formData.email}
                           onChange={handleChange}
@@ -137,7 +160,7 @@ const LoginPage: React.FC = () => {
                         {t('auth.password')}
                       </label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                           <LockClosedIcon className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
@@ -146,14 +169,14 @@ const LoginPage: React.FC = () => {
                           type={showPassword ? 'text' : 'password'}
                           autoComplete="current-password"
                           required
-                          className="form-input pl-10 pr-10"
+                          className="form-input pl-12 pr-12"
                           placeholder="Enter your password"
                           value={formData.password}
                           onChange={handleChange}
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
