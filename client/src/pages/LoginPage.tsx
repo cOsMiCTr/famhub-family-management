@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -42,8 +42,6 @@ const LoginPage: React.FC = () => {
     });
   };
 
-  console.log('LoginPage rendering with theme:', isDark);
-  console.log('LoginPage formData:', formData);
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -71,27 +69,6 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover-lift">
-                <div className="h-12 w-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
-                  <UserIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Multi-Household Support</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Manage multiple families with ease</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover-lift">
-                <div className="h-12 w-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
-                  <LockClosedIcon className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Secure & Private</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Your family data is protected</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -112,9 +89,6 @@ const LoginPage: React.FC = () => {
               {/* Theme toggle */}
               <div className="flex justify-end mb-6">
                 <ThemeToggle />
-                <div className="ml-4 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium">
-                  Modern Design Active
-                </div>
               </div>
 
               {/* Login form */}
@@ -151,7 +125,7 @@ const LoginPage: React.FC = () => {
                           autoComplete="email"
                           required
                           className="form-input pl-10"
-                          placeholder={t('auth.email')}
+                          placeholder="Enter your email"
                           value={formData.email}
                           onChange={handleChange}
                         />
@@ -173,7 +147,7 @@ const LoginPage: React.FC = () => {
                           autoComplete="current-password"
                           required
                           className="form-input pl-10 pr-10"
-                          placeholder={t('auth.password')}
+                          placeholder="Enter your password"
                           value={formData.password}
                           onChange={handleChange}
                         />
@@ -205,27 +179,8 @@ const LoginPage: React.FC = () => {
                   </form>
                 </div>
 
-                <div className="card-footer">
-                  <p className="text-center text-sm text-gray-600 dark:text-gray-300">
-                    Don't have an account?{' '}
-                    <Link
-                      to="/register"
-                      className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
-                    >
-                      {t('auth.register')}
-                    </Link>
-                  </p>
-                </div>
               </div>
 
-              {/* Demo credentials */}
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Demo Credentials:</h3>
-                <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                  <p><strong>Email:</strong> onurbaki@me.com</p>
-                  <p><strong>Password:</strong> 1234</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
