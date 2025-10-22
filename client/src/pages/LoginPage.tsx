@@ -35,12 +35,8 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  console.log('LoginPage rendering with theme:', isDark);
+  console.log('LoginPage formData:', formData);
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -109,6 +105,9 @@ const LoginPage: React.FC = () => {
               {/* Theme toggle */}
               <div className="flex justify-end mb-6">
                 <ThemeToggle />
+                <div className="ml-4 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium">
+                  Modern Design Active
+                </div>
               </div>
 
               {/* Login form */}
