@@ -40,6 +40,10 @@ const LoginPage: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
   };
 
 
@@ -60,7 +64,7 @@ const LoginPage: React.FC = () => {
         <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:items-center lg:px-12">
           <div className="animate-fadeIn text-center">
             <div className="mb-8">
-              <div className="h-24 w-24 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-6 relative overflow-hidden">
+              <div className="h-24 w-24 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-6 relative overflow-hidden hover:scale-105 transition-transform duration-300">
                 {/* Cool logo design */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-80"></div>
                 <div className="relative z-10">
@@ -88,7 +92,7 @@ const LoginPage: React.FC = () => {
               {/* Mobile logo */}
               <div className="lg:hidden text-center mb-8">
                 <div className="flex items-center justify-center space-x-3 mb-4">
-                  <div className="h-16 w-16 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden">
+                  <div className="h-16 w-16 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden hover:scale-105 transition-transform duration-300">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-80"></div>
                     <div className="relative z-10">
                       <svg className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -147,7 +151,7 @@ const LoginPage: React.FC = () => {
                           type="email"
                           autoComplete="email"
                           required
-                          className="form-input pl-12 pr-4"
+                          className="form-input pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                           placeholder="Enter your email"
                           value={formData.email}
                           onChange={handleChange}
@@ -169,7 +173,7 @@ const LoginPage: React.FC = () => {
                           type={showPassword ? 'text' : 'password'}
                           autoComplete="current-password"
                           required
-                          className="form-input pl-12 pr-12"
+                          className="form-input pl-12 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                           placeholder="Enter your password"
                           value={formData.password}
                           onChange={handleChange}
@@ -190,11 +194,14 @@ const LoginPage: React.FC = () => {
 
                     <button
                       type="submit"
-                      disabled={isLoading}
-                      className="btn-primary w-full flex items-center justify-center"
+                      disabled={isLoading || !formData.email || !formData.password}
+                      className="btn-primary w-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
-                        <LoadingSpinner size="sm" />
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2">Signing in...</span>
+                        </>
                       ) : (
                         t('auth.loginButton')
                       )}
