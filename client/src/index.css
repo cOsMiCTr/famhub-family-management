@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent layout shifts */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Ensure consistent box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent flash of unstyled content */
+.dark {
+  color-scheme: dark;
+}
+
+:root {
+  color-scheme: light;
+}
+
 /* Modern Design System */
 :root {
   --color-primary: 59 130 246; /* blue-500 */
@@ -32,8 +57,18 @@
   --color-text-light: 156 163 175;
 }
 
-/* Smooth transitions for all interactive elements */
-* {
+/* Smooth transitions for interactive elements only */
+button, 
+a, 
+input, 
+select, 
+textarea,
+[role="button"],
+.hover-lift,
+.card,
+.btn-primary,
+.btn-secondary,
+.btn-danger {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

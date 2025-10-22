@@ -53,7 +53,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       {/* Mobile menu backdrop */}
       {isMobileMenuOpen && (
         <div 
@@ -63,7 +63,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:z-auto ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
