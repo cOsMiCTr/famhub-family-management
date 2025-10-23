@@ -79,7 +79,7 @@ const TranslationManagementPage: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);

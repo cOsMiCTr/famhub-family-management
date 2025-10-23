@@ -181,22 +181,11 @@ const LoginPage: React.FC = () => {
                         type={showPassword ? 'text' : 'password'}
                         autoComplete="current-password"
                         required
-                        className="form-input w-full px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        className="form-input w-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                         placeholder={t('common.enterPassword')}
                         value={formData.password}
                         onChange={handleChange}
                       />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                        ) : (
-                          <EyeIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                        )}
-                      </button>
                     </div>
                   </div>
 
