@@ -23,10 +23,17 @@ interface DashboardStats {
   currency?: string;
 }
 
+interface ExchangeRate {
+  from_currency: string;
+  to_currency: string;
+  rate: number;
+}
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +57,8 @@ const DashboardPage: React.FC = () => {
         activeContracts: dashboardData.summary?.quick_stats?.active_contracts || 0,
         currency: dashboardData.summary?.main_currency || 'USD'
       });
+      
+      setExchangeRates(dashboardData.exchange_rates || []);
     } catch (err: any) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
@@ -201,35 +210,49 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* Exchange Rates */}
         <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.5s' }}>
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
               <ChartBarIcon className="h-5 w-5 mr-2 text-green-500" />
-              Quick Insights
+              {t('dashboard.exchangeRates')}
             </h3>
           </div>
           <div className="card-body">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">This Month's Income</span>
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                  {stats ? formatCurrency(stats.monthlyIncome || 0, stats.currency || 'USD') : 'Loading...'}
-                </span>
+            {isLoading ? (
+              <LoadingSpinner size="sm" />
+            ) : exchangeRates.length > 0 ? (
+              <div className="space-y-4">
+                {exchangeRates.map((rate, index) => {
+                  const colors = [
+                    { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400' },
+                    { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-600 dark:text-green-400' },
+                    { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400' },
+                    { bg: 'bg-yellow-50 dark:bg-yellow-900/20', text: 'text-yellow-600 dark:text-yellow-400' }
+                  ];
+                  const color = colors[index % colors.length];
+                  const currencySymbols: { [key: string]: string } = {
+                    'TRY': '₺',
+                    'USD': '$',
+                    'EUR': '€',
+                    'GBP': '£'
+                  };
+                  
+                  return (
+                    <div key={index} className={`flex justify-between items-center p-3 ${color.bg} rounded-lg`}>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        1 {currencySymbols[rate.from_currency] || rate.from_currency} = {currencySymbols[rate.to_currency] || rate.to_currency}
+                      </span>
+                      <span className={`text-lg font-bold ${color.text}`}>
+                        {rate.rate.toFixed(4)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Contracts</span>
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                  {stats ? (stats.activeContracts || 0) : 'Loading...'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Family Members</span>
-                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                  {stats ? (stats.totalMembers || 0) : 'Loading...'}
-                </span>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No exchange rates available</p>
+            )}
           </div>
         </div>
       </div>

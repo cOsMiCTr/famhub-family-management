@@ -111,6 +111,9 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      LEFT JOIN contracts c ON c.household_id = $2
      WHERE a.user_id = $1`, [userId, req.user.household_id]);
     const quickStats = quickStatsResult.rows[0];
+    const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
+    const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&
+        ['EUR', 'USD', 'GBP', 'TRY'].includes(rate.to_currency));
     res.json({
         summary: {
             total_assets_main_currency: totalInMainCurrency,
@@ -124,6 +127,7 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                 active_contracts: parseInt(quickStats.active_contracts) || 0
             }
         },
+        exchange_rates: relevantRates,
         recent_income: recentIncomeResult.rows,
         monthly_income: monthlyIncomeResult.rows,
         category_income: categoryIncomeResult.rows,

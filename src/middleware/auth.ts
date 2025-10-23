@@ -11,6 +11,7 @@ declare global {
         email: string;
         role: string;
         household_id?: number;
+        main_currency?: string;
       };
     }
   }
@@ -44,7 +45,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     
     // Verify user still exists and is active
     const userResult = await query(
-      'SELECT id, email, role, household_id FROM users WHERE id = $1',
+      'SELECT id, email, role, household_id, main_currency FROM users WHERE id = $1',
       [decoded.userId]
     );
 
@@ -60,7 +61,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       id: user.id,
       email: user.email,
       role: user.role,
-      household_id: user.household_id
+      household_id: user.household_id,
+      main_currency: user.main_currency
     };
 
     next();

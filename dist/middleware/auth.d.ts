@@ -7,6 +7,7 @@ declare global {
                 email: string;
                 role: string;
                 household_id?: number;
+                main_currency?: string;
             };
         }
     }

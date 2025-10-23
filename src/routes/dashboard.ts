@@ -170,6 +170,13 @@ router.get('/summary', asyncHandler(async (req, res) => {
 
   const quickStats = quickStatsResult.rows[0];
 
+  // Get exchange rates for user's main currency
+  const exchangeRates = await exchangeRateService.getAllExchangeRates();
+  const relevantRates = exchangeRates.filter(rate => 
+    rate.from_currency === mainCurrency && 
+    ['EUR', 'USD', 'GBP', 'TRY'].includes(rate.to_currency)
+  );
+
   res.json({
     summary: {
       total_assets_main_currency: totalInMainCurrency,
@@ -183,6 +190,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
         active_contracts: parseInt(quickStats.active_contracts) || 0
       }
     },
+    exchange_rates: relevantRates,
     recent_income: recentIncomeResult.rows,
     monthly_income: monthlyIncomeResult.rows,
     category_income: categoryIncomeResult.rows,
