@@ -77,7 +77,7 @@
     "incomeEntries": "Gelir Girişleri",
     "quickStats": "Hızlı İstatistikler",
     "recentIncome": "Son Gelir",
-    "title": "Kontrol Panelim",
+    "title": "Kontrol Paneli",
     "totalAssets": "Toplam Varlık",
     "upcomingRenewals": "Yaklaşan Yenilemeler"
   },
@@ -94,7 +94,7 @@
     "admin": "Yönetici",
     "assets": "Varlıklar",
     "contracts": "Sözleşmeler",
-    "dashboard": "Kontrol Panelim",
+    "dashboard": "Kontrol Paneli",
     "households": "Hane",
     "settings": "Ayarlar",
     "users": "Kullanıcılar"
