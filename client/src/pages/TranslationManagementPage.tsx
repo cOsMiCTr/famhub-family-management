@@ -369,7 +369,7 @@ const TranslationManagementPage: React.FC = () => {
           <li>• English translations are shown as reference and cannot be edited</li>
           <li>• German and Turkish translations can be edited directly in the table</li>
           <li>• Changed translations are highlighted in yellow</li>
-          <li>• Click "Save All Changes" to update all modified translations</li>
+          <li>• {t('translations.instruction4')}</li>
           <li>• Changes are applied immediately and will be visible to all users</li>
         </ul>
       </div>
