@@ -18,7 +18,7 @@ interface IncomeCategory {
 }
 
 const IncomeCategoriesPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<IncomeCategory[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -140,8 +140,8 @@ const IncomeCategoriesPage: React.FC = () => {
 
   // Get category name based on current language
   const getCategoryName = (category: IncomeCategory) => {
-    const currentLang = localStorage.getItem('language') || 'en';
-    switch (currentLang) {
+    const lang = i18n.language;
+    switch (lang) {
       case 'de': return category.name_de;
       case 'tr': return category.name_tr;
       default: return category.name_en;
@@ -195,15 +195,6 @@ const IncomeCategoriesPage: React.FC = () => {
                       {t('incomeCategories.name')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      English
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Deutsch
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Türkçe
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       {t('incomeCategories.type')}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -217,21 +208,6 @@ const IncomeCategoriesPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {getCategoryName(category)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {category.name_en}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {category.name_de}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {category.name_tr}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
