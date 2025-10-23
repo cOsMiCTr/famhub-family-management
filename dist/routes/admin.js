@@ -12,6 +12,7 @@ const passwordService_1 = require("../services/passwordService");
 const notificationService_1 = require("../services/notificationService");
 const loginAttemptService_1 = require("../services/loginAttemptService");
 const router = express_1.default.Router();
+router.use(auth_1.authenticateToken);
 router.use(auth_1.requireAdmin);
 router.post('/users', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Valid email required'),

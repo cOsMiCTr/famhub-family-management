@@ -4,14 +4,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { asyncHandler, createValidationError, createNotFoundError, CustomError } from '../middleware/errorHandler';
-import { requireAdmin } from '../middleware/auth';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { PasswordService } from '../services/passwordService';
 import { NotificationService } from '../services/notificationService';
 import { LoginAttemptService } from '../services/loginAttemptService';
 
 const router = express.Router();
 
-// Apply admin middleware to all routes
+// Apply authentication and admin middleware to all routes
+router.use(authenticateToken);
 router.use(requireAdmin);
 
 // Create new user directly
