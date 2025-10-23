@@ -93,19 +93,23 @@ const initializeI18n = async () => {
     }
   };
 
-  i18n
-    .use(initReactI18next)
-    .init({
-      resources,
-      lng: currentLanguage,
-      fallbackLng: 'en',
-      
-      interpolation: {
-        escapeValue: false // react already does escaping
-      }
-    });
-
-  console.log('✅ i18n initialized with static translations');
+  // Initialize i18n and wait for it to complete
+  await new Promise<void>((resolve) => {
+    i18n
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng: currentLanguage,
+        fallbackLng: 'en',
+        
+        interpolation: {
+          escapeValue: false // react already does escaping
+        }
+      }, () => {
+        console.log('✅ i18n initialized with static translations');
+        resolve();
+      });
+  });
 
   // Try to upgrade to dynamic translations in the background
   try {
@@ -148,7 +152,8 @@ export const reloadTranslations = async () => {
   }
 };
 
-// Initialize i18n
-initializeI18n();
+// Initialize i18n and export the promise
+const i18nPromise = initializeI18n();
 
 export default i18n;
+export { i18nPromise };

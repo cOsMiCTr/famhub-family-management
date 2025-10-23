@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import './i18n';
+import { i18nPromise } from './i18n';
 
 // Components
 import LoginPage from './pages/LoginPage';
@@ -181,6 +181,21 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [i18nReady, setI18nReady] = useState(false);
+
+  useEffect(() => {
+    i18nPromise.then(() => {
+      setI18nReady(true);
+    }).catch((error) => {
+      console.error('Failed to initialize i18n:', error);
+      setI18nReady(true); // Still render the app even if i18n fails
+    });
+  }, []);
+
+  if (!i18nReady) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <ThemeProvider>
       <AuthProvider>
