@@ -18,6 +18,9 @@ import dashboardRoutes from './routes/dashboard';
 import settingsRoutes from './routes/settings';
 import exchangeRoutes from './routes/exchange';
 import translationRoutes from './routes/translations';
+import householdMembersRoutes from './routes/household-members';
+import incomeCategoriesRoutes from './routes/income-categories';
+import incomeRoutes from './routes/income';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -74,6 +77,9 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/exchange-rates', exchangeRoutes);
 app.use('/api/translations', translationRoutes);
+app.use('/api/household-members', householdMembersRoutes);
+app.use('/api/income-categories', incomeCategoriesRoutes);
+app.use('/api/income', incomeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

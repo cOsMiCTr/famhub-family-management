@@ -73,6 +73,22 @@ async function initializeDatabase() {
         finally {
             seedClient.release();
         }
+        const categoryClient = await exports.pool.connect();
+        try {
+            const categoryCount = await categoryClient.query('SELECT COUNT(*) as count FROM income_categories');
+            if (parseInt(categoryCount.rows[0].count) === 0) {
+                console.log('🌱 Seeding income categories...');
+                const { default: seedIncomeCategories } = await Promise.resolve().then(() => __importStar(require('../migrations/seedIncomeCategories')));
+                await seedIncomeCategories();
+                console.log('✅ Income categories seeded successfully');
+            }
+            else {
+                console.log('✅ Income categories are intact');
+            }
+        }
+        finally {
+            categoryClient.release();
+        }
     }
     catch (error) {
         console.error('❌ Database initialization failed:', error);
@@ -244,6 +260,60 @@ async function runMigrations() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS household_members (
+        id SERIAL PRIMARY KEY,
+        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        relationship VARCHAR(100),
+        date_of_birth DATE,
+        notes TEXT,
+        is_shared BOOLEAN DEFAULT false,
+        created_by_user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS income_categories (
+        id SERIAL PRIMARY KEY,
+        name_en VARCHAR(255) NOT NULL,
+        name_de VARCHAR(255) NOT NULL,
+        name_tr VARCHAR(255) NOT NULL,
+        is_default BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS income (
+        id SERIAL PRIMARY KEY,
+        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
+        household_member_id INTEGER REFERENCES household_members(id) ON DELETE SET NULL,
+        category_id INTEGER REFERENCES income_categories(id),
+        amount DECIMAL(15,2) NOT NULL,
+        currency VARCHAR(4) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        source_currency VARCHAR(4) CHECK (source_currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        description TEXT,
+        start_date DATE NOT NULL,
+        end_date DATE,
+        is_recurring BOOLEAN DEFAULT false,
+        frequency VARCHAR(20) CHECK (frequency IN ('monthly', 'weekly', 'yearly', 'one-time')),
+        created_by_user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS income_history (
+        id SERIAL PRIMARY KEY,
+        income_id INTEGER REFERENCES income(id) ON DELETE CASCADE,
+        changed_by_user_id INTEGER REFERENCES users(id),
+        change_type VARCHAR(20) CHECK (change_type IN ('created', 'updated', 'deleted')),
+        old_values JSONB,
+        new_values JSONB,
+        changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
         const addColumnIfNotExists = async (columnName, columnDefinition) => {
             try {
                 await client.query(`ALTER TABLE users ADD COLUMN ${columnName} ${columnDefinition}`);
@@ -267,6 +337,22 @@ async function runMigrations() {
         await addColumnIfNotExists('last_login_at', 'TIMESTAMP');
         await addColumnIfNotExists('last_activity_at', 'TIMESTAMP');
         await addColumnIfNotExists('password_history', 'TEXT[] DEFAULT ARRAY[]::TEXT[]');
+        const addColumnToTable = async (tableName, columnName, columnDefinition) => {
+            try {
+                await client.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}`);
+                console.log(`✅ Added column ${columnName} to ${tableName}`);
+            }
+            catch (error) {
+                if (error.code === '42701') {
+                    console.log(`ℹ️ Column ${columnName} in ${tableName} already exists`);
+                }
+                else {
+                    throw error;
+                }
+            }
+        };
+        await addColumnToTable('assets', 'household_member_id', 'INTEGER REFERENCES household_members(id) ON DELETE SET NULL');
+        await addColumnToTable('contracts', 'assigned_member_ids', 'INTEGER[] DEFAULT ARRAY[]::INTEGER[]');
         try {
             await client.query(`
         ALTER TABLE users 
