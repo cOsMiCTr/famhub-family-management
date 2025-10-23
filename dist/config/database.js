@@ -162,7 +162,7 @@ async function runMigrations() {
       CREATE TABLE IF NOT EXISTS login_attempts (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
-        user_id INTEGER REFERENCES users(id),
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         success BOOLEAN NOT NULL,
         ip_address VARCHAR(50),
         user_agent TEXT,
@@ -174,7 +174,7 @@ async function runMigrations() {
       CREATE TABLE IF NOT EXISTS admin_notifications (
         id SERIAL PRIMARY KEY,
         type VARCHAR(50) NOT NULL,
-        user_id INTEGER REFERENCES users(id),
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
         severity VARCHAR(20) DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'critical')),
@@ -216,6 +216,36 @@ async function runMigrations() {
             if (error.code !== '42710') {
                 throw error;
             }
+        }
+        try {
+            await client.query(`
+        ALTER TABLE login_attempts 
+        DROP CONSTRAINT IF EXISTS login_attempts_user_id_fkey
+      `);
+            await client.query(`
+        ALTER TABLE login_attempts 
+        ADD CONSTRAINT login_attempts_user_id_fkey 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      `);
+            console.log('✅ Updated login_attempts foreign key constraint');
+        }
+        catch (error) {
+            console.log('ℹ️ login_attempts foreign key constraint already updated or table does not exist');
+        }
+        try {
+            await client.query(`
+        ALTER TABLE admin_notifications 
+        DROP CONSTRAINT IF EXISTS admin_notifications_user_id_fkey
+      `);
+            await client.query(`
+        ALTER TABLE admin_notifications 
+        ADD CONSTRAINT admin_notifications_user_id_fkey 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      `);
+            console.log('✅ Updated admin_notifications foreign key constraint');
+        }
+        catch (error) {
+            console.log('ℹ️ admin_notifications foreign key constraint already updated or table does not exist');
         }
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_household ON users(household_id)`);
