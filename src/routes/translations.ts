@@ -142,19 +142,45 @@ router.put('/bulk', [
       continue;
     }
 
-    // Simple update with all fields
+    // Simple update with only provided fields
     try {
+      // Build dynamic update query to only update provided fields
+      const updates: string[] = [];
+      const params: any[] = [];
+      let paramCount = 1;
+
+      if (en !== undefined) {
+        updates.push(`en = $${paramCount}`);
+        params.push(en);
+        paramCount++;
+      }
+
+      if (de !== undefined) {
+        updates.push(`de = $${paramCount}`);
+        params.push(de);
+        paramCount++;
+      }
+
+      if (tr !== undefined) {
+        updates.push(`tr = $${paramCount}`);
+        params.push(tr);
+        paramCount++;
+      }
+
+      if (updates.length === 0) {
+        console.log(`No fields to update for translation ID ${translationId}`);
+        continue;
+      }
+
+      updates.push(`updated_at = CURRENT_TIMESTAMP`);
+      params.push(translationId);
+
       const result = await query(
         `UPDATE translations 
-         SET en = $1, de = $2, tr = $3, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = $4 
+         SET ${updates.join(', ')} 
+         WHERE id = $${paramCount} 
          RETURNING id, translation_key, category, en, de, tr, created_at, updated_at`,
-        [
-          en || '',
-          de || '',
-          tr || '',
-          translationId
-        ]
+        params
       );
 
       console.log(`✅ Updated translation ID ${translationId}:`, result.rows[0]);
