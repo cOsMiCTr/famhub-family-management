@@ -3,8 +3,12 @@ import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError, createNotFoundError } from '../middleware/errorHandler';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
 // Get asset categories
 router.get('/categories', asyncHandler(async (req, res) => {

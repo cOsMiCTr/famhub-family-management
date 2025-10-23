@@ -8,7 +8,9 @@ const express_validator_1 = require("express-validator");
 const database_1 = require("../config/database");
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+router.use(auth_1.authenticateToken);
 router.get('/categories', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const categoriesResult = await (0, database_1.query)('SELECT * FROM asset_categories ORDER BY is_default DESC, name_en ASC');
     res.json({

@@ -1,7 +1,11 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
 // Placeholder routes for contract management
 // These will be implemented in Phase 7

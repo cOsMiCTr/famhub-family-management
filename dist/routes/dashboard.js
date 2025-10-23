@@ -7,7 +7,9 @@ const express_1 = __importDefault(require("express"));
 const database_1 = require("../config/database");
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+router.use(auth_1.authenticateToken);
 router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (!req.user) {
         throw new Error('User not authenticated');

@@ -5,7 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const errorHandler_1 = require("../middleware/errorHandler");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+router.use(auth_1.authenticateToken);
 router.get('/categories', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     res.json({
         message: 'Contract categories endpoint - to be implemented',
