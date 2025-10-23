@@ -145,7 +145,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuc
                           name="current_password"
                           required
                           className="form-input pr-12"
-                          placeholder="Enter current password"
+                          placeholder={t('common.enterCurrentPassword')}
                           value={formData.current_password}
                           onChange={handleChange}
                         />
@@ -172,7 +172,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuc
                           name="new_password"
                           required
                           className="form-input pr-12"
-                          placeholder="Enter new password"
+                          placeholder={t('common.enterNewPassword')}
                           value={formData.new_password}
                           onChange={handleChange}
                         />
@@ -206,7 +206,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuc
                           name="confirm_password"
                           required
                           className="form-input pr-12"
-                          placeholder="Confirm new password"
+                          placeholder={t('common.confirmNewPassword')}
                           value={formData.confirm_password}
                           onChange={handleChange}
                         />

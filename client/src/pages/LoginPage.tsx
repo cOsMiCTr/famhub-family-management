@@ -167,7 +167,7 @@ const LoginPage: React.FC = () => {
                       autoComplete="email"
                       required
                       className="form-input w-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                      placeholder="Enter your email"
+                      placeholder={t('common.enterEmail')}
                       value={formData.email}
                       onChange={handleChange}
                     />
@@ -182,7 +182,7 @@ const LoginPage: React.FC = () => {
                         autoComplete="current-password"
                         required
                         className="form-input w-full px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                        placeholder="Enter your password"
+                        placeholder={t('common.enterPassword')}
                         value={formData.password}
                         onChange={handleChange}
                       />

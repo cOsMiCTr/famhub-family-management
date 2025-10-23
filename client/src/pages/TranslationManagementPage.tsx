@@ -224,7 +224,7 @@ const TranslationManagementPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Search
+              {t('common.search')}
             </label>
             <div className="relative">
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -234,14 +234,14 @@ const TranslationManagementPage: React.FC = () => {
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="form-input pl-10"
-                placeholder="Search English translations..."
+                placeholder={t('translations.searchPlaceholder')}
               />
             </div>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Category
+              {t('translations.category')}
             </label>
             <div className="relative">
               <FunnelIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -250,7 +250,7 @@ const TranslationManagementPage: React.FC = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="form-input pl-10"
               >
-                <option value="all">All Categories</option>
+                <option value="all">{t('translations.allCategories')}</option>
                 {categories.map(category => (
                   <option key={category} value={category}>
                     {category}
@@ -262,7 +262,7 @@ const TranslationManagementPage: React.FC = () => {
           
           <div className="flex items-end">
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              {translations.length} translations found
+              {translations.length} {t('translations.translationsFound')}
             </div>
           </div>
         </div>
@@ -321,7 +321,7 @@ const TranslationManagementPage: React.FC = () => {
                             : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'
                         } text-gray-900 dark:text-white`}
                         rows={2}
-                        placeholder="German translation..."
+                        placeholder={t('translations.germanPlaceholder')}
                       />
                       {isTranslationChanged(translation.id, 'de') && (
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
@@ -339,7 +339,7 @@ const TranslationManagementPage: React.FC = () => {
                             : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'
                         } text-gray-900 dark:text-white`}
                         rows={2}
-                        placeholder="Turkish translation..."
+                        placeholder={t('translations.turkishPlaceholder')}
                       />
                       {isTranslationChanged(translation.id, 'tr') && (
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
@@ -363,14 +363,14 @@ const TranslationManagementPage: React.FC = () => {
       {/* Instructions */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-          Instructions
+          {t('translations.instructions')}
         </h3>
         <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-          <li>• English translations are shown as reference and cannot be edited</li>
-          <li>• German and Turkish translations can be edited directly in the table</li>
-          <li>• Changed translations are highlighted in yellow</li>
+          <li>• {t('translations.instruction1')}</li>
+          <li>• {t('translations.instruction2')}</li>
+          <li>• {t('translations.instruction3')}</li>
           <li>• {t('translations.instruction4')}</li>
-          <li>• Changes are applied immediately and will be visible to all users</li>
+          <li>• {t('translations.instruction5')}</li>
         </ul>
       </div>
     </div>

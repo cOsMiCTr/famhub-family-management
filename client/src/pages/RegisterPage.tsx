@@ -224,7 +224,7 @@ const RegisterPage: React.FC = () => {
                           value={formData.password}
                           onChange={handleChange}
                           className="form-input pl-12 pr-12"
-                          placeholder="Enter your password"
+                          placeholder={t('common.enterPassword')}
                         />
                         <button
                           type="button"
@@ -256,7 +256,7 @@ const RegisterPage: React.FC = () => {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           className="form-input pl-12 pr-12"
-                          placeholder="Confirm your password"
+                          placeholder={t('common.confirmPassword')}
                         />
                         <button
                           type="button"

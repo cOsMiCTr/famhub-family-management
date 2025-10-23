@@ -226,7 +226,7 @@ Generated on: ${new Date().toLocaleString()}`;
                         name="email"
                         required
                         className="form-input"
-                        placeholder="user@example.com"
+                        placeholder={t('common.emailPlaceholder')}
                         value={formData.email}
                         onChange={handleChange}
                       />

@@ -441,7 +441,7 @@ const UserManagementPage: React.FC = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="form-input pl-10"
-                    placeholder="Search by email..."
+                    placeholder={t('common.searchByEmail')}
                   />
                 </div>
               </div>
@@ -907,7 +907,7 @@ const UserManagementPage: React.FC = () => {
                       value={householdForm.name}
                       onChange={(e) => setHouseholdForm({ name: e.target.value })}
                       className="form-input"
-                      placeholder="Enter household name..."
+                      placeholder={t('households.enterHouseholdName')}
                     />
                   </div>
                 </div>
@@ -955,7 +955,7 @@ const UserManagementPage: React.FC = () => {
                       value={householdForm.name}
                       onChange={(e) => setHouseholdForm({ name: e.target.value })}
                       className="form-input"
-                      placeholder="Enter household name..."
+                      placeholder={t('households.enterHouseholdName')}
                     />
                   </div>
                 </div>
