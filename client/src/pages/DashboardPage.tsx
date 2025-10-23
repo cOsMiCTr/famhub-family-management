@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatCurrency } from '../utils/formatters';
 import { 
   WalletIcon, 
   ChartBarIcon, 
@@ -66,27 +67,10 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number | undefined | null, currency: string) => {
-    if (amount === undefined || amount === null || isNaN(amount)) {
-      return 'N/A';
-    }
-    
-    const symbols: { [key: string]: string } = {
-      'USD': '$',
-      'EUR': '€',
-      'GBP': '£',
-      'TRY': '₺',
-      'GOLD': 'Au'
-    };
-    
-    const symbol = symbols[currency] || currency;
-    return `${symbol}${amount.toLocaleString()}`;
-  };
-
   const statsCards = [
     {
       title: t('dashboard.totalAssets'),
-      value: stats ? formatCurrency(stats.totalAssets, stats.currency || 'USD') : 'Loading...',
+      value: stats ? formatCurrency(stats.totalAssets || 0, stats.currency || 'USD') : 'Loading...',
       icon: WalletIcon,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
@@ -94,7 +78,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: t('dashboard.totalIncome'),
-      value: stats ? formatCurrency(stats.totalIncome, stats.currency || 'USD') : 'Loading...',
+      value: stats ? formatCurrency(stats.totalIncome || 0, stats.currency || 'USD') : 'Loading...',
       icon: CurrencyDollarIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
@@ -102,7 +86,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: 'Monthly Income',
-      value: stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...',
+      value: stats ? formatCurrency(stats.monthlyIncome || 0, stats.currency || 'USD') : 'Loading...',
       icon: ArrowTrendingUpIcon,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
@@ -230,7 +214,7 @@ const DashboardPage: React.FC = () => {
               <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">This Month's Income</span>
                 <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                  {stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...'}
+                  {stats ? formatCurrency(stats.monthlyIncome || 0, stats.currency || 'USD') : 'Loading...'}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
