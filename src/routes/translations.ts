@@ -54,71 +54,6 @@ router.get('/categories', asyncHandler(async (req, res) => {
   });
 }));
 
-// Update a single translation
-router.put('/:id', [
-  body('en').optional().isString().withMessage('English translation must be a string'),
-  body('de').optional().isString().withMessage('German translation must be a string'),
-  body('tr').optional().isString().withMessage('Turkish translation must be a string')
-], asyncHandler(async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    throw createValidationError('Invalid input data');
-  }
-
-  const { id } = req.params;
-  const { en, de, tr } = req.body;
-
-  // Check if translation exists
-  const existingTranslation = await query(
-    'SELECT id FROM translations WHERE id = $1',
-    [id]
-  );
-
-  if (existingTranslation.rows.length === 0) {
-    throw createNotFoundError('Translation');
-  }
-
-  // Build update query dynamically
-  const updates: string[] = [];
-  const params: any[] = [];
-  let paramCount = 1;
-
-  if (en !== undefined) {
-    updates.push(`en = $${paramCount}`);
-    params.push(en);
-    paramCount++;
-  }
-
-  if (de !== undefined) {
-    updates.push(`de = $${paramCount}`);
-    params.push(de);
-    paramCount++;
-  }
-
-  if (tr !== undefined) {
-    updates.push(`tr = $${paramCount}`);
-    params.push(tr);
-    paramCount++;
-  }
-
-  if (updates.length === 0) {
-    throw createValidationError('At least one translation field must be provided');
-  }
-
-  updates.push(`updated_at = CURRENT_TIMESTAMP`);
-  params.push(id);
-
-  const result = await query(
-    `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
-    params
-  );
-
-  res.json({
-    message: 'Translation updated successfully',
-    translation: result.rows[0]
-  });
-}));
-
 // Test endpoint to debug bulk update
 router.post('/test-bulk', asyncHandler(async (req, res) => {
   console.log('=== BULK UPDATE DEBUG ===');
@@ -165,7 +100,7 @@ router.post('/test-bulk', asyncHandler(async (req, res) => {
   res.json({ message: 'Debug test completed', translations: translations.length });
 }));
 
-// Bulk update translations
+// Bulk update translations - MUST come before /:id route
 router.put('/bulk', [
   body('translations').isArray().withMessage('Translations must be an array'),
   body('translations.*.id').isInt().withMessage('Translation ID must be an integer'),
@@ -236,6 +171,72 @@ router.put('/bulk', [
     translations: updatedTranslations
   });
 }));
+
+// Update a single translation
+router.put('/:id', [
+  body('en').optional().isString().withMessage('English translation must be a string'),
+  body('de').optional().isString().withMessage('German translation must be a string'),
+  body('tr').optional().isString().withMessage('Turkish translation must be a string')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  const { id } = req.params;
+  const { en, de, tr } = req.body;
+
+  // Check if translation exists
+  const existingTranslation = await query(
+    'SELECT id FROM translations WHERE id = $1',
+    [id]
+  );
+
+  if (existingTranslation.rows.length === 0) {
+    throw createNotFoundError('Translation');
+  }
+
+  // Build update query dynamically
+  const updates: string[] = [];
+  const params: any[] = [];
+  let paramCount = 1;
+
+  if (en !== undefined) {
+    updates.push(`en = $${paramCount}`);
+    params.push(en);
+    paramCount++;
+  }
+
+  if (de !== undefined) {
+    updates.push(`de = $${paramCount}`);
+    params.push(de);
+    paramCount++;
+  }
+
+  if (tr !== undefined) {
+    updates.push(`tr = $${paramCount}`);
+    params.push(tr);
+    paramCount++;
+  }
+
+  if (updates.length === 0) {
+    throw createValidationError('At least one translation field must be provided');
+  }
+
+  updates.push(`updated_at = CURRENT_TIMESTAMP`);
+  params.push(id);
+
+  const result = await query(
+    `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
+    params
+  );
+
+  res.json({
+    message: 'Translation updated successfully',
+    translation: result.rows[0]
+  });
+}));
+
 
 // Sync translations from database to JSON files (for development)
 router.post('/sync', asyncHandler(async (req, res) => {
