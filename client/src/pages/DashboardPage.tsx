@@ -8,7 +8,7 @@ import {
   ChartBarIcon, 
   DocumentTextIcon, 
   CurrencyDollarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   CalendarIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
@@ -82,7 +82,7 @@ const DashboardPage: React.FC = () => {
     {
       title: 'Monthly Income',
       value: stats ? formatCurrency(stats.monthlyIncome, stats.currency) : 'Loading...',
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
       textColor: 'text-green-600 dark:text-green-400'
