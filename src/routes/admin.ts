@@ -221,7 +221,7 @@ router.put('/users/:id', [
 
     await query(
       `INSERT INTO household_permissions (household_id, user_id, ${permissionFields.map(f => f.split(' = ')[0]).join(', ')})
-       VALUES ($${permParamCount++}, $${permParamCount++}, ${permissionFields.join(', ')})
+       VALUES ($${permParamCount++}, $${permParamCount++}, ${permissionFields.map(f => f.split(' = ')[1]).join(', ')})
        ON CONFLICT (household_id, user_id)
        DO UPDATE SET ${permissionFields.join(', ')}`,
       permissionValues
@@ -394,9 +394,9 @@ router.delete('/users/:id', asyncHandler(async (req, res) => {
     throw new CustomError('Cannot deactivate admin user', 400, 'CANNOT_DEACTIVATE_ADMIN');
   }
 
-  // Remove user from household and permissions
+  // Remove user from household and permissions, set status to locked
   await query(
-    'UPDATE users SET household_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+    'UPDATE users SET household_id = NULL, account_status = \'locked\', updated_at = CURRENT_TIMESTAMP WHERE id = $1',
     [id]
   );
 
@@ -407,6 +407,43 @@ router.delete('/users/:id', asyncHandler(async (req, res) => {
 
   res.json({
     message: 'User deactivated successfully'
+  });
+}));
+
+// Hard delete user (permanent deletion from all tables)
+router.delete('/users/:id/hard-delete', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Check if user exists and is not admin
+  const userResult = await query(
+    'SELECT id, email, role FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  if (userResult.rows[0].role === 'admin') {
+    throw new CustomError('Cannot delete admin user', 400, 'CANNOT_DELETE_ADMIN');
+  }
+
+  const userEmail = userResult.rows[0].email;
+
+  // Delete user and all related data (CASCADE will handle related records)
+  await query('DELETE FROM users WHERE id = $1', [id]);
+
+  // Create admin notification
+  await NotificationService.createAdminNotification(
+    'user_hard_deleted',
+    null, // No user_id since user is deleted
+    'User Permanently Deleted',
+    `User ${userEmail} has been permanently deleted from the system along with all their data.`,
+    'critical'
+  );
+
+  res.json({
+    message: 'User permanently deleted successfully'
   });
 }));
 

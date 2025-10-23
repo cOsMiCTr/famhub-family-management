@@ -146,7 +146,7 @@ router.put('/users/:id', [
         }
         permissionValues.push(household_id, id);
         await (0, database_1.query)(`INSERT INTO household_permissions (household_id, user_id, ${permissionFields.map(f => f.split(' = ')[0]).join(', ')})
-       VALUES ($${permParamCount++}, $${permParamCount++}, ${permissionFields.join(', ')})
+       VALUES ($${permParamCount++}, $${permParamCount++}, ${permissionFields.map(f => f.split(' = ')[1]).join(', ')})
        ON CONFLICT (household_id, user_id)
        DO UPDATE SET ${permissionFields.join(', ')}`, permissionValues);
     }
@@ -236,10 +236,26 @@ router.delete('/users/:id', (0, errorHandler_1.asyncHandler)(async (req, res) =>
     if (userResult.rows[0].role === 'admin') {
         throw new errorHandler_1.CustomError('Cannot deactivate admin user', 400, 'CANNOT_DEACTIVATE_ADMIN');
     }
-    await (0, database_1.query)('UPDATE users SET household_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1', [id]);
+    await (0, database_1.query)('UPDATE users SET household_id = NULL, account_status = \'locked\', updated_at = CURRENT_TIMESTAMP WHERE id = $1', [id]);
     await (0, database_1.query)('DELETE FROM household_permissions WHERE user_id = $1', [id]);
     res.json({
         message: 'User deactivated successfully'
+    });
+}));
+router.delete('/users/:id/hard-delete', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const userResult = await (0, database_1.query)('SELECT id, email, role FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('User');
+    }
+    if (userResult.rows[0].role === 'admin') {
+        throw new errorHandler_1.CustomError('Cannot delete admin user', 400, 'CANNOT_DELETE_ADMIN');
+    }
+    const userEmail = userResult.rows[0].email;
+    await (0, database_1.query)('DELETE FROM users WHERE id = $1', [id]);
+    await notificationService_1.NotificationService.createAdminNotification('user_hard_deleted', null, 'User Permanently Deleted', `User ${userEmail} has been permanently deleted from the system along with all their data.`, 'critical');
+    res.json({
+        message: 'User permanently deleted successfully'
     });
 }));
 router.post('/households', [

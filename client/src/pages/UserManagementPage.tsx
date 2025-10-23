@@ -60,6 +60,7 @@ const UserManagementPage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showHardDeleteModal, setShowHardDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Form states
@@ -148,6 +149,23 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
+  const handleHardDeleteUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.hardDeleteUser(selectedUser.id.toString());
+      setMessage('User permanently deleted successfully');
+      setShowHardDeleteModal(false);
+      loadData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to permanently delete user');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleResetPassword = async (userId: number) => {
     try {
       setIsSaving(true);
@@ -206,6 +224,11 @@ const UserManagementPage: React.FC = () => {
   const openDeleteModal = (user: User) => {
     setSelectedUser(user);
     setShowDeleteModal(true);
+  };
+
+  const openHardDeleteModal = (user: User) => {
+    setSelectedUser(user);
+    setShowHardDeleteModal(true);
   };
 
   const filteredUsers = users.filter(user => {
@@ -486,13 +509,22 @@ const UserManagementPage: React.FC = () => {
                           </button>
                           
                           {user.role !== 'admin' && (
-                            <button
-                              onClick={() => openDeleteModal(user)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              title="Deactivate User"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </button>
+                            <>
+                              <button
+                                onClick={() => openDeleteModal(user)}
+                                className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
+                                title="Deactivate User"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => openHardDeleteModal(user)}
+                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                title="Permanently Delete User"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>
@@ -657,6 +689,53 @@ const UserManagementPage: React.FC = () => {
                   type="button"
                   className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
                   onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hard Delete User Modal */}
+      {showHardDeleteModal && selectedUser && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowHardDeleteModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10">
+                    <TrashIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Permanently Delete User
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <strong>WARNING:</strong> Are you sure you want to permanently delete <strong>{selectedUser.email}</strong>? 
+                        This action will remove the user and ALL their data from the database. This action CANNOT be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="btn-danger sm:ml-3 sm:w-auto"
+                  onClick={handleHardDeleteUser}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <LoadingSpinner size="sm" /> : 'Permanently Delete'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
+                  onClick={() => setShowHardDeleteModal(false)}
                 >
                   Cancel
                 </button>

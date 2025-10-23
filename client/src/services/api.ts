@@ -203,6 +203,11 @@ class ApiService {
     return response.data;
   }
 
+  async hardDeleteUser(id: string) {
+    const response = await this.api.delete(`/admin/users/${id}/hard-delete`);
+    return response.data;
+  }
+
   async createUser(data: any) {
     const response = await this.api.post('/admin/users', data);
     return response.data;
