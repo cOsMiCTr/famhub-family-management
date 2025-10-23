@@ -290,6 +290,10 @@ const IncomePage: React.FC = () => {
   // Handle edit
   const handleEdit = (entry: IncomeEntry) => {
     setSelectedEntry(entry);
+    
+    // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as monthly
+    const effectiveFrequency = (entry.is_recurring && entry.frequency === 'one-time') ? 'monthly' : entry.frequency;
+    
     setFormData({
       household_member_id: entry.household_member_id.toString(),
       category_id: entry.category_id.toString(),
@@ -299,7 +303,7 @@ const IncomePage: React.FC = () => {
       start_date: entry.start_date,
       end_date: entry.end_date || '',
       is_recurring: entry.is_recurring,
-      frequency: entry.frequency
+      frequency: effectiveFrequency
     });
     setShowEditModal(true);
   };
@@ -312,14 +316,6 @@ const IncomePage: React.FC = () => {
 
   // Get frequency display name and styling
   const getFrequencyDisplay = useCallback((entry: IncomeEntry) => {
-    // Debug logging to see what's happening
-    console.log('Frequency debug:', {
-      id: entry.id,
-      frequency: entry.frequency,
-      is_recurring: entry.is_recurring,
-      description: entry.description
-    });
-
     const frequencyMap: { [key: string]: string } = {
       'monthly': t('income.monthly'),
       'weekly': t('income.weekly'),
@@ -327,15 +323,20 @@ const IncomePage: React.FC = () => {
       'one-time': t('income.oneTime')
     };
 
-    const displayText = frequencyMap[entry.frequency] || entry.frequency;
+    // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as monthly
+    const effectiveFrequency = (entry.is_recurring && entry.frequency === 'one-time') ? 'monthly' : entry.frequency;
+    const displayText = frequencyMap[effectiveFrequency] || effectiveFrequency;
     
     // Different colors for different frequency types
     const getFrequencyStyle = (frequency: string, isRecurring: boolean) => {
+      // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as recurring
+      const effectiveFrequency = (isRecurring && frequency === 'one-time') ? 'monthly' : frequency;
+      
       if (!isRecurring) {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
       }
       
-      switch (frequency) {
+      switch (effectiveFrequency) {
         case 'monthly':
           return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
         case 'weekly':
