@@ -62,7 +62,7 @@ interface IncomeSummary {
 }
 
 const IncomePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
   const [categories, setCategories] = useState<IncomeCategory[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
@@ -337,8 +337,7 @@ const IncomePage: React.FC = () => {
   };
 
   // Get category name for dropdown options
-  const getCategoryDisplayName = (category: IncomeCategory) => {
-    const { i18n } = useTranslation();
+  const getCategoryDisplayName = useCallback((category: IncomeCategory) => {
     const lang = i18n.language;
     
     switch (lang) {
@@ -349,7 +348,7 @@ const IncomePage: React.FC = () => {
       default:
         return category.name_en;
     }
-  };
+  }, [i18n.language]);
 
   if (loading) {
     return <LoadingSpinner />;
