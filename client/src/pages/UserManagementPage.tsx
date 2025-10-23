@@ -63,6 +63,13 @@ const UserManagementPage: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showHardDeleteModal, setShowHardDeleteModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  // Household modal states
+  const [showCreateHouseholdModal, setShowCreateHouseholdModal] = useState(false);
+  const [showEditHouseholdModal, setShowEditHouseholdModal] = useState(false);
+  const [showDeleteHouseholdModal, setShowDeleteHouseholdModal] = useState(false);
+  const [selectedHousehold, setSelectedHousehold] = useState<Household | null>(null);
+  const [householdForm, setHouseholdForm] = useState({ name: '' });
 
   // Form states
   const [editForm, setEditForm] = useState({
@@ -246,6 +253,70 @@ const UserManagementPage: React.FC = () => {
     setShowHardDeleteModal(true);
   };
 
+  // Household handlers
+  const handleCreateHousehold = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.createHousehold(householdForm);
+      setMessage('Household created successfully');
+      setShowCreateHouseholdModal(false);
+      setHouseholdForm({ name: '' });
+      loadData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to create household');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditHousehold = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedHousehold) return;
+
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.updateHousehold(selectedHousehold.id.toString(), householdForm);
+      setMessage('Household updated successfully');
+      setShowEditHouseholdModal(false);
+      loadData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to update household');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteHousehold = async () => {
+    if (!selectedHousehold) return;
+
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.deleteHousehold(selectedHousehold.id.toString());
+      setMessage('Household deleted successfully');
+      setShowDeleteHouseholdModal(false);
+      loadData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to delete household');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openEditHouseholdModal = (household: Household) => {
+    setSelectedHousehold(household);
+    setHouseholdForm({ name: household.name });
+    setShowEditHouseholdModal(true);
+  };
+
+  const openDeleteHouseholdModal = (household: Household) => {
+    setSelectedHousehold(household);
+    setShowDeleteHouseholdModal(true);
+  };
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
@@ -292,16 +363,26 @@ const UserManagementPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Manage users, reset passwords, and monitor account status
+            Manage users, households, and permissions
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Create User
-        </button>
+        {activeTab === 'users' ? (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn-primary flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Create User
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowCreateHouseholdModal(true)}
+            className="btn-primary flex items-center bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Create Household
+          </button>
+        )}
       </div>
 
       {/* Messages */}
@@ -555,29 +636,73 @@ const UserManagementPage: React.FC = () => {
       {/* Households Tab */}
       {activeTab === 'households' && (
         <div className="space-y-4">
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Household Management
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Household management features will be available in a future update.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {households.map((household) => (
-                <div key={household.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <HomeIcon className="h-8 w-8 text-blue-500 mr-3" />
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
-                        {household.name}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        ID: {household.id}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Household Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Members
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {households.map((household: any) => (
+                    <tr key={household.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <HomeIcon className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {household.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              ID: {household.id}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                          {household.member_count || 0} members
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(household.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-3">
+                          <button
+                            onClick={() => openEditHouseholdModal(household)}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            title="Edit Household"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteHouseholdModal(household)}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            title="Delete Household"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -751,6 +876,149 @@ const UserManagementPage: React.FC = () => {
                   type="button"
                   className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
                   onClick={() => setShowHardDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Household Modal */}
+      {showCreateHouseholdModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowCreateHouseholdModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleCreateHousehold}>
+                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    Create New Household
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Household Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={householdForm.name}
+                      onChange={(e) => setHouseholdForm({ name: e.target.value })}
+                      className="form-input"
+                      placeholder="Enter household name..."
+                    />
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    className="btn-primary sm:ml-3 sm:w-auto"
+                    disabled={isSaving}
+                  >
+                    {isSaving ? <LoadingSpinner size="sm" /> : 'Create Household'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
+                    onClick={() => setShowCreateHouseholdModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Household Modal */}
+      {showEditHouseholdModal && selectedHousehold && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowEditHouseholdModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleEditHousehold}>
+                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    Edit Household
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Household Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={householdForm.name}
+                      onChange={(e) => setHouseholdForm({ name: e.target.value })}
+                      className="form-input"
+                      placeholder="Enter household name..."
+                    />
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    className="btn-primary sm:ml-3 sm:w-auto"
+                    disabled={isSaving}
+                  >
+                    {isSaving ? <LoadingSpinner size="sm" /> : 'Update Household'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
+                    onClick={() => setShowEditHouseholdModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Household Modal */}
+      {showDeleteHouseholdModal && selectedHousehold && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowDeleteHouseholdModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10">
+                    <TrashIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                      Delete Household
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Are you sure you want to delete <strong>{selectedHousehold.name}</strong>? 
+                        This action cannot be undone. Note: You cannot delete a household that has members.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="btn-danger sm:ml-3 sm:w-auto"
+                  onClick={handleDeleteHousehold}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <LoadingSpinner size="sm" /> : 'Delete Household'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary mt-3 sm:mt-0 sm:w-auto"
+                  onClick={() => setShowDeleteHouseholdModal(false)}
                 >
                   Cancel
                 </button>

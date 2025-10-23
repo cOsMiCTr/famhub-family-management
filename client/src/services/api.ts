@@ -257,6 +257,11 @@ class ApiService {
     return response.data;
   }
 
+  async getAdminDashboardStats() {
+    const response = await this.api.get('/admin/dashboard-stats');
+    return response.data;
+  }
+
   async getUserLoginHistory(limit: number = 50) {
     const response = await this.api.get('/user/login-history', { params: { limit } });
     return response.data;
@@ -279,6 +284,11 @@ class ApiService {
 
   async updateHousehold(id: string, data: any) {
     const response = await this.api.put(`/admin/households/${id}`, data);
+    return response.data;
+  }
+
+  async deleteHousehold(id: string) {
+    const response = await this.api.delete(`/admin/households/${id}`);
     return response.data;
   }
 

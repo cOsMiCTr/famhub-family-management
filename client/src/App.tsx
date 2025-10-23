@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import AssetsPage from './pages/AssetsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
 import Layout from './components/Layout';
@@ -118,6 +119,16 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <AdminDashboardPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/users"
           element={
             <ProtectedRoute requireAdmin>
@@ -133,6 +144,19 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <AdminSecurityDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/translations"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <div className="p-6 text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Translation Management</h2>
+                  <p className="text-gray-600 dark:text-gray-400">Coming soon...</p>
+                </div>
               </Layout>
             </ProtectedRoute>
           }

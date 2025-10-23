@@ -15,7 +15,9 @@ import {
   XMarkIcon,
   ArrowRightOnRectangleIcon,
   UserIcon,
-  LanguageIcon
+  LanguageIcon,
+  ChartBarIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -47,7 +49,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Admin-only navigation items
   const adminNavigation = [
+    { name: 'Admin Dashboard', href: '/admin/dashboard', icon: ChartBarIcon },
     { name: t('admin.userManagement'), href: '/admin/users', icon: UserGroupIcon },
+    { name: 'Security Dashboard', href: '/admin/security', icon: ShieldCheckIcon },
+    { name: 'Translations', href: '/admin/translations', icon: LanguageIcon },
   ];
 
   const languages = [

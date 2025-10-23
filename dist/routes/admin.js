@@ -86,7 +86,9 @@ router.delete('/invitations/:id', (0, errorHandler_1.asyncHandler)(async (req, r
     });
 }));
 router.get('/users', (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const usersResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, u.created_at,
+    const usersResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, 
+            u.account_status, u.last_login_at, u.last_activity_at, u.failed_login_attempts,
+            u.account_locked_until, u.must_change_password, u.created_at, u.updated_at,
             h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
@@ -373,6 +375,120 @@ router.get('/security-dashboard', (0, errorHandler_1.asyncHandler)(async (req, r
         recent_failed_attempts: recentFailedAttempts,
         locked_accounts: lockedAccounts.rows,
         pending_password_changes: pendingPasswordChanges.rows
+    });
+}));
+router.get('/households', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const householdsResult = await (0, database_1.query)(`SELECT h.id, h.name, h.created_at, h.updated_at,
+            COUNT(u.id) as member_count,
+            h.created_by_admin_id
+     FROM households h
+     LEFT JOIN users u ON u.household_id = h.id
+     GROUP BY h.id, h.name, h.created_at, h.updated_at, h.created_by_admin_id
+     ORDER BY h.created_at DESC`);
+    res.json({
+        households: householdsResult.rows
+    });
+}));
+router.post('/households', [
+    (0, express_validator_1.body)('name').trim().notEmpty().withMessage('Household name is required')
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        throw (0, errorHandler_1.createValidationError)('Invalid input data');
+    }
+    const { name } = req.body;
+    const adminId = req.user.id;
+    const result = await (0, database_1.query)('INSERT INTO households (name, created_by_admin_id, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP) RETURNING *', [name, adminId]);
+    res.status(201).json({
+        message: 'Household created successfully',
+        household: result.rows[0]
+    });
+}));
+router.put('/households/:id', [
+    (0, express_validator_1.body)('name').trim().notEmpty().withMessage('Household name is required')
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        throw (0, errorHandler_1.createValidationError)('Invalid input data');
+    }
+    const { id } = req.params;
+    const { name } = req.body;
+    const householdResult = await (0, database_1.query)('SELECT id FROM households WHERE id = $1', [id]);
+    if (householdResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('Household');
+    }
+    const result = await (0, database_1.query)('UPDATE households SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *', [name, id]);
+    res.json({
+        message: 'Household updated successfully',
+        household: result.rows[0]
+    });
+}));
+router.delete('/households/:id', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const householdResult = await (0, database_1.query)('SELECT id, name FROM households WHERE id = $1', [id]);
+    if (householdResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('Household');
+    }
+    const membersResult = await (0, database_1.query)('SELECT COUNT(*) as count FROM users WHERE household_id = $1', [id]);
+    const memberCount = parseInt(membersResult.rows[0].count);
+    if (memberCount > 0) {
+        throw new errorHandler_1.CustomError(`Cannot delete household. It has ${memberCount} member(s). Please reassign or remove users first.`, 400, 'HOUSEHOLD_HAS_MEMBERS');
+    }
+    await (0, database_1.query)('DELETE FROM households WHERE id = $1', [id]);
+    res.json({
+        message: 'Household deleted successfully'
+    });
+}));
+router.get('/households/:id/members', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const membersResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.created_at, u.account_status
+     FROM users u
+     WHERE u.household_id = $1
+     ORDER BY u.created_at DESC`, [id]);
+    res.json({
+        members: membersResult.rows
+    });
+}));
+router.get('/dashboard-stats', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const [usersCount, householdsCount, contractsCount, assetsCount, activeUsersCount, userGrowthData, recentActivity] = await Promise.all([
+        (0, database_1.query)('SELECT COUNT(*) as count FROM users'),
+        (0, database_1.query)('SELECT COUNT(*) as count FROM households'),
+        (0, database_1.query)('SELECT COUNT(*) as count FROM contracts'),
+        (0, database_1.query)('SELECT COUNT(*) as count FROM assets'),
+        (0, database_1.query)(`SELECT COUNT(*) as count FROM users WHERE last_activity_at > NOW() - INTERVAL '7 days'`),
+        (0, database_1.query)(`
+      SELECT 
+        COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent_count,
+        COUNT(CASE WHEN created_at BETWEEN NOW() - INTERVAL '60 days' AND NOW() - INTERVAL '30 days' THEN 1 END) as previous_count
+      FROM users
+    `),
+        (0, database_1.query)(`
+      SELECT 
+        la.created_at as timestamp,
+        la.email as user_email,
+        CASE 
+          WHEN la.success = true THEN 'Successful login'
+          ELSE 'Failed login attempt'
+        END as description,
+        'login' as type
+      FROM login_attempts la
+      ORDER BY la.created_at DESC
+      LIMIT 10
+    `)
+    ]);
+    const recentCount = parseInt(userGrowthData.rows[0].recent_count) || 0;
+    const previousCount = parseInt(userGrowthData.rows[0].previous_count) || 0;
+    const userGrowth = previousCount > 0
+        ? (((recentCount - previousCount) / previousCount) * 100).toFixed(1)
+        : 0;
+    res.json({
+        totalUsers: parseInt(usersCount.rows[0].count),
+        totalHouseholds: parseInt(householdsCount.rows[0].count),
+        totalContracts: parseInt(contractsCount.rows[0].count),
+        totalAssets: parseInt(assetsCount.rows[0].count),
+        activeUsers: parseInt(activeUsersCount.rows[0].count),
+        userGrowth: parseFloat(userGrowth),
+        recentActivity: recentActivity.rows
     });
 }));
 exports.default = router;

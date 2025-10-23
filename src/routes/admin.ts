@@ -621,4 +621,195 @@ router.get('/security-dashboard', asyncHandler(async (req, res) => {
   });
 }));
 
+// Household management endpoints
+
+// Get all households with member counts
+router.get('/households', asyncHandler(async (req, res) => {
+  const householdsResult = await query(
+    `SELECT h.id, h.name, h.created_at, h.updated_at,
+            COUNT(u.id) as member_count,
+            h.created_by_admin_id
+     FROM households h
+     LEFT JOIN users u ON u.household_id = h.id
+     GROUP BY h.id, h.name, h.created_at, h.updated_at, h.created_by_admin_id
+     ORDER BY h.created_at DESC`
+  );
+
+  res.json({
+    households: householdsResult.rows
+  });
+}));
+
+// Create household
+router.post('/households', [
+  body('name').trim().notEmpty().withMessage('Household name is required')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  const { name } = req.body;
+  const adminId = req.user!.id;
+
+  const result = await query(
+    'INSERT INTO households (name, created_by_admin_id, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP) RETURNING *',
+    [name, adminId]
+  );
+
+  res.status(201).json({
+    message: 'Household created successfully',
+    household: result.rows[0]
+  });
+}));
+
+// Update household
+router.put('/households/:id', [
+  body('name').trim().notEmpty().withMessage('Household name is required')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const householdResult = await query(
+    'SELECT id FROM households WHERE id = $1',
+    [id]
+  );
+
+  if (householdResult.rows.length === 0) {
+    throw createNotFoundError('Household');
+  }
+
+  const result = await query(
+    'UPDATE households SET name = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+    [name, id]
+  );
+
+  res.json({
+    message: 'Household updated successfully',
+    household: result.rows[0]
+  });
+}));
+
+// Delete household
+router.delete('/households/:id', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Check if household exists
+  const householdResult = await query(
+    'SELECT id, name FROM households WHERE id = $1',
+    [id]
+  );
+
+  if (householdResult.rows.length === 0) {
+    throw createNotFoundError('Household');
+  }
+
+  // Check if household has members
+  const membersResult = await query(
+    'SELECT COUNT(*) as count FROM users WHERE household_id = $1',
+    [id]
+  );
+
+  const memberCount = parseInt(membersResult.rows[0].count);
+
+  if (memberCount > 0) {
+    throw new CustomError(
+      `Cannot delete household. It has ${memberCount} member(s). Please reassign or remove users first.`,
+      400,
+      'HOUSEHOLD_HAS_MEMBERS'
+    );
+  }
+
+  // Delete household
+  await query('DELETE FROM households WHERE id = $1', [id]);
+
+  res.json({
+    message: 'Household deleted successfully'
+  });
+}));
+
+// Get household members
+router.get('/households/:id/members', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const membersResult = await query(
+    `SELECT u.id, u.email, u.role, u.created_at, u.account_status
+     FROM users u
+     WHERE u.household_id = $1
+     ORDER BY u.created_at DESC`,
+    [id]
+  );
+
+  res.json({
+    members: membersResult.rows
+  });
+}));
+
+// Admin dashboard statistics
+router.get('/dashboard-stats', asyncHandler(async (req, res) => {
+  const [
+    usersCount,
+    householdsCount,
+    contractsCount,
+    assetsCount,
+    activeUsersCount,
+    userGrowthData,
+    recentActivity
+  ] = await Promise.all([
+    // Total users
+    query('SELECT COUNT(*) as count FROM users'),
+    // Total households
+    query('SELECT COUNT(*) as count FROM households'),
+    // Total contracts
+    query('SELECT COUNT(*) as count FROM contracts'),
+    // Total assets
+    query('SELECT COUNT(*) as count FROM assets'),
+    // Active users (last 7 days)
+    query(`SELECT COUNT(*) as count FROM users WHERE last_activity_at > NOW() - INTERVAL '7 days'`),
+    // User growth (last 30 days vs previous 30 days)
+    query(`
+      SELECT 
+        COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as recent_count,
+        COUNT(CASE WHEN created_at BETWEEN NOW() - INTERVAL '60 days' AND NOW() - INTERVAL '30 days' THEN 1 END) as previous_count
+      FROM users
+    `),
+    // Recent activity (from login_attempts)
+    query(`
+      SELECT 
+        la.created_at as timestamp,
+        la.email as user_email,
+        CASE 
+          WHEN la.success = true THEN 'Successful login'
+          ELSE 'Failed login attempt'
+        END as description,
+        'login' as type
+      FROM login_attempts la
+      ORDER BY la.created_at DESC
+      LIMIT 10
+    `)
+  ]);
+
+  // Calculate user growth percentage
+  const recentCount = parseInt(userGrowthData.rows[0].recent_count) || 0;
+  const previousCount = parseInt(userGrowthData.rows[0].previous_count) || 0;
+  const userGrowth = previousCount > 0 
+    ? (((recentCount - previousCount) / previousCount) * 100).toFixed(1)
+    : 0;
+
+  res.json({
+    totalUsers: parseInt(usersCount.rows[0].count),
+    totalHouseholds: parseInt(householdsCount.rows[0].count),
+    totalContracts: parseInt(contractsCount.rows[0].count),
+    totalAssets: parseInt(assetsCount.rows[0].count),
+    activeUsers: parseInt(activeUsersCount.rows[0].count),
+    userGrowth: parseFloat(userGrowth as string),
+    recentActivity: recentActivity.rows
+  });
+}));
+
 export default router;
