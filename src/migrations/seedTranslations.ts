@@ -66,6 +66,7 @@ const seedTranslations = async () => {
       { key: 'dashboard.quickStats', category: 'dashboard', en: 'Quick Stats', de: 'Schnelle Statistiken', tr: 'Hızlı İstatistikler' },
       { key: 'dashboard.incomeEntries', category: 'dashboard', en: 'Income Entries', de: 'Einkommenseinträge', tr: 'Gelir Girişleri' },
       { key: 'dashboard.expenseEntries', category: 'dashboard', en: 'Expense Entries', de: 'Ausgabeneinträge', tr: 'Gider Girişleri' },
+      { key: 'dashboard.activeContracts', category: 'dashboard', en: 'Active Contracts', de: 'Aktive Verträge', tr: 'Aktif Sözleşmeler' },
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },
