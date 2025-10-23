@@ -173,9 +173,9 @@ const TranslationManagementPage: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Translation Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('translations.title')}</h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Manage translations for English, German, and Turkish
+            {t('translations.manageTranslations')}
           </p>
         </div>
         
