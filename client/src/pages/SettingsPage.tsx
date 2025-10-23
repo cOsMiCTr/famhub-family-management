@@ -311,9 +311,9 @@ const SettingsPage: React.FC = () => {
       {activeTab === 'preferences' && (
         <div className="space-y-6">
           <form onSubmit={handleSaveSettings} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
               {/* Language & Currency Card */}
-              <div className="card hover-lift animate-fadeIn">
+              <div className="flex-1 card hover-lift animate-fadeIn">
                 <div className="card-header">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                     <LanguageIcon className="h-5 w-5 mr-2 text-green-500" />
@@ -364,7 +364,7 @@ const SettingsPage: React.FC = () => {
               </div>
 
               {/* Display Preferences Card */}
-              <div className="card hover-lift animate-fadeIn">
+              <div className="flex-1 card hover-lift animate-fadeIn">
                 <div className="card-header">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                     <CurrencyDollarIcon className="h-5 w-5 mr-2 text-purple-500" />
@@ -374,20 +374,22 @@ const SettingsPage: React.FC = () => {
                 <div className="card-body">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div>
+                      <div className="flex-1">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white">Dark Mode</h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark themes</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="dark_mode"
-                          checked={settings.dark_mode}
-                          onChange={handleSettingsChange}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                      </label>
+                      <div className="flex-shrink-0 ml-4">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="dark_mode"
+                            checked={settings.dark_mode}
+                            onChange={handleSettingsChange}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
