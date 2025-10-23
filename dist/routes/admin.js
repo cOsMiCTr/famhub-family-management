@@ -450,6 +450,11 @@ router.get('/households/:id/members', (0, errorHandler_1.asyncHandler)(async (re
     });
 }));
 router.get('/dashboard-stats', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const selectedDate = req.query.date || '';
+    const activityFilter = req.query.filter || 'all';
+    const itemsPerPage = 10;
+    const offset = (page - 1) * itemsPerPage;
     const [usersCount, householdsCount, contractsCount, assetsCount, activeUsersCount, userGrowthData, recentActivity] = await Promise.all([
         (0, database_1.query)('SELECT COUNT(*) as count FROM users'),
         (0, database_1.query)('SELECT COUNT(*) as count FROM households'),
@@ -470,11 +475,18 @@ router.get('/dashboard-stats', (0, errorHandler_1.asyncHandler)(async (req, res)
           WHEN la.success = true THEN 'Successful login'
           ELSE 'Failed login attempt'
         END as description,
-        'login' as type
+        CASE 
+          WHEN la.success = true THEN 'login'
+          ELSE 'failed_login'
+        END as type
       FROM login_attempts la
+      WHERE ($1 = '' OR DATE(la.created_at) = $1::date)
+        AND ($2 = 'all' OR 
+             ($2 = 'login' AND la.success = true) OR 
+             ($2 = 'failed_login' AND la.success = false))
       ORDER BY la.created_at DESC
-      LIMIT 10
-    `)
+      LIMIT $3 OFFSET $4
+    `, [selectedDate, activityFilter, itemsPerPage, offset])
     ]);
     const recentCount = parseInt(userGrowthData.rows[0].recent_count) || 0;
     const previousCount = parseInt(userGrowthData.rows[0].previous_count) || 0;
@@ -488,7 +500,13 @@ router.get('/dashboard-stats', (0, errorHandler_1.asyncHandler)(async (req, res)
         totalAssets: parseInt(assetsCount.rows[0].count),
         activeUsers: parseInt(activeUsersCount.rows[0].count),
         userGrowth: parseFloat(userGrowth),
-        recentActivity: recentActivity.rows
+        recentActivity: recentActivity.rows,
+        pagination: {
+            currentPage: page,
+            itemsPerPage,
+            totalItems: recentActivity.rows.length,
+            hasNextPage: recentActivity.rows.length === itemsPerPage
+        }
     });
 }));
 exports.default = router;

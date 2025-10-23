@@ -18,6 +18,7 @@ const contracts_1 = __importDefault(require("./routes/contracts"));
 const dashboard_1 = __importDefault(require("./routes/dashboard"));
 const settings_1 = __importDefault(require("./routes/settings"));
 const exchange_1 = __importDefault(require("./routes/exchange"));
+const translations_1 = __importDefault(require("./routes/translations"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const database_1 = require("./config/database");
 const app = (0, express_1.default)();
@@ -55,6 +56,7 @@ app.use('/api/contracts', contracts_1.default);
 app.use('/api/dashboard', dashboard_1.default);
 app.use('/api/settings', settings_1.default);
 app.use('/api/exchange-rates', exchange_1.default);
+app.use('/api/translations', translations_1.default);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
