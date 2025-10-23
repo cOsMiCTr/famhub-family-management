@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { reloadTranslations } from '../i18n';
 import { 
   UserIcon, 
   LanguageIcon, 
@@ -104,6 +105,8 @@ const SettingsPage: React.FC = () => {
       // Update language if changed
       if (settings.preferred_language !== i18n.language) {
         i18n.changeLanguage(settings.preferred_language);
+        // Reload translations for the new language
+        await reloadTranslations();
       }
       
       setMessage('Settings updated successfully!');

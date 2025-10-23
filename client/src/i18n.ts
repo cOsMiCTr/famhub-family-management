@@ -1,20 +1,40 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Import translation files
-import enTranslation from './locales/en/translation.json';
-import deTranslation from './locales/de/translation.json';
-import trTranslation from './locales/tr/translation.json';
-
-const resources = {
-  en: {
-    translation: enTranslation
-  },
-  de: {
-    translation: deTranslation
-  },
-  tr: {
-    translation: trTranslation
+// API service for fetching translations
+const fetchTranslations = async (language: string) => {
+  try {
+    const response = await fetch('/api/translations');
+    if (!response.ok) {
+      throw new Error('Failed to fetch translations');
+    }
+    const translations = await response.json();
+    
+    // Convert flat translations to nested object
+    const nestedTranslations: any = {};
+    translations.forEach((translation: any) => {
+      const keys = translation.translation_key.split('.');
+      let current = nestedTranslations;
+      
+      // Navigate/create nested structure
+      for (let i = 0; i < keys.length - 1; i++) {
+        const key = keys[i];
+        if (!current[key]) {
+          current[key] = {};
+        }
+        current = current[key];
+      }
+      
+      // Set the final value
+      const finalKey = keys[keys.length - 1];
+      current[finalKey] = translation[language] || translation.en;
+    });
+    
+    return nestedTranslations;
+  } catch (error) {
+    console.error('Error fetching translations:', error);
+    // Fallback to static translations
+    return await import(`./locales/${language}/translation.json`);
   }
 };
 
@@ -43,16 +63,100 @@ const getSavedLanguage = () => {
   return 'en';
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: getSavedLanguage(), // Use saved language or default to 'en'
-    fallbackLng: 'en',
+// Initialize i18n with dynamic loading
+const initializeI18n = async () => {
+  const currentLanguage = getSavedLanguage();
+  
+  try {
+    // Load translations for all languages
+    const [enTranslations, deTranslations, trTranslations] = await Promise.all([
+      fetchTranslations('en'),
+      fetchTranslations('de'),
+      fetchTranslations('tr')
+    ]);
+
+    const resources = {
+      en: {
+        translation: enTranslations
+      },
+      de: {
+        translation: deTranslations
+      },
+      tr: {
+        translation: trTranslations
+      }
+    };
+
+    await i18n
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng: currentLanguage,
+        fallbackLng: 'en',
+        
+        interpolation: {
+          escapeValue: false // react already does escaping
+        }
+      });
+
+    console.log('✅ i18n initialized with dynamic translations');
+  } catch (error) {
+    console.error('❌ Failed to initialize i18n with dynamic translations, falling back to static:', error);
     
-    interpolation: {
-      escapeValue: false // react already does escaping
-    }
-  });
+    // Fallback to static translations
+    const enTranslation = await import('./locales/en/translation.json');
+    const deTranslation = await import('./locales/de/translation.json');
+    const trTranslation = await import('./locales/tr/translation.json');
+
+    const resources = {
+      en: {
+        translation: enTranslation.default
+      },
+      de: {
+        translation: deTranslation.default
+      },
+      tr: {
+        translation: trTranslation.default
+      }
+    };
+
+    await i18n
+      .use(initReactI18next)
+      .init({
+        resources,
+        lng: currentLanguage,
+        fallbackLng: 'en',
+        
+        interpolation: {
+          escapeValue: false
+        }
+      });
+  }
+};
+
+// Function to reload translations (call this after translation updates)
+export const reloadTranslations = async () => {
+  const currentLanguage = i18n.language;
+  
+  try {
+    const [enTranslations, deTranslations, trTranslations] = await Promise.all([
+      fetchTranslations('en'),
+      fetchTranslations('de'),
+      fetchTranslations('tr')
+    ]);
+
+    // Update i18n resources
+    i18n.addResourceBundle('en', 'translation', enTranslations, true, true);
+    i18n.addResourceBundle('de', 'translation', deTranslations, true, true);
+    i18n.addResourceBundle('tr', 'translation', trTranslations, true, true);
+
+    console.log('✅ Translations reloaded from database');
+  } catch (error) {
+    console.error('❌ Failed to reload translations:', error);
+  }
+};
+
+// Initialize i18n
+initializeI18n();
 
 export default i18n;

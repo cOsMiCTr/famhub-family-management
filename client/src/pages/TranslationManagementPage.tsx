@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { reloadTranslations } from '../i18n';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -129,6 +130,9 @@ const TranslationManagementPage: React.FC = () => {
       
       // Reload translations to get updated data
       loadTranslations();
+      
+      // Reload i18n translations to update the frontend immediately
+      await reloadTranslations();
       
       setTimeout(() => setMessage(''), 3000);
     } catch (err: any) {
