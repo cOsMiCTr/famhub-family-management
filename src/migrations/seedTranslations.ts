@@ -69,6 +69,12 @@ const seedTranslations = async () => {
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },
+      { key: 'admin.adminDashboard', category: 'admin', en: 'Admin Dashboard', de: 'Admin-Dashboard', tr: 'Yönetici Paneli' },
+      { key: 'admin.systemStatistics', category: 'admin', en: 'System Statistics', de: 'Systemstatistiken', tr: 'Sistem İstatistikleri' },
+      { key: 'admin.usersHouseholds', category: 'admin', en: 'Users & Households', de: 'Benutzer & Haushalte', tr: 'Kullanıcılar ve Haneler' },
+      { key: 'admin.monitorSecurity', category: 'admin', en: 'Monitor Security', de: 'Sicherheit überwachen', tr: 'Güvenliği İzle' },
+      { key: 'admin.manageTranslations', category: 'admin', en: 'Manage Translations', de: 'Übersetzungen verwalten', tr: 'Çevirileri Yönet' },
+      { key: 'admin.permanentlyDeleteUser', category: 'admin', en: 'Permanently Delete User', de: 'Benutzer dauerhaft löschen', tr: 'Kullanıcıyı Kalıcı Olarak Sil' },
       { key: 'admin.userManagement', category: 'admin', en: 'User Management', de: 'Benutzerverwaltung', tr: 'Kullanıcı Yönetimi' },
       { key: 'admin.createUser', category: 'admin', en: 'Create User', de: 'Benutzer erstellen', tr: 'Kullanıcı Oluştur' },
       { key: 'admin.editUser', category: 'admin', en: 'Edit User', de: 'Benutzer bearbeiten', tr: 'Kullanıcı Düzenle' },
