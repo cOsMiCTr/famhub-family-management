@@ -8,7 +8,15 @@ const fetchTranslations = async (language: string) => {
     if (!response.ok) {
       throw new Error('Failed to fetch translations');
     }
-    const translations = await response.json();
+    const data = await response.json();
+    
+    // Check if the response has the expected structure
+    if (!data.translations || !Array.isArray(data.translations)) {
+      console.error('Invalid API response structure:', data);
+      throw new Error('Invalid API response structure');
+    }
+    
+    const translations = data.translations;
     
     // Convert flat translations to nested object
     const nestedTranslations: any = {};
