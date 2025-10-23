@@ -227,13 +227,12 @@ const TranslationManagementPage: React.FC = () => {
               {t('common.search')}
             </label>
             <div className="relative">
-              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="form-input pl-10"
+                className="form-input"
                 placeholder={t('translations.searchPlaceholder')}
               />
             </div>
@@ -244,11 +243,10 @@ const TranslationManagementPage: React.FC = () => {
               {t('translations.category')}
             </label>
             <div className="relative">
-              <FunnelIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="form-input pl-10"
+                className="form-input"
               >
                 <option value="all">{t('translations.allCategories')}</option>
                 {categories.map(category => (

@@ -435,12 +435,11 @@ const UserManagementPage: React.FC = () => {
                   Search
                 </label>
                 <div className="relative">
-                  <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="form-input pl-10"
+                    className="form-input"
                     placeholder={t('common.searchByEmail')}
                   />
                 </div>
