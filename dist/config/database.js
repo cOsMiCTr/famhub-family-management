@@ -32,7 +32,6 @@ async function initializeDatabase() {
 async function runMigrations() {
     const client = await exports.pool.connect();
     try {
-        await client.query('BEGIN');
         await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -42,6 +41,15 @@ async function runMigrations() {
         household_id INTEGER,
         preferred_language VARCHAR(5) DEFAULT 'en' CHECK (preferred_language IN ('en', 'de', 'tr')),
         main_currency VARCHAR(4) DEFAULT 'USD' CHECK (main_currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        must_change_password BOOLEAN DEFAULT false,
+        password_changed_at TIMESTAMP,
+        account_status VARCHAR(50) DEFAULT 'active' CHECK (account_status IN ('active', 'locked', 'pending_password_change')),
+        failed_login_attempts INTEGER DEFAULT 0,
+        last_failed_login_at TIMESTAMP,
+        account_locked_until TIMESTAMP,
+        last_login_at TIMESTAMP,
+        last_activity_at TIMESTAMP,
+        password_history TEXT[] DEFAULT ARRAY[]::TEXT[],
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -151,12 +159,45 @@ async function runMigrations() {
       )
     `);
         await client.query(`
-      ALTER TABLE users 
-      ADD CONSTRAINT fk_users_household 
-      FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE SET NULL
+      CREATE TABLE IF NOT EXISTS login_attempts (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        user_id INTEGER REFERENCES users(id),
+        success BOOLEAN NOT NULL,
+        ip_address VARCHAR(50),
+        user_agent TEXT,
+        failure_reason VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
     `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS admin_notifications (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(50) NOT NULL,
+        user_id INTEGER REFERENCES users(id),
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        severity VARCHAR(20) DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'critical')),
+        read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        try {
+            await client.query(`
+        ALTER TABLE users 
+        ADD CONSTRAINT fk_users_household 
+        FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE SET NULL
+      `);
+        }
+        catch (error) {
+            if (error.code !== '42710') {
+                throw error;
+            }
+        }
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_household ON users(household_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_users_account_status ON users(account_status)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_users_locked_until ON users(account_locked_until)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_user_date ON assets(user_id, date)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_household ON assets(household_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_contracts_household ON contracts(household_id)`);
@@ -165,11 +206,14 @@ async function runMigrations() {
         await client.query(`CREATE INDEX IF NOT EXISTS idx_exchange_rates_currencies ON exchange_rates(from_currency, to_currency)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_token ON invitation_tokens(token)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_email ON invitation_tokens(email)`);
-        await client.query('COMMIT');
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_login_attempts_user_id ON login_attempts(user_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_login_attempts_created_at ON login_attempts(created_at)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_admin_notifications_read ON admin_notifications(read)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_admin_notifications_created_at ON admin_notifications(created_at)`);
         console.log('✅ Database migrations completed successfully');
     }
     catch (error) {
-        await client.query('ROLLBACK');
         console.error('❌ Database migration failed:', error);
         throw error;
     }

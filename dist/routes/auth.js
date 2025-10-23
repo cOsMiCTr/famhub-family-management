@@ -10,6 +10,8 @@ const express_validator_1 = require("express-validator");
 const database_1 = require("../config/database");
 const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
+const passwordService_1 = require("../services/passwordService");
+const loginAttemptService_1 = require("../services/loginAttemptService");
 const router = express_1.default.Router();
 router.post('/login', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Valid email required'),
@@ -20,15 +22,44 @@ router.post('/login', [
         throw (0, errorHandler_1.createValidationError)('Invalid input data');
     }
     const { email, password } = req.body;
-    const userResult = await (0, database_1.query)('SELECT id, email, password_hash, role, household_id, preferred_language, main_currency FROM users WHERE email = $1', [email]);
+    const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const userResult = await (0, database_1.query)(`SELECT id, email, password_hash, role, household_id, preferred_language, main_currency,
+            must_change_password, account_status, failed_login_attempts, 
+            account_locked_until, last_login_at, last_activity_at
+     FROM users WHERE email = $1`, [email]);
     if (userResult.rows.length === 0) {
+        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, null, false, ipAddress, userAgent, 'User not found');
         throw (0, errorHandler_1.createUnauthorizedError)('Invalid email or password');
     }
     const user = userResult.rows[0];
-    const isValidPassword = await bcryptjs_1.default.compare(password, user.password_hash);
-    if (!isValidPassword) {
-        throw (0, errorHandler_1.createUnauthorizedError)('Invalid email or password');
+    const lockStatus = await loginAttemptService_1.LoginAttemptService.isAccountLocked(user.id);
+    if (lockStatus.locked) {
+        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account locked');
+        throw new errorHandler_1.CustomError(`Account is locked until ${lockStatus.lockedUntil?.toISOString()}`, 423, 'ACCOUNT_LOCKED');
     }
+    if (user.account_status === 'locked') {
+        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account disabled');
+        throw new errorHandler_1.CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+    }
+    const isValidPassword = await passwordService_1.PasswordService.comparePassword(password, user.password_hash);
+    if (!isValidPassword) {
+        await loginAttemptService_1.LoginAttemptService.incrementFailedAttempts(user.id);
+        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Invalid password');
+        const shouldLock = await loginAttemptService_1.LoginAttemptService.shouldLockAccount(user.id);
+        if (shouldLock) {
+            await loginAttemptService_1.LoginAttemptService.lockAccount(user.id);
+        }
+        const remainingAttempts = 3 - (user.failed_login_attempts + 1);
+        throw new errorHandler_1.CustomError(`Invalid email or password. ${remainingAttempts > 0 ? `${remainingAttempts} attempts remaining.` : 'Account will be locked.'}`, 401, 'INVALID_CREDENTIALS');
+    }
+    await loginAttemptService_1.LoginAttemptService.resetFailedAttempts(user.id);
+    await (0, database_1.query)(`UPDATE users 
+     SET last_login_at = NOW(), 
+         last_activity_at = NOW(),
+         account_locked_until = NULL
+     WHERE id = $1`, [user.id]);
+    await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, true, ipAddress, userAgent);
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         throw new errorHandler_1.CustomError('JWT configuration error', 500, 'CONFIG_ERROR');
@@ -46,7 +77,58 @@ router.post('/login', [
     res.json({
         message: 'Login successful',
         token,
-        user: userWithoutPassword
+        user: userWithoutPassword,
+        must_change_password: user.must_change_password,
+        last_login_at: user.last_login_at
+    });
+}));
+router.post('/change-password-first-login', [
+    (0, express_validator_1.body)('current_password').isLength({ min: 1 }).withMessage('Current password required'),
+    (0, express_validator_1.body)('new_password').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+    (0, express_validator_1.body)('confirm_password').isLength({ min: 8 }).withMessage('Confirm password must be at least 8 characters')
+], auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        throw (0, errorHandler_1.createValidationError)('Invalid input data');
+    }
+    if (!req.user) {
+        throw (0, errorHandler_1.createUnauthorizedError)('User not authenticated');
+    }
+    const { current_password, new_password, confirm_password } = req.body;
+    if (new_password !== confirm_password) {
+        throw (0, errorHandler_1.createValidationError)('Passwords do not match');
+    }
+    const complexityCheck = passwordService_1.PasswordService.validatePasswordComplexity(new_password);
+    if (!complexityCheck.isValid) {
+        throw new errorHandler_1.CustomError(`Password does not meet requirements: ${complexityCheck.errors.join(', ')}`, 400, 'PASSWORD_COMPLEXITY_ERROR');
+    }
+    const userResult = await (0, database_1.query)('SELECT id, password_hash, must_change_password FROM users WHERE id = $1', [req.user.id]);
+    if (userResult.rows.length === 0) {
+        throw (0, errorHandler_1.createUnauthorizedError)('User not found');
+    }
+    const user = userResult.rows[0];
+    if (!user.must_change_password) {
+        throw new errorHandler_1.CustomError('Password change not required', 400, 'PASSWORD_CHANGE_NOT_REQUIRED');
+    }
+    const isValidCurrentPassword = await passwordService_1.PasswordService.comparePassword(current_password, user.password_hash);
+    if (!isValidCurrentPassword) {
+        throw (0, errorHandler_1.createUnauthorizedError)('Current password is incorrect');
+    }
+    const isPasswordReused = await passwordService_1.PasswordService.checkPasswordHistory(req.user.id, new_password);
+    if (isPasswordReused) {
+        throw new errorHandler_1.CustomError('Cannot reuse a recently used password. Please choose a different password.', 400, 'PASSWORD_REUSE_ERROR');
+    }
+    const newPasswordHash = await passwordService_1.PasswordService.hashPassword(new_password);
+    await (0, database_1.query)(`UPDATE users 
+     SET password_hash = $1,
+         must_change_password = false,
+         account_status = 'active',
+         password_changed_at = NOW(),
+         updated_at = NOW()
+     WHERE id = $2`, [newPasswordHash, req.user.id]);
+    await passwordService_1.PasswordService.addToPasswordHistory(req.user.id, user.password_hash);
+    res.json({
+        message: 'Password changed successfully'
     });
 }));
 router.get('/validate-invitation/:token', (0, errorHandler_1.asyncHandler)(async (req, res) => {

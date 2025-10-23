@@ -6,6 +6,9 @@ import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { asyncHandler, createValidationError, createUnauthorizedError, CustomError } from '../middleware/errorHandler';
 import { authenticateToken, JWTPayload } from '../middleware/auth';
+import { PasswordService } from '../services/passwordService';
+import { LoginAttemptService } from '../services/loginAttemptService';
+import { NotificationService } from '../services/notificationService';
 
 const router = express.Router();
 
@@ -20,24 +23,119 @@ router.post('/login', [
   }
 
   const { email, password } = req.body;
+  
+  // Get IP address and user agent
+  const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown';
+  const userAgent = req.headers['user-agent'] || 'unknown';
 
   // Find user by email
   const userResult = await query(
-    'SELECT id, email, password_hash, role, household_id, preferred_language, main_currency FROM users WHERE email = $1',
+    `SELECT id, email, password_hash, role, household_id, preferred_language, main_currency,
+            must_change_password, account_status, failed_login_attempts, 
+            account_locked_until, last_login_at, last_activity_at
+     FROM users WHERE email = $1`,
     [email]
   );
 
   if (userResult.rows.length === 0) {
+    // Record failed attempt for non-existent user
+    await LoginAttemptService.recordLoginAttempt(
+      email,
+      null,
+      false,
+      ipAddress,
+      userAgent,
+      'User not found'
+    );
     throw createUnauthorizedError('Invalid email or password');
   }
 
   const user = userResult.rows[0];
 
-  // Verify password
-  const isValidPassword = await bcrypt.compare(password, user.password_hash);
-  if (!isValidPassword) {
-    throw createUnauthorizedError('Invalid email or password');
+  // Check if account is locked
+  const lockStatus = await LoginAttemptService.isAccountLocked(user.id);
+  if (lockStatus.locked) {
+    await LoginAttemptService.recordLoginAttempt(
+      email,
+      user.id,
+      false,
+      ipAddress,
+      userAgent,
+      'Account locked'
+    );
+    
+    throw new CustomError(
+      `Account is locked until ${lockStatus.lockedUntil?.toISOString()}`,
+      423,
+      'ACCOUNT_LOCKED'
+    );
   }
+
+  // Check account status
+  if (user.account_status === 'locked') {
+    await LoginAttemptService.recordLoginAttempt(
+      email,
+      user.id,
+      false,
+      ipAddress,
+      userAgent,
+      'Account disabled'
+    );
+    
+    throw new CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+  }
+
+  // Verify password
+  const isValidPassword = await PasswordService.comparePassword(password, user.password_hash);
+  
+  if (!isValidPassword) {
+    // Increment failed attempts
+    await LoginAttemptService.incrementFailedAttempts(user.id);
+    
+    // Record failed attempt
+    await LoginAttemptService.recordLoginAttempt(
+      email,
+      user.id,
+      false,
+      ipAddress,
+      userAgent,
+      'Invalid password'
+    );
+
+    // Check if account should be locked
+    const shouldLock = await LoginAttemptService.shouldLockAccount(user.id);
+    if (shouldLock) {
+      await LoginAttemptService.lockAccount(user.id);
+    }
+
+    const remainingAttempts = 3 - (user.failed_login_attempts + 1);
+    throw new CustomError(
+      `Invalid email or password. ${remainingAttempts > 0 ? `${remainingAttempts} attempts remaining.` : 'Account will be locked.'}`,
+      401,
+      'INVALID_CREDENTIALS'
+    );
+  }
+
+  // Successful login - reset failed attempts and update timestamps
+  await LoginAttemptService.resetFailedAttempts(user.id);
+  
+  await query(
+    `UPDATE users 
+     SET last_login_at = NOW(), 
+         last_activity_at = NOW(),
+         account_locked_until = NULL
+     WHERE id = $1`,
+    [user.id]
+  );
+
+  // Record successful login attempt
+  await LoginAttemptService.recordLoginAttempt(
+    email,
+    user.id,
+    true,
+    ipAddress,
+    userAgent
+  );
 
   // Generate JWT token
   const jwtSecret = process.env.JWT_SECRET;
@@ -62,7 +160,97 @@ router.post('/login', [
   res.json({
     message: 'Login successful',
     token,
-    user: userWithoutPassword
+    user: userWithoutPassword,
+    must_change_password: user.must_change_password,
+    last_login_at: user.last_login_at
+  });
+}));
+
+// Change password on first login
+router.post('/change-password-first-login', [
+  body('current_password').isLength({ min: 1 }).withMessage('Current password required'),
+  body('new_password').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+  body('confirm_password').isLength({ min: 8 }).withMessage('Confirm password must be at least 8 characters')
+], authenticateToken, asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const { current_password, new_password, confirm_password } = req.body;
+
+  // Validate password confirmation
+  if (new_password !== confirm_password) {
+    throw createValidationError('Passwords do not match');
+  }
+
+  // Validate password complexity
+  const complexityCheck = PasswordService.validatePasswordComplexity(new_password);
+  if (!complexityCheck.isValid) {
+    throw new CustomError(
+      `Password does not meet requirements: ${complexityCheck.errors.join(', ')}`,
+      400,
+      'PASSWORD_COMPLEXITY_ERROR'
+    );
+  }
+
+  // Get current user data
+  const userResult = await query(
+    'SELECT id, password_hash, must_change_password FROM users WHERE id = $1',
+    [req.user.id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createUnauthorizedError('User not found');
+  }
+
+  const user = userResult.rows[0];
+
+  // Check if user must change password
+  if (!user.must_change_password) {
+    throw new CustomError('Password change not required', 400, 'PASSWORD_CHANGE_NOT_REQUIRED');
+  }
+
+  // Verify current password
+  const isValidCurrentPassword = await PasswordService.comparePassword(current_password, user.password_hash);
+  if (!isValidCurrentPassword) {
+    throw createUnauthorizedError('Current password is incorrect');
+  }
+
+  // Check password history
+  const isPasswordReused = await PasswordService.checkPasswordHistory(req.user.id, new_password);
+  if (isPasswordReused) {
+    throw new CustomError(
+      'Cannot reuse a recently used password. Please choose a different password.',
+      400,
+      'PASSWORD_REUSE_ERROR'
+    );
+  }
+
+  // Hash new password
+  const newPasswordHash = await PasswordService.hashPassword(new_password);
+
+  // Update user password and status
+  await query(
+    `UPDATE users 
+     SET password_hash = $1,
+         must_change_password = false,
+         account_status = 'active',
+         password_changed_at = NOW(),
+         updated_at = NOW()
+     WHERE id = $2`,
+    [newPasswordHash, req.user.id]
+  );
+
+  // Add old password to history
+  await PasswordService.addToPasswordHistory(req.user.id, user.password_hash);
+
+  res.json({
+    message: 'Password changed successfully'
   });
 }));
 

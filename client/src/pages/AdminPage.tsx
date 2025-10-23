@@ -1,5 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { 
+  UserGroupIcon, 
+  HomeIcon, 
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  ChartBarIcon
+} from '@heroicons/react/24/outline';
 
 const AdminPage: React.FC = () => {
   const { t } = useTranslation();
@@ -14,65 +22,71 @@ const AdminPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <Link 
+          to="/admin/users" 
+          className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200"
+        >
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold">👥</span>
+                  <UserGroupIcon className="h-5 w-5 text-white" />
                 </div>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    {t('admin.allUsers')}
+                    User Management
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    Loading...
+                    Manage Users
                   </dd>
                 </dl>
               </div>
             </div>
           </div>
-        </div>
+        </Link>
+
+        <Link 
+          to="/admin/security" 
+          className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200"
+        >
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                  <ShieldCheckIcon className="h-5 w-5 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Security Dashboard
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    Monitor Security
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </Link>
 
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold">🏠</span>
+                  <HomeIcon className="h-5 w-5 text-white" />
                 </div>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    {t('admin.allHouseholds')}
+                    Household Management
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    Loading...
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                  <span className="text-white font-bold">📧</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    {t('admin.pendingInvitations')}
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    Loading...
+                    Coming Soon
                   </dd>
                 </dl>
               </div>
@@ -87,14 +101,16 @@ const AdminPage: React.FC = () => {
             Admin Panel Features
           </h3>
           <div className="text-sm text-gray-600">
-            <p>This admin panel will include:</p>
+            <p>Current admin panel features:</p>
             <ul className="mt-2 list-disc list-inside space-y-1">
-              <li>User invitation system</li>
-              <li>Household management</li>
-              <li>Permission controls</li>
-              <li>Category management</li>
-              <li>System overview</li>
-              <li>User activity monitoring</li>
+              <li>✅ User management and generation</li>
+              <li>✅ Password reset and account unlocking</li>
+              <li>✅ Security monitoring and notifications</li>
+              <li>✅ Login attempt tracking</li>
+              <li>✅ Account status management</li>
+              <li>🔄 Household management (coming soon)</li>
+              <li>🔄 Permission controls (coming soon)</li>
+              <li>🔄 Category management (coming soon)</li>
             </ul>
           </div>
         </div>

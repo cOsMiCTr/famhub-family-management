@@ -5,16 +5,20 @@ import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { asyncHandler, createValidationError, createNotFoundError, CustomError } from '../middleware/errorHandler';
 import { requireAdmin } from '../middleware/auth';
+import { PasswordService } from '../services/passwordService';
+import { NotificationService } from '../services/notificationService';
+import { LoginAttemptService } from '../services/loginAttemptService';
 
 const router = express.Router();
 
 // Apply admin middleware to all routes
 router.use(requireAdmin);
 
-// Create invitation for new user
-router.post('/invite-user', [
+// Create new user directly
+router.post('/users', [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('household_id').isInt({ min: 1 }).withMessage('Valid household ID required'),
+  body('role').optional().isIn(['admin', 'user']).withMessage('Invalid role'),
   body('can_view_contracts').optional().isBoolean().withMessage('Boolean value required'),
   body('can_view_income').optional().isBoolean().withMessage('Boolean value required'),
   body('can_edit').optional().isBoolean().withMessage('Boolean value required')
@@ -24,7 +28,7 @@ router.post('/invite-user', [
     throw createValidationError('Invalid input data');
   }
 
-  const { email, household_id, can_view_contracts = false, can_view_income = false, can_edit = false } = req.body;
+  const { email, household_id, role = 'user', can_view_contracts = false, can_view_income = false, can_edit = false } = req.body;
 
   // Check if household exists
   const householdResult = await query(
@@ -46,44 +50,48 @@ router.post('/invite-user', [
     throw new CustomError('User already exists', 400, 'USER_EXISTS');
   }
 
-  // Check if invitation already exists and is not expired
-  const existingInvitationResult = await query(
-    'SELECT id FROM invitation_tokens WHERE email = $1 AND expires_at > NOW() AND used = false',
-    [email]
+  // Generate secure password
+  const temporaryPassword = PasswordService.generateSecurePassword();
+  const passwordHash = await PasswordService.hashPassword(temporaryPassword);
+
+  // Create user
+  const userResult = await query(
+    `INSERT INTO users (email, password_hash, role, household_id, must_change_password, account_status, password_changed_at)
+     VALUES ($1, $2, $3, $4, true, 'pending_password_change', NOW())
+     RETURNING id, email, role, household_id, created_at`,
+    [email, passwordHash, role, household_id]
   );
 
-  if (existingInvitationResult.rows.length > 0) {
-    throw new CustomError('Invitation already sent and pending', 400, 'INVITATION_EXISTS');
+  const user = userResult.rows[0];
+
+  // Create household permissions if provided
+  if (can_view_contracts || can_view_income || can_edit) {
+    await query(
+      `INSERT INTO household_permissions (household_id, user_id, can_view_contracts, can_view_income, can_edit)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (household_id, user_id)
+       DO UPDATE SET can_view_contracts = $3, can_view_income = $4, can_edit = $5`,
+      [household_id, user.id, can_view_contracts, can_view_income, can_edit]
+    );
   }
 
-  // Generate invitation token
-  const token = uuidv4();
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
-
-  // Create invitation
-  const invitationResult = await query(
-    `INSERT INTO invitation_tokens (email, token, household_id, expires_at)
-     VALUES ($1, $2, $3, $4)
-     RETURNING *`,
-    [email, token, household_id, expiresAt]
-  );
-
-  const invitation = invitationResult.rows[0];
-
-  // TODO: Send invitation email here
-  // For now, we'll return the invitation link
-  const invitationLink = `${process.env.CLIENT_URL}/register?token=${token}`;
+  // Create admin notification
+  await NotificationService.createUserCreatedNotification(user.id, email);
 
   res.status(201).json({
-    message: 'Invitation created successfully',
-    invitation: {
-      id: invitation.id,
-      email: invitation.email,
+    message: 'User created successfully',
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      household_id: user.household_id,
       household_name: householdResult.rows[0].name,
-      expires_at: invitation.expires_at,
-      invitation_link: invitationLink
-    }
+      created_at: user.created_at,
+      must_change_password: true,
+      account_status: 'pending_password_change'
+    },
+    temporary_password: temporaryPassword,
+    warning: 'This password is shown only once. Please provide it to the user securely.'
   });
 }));
 
@@ -235,6 +243,138 @@ router.put('/users/:id', [
   });
 }));
 
+// Reset user password
+router.post('/users/:id/reset-password', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Check if user exists
+  const userResult = await query(
+    'SELECT id, email, role FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  const user = userResult.rows[0];
+
+  // Generate new temporary password
+  const temporaryPassword = PasswordService.generateSecurePassword();
+  const passwordHash = await PasswordService.hashPassword(temporaryPassword);
+
+  // Update user password and status
+  await query(
+    `UPDATE users 
+     SET password_hash = $1,
+         must_change_password = true,
+         account_status = 'pending_password_change',
+         failed_login_attempts = 0,
+         account_locked_until = NULL,
+         password_changed_at = NOW(),
+         updated_at = NOW()
+     WHERE id = $2`,
+    [passwordHash, id]
+  );
+
+  // Create admin notification
+  await NotificationService.createPasswordResetNotification(id, req.user!.id);
+
+  res.json({
+    message: 'Password reset successfully',
+    temporary_password: temporaryPassword,
+    warning: 'This password is shown only once. Please provide it to the user securely.'
+  });
+}));
+
+// Unlock user account
+router.post('/users/:id/unlock', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Check if user exists
+  const userResult = await query(
+    'SELECT id, email FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  // Unlock account
+  await query(
+    `UPDATE users 
+     SET account_locked_until = NULL,
+         failed_login_attempts = 0,
+         account_status = 'active',
+         updated_at = NOW()
+     WHERE id = $1`,
+    [id]
+  );
+
+  // Create admin notification
+  await NotificationService.createAdminNotification(
+    'account_unlocked',
+    id,
+    'Account Unlocked',
+    `Account for ${userResult.rows[0].email} has been manually unlocked by admin.`,
+    'info'
+  );
+
+  res.json({
+    message: 'Account unlocked successfully'
+  });
+}));
+
+// Toggle user account status
+router.put('/users/:id/toggle-status', [
+  body('status').isIn(['active', 'locked']).withMessage('Invalid status')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  const { id } = req.params;
+  const { status } = req.body;
+
+  // Check if user exists and is not admin
+  const userResult = await query(
+    'SELECT id, email, role FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  if (userResult.rows[0].role === 'admin') {
+    throw new CustomError('Cannot modify admin account status', 400, 'CANNOT_MODIFY_ADMIN');
+  }
+
+  // Update account status
+  await query(
+    `UPDATE users 
+     SET account_status = $1,
+         updated_at = NOW()
+     WHERE id = $2`,
+    [status, id]
+  );
+
+  // Create admin notification
+  await NotificationService.createAdminNotification(
+    'account_status_changed',
+    id,
+    'Account Status Changed',
+    `Account for ${userResult.rows[0].email} has been ${status === 'locked' ? 'disabled' : 'enabled'} by admin.`,
+    'info'
+  );
+
+  res.json({
+    message: `Account ${status === 'locked' ? 'disabled' : 'enabled'} successfully`
+  });
+}));
+
 // Deactivate user (soft delete by removing household assignment)
 router.delete('/users/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -353,6 +493,91 @@ router.get('/households/:id/members', asyncHandler(async (req, res) => {
 
   res.json({
     members: membersResult.rows
+  });
+}));
+
+// Admin notifications routes
+router.get('/notifications', asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  const readFilter = req.query.read ? req.query.read === 'true' : undefined;
+
+  const result = await NotificationService.getAllNotifications(page, limit, readFilter);
+
+  res.json({
+    notifications: result.notifications,
+    total: result.total,
+    page,
+    limit,
+    totalPages: Math.ceil(result.total / limit)
+  });
+}));
+
+router.put('/notifications/:id/read', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  await NotificationService.markAsRead(parseInt(id));
+
+  res.json({
+    message: 'Notification marked as read'
+  });
+}));
+
+router.put('/notifications/mark-all-read', asyncHandler(async (req, res) => {
+  const { notificationIds } = req.body;
+
+  if (Array.isArray(notificationIds)) {
+    await NotificationService.markMultipleAsRead(notificationIds);
+  }
+
+  res.json({
+    message: 'Notifications marked as read'
+  });
+}));
+
+router.delete('/notifications/:id', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  await NotificationService.deleteNotification(parseInt(id));
+
+  res.json({
+    message: 'Notification deleted'
+  });
+}));
+
+// Security dashboard endpoint
+router.get('/security-dashboard', asyncHandler(async (req, res) => {
+  const [
+    loginStats,
+    notificationCounts,
+    recentFailedAttempts,
+    lockedAccounts,
+    pendingPasswordChanges
+  ] = await Promise.all([
+    LoginAttemptService.getLoginStatistics(),
+    NotificationService.getNotificationCounts(),
+    LoginAttemptService.getRecentFailedAttempts(50),
+    query(
+      `SELECT u.id, u.email, u.account_locked_until, u.last_failed_login_at
+       FROM users u
+       WHERE u.account_status = 'locked' OR 
+       (u.account_locked_until IS NOT NULL AND u.account_locked_until > NOW())
+       ORDER BY u.last_failed_login_at DESC`
+    ),
+    query(
+      `SELECT u.id, u.email, u.created_at
+       FROM users u
+       WHERE u.account_status = 'pending_password_change'
+       ORDER BY u.created_at DESC`
+    )
+  ]);
+
+  res.json({
+    statistics: loginStats,
+    notifications: notificationCounts,
+    recent_failed_attempts: recentFailedAttempts,
+    locked_accounts: lockedAccounts.rows,
+    pending_password_changes: pendingPasswordChanges.rows
   });
 }));
 

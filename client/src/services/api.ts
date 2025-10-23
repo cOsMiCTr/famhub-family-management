@@ -56,6 +56,11 @@ class ApiService {
     return response.data;
   }
 
+  async changePasswordFirstLogin(data: any) {
+    const response = await this.api.post('/auth/change-password-first-login', data);
+    return response.data;
+  }
+
   async refreshToken() {
     const response = await this.api.post('/auth/refresh');
     return response.data;
@@ -195,6 +200,65 @@ class ApiService {
 
   async deactivateUser(id: string) {
     const response = await this.api.delete(`/admin/users/${id}`);
+    return response.data;
+  }
+
+  async createUser(data: any) {
+    const response = await this.api.post('/admin/users', data);
+    return response.data;
+  }
+
+  async resetUserPassword(userId: string) {
+    const response = await this.api.post(`/admin/users/${userId}/reset-password`);
+    return response.data;
+  }
+
+  async unlockUser(userId: string) {
+    const response = await this.api.post(`/admin/users/${userId}/unlock`);
+    return response.data;
+  }
+
+  async toggleUserStatus(userId: string, status: string) {
+    const response = await this.api.put(`/admin/users/${userId}/toggle-status`, { status });
+    return response.data;
+  }
+
+  async getAdminNotifications(page: number = 1, limit: number = 20, readFilter?: boolean) {
+    const params: any = { page, limit };
+    if (readFilter !== undefined) {
+      params.read = readFilter;
+    }
+    const response = await this.api.get('/admin/notifications', { params });
+    return response.data;
+  }
+
+  async markNotificationRead(id: string) {
+    const response = await this.api.put(`/admin/notifications/${id}/read`);
+    return response.data;
+  }
+
+  async markAllNotificationsRead(notificationIds: number[]) {
+    const response = await this.api.put('/admin/notifications/mark-all-read', { notificationIds });
+    return response.data;
+  }
+
+  async deleteNotification(id: string) {
+    const response = await this.api.delete(`/admin/notifications/${id}`);
+    return response.data;
+  }
+
+  async getSecurityDashboard() {
+    const response = await this.api.get('/admin/security-dashboard');
+    return response.data;
+  }
+
+  async getUserLoginHistory(limit: number = 50) {
+    const response = await this.api.get('/user/login-history', { params: { limit } });
+    return response.data;
+  }
+
+  async getUserAccountActivity() {
+    const response = await this.api.get('/user/account-activity');
     return response.data;
   }
 

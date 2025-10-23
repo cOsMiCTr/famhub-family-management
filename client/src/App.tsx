@@ -13,6 +13,7 @@ import AssetsPage from './pages/AssetsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
 import UserManagementPage from './pages/UserManagementPage';
+import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -122,6 +123,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <UserManagementPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/security"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <AdminSecurityDashboard />
               </Layout>
             </ProtectedRoute>
           }

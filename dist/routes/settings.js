@@ -8,7 +8,7 @@ const express_validator_1 = require("express-validator");
 const database_1 = require("../config/database");
 const errorHandler_1 = require("../middleware/errorHandler");
 const router = express_1.default.Router();
-router.get('/settings', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (!req.user) {
         throw new Error('User not authenticated');
     }
@@ -34,9 +34,9 @@ router.get('/settings', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         }
     });
 }));
-router.put('/settings', [
+router.put('/', [
     (0, express_validator_1.body)('preferred_language').optional().isIn(['en', 'de', 'tr']).withMessage('Invalid language'),
-    (0, express_validator_1.body)('main_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR']).withMessage('Invalid currency')
+    (0, express_validator_1.body)('main_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency')
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {

@@ -16,7 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => void;
   completeRegistration: (data: any) => Promise<void>;
   isLoading: boolean;
@@ -136,6 +136,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData.preferred_language && userData.preferred_language !== i18n.language) {
         i18n.changeLanguage(userData.preferred_language);
       }
+      
+      return response;
     } catch (error) {
       console.error('Login error:', error);
       throw error;

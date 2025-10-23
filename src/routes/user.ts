@@ -1,20 +1,53 @@
 import express from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
+import { query } from '../config/database';
+import { asyncHandler, createUnauthorizedError } from '../middleware/errorHandler';
+import { authenticateToken } from '../middleware/auth';
+import { LoginAttemptService } from '../services/loginAttemptService';
 
 const router = express.Router();
 
-// Placeholder routes for user management
-// These will be implemented in Phase 8
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
-router.get('/profile', asyncHandler(async (req, res) => {
+// Get user's login history
+router.get('/login-history', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const limit = parseInt(req.query.limit as string) || 50;
+  const loginHistory = await LoginAttemptService.getUserLoginHistory(req.user.id, limit);
+
   res.json({
-    message: 'User profile - to be implemented in Phase 8'
+    login_history: loginHistory
   });
 }));
 
-router.put('/profile', asyncHandler(async (req, res) => {
-  res.status(501).json({
-    message: 'User profile update - to be implemented in Phase 8'
+// Get user's account activity
+router.get('/account-activity', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const userResult = await query(
+    `SELECT last_login_at, last_activity_at, account_status, 
+            failed_login_attempts, account_locked_until
+     FROM users WHERE id = $1`,
+    [req.user.id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createUnauthorizedError('User not found');
+  }
+
+  const user = userResult.rows[0];
+
+  res.json({
+    last_login_at: user.last_login_at,
+    last_activity_at: user.last_activity_at,
+    account_status: user.account_status,
+    failed_login_attempts: user.failed_login_attempts,
+    account_locked_until: user.account_locked_until
   });
 }));
 
