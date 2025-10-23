@@ -23,14 +23,19 @@ export async function initializeDatabase(): Promise<void> {
     // Run migrations
     await runMigrations();
     
-    // Seed translations if table is empty
+    // Seed translations if table is empty or corrupted
     const seedClient = await pool.connect();
     try {
       const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
-      if (parseInt(translationCount.rows[0].count) === 0) {
+      const corruptedCount = await seedClient.query('SELECT COUNT(*) as count FROM translations WHERE en = \'\' OR en IS NULL');
+      
+      if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
         console.log('🌱 Seeding translations from JSON files...');
         const { default: seedTranslations } = await import('../migrations/seedTranslations');
         await seedTranslations();
+        console.log('✅ Translations seeded successfully');
+      } else {
+        console.log('✅ Translations are intact');
       }
     } finally {
       seedClient.release();
