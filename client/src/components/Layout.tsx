@@ -43,7 +43,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon },
     { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon },
     { name: t('navigation.contracts'), href: '/contracts', icon: DocumentTextIcon },
-    { name: t('navigation.admin'), href: '/admin', icon: UserGroupIcon },
     { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
   ];
 

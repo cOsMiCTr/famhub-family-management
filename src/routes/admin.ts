@@ -752,6 +752,12 @@ router.get('/households/:id/members', asyncHandler(async (req, res) => {
 
 // Admin dashboard statistics
 router.get('/dashboard-stats', asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const selectedDate = req.query.date as string || '';
+  const activityFilter = req.query.filter as string || 'all';
+  const itemsPerPage = 10;
+  const offset = (page - 1) * itemsPerPage;
+
   const [
     usersCount,
     householdsCount,
@@ -778,7 +784,7 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
         COUNT(CASE WHEN created_at BETWEEN NOW() - INTERVAL '60 days' AND NOW() - INTERVAL '30 days' THEN 1 END) as previous_count
       FROM users
     `),
-    // Recent activity (from login_attempts)
+    // Recent activity with pagination and filtering
     query(`
       SELECT 
         la.created_at as timestamp,
@@ -787,11 +793,18 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
           WHEN la.success = true THEN 'Successful login'
           ELSE 'Failed login attempt'
         END as description,
-        'login' as type
+        CASE 
+          WHEN la.success = true THEN 'login'
+          ELSE 'failed_login'
+        END as type
       FROM login_attempts la
+      WHERE ($1 = '' OR DATE(la.created_at) = $1)
+        AND ($2 = 'all' OR 
+             ($2 = 'login' AND la.success = true) OR 
+             ($2 = 'failed_login' AND la.success = false))
       ORDER BY la.created_at DESC
-      LIMIT 10
-    `)
+      LIMIT $3 OFFSET $4
+    `, [selectedDate, activityFilter, itemsPerPage, offset])
   ]);
 
   // Calculate user growth percentage
@@ -808,7 +821,13 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
     totalAssets: parseInt(assetsCount.rows[0].count),
     activeUsers: parseInt(activeUsersCount.rows[0].count),
     userGrowth: parseFloat(userGrowth as string),
-    recentActivity: recentActivity.rows
+    recentActivity: recentActivity.rows,
+    pagination: {
+      currentPage: page,
+      itemsPerPage,
+      totalItems: recentActivity.rows.length,
+      hasNextPage: recentActivity.rows.length === itemsPerPage
+    }
   });
 }));
 

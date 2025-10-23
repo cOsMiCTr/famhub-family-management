@@ -17,6 +17,7 @@ import contractsRoutes from './routes/contracts';
 import dashboardRoutes from './routes/dashboard';
 import settingsRoutes from './routes/settings';
 import exchangeRoutes from './routes/exchange';
+import translationRoutes from './routes/translations';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -72,6 +73,7 @@ app.use('/api/contracts', contractsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/exchange-rates', exchangeRoutes);
+app.use('/api/translations', translationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

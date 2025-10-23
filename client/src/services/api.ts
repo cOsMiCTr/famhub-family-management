@@ -257,8 +257,10 @@ class ApiService {
     return response.data;
   }
 
-  async getAdminDashboardStats() {
-    const response = await this.api.get('/admin/dashboard-stats');
+  async getAdminDashboardStats(page: number = 1, date: string = '', filter: string = 'all') {
+    const response = await this.api.get('/admin/dashboard-stats', { 
+      params: { page, date, filter } 
+    });
     return response.data;
   }
 
@@ -305,6 +307,36 @@ class ApiService {
 
   async getContractCategories() {
     const response = await this.api.get('/contracts/categories');
+    return response.data;
+  }
+
+  // Translation management endpoints
+  async getTranslations(category?: string, search?: string) {
+    const params: any = {};
+    if (category) params.category = category;
+    if (search) params.search = search;
+    
+    const response = await this.api.get('/translations', { params });
+    return response.data;
+  }
+
+  async getTranslationCategories() {
+    const response = await this.api.get('/translations/categories');
+    return response.data;
+  }
+
+  async updateTranslation(id: string, data: any) {
+    const response = await this.api.put(`/translations/${id}`, data);
+    return response.data;
+  }
+
+  async bulkUpdateTranslations(translations: any[]) {
+    const response = await this.api.put('/translations/bulk', { translations });
+    return response.data;
+  }
+
+  async syncTranslations() {
+    const response = await this.api.post('/translations/sync');
     return response.data;
   }
 

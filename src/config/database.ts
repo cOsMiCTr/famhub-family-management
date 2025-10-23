@@ -22,6 +22,19 @@ export async function initializeDatabase(): Promise<void> {
 
     // Run migrations
     await runMigrations();
+    
+    // Seed translations if table is empty
+    const client = await pool.connect();
+    try {
+      const translationCount = await client.query('SELECT COUNT(*) as count FROM translations');
+      if (parseInt(translationCount.rows[0].count) === 0) {
+        console.log('🌱 Seeding translations from JSON files...');
+        const { default: seedTranslations } = await import('../migrations/seedTranslations');
+        await seedTranslations();
+      }
+    } finally {
+      client.release();
+    }
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;
@@ -207,6 +220,20 @@ async function runMigrations(): Promise<void> {
         severity VARCHAR(20) DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'critical')),
         read BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create translations table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS translations (
+        id SERIAL PRIMARY KEY,
+        translation_key VARCHAR(255) UNIQUE NOT NULL,
+        category VARCHAR(100),
+        en TEXT NOT NULL,
+        de TEXT,
+        tr TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

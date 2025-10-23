@@ -15,6 +15,7 @@ import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
+import TranslationManagementPage from './pages/TranslationManagementPage';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -153,10 +154,7 @@ const AppContent: React.FC = () => {
           element={
             <ProtectedRoute requireAdmin>
               <Layout>
-                <div className="p-6 text-center">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Translation Management</h2>
-                  <p className="text-gray-600 dark:text-gray-400">Coming soon...</p>
-                </div>
+                <TranslationManagementPage />
               </Layout>
             </ProtectedRoute>
           }
