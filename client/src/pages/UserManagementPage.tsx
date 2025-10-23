@@ -568,7 +568,7 @@ const UserManagementPage: React.FC = () => {
                           <button
                             onClick={() => openEditModal(user)}
                             className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Edit User"
+                            title={t('admin.editUser')}
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
@@ -577,7 +577,7 @@ const UserManagementPage: React.FC = () => {
                             <button
                               onClick={() => handleUnlockUser(user.id)}
                               className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                              title="Unlock Account"
+                              title={t('admin.unlockAccount')}
                               disabled={isSaving}
                             >
                               <LockOpenIcon className="h-4 w-4" />
@@ -588,7 +588,7 @@ const UserManagementPage: React.FC = () => {
                             <button
                               onClick={() => handleToggleUserStatus(user.id, user.account_status)}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              title="Lock Account"
+                              title={t('admin.lockAccount')}
                               disabled={isSaving}
                             >
                               <LockClosedIcon className="h-4 w-4" />
@@ -598,7 +598,7 @@ const UserManagementPage: React.FC = () => {
                           <button
                             onClick={() => handleResetPassword(user.id)}
                             className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
-                            title="Reset Password"
+                            title={t('admin.resetPassword')}
                             disabled={isSaving}
                           >
                             <KeyIcon className="h-4 w-4" />
@@ -609,7 +609,7 @@ const UserManagementPage: React.FC = () => {
                               <button
                                 onClick={() => openDeleteModal(user)}
                                 className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
-                                title="Deactivate User"
+                                title={t('admin.deactivateUser')}
                               >
                                 <UserMinusIcon className="h-4 w-4" />
                               </button>
@@ -686,14 +686,14 @@ const UserManagementPage: React.FC = () => {
                           <button
                             onClick={() => openEditHouseholdModal(household)}
                             className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title="Edit Household"
+                            title={t('admin.editHousehold')}
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => openDeleteHouseholdModal(household)}
                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            title="Delete Household"
+                            title={t('admin.deleteHousehold')}
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
