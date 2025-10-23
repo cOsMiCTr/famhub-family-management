@@ -89,8 +89,8 @@ const IncomePage: React.FC = () => {
   });
   
   // Refs for debouncing timeouts
-  const startDateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const endDateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const startDateTimeoutRef = useRef<number | null>(null);
+  const endDateTimeoutRef = useRef<number | null>(null);
   
   const [formData, setFormData] = useState({
     household_member_id: '',
