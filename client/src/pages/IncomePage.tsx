@@ -310,15 +310,49 @@ const IncomePage: React.FC = () => {
     setShowDeleteModal(true);
   };
 
-  // Get frequency display name
-  const getFrequencyDisplayName = useCallback((frequency: string) => {
+  // Get frequency display name and styling
+  const getFrequencyDisplay = useCallback((entry: IncomeEntry) => {
+    // Debug logging to see what's happening
+    console.log('Frequency debug:', {
+      id: entry.id,
+      frequency: entry.frequency,
+      is_recurring: entry.is_recurring,
+      description: entry.description
+    });
+
     const frequencyMap: { [key: string]: string } = {
       'monthly': t('income.monthly'),
       'weekly': t('income.weekly'),
       'yearly': t('income.yearly'),
       'one-time': t('income.oneTime')
     };
-    return frequencyMap[frequency] || frequency;
+
+    const displayText = frequencyMap[entry.frequency] || entry.frequency;
+    
+    // Different colors for different frequency types
+    const getFrequencyStyle = (frequency: string, isRecurring: boolean) => {
+      if (!isRecurring) {
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      }
+      
+      switch (frequency) {
+        case 'monthly':
+          return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+        case 'weekly':
+          return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+        case 'yearly':
+          return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        case 'one-time':
+          return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        default:
+          return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      }
+    };
+
+    return {
+      text: displayText,
+      style: getFrequencyStyle(entry.frequency, entry.is_recurring)
+    };
   }, [t]);
 
   // Get category name based on current language
@@ -573,15 +607,9 @@ const IncomePage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">
-                          {entry.is_recurring ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                              {getFrequencyDisplayName(entry.frequency)}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                              {t('income.oneTime')}
-                            </span>
-                          )}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getFrequencyDisplay(entry).style}`}>
+                            {getFrequencyDisplay(entry).text}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
