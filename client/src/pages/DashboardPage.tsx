@@ -14,11 +14,11 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
-  totalAssets: number;
-  monthlyIncome: number;
-  activeContracts: number;
-  totalMembers: number;
-  currency: string;
+  totalAssets?: number;
+  monthlyIncome?: number;
+  activeContracts?: number;
+  totalMembers?: number;
+  currency?: string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -57,7 +57,11 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number | undefined | null, currency: string) => {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return 'N/A';
+    }
+    
     const symbols: { [key: string]: string } = {
       'USD': '$',
       'EUR': '€',
@@ -73,7 +77,7 @@ const DashboardPage: React.FC = () => {
   const statsCards = [
     {
       title: t('dashboard.totalAssets'),
-      value: stats ? formatCurrency(stats.totalAssets, stats.currency) : 'Loading...',
+      value: stats ? formatCurrency(stats.totalAssets, stats.currency || 'USD') : 'Loading...',
       icon: WalletIcon,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
@@ -81,7 +85,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: 'Monthly Income',
-      value: stats ? formatCurrency(stats.monthlyIncome, stats.currency) : 'Loading...',
+      value: stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...',
       icon: ArrowTrendingUpIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
@@ -89,7 +93,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: t('dashboard.activeContracts'),
-      value: stats ? stats.activeContracts.toString() : 'Loading...',
+      value: stats ? (stats.activeContracts?.toString() || '0') : 'Loading...',
       icon: DocumentTextIcon,
       color: 'bg-yellow-500',
       bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -97,7 +101,7 @@ const DashboardPage: React.FC = () => {
     },
     {
       title: 'Family Members',
-      value: stats ? stats.totalMembers.toString() : 'Loading...',
+      value: stats ? (stats.totalMembers?.toString() || '0') : 'Loading...',
       icon: UserGroupIcon,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
@@ -209,19 +213,19 @@ const DashboardPage: React.FC = () => {
               <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">This Month's Income</span>
                 <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                  {stats ? formatCurrency(stats.monthlyIncome, stats.currency) : 'Loading...'}
+                  {stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...'}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Contracts</span>
                 <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                  {stats ? stats.activeContracts : 'Loading...'}
+                  {stats ? (stats.activeContracts || 0) : 'Loading...'}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Family Members</span>
                 <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                  {stats ? stats.totalMembers : 'Loading...'}
+                  {stats ? (stats.totalMembers || 0) : 'Loading...'}
                 </span>
               </div>
             </div>
