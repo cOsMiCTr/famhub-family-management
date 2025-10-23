@@ -17,7 +17,9 @@ import {
   UserIcon,
   LanguageIcon,
   ChartBarIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  BanknotesIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -43,6 +45,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon },
     { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon },
     { name: t('navigation.contracts'), href: '/contracts', icon: DocumentTextIcon },
+    { name: t('navigation.income'), href: '/income', icon: BanknotesIcon },
+    { name: t('navigation.familyMembers'), href: '/family-members', icon: UsersIcon },
     { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
   ];
 
@@ -52,6 +56,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('admin.userManagement'), href: '/admin/users', icon: UserGroupIcon },
     { name: t('admin.securityDashboard'), href: '/admin/security', icon: ShieldCheckIcon },
     { name: t('admin.translations'), href: '/admin/translations', icon: LanguageIcon },
+    { name: t('incomeCategories.title'), href: '/admin/income-categories', icon: DocumentTextIcon },
   ];
 
   const languages = [

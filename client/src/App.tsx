@@ -10,12 +10,15 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import AssetsPage from './pages/AssetsPage';
+import IncomePage from './pages/IncomePage';
+import HouseholdMembersPage from './pages/HouseholdMembersPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
 import TranslationManagementPage from './pages/TranslationManagementPage';
+import IncomeCategoriesPage from './pages/IncomeCategoriesPage';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -100,6 +103,26 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
+          path="/income"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <IncomePage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/family-members"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <HouseholdMembersPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/settings"
           element={
             <ProtectedRoute>
@@ -155,6 +178,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <TranslationManagementPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/income-categories"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <IncomeCategoriesPage />
               </Layout>
             </ProtectedRoute>
           }
