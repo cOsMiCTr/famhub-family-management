@@ -119,6 +119,52 @@ router.put('/:id', [
   });
 }));
 
+// Test endpoint to debug bulk update
+router.post('/test-bulk', asyncHandler(async (req, res) => {
+  console.log('=== BULK UPDATE DEBUG ===');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  
+  const { translations } = req.body;
+  
+  if (!Array.isArray(translations)) {
+    return res.status(400).json({ error: 'Translations must be an array' });
+  }
+  
+  console.log('Translations array length:', translations.length);
+  
+  for (let i = 0; i < translations.length; i++) {
+    const translation = translations[i];
+    console.log(`\n--- Translation ${i + 1} ---`);
+    console.log('ID:', translation.id, 'Type:', typeof translation.id);
+    console.log('EN:', translation.en, 'Type:', typeof translation.en);
+    console.log('DE:', translation.de, 'Type:', typeof translation.de);
+    console.log('TR:', translation.tr, 'Type:', typeof translation.tr);
+    
+    // Test individual update
+    try {
+      const testQuery = `
+        UPDATE translations 
+        SET en = $1, de = $2, tr = $3, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $4 
+        RETURNING id, en, de, tr
+      `;
+      
+      const result = await query(testQuery, [
+        translation.en || '',
+        translation.de || '',
+        translation.tr || '',
+        translation.id
+      ]);
+      
+      console.log('✅ Update successful:', result.rows[0]);
+    } catch (error) {
+      console.log('❌ Update failed:', error);
+    }
+  }
+  
+  res.json({ message: 'Debug test completed', translations: translations.length });
+}));
+
 // Bulk update translations
 router.put('/bulk', [
   body('translations').isArray().withMessage('Translations must be an array'),
@@ -129,60 +175,61 @@ router.put('/bulk', [
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
     throw createValidationError('Invalid input data');
   }
 
   const { translations } = req.body;
+  console.log('Bulk update request:', JSON.stringify(req.body, null, 2));
+  
   const updatedTranslations = [];
 
   for (const translation of translations) {
     const { id, en, de, tr } = translation;
+    
+    console.log(`Processing translation ID ${id}:`, { en, de, tr });
+
+    // Validate ID is a number
+    const translationId = parseInt(id);
+    if (isNaN(translationId)) {
+      console.log(`Skipping invalid ID: ${id}`);
+      continue;
+    }
 
     // Check if translation exists
     const existingTranslation = await query(
       'SELECT id FROM translations WHERE id = $1',
-      [id]
+      [translationId]
     );
 
     if (existingTranslation.rows.length === 0) {
-      continue; // Skip non-existent translations
+      console.log(`Translation ID ${translationId} not found, skipping`);
+      continue;
     }
 
-    // Build update query dynamically
-    const updates: string[] = [];
-    const params: any[] = [];
-    let paramCount = 1;
-
-    if (en !== undefined) {
-      updates.push(`en = $${paramCount}`);
-      params.push(en);
-      paramCount++;
-    }
-
-    if (de !== undefined) {
-      updates.push(`de = $${paramCount}`);
-      params.push(de);
-      paramCount++;
-    }
-
-    if (tr !== undefined) {
-      updates.push(`tr = $${paramCount}`);
-      params.push(tr);
-      paramCount++;
-    }
-
-    if (updates.length > 0) {
-      updates.push(`updated_at = CURRENT_TIMESTAMP`);
-      params.push(id);
-
+    // Simple update with all fields
+    try {
       const result = await query(
-        `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
-        params
+        `UPDATE translations 
+         SET en = $1, de = $2, tr = $3, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $4 
+         RETURNING id, translation_key, category, en, de, tr, created_at, updated_at`,
+        [
+          en || '',
+          de || '',
+          tr || '',
+          translationId
+        ]
       );
 
+      console.log(`✅ Updated translation ID ${translationId}:`, result.rows[0]);
       updatedTranslations.push(result.rows[0]);
+    } catch (error) {
+      console.log(`❌ Failed to update translation ID ${translationId}:`, error);
     }
   }
+
+  console.log(`Bulk update completed: ${updatedTranslations.length} translations updated`);
 
   res.json({
     message: `${updatedTranslations.length} translations updated successfully`,

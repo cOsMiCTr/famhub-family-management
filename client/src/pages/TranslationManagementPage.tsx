@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -39,6 +39,9 @@ const TranslationManagementPage: React.FC = () => {
   // Edit states
   const [editingTranslations, setEditingTranslations] = useState<{[key: number]: Partial<Translation>}>({});
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Ref for search input to maintain focus
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const loadTranslations = useCallback(async () => {
     try {
@@ -71,17 +74,23 @@ const TranslationManagementPage: React.FC = () => {
     loadCategories();
   }, [loadCategories]);
 
-  // Debounce search term
+  // Debounce search term with longer delay to prevent flashing
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    // Maintain focus after state update
+    setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    }, 0);
   };
 
   const handleTranslationChange = (id: number, field: 'de' | 'tr', value: string) => {
@@ -216,6 +225,7 @@ const TranslationManagementPage: React.FC = () => {
             <div className="relative">
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
