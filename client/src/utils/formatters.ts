@@ -12,7 +12,7 @@ export const formatDate = (dateString: string): string => {
 };
 
 /**
- * Format currency in "400,00 Euro" format
+ * Format currency in "400,00 €" format with symbols
  */
 export const formatCurrency = (amount: number, currency: string): string => {
   const formattedAmount = new Intl.NumberFormat('de-DE', {
@@ -20,15 +20,15 @@ export const formatCurrency = (amount: number, currency: string): string => {
     maximumFractionDigits: 2
   }).format(amount);
   
-  const currencyNames: { [key: string]: string } = {
-    'TRY': 'TL',
-    'USD': 'Dollar',
-    'EUR': 'Euro',
-    'GBP': 'Pound',
-    'GOLD': 'Gold'
+  const currencySymbols: { [key: string]: string } = {
+    'TRY': '₺',
+    'USD': '$',
+    'EUR': '€',
+    'GBP': '£',
+    'GOLD': 'Au'
   };
   
-  return `${formattedAmount} ${currencyNames[currency] || currency}`;
+  return `${formattedAmount} ${currencySymbols[currency] || currency}`;
 };
 
 /**
