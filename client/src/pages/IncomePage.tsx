@@ -322,8 +322,7 @@ const IncomePage: React.FC = () => {
   };
 
   // Get category name based on current language
-  const getCategoryName = (entry: IncomeEntry) => {
-    const { i18n } = useTranslation();
+  const getCategoryName = useCallback((entry: IncomeEntry) => {
     const lang = i18n.language;
     
     switch (lang) {
@@ -334,7 +333,7 @@ const IncomePage: React.FC = () => {
       default:
         return entry.category_name_en;
     }
-  };
+  }, [i18n.language]);
 
   // Get category name for dropdown options
   const getCategoryDisplayName = useCallback((category: IncomeCategory) => {
