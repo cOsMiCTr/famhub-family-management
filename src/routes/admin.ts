@@ -798,7 +798,7 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
           ELSE 'failed_login'
         END as type
       FROM login_attempts la
-      WHERE ($1 = '' OR DATE(la.created_at) = $1)
+      WHERE ($1 = '' OR DATE(la.created_at) = $1::date)
         AND ($2 = 'all' OR 
              ($2 = 'login' AND la.success = true) OR 
              ($2 = 'failed_login' AND la.success = false))
