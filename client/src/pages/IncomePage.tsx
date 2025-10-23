@@ -365,7 +365,7 @@ const IncomePage: React.FC = () => {
                 {t('income.title')}
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Manage your household income entries
+                {t('income.manageHouseholdIncome')}
               </p>
             </div>
             <div className="flex space-x-3">
@@ -424,7 +424,7 @@ const IncomePage: React.FC = () => {
                 onChange={(e) => setFilters({ ...filters, member_id: e.target.value })}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
-                <option value="">All Members</option>
+                <option value="">{t('income.allMembers')}</option>
                 {members.map((member) => (
                   <option key={member.id} value={member.id}>
                     {member.name}
@@ -458,9 +458,9 @@ const IncomePage: React.FC = () => {
                 onChange={(e) => setFilters({ ...filters, is_recurring: e.target.value })}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
-                <option value="">All</option>
-                <option value="true">Recurring Only</option>
-                <option value="false">One-time Only</option>
+                <option value="">{t('income.all')}</option>
+                <option value="true">{t('income.recurringOnly')}</option>
+                <option value="false">{t('income.oneTimeOnly')}</option>
               </select>
             </div>
           </div>
@@ -499,7 +499,7 @@ const IncomePage: React.FC = () => {
                 {t('income.noIncomeFound')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Get started by adding a new income entry.
+                {t('income.getStartedDescription')}
               </p>
             </div>
           ) : (
@@ -517,13 +517,13 @@ const IncomePage: React.FC = () => {
                       {t('income.amount')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Period
+                      {t('income.period')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       {t('income.frequency')}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Actions
+                      {t('income.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -564,7 +564,7 @@ const IncomePage: React.FC = () => {
                         </div>
                         {entry.end_date ? (
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            to {formatDate(entry.end_date)}
+                            {t('income.to')} {formatDate(entry.end_date)}
                           </div>
                         ) : (
                           <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
@@ -631,7 +631,7 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, household_member_id: e.target.value })}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
-                        <option value="">Select Member</option>
+                        <option value="">{t('income.selectMember')}</option>
                         {members.map((member) => (
                           <option key={member.id} value={member.id}>
                             {member.name}
@@ -812,7 +812,7 @@ const IncomePage: React.FC = () => {
                   {t('income.deleteIncome')}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                  Are you sure you want to delete this income entry? This action cannot be undone.
+                  {t('income.deleteConfirmation')}
                 </p>
                 <div className="flex justify-end space-x-3">
                   <button
@@ -862,7 +862,7 @@ const IncomePage: React.FC = () => {
                       {t('income.totalIncome')}
                     </h4>
                     <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
-                      {summary.total.count} entries
+                      {summary.total.count} {t('income.entries')}
                     </div>
                   </div>
                 </div>
@@ -870,7 +870,7 @@ const IncomePage: React.FC = () => {
                 {summary.breakdown.length > 0 && (
                   <div>
                     <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">
-                      Breakdown
+                      {t('income.breakdown')}
                     </h4>
                     <div className="space-y-3">
                       {summary.breakdown.map((item, index) => (
@@ -880,7 +880,7 @@ const IncomePage: React.FC = () => {
                               {item.member_name || item.category_name_en}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {item.count} entries
+                              {item.count} {t('income.entries')}
                             </div>
                           </div>
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
