@@ -6,7 +6,7 @@ import { asyncHandler, createValidationError } from '../middleware/errorHandler'
 const router = express.Router();
 
 // Get user settings
-router.get('/settings', asyncHandler(async (req, res) => {
+router.get('/', asyncHandler(async (req, res) => {
   if (!req.user) {
     throw new Error('User not authenticated');
   }
@@ -41,9 +41,9 @@ router.get('/settings', asyncHandler(async (req, res) => {
 }));
 
 // Update user settings
-router.put('/settings', [
+router.put('/', [
   body('preferred_language').optional().isIn(['en', 'de', 'tr']).withMessage('Invalid language'),
-  body('main_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR']).withMessage('Invalid currency')
+  body('main_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

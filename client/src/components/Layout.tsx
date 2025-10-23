@@ -53,22 +53,23 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   return (
-    <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div id="main-layout" className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       {/* Mobile menu backdrop */}
       {isMobileMenuOpen && (
         <div 
+          id="mobile-backdrop"
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:z-auto ${
+      <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
+        <div id="sidebar-content" className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
+          <div id="sidebar-logo" className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">FH</span>
@@ -171,9 +172,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div id="main-content" className="lg:ml-64">
         {/* Top bar */}
-        <div className="sticky top-0 z-30 flex h-16 items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
+        <div id="top-bar" className="sticky top-0 z-30 flex h-16 items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -191,8 +192,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </div>
 
         {/* Page content */}
-        <main className="p-4 lg:p-6">
-          <div className="animate-fadeIn">
+        <main id="page-content" className="p-4 lg:p-6">
+          <div id="content-wrapper" className="animate-fadeIn">
             {children}
           </div>
         </main>
