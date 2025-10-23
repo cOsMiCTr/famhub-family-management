@@ -97,7 +97,6 @@ const IncomePage: React.FC = () => {
     category_id: '',
     amount: '',
     currency: 'TRY',
-    source_currency: '',
     description: '',
     start_date: '',
     end_date: '',
@@ -113,7 +112,7 @@ const IncomePage: React.FC = () => {
     startDateTimeoutRef.current = setTimeout(() => {
       setFilters(prev => ({ ...prev, start_date: value }));
     }, 500);
-  }, []);
+  }, [setFilters]);
 
   const debouncedUpdateEndDate = useCallback((value: string) => {
     if (endDateTimeoutRef.current) {
@@ -122,7 +121,7 @@ const IncomePage: React.FC = () => {
     endDateTimeoutRef.current = setTimeout(() => {
       setFilters(prev => ({ ...prev, end_date: value }));
     }, 500);
-  }, []);
+  }, [setFilters]);
 
   // Handle date input changes
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,7 +243,6 @@ const IncomePage: React.FC = () => {
         category_id: '',
         amount: '',
         currency: 'TRY',
-        source_currency: '',
         description: '',
         start_date: '',
         end_date: '',
@@ -291,7 +289,6 @@ const IncomePage: React.FC = () => {
       category_id: entry.category_name_en,
       amount: entry.amount.toString(),
       currency: entry.currency,
-      source_currency: entry.source_currency || '',
       description: entry.description || '',
       start_date: entry.start_date,
       end_date: entry.end_date || '',
@@ -666,7 +663,7 @@ const IncomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         {t('income.amount')} *
@@ -691,24 +688,6 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
-                        <option value="TRY">TRY</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="GOLD">GOLD</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.sourceCurrency')}
-                      </label>
-                      <select
-                        value={formData.source_currency}
-                        onChange={(e) => setFormData({ ...formData, source_currency: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      >
-                        <option value="">Same as Currency</option>
                         <option value="TRY">TRY</option>
                         <option value="USD">USD</option>
                         <option value="EUR">EUR</option>
@@ -803,7 +782,6 @@ const IncomePage: React.FC = () => {
                           category_id: '',
                           amount: '',
                           currency: 'TRY',
-                          source_currency: '',
                           description: '',
                           start_date: '',
                           end_date: '',
