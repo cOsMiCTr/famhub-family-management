@@ -336,6 +336,21 @@ const IncomePage: React.FC = () => {
     }
   };
 
+  // Get category name for dropdown options
+  const getCategoryDisplayName = (category: IncomeCategory) => {
+    const { i18n } = useTranslation();
+    const lang = i18n.language;
+    
+    switch (lang) {
+      case 'de':
+        return category.name_de;
+      case 'tr':
+        return category.name_tr;
+      default:
+        return category.name_en;
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -427,10 +442,10 @@ const IncomePage: React.FC = () => {
                 onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
-                <option value="">All Categories</option>
+                <option value="">{t('incomeCategories.allCategories')}</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name_en}
+                    {getCategoryDisplayName(category)}
                   </option>
                 ))}
               </select>
@@ -641,10 +656,10 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
-                        <option value="">Select Category</option>
+                        <option value="">{t('income.selectCategory')}</option>
                         {categories.map((category) => (
                           <option key={category.id} value={category.id}>
-                            {category.name_en}
+                            {getCategoryDisplayName(category)}
                           </option>
                         ))}
                       </select>

@@ -18,6 +18,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
 import TranslationManagementPage from './pages/TranslationManagementPage';
+import IncomeCategoriesPage from './pages/IncomeCategoriesPage';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -177,6 +178,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <TranslationManagementPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/income-categories"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <IncomeCategoriesPage />
               </Layout>
             </ProtectedRoute>
           }
