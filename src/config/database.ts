@@ -24,16 +24,16 @@ export async function initializeDatabase(): Promise<void> {
     await runMigrations();
     
     // Seed translations if table is empty
-    const client = await pool.connect();
+    const seedClient = await pool.connect();
     try {
-      const translationCount = await client.query('SELECT COUNT(*) as count FROM translations');
+      const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
       if (parseInt(translationCount.rows[0].count) === 0) {
         console.log('🌱 Seeding translations from JSON files...');
         const { default: seedTranslations } = await import('../migrations/seedTranslations');
         await seedTranslations();
       }
     } finally {
-      client.release();
+      seedClient.release();
     }
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
