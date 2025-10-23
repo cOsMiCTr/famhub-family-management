@@ -176,7 +176,7 @@ router.put('/bulk', [
       params.push(id);
 
       const result = await query(
-        `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount + 1} RETURNING *`,
+        `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
         params
       );
 

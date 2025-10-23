@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -33,6 +33,7 @@ const TranslationManagementPage: React.FC = () => {
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   
   // Edit states
@@ -43,7 +44,7 @@ const TranslationManagementPage: React.FC = () => {
     try {
       setIsLoading(true);
       const category = selectedCategory === 'all' ? undefined : selectedCategory;
-      const search = searchTerm.trim() || undefined;
+      const search = debouncedSearchTerm.trim() || undefined;
       const data = await apiService.getTranslations(category, search);
       setTranslations(data.translations);
     } catch (err: any) {
@@ -51,7 +52,7 @@ const TranslationManagementPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, debouncedSearchTerm]);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -69,6 +70,19 @@ const TranslationManagementPage: React.FC = () => {
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleTranslationChange = (id: number, field: 'de' | 'tr', value: string) => {
     setEditingTranslations(prev => ({
@@ -204,7 +218,7 @@ const TranslationManagementPage: React.FC = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="form-input pl-10"
                 placeholder="Search English translations..."
               />
