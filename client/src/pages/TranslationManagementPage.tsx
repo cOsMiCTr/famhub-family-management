@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -39,15 +39,6 @@ const TranslationManagementPage: React.FC = () => {
   const [editingTranslations, setEditingTranslations] = useState<{[key: number]: Partial<Translation>}>({});
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    loadTranslations();
-  }, [loadTranslations]);
-
-  // Separate effect for categories to avoid re-rendering search input
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
   const loadTranslations = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -62,14 +53,22 @@ const TranslationManagementPage: React.FC = () => {
     }
   }, [selectedCategory, searchTerm]);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       const data = await apiService.getTranslationCategories();
       setCategories(data.categories);
     } catch (err: any) {
       console.error('Failed to load categories:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTranslations();
+  }, [loadTranslations]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const handleTranslationChange = (id: number, field: 'de' | 'tr', value: string) => {
     setEditingTranslations(prev => ({
@@ -207,7 +206,7 @@ const TranslationManagementPage: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="form-input pl-10"
-                placeholder="Search translations..."
+                placeholder="Search English translations..."
               />
             </div>
           </div>
