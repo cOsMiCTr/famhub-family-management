@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -41,10 +41,14 @@ const TranslationManagementPage: React.FC = () => {
 
   useEffect(() => {
     loadTranslations();
-    loadCategories();
-  }, [selectedCategory, searchTerm]);
+  }, [loadTranslations]);
 
-  const loadTranslations = async () => {
+  // Separate effect for categories to avoid re-rendering search input
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadTranslations = useCallback(async () => {
     try {
       setIsLoading(true);
       const category = selectedCategory === 'all' ? undefined : selectedCategory;
@@ -56,7 +60,7 @@ const TranslationManagementPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedCategory, searchTerm]);
 
   const loadCategories = async () => {
     try {
@@ -247,9 +251,6 @@ const TranslationManagementPage: React.FC = () => {
                   Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Key
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   <div className="flex items-center">
                     <LanguageIcon className="h-4 w-4 mr-1" />
                     English (Default)
@@ -276,11 +277,6 @@ const TranslationManagementPage: React.FC = () => {
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
                       {translation.category}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {translation.translation_key}
-                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded">

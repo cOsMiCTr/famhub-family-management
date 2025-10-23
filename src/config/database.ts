@@ -31,11 +31,6 @@ export async function initializeDatabase(): Promise<void> {
         console.log('🌱 Seeding translations from JSON files...');
         const { default: seedTranslations } = await import('../migrations/seedTranslations');
         await seedTranslations();
-      } else {
-        // Force reseed for now to fix the German/Turkish translations
-        console.log('🔄 Reseeding translations with proper German/Turkish translations...');
-        const { default: seedTranslations } = await import('../migrations/seedTranslations');
-        await seedTranslations();
       }
     } finally {
       seedClient.release();

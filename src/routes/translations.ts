@@ -25,8 +25,8 @@ router.get('/', asyncHandler(async (req, res) => {
   }
 
   if (search) {
-    const searchCondition = ` AND (translation_key ILIKE $${paramCount} OR en ILIKE $${paramCount} OR de ILIKE $${paramCount} OR tr ILIKE $${paramCount})`;
-    whereClause += whereClause ? searchCondition : ` WHERE (translation_key ILIKE $${paramCount} OR en ILIKE $${paramCount} OR de ILIKE $${paramCount} OR tr ILIKE $${paramCount})`;
+    const searchCondition = ` AND en ILIKE $${paramCount}`;
+    whereClause += whereClause ? searchCondition : ` WHERE en ILIKE $${paramCount}`;
     params.push(`%${search}%`);
   }
 
@@ -176,7 +176,7 @@ router.put('/bulk', [
       params.push(id);
 
       const result = await query(
-        `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
+        `UPDATE translations SET ${updates.join(', ')} WHERE id = $${paramCount + 1} RETURNING *`,
         params
       );
 
