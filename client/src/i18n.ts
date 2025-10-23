@@ -18,11 +18,36 @@ const resources = {
   }
 };
 
+// Get saved language from localStorage or user data
+const getSavedLanguage = () => {
+  // First check if user data is stored
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      if (user.preferred_language) {
+        return user.preferred_language;
+      }
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+    }
+  }
+  
+  // Fallback to localStorage language setting
+  const savedLanguage = localStorage.getItem('i18nextLng');
+  if (savedLanguage && ['en', 'de', 'tr'].includes(savedLanguage)) {
+    return savedLanguage;
+  }
+  
+  // Default fallback
+  return 'en';
+};
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
+    lng: getSavedLanguage(), // Use saved language or default to 'en'
     fallbackLng: 'en',
     
     interpolation: {

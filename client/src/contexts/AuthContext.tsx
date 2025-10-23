@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import apiService from '../services/api';
+import i18n from '../i18n';
 
 interface User {
   id: number;
@@ -80,8 +81,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
+      const userData = JSON.parse(storedUser);
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      setUser(userData);
+      
+      // Apply saved language preference
+      if (userData.preferred_language && userData.preferred_language !== i18n.language) {
+        i18n.changeLanguage(userData.preferred_language);
+      }
     }
     setIsLoading(false);
   }, []);
@@ -111,6 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Apply user's language preference
+      if (userData.preferred_language && userData.preferred_language !== i18n.language) {
+        i18n.changeLanguage(userData.preferred_language);
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
