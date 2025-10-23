@@ -69,6 +69,15 @@ const seedTranslations = async () => {
       { key: 'admin.unlockAccount', category: 'admin', en: 'Unlock Account', de: 'Konto entsperren', tr: 'Hesabı Aç' },
       { key: 'admin.securityDashboard', category: 'admin', en: 'Security Dashboard', de: 'Sicherheits-Dashboard', tr: 'Güvenlik Paneli' },
       { key: 'admin.translations', category: 'admin', en: 'Translations', de: 'Übersetzungen', tr: 'Çeviriler' },
+      { key: 'admin.allHouseholds', category: 'admin', en: 'All Households', de: 'Alle Haushalte', tr: 'Tüm Haneler' },
+      { key: 'admin.allUsers', category: 'admin', en: 'All Users', de: 'Alle Benutzer', tr: 'Tüm Kullanıcılar' },
+      { key: 'admin.assignedHousehold', category: 'admin', en: 'Assigned Household', de: 'Zugewiesener Haushalt', tr: 'Atanmış Hane' },
+      { key: 'admin.canEdit', category: 'admin', en: 'Can Edit', de: 'Kann bearbeiten', tr: 'Düzenleyebilir' },
+      { key: 'admin.canViewContracts', category: 'admin', en: 'Can View Contracts', de: 'Kann Verträge anzeigen', tr: 'Sözleşmeleri Görüntüleyebilir' },
+      { key: 'admin.canViewIncome', category: 'admin', en: 'Can View Income', de: 'Kann Einkommen anzeigen', tr: 'Geliri Görüntüleyebilir' },
+      { key: 'admin.createHousehold', category: 'admin', en: 'Create Household', de: 'Haushalt erstellen', tr: 'Hane Oluştur' },
+      { key: 'admin.updateHousehold', category: 'admin', en: 'Update Household', de: 'Haushalt aktualisieren', tr: 'Hane Güncelle' },
+      { key: 'admin.deleteHousehold', category: 'admin', en: 'Delete Household', de: 'Haushalt löschen', tr: 'Hane Sil' },
 
       // Settings
       { key: 'settings.title', category: 'settings', en: 'Settings', de: 'Einstellungen', tr: 'Ayarlar' },
