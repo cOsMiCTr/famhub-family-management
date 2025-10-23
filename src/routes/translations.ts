@@ -6,11 +6,7 @@ import { authenticateToken, requireAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-// Apply authentication and admin middleware to all routes
-router.use(authenticateToken);
-router.use(requireAdmin);
-
-// Get all translations
+// Get all translations (public endpoint for frontend loading)
 router.get('/', asyncHandler(async (req, res) => {
   const { category, search } = req.query;
   
@@ -42,6 +38,10 @@ router.get('/', asyncHandler(async (req, res) => {
     translations: translationsResult.rows
   });
 }));
+
+// Apply authentication and admin middleware to management routes
+router.use(authenticateToken);
+router.use(requireAdmin);
 
 // Get translation categories
 router.get('/categories', asyncHandler(async (req, res) => {

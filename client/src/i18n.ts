@@ -85,7 +85,7 @@ const initializeI18n = async () => {
     }
   };
 
-  await i18n
+  i18n
     .use(initReactI18next)
     .init({
       resources,
