@@ -32,9 +32,10 @@ const fetchTranslations = async (language: string) => {
     
     return nestedTranslations;
   } catch (error) {
-    console.error('Error fetching translations:', error);
+    console.error('Error fetching translations, falling back to static:', error);
     // Fallback to static translations
-    return await import(`./locales/${language}/translation.json`);
+    const staticTranslation = await import(`./locales/${language}/translation.json`);
+    return staticTranslation.default;
   }
 };
 
@@ -63,74 +64,57 @@ const getSavedLanguage = () => {
   return 'en';
 };
 
-// Initialize i18n with dynamic loading
+// Initialize i18n with static translations first, then upgrade to dynamic
 const initializeI18n = async () => {
   const currentLanguage = getSavedLanguage();
   
+  // Always start with static translations for immediate loading
+  const enTranslation = await import('./locales/en/translation.json');
+  const deTranslation = await import('./locales/de/translation.json');
+  const trTranslation = await import('./locales/tr/translation.json');
+
+  const resources = {
+    en: {
+      translation: enTranslation.default
+    },
+    de: {
+      translation: deTranslation.default
+    },
+    tr: {
+      translation: trTranslation.default
+    }
+  };
+
+  await i18n
+    .use(initReactI18next)
+    .init({
+      resources,
+      lng: currentLanguage,
+      fallbackLng: 'en',
+      
+      interpolation: {
+        escapeValue: false // react already does escaping
+      }
+    });
+
+  console.log('✅ i18n initialized with static translations');
+
+  // Try to upgrade to dynamic translations in the background
   try {
-    // Load translations for all languages
     const [enTranslations, deTranslations, trTranslations] = await Promise.all([
       fetchTranslations('en'),
       fetchTranslations('de'),
       fetchTranslations('tr')
     ]);
 
-    const resources = {
-      en: {
-        translation: enTranslations
-      },
-      de: {
-        translation: deTranslations
-      },
-      tr: {
-        translation: trTranslations
-      }
-    };
+    // Update i18n resources with dynamic translations
+    i18n.addResourceBundle('en', 'translation', enTranslations, true, true);
+    i18n.addResourceBundle('de', 'translation', deTranslations, true, true);
+    i18n.addResourceBundle('tr', 'translation', trTranslations, true, true);
 
-    await i18n
-      .use(initReactI18next)
-      .init({
-        resources,
-        lng: currentLanguage,
-        fallbackLng: 'en',
-        
-        interpolation: {
-          escapeValue: false // react already does escaping
-        }
-      });
-
-    console.log('✅ i18n initialized with dynamic translations');
+    console.log('✅ i18n upgraded to dynamic translations');
   } catch (error) {
-    console.error('❌ Failed to initialize i18n with dynamic translations, falling back to static:', error);
-    
-    // Fallback to static translations
-    const enTranslation = await import('./locales/en/translation.json');
-    const deTranslation = await import('./locales/de/translation.json');
-    const trTranslation = await import('./locales/tr/translation.json');
-
-    const resources = {
-      en: {
-        translation: enTranslation.default
-      },
-      de: {
-        translation: deTranslation.default
-      },
-      tr: {
-        translation: trTranslation.default
-      }
-    };
-
-    await i18n
-      .use(initReactI18next)
-      .init({
-        resources,
-        lng: currentLanguage,
-        fallbackLng: 'en',
-        
-        interpolation: {
-          escapeValue: false
-        }
-      });
+    console.log('ℹ️ Dynamic translations not available, using static translations');
   }
 };
 
