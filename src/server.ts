@@ -65,12 +65,12 @@ if (process.env.NODE_ENV === 'production') {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', authenticateToken, adminRoutes);
-app.use('/api/user', authenticateToken, userRoutes);
-app.use('/api/assets', authenticateToken, assetsRoutes);
-app.use('/api/contracts', authenticateToken, contractsRoutes);
-app.use('/api/dashboard', authenticateToken, dashboardRoutes);
-app.use('/api/settings', authenticateToken, settingsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/assets', assetsRoutes);
+app.use('/api/contracts', contractsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/exchange-rates', exchangeRoutes);
 
 // Health check endpoint

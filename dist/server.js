@@ -19,7 +19,6 @@ const dashboard_1 = __importDefault(require("./routes/dashboard"));
 const settings_1 = __importDefault(require("./routes/settings"));
 const exchange_1 = __importDefault(require("./routes/exchange"));
 const errorHandler_1 = require("./middleware/errorHandler");
-const auth_2 = require("./middleware/auth");
 const database_1 = require("./config/database");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -49,12 +48,12 @@ if (process.env.NODE_ENV === 'production') {
     app.use(express_1.default.static(path_1.default.join(__dirname, '../client/build')));
 }
 app.use('/api/auth', auth_1.default);
-app.use('/api/admin', auth_2.authenticateToken, admin_1.default);
-app.use('/api/user', auth_2.authenticateToken, user_1.default);
-app.use('/api/assets', auth_2.authenticateToken, assets_1.default);
-app.use('/api/contracts', auth_2.authenticateToken, contracts_1.default);
-app.use('/api/dashboard', auth_2.authenticateToken, dashboard_1.default);
-app.use('/api/settings', auth_2.authenticateToken, settings_1.default);
+app.use('/api/admin', admin_1.default);
+app.use('/api/user', user_1.default);
+app.use('/api/assets', assets_1.default);
+app.use('/api/contracts', contracts_1.default);
+app.use('/api/dashboard', dashboard_1.default);
+app.use('/api/settings', settings_1.default);
 app.use('/api/exchange-rates', exchange_1.default);
 app.get('/api/health', (req, res) => {
     res.json({

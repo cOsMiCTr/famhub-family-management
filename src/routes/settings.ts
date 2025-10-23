@@ -1,9 +1,14 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
-import { asyncHandler, createValidationError } from '../middleware/errorHandler';
+import { asyncHandler, createValidationError, createUnauthorizedError } from '../middleware/errorHandler';
+import { authenticateToken } from '../middleware/auth';
+import { PasswordService } from '../services/passwordService';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
 // Get user settings
 router.get('/', asyncHandler(async (req, res) => {
@@ -157,6 +162,73 @@ router.get('/languages', asyncHandler(async (req, res) => {
 
   res.json({
     languages
+  });
+}));
+
+// Change password endpoint
+router.post('/change-password', [
+  body('current_password').isLength({ min: 1 }).withMessage('Current password required'),
+  body('new_password').isLength({ min: 8 }).withMessage('New password must be at least 8 characters')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const { current_password, new_password } = req.body;
+
+  // Validate password complexity
+  const complexityCheck = PasswordService.validatePasswordComplexity(new_password);
+  if (!complexityCheck.isValid) {
+    throw createValidationError(`Password does not meet requirements: ${complexityCheck.errors.join(', ')}`);
+  }
+
+  // Get current user data
+  const userResult = await query(
+    'SELECT id, password_hash FROM users WHERE id = $1',
+    [req.user.id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createUnauthorizedError('User not found');
+  }
+
+  const user = userResult.rows[0];
+
+  // Verify current password
+  const isValidCurrentPassword = await PasswordService.comparePassword(current_password, user.password_hash);
+  if (!isValidCurrentPassword) {
+    throw createUnauthorizedError('Current password is incorrect');
+  }
+
+  // Check password history
+  const isPasswordReused = await PasswordService.checkPasswordHistory(req.user.id, new_password);
+  if (isPasswordReused) {
+    throw createValidationError('Cannot reuse a recently used password. Please choose a different password.');
+  }
+
+  // Hash new password
+  const newPasswordHash = await PasswordService.hashPassword(new_password);
+
+  // Update user password
+  await query(
+    `UPDATE users 
+     SET password_hash = $1,
+         password_changed_at = NOW(),
+         updated_at = NOW()
+     WHERE id = $2`,
+    [newPasswordHash, req.user.id]
+  );
+
+  // Add old password to history
+  await PasswordService.addToPasswordHistory(req.user.id, user.password_hash);
+
+  res.json({
+    message: 'Password changed successfully'
   });
 }));
 
