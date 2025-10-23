@@ -249,7 +249,6 @@ router.post('/',
     body('category_id').isInt().withMessage('Category ID is required'),
     body('amount').isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
     body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
-    body('source_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']),
     body('description').optional().trim(),
     body('start_date').isISO8601().withMessage('Invalid start date'),
     body('end_date').optional().isISO8601().withMessage('Invalid end date'),
@@ -269,7 +268,6 @@ router.post('/',
         category_id,
         amount,
         currency,
-        source_currency,
         description,
         start_date,
         end_date,
@@ -298,9 +296,9 @@ router.post('/',
       // Create income entry
       const result = await query(
         `INSERT INTO income 
-         (household_id, household_member_id, category_id, amount, currency, source_currency,
+         (household_id, household_member_id, category_id, amount, currency,
           description, start_date, end_date, is_recurring, frequency, created_by_user_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
          RETURNING *`,
         [
           householdId,
@@ -308,7 +306,6 @@ router.post('/',
           category_id,
           amount,
           currency,
-          source_currency || null,
           description || null,
           start_date,
           end_date || null,
@@ -337,7 +334,6 @@ router.put('/:id',
     body('category_id').optional().isInt(),
     body('amount').optional().isFloat({ min: 0 }),
     body('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']),
-    body('source_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']),
     body('description').optional().trim(),
     body('start_date').optional().isISO8601(),
     body('end_date').optional().isISO8601(),
@@ -384,7 +380,6 @@ router.put('/:id',
         category_id,
         amount,
         currency,
-        source_currency,
         description,
         start_date,
         end_date,
@@ -415,10 +410,6 @@ router.put('/:id',
       if (currency !== undefined) {
         updateFields.push(`currency = $${valueIndex++}`);
         updateValues.push(currency);
-      }
-      if (source_currency !== undefined) {
-        updateFields.push(`source_currency = $${valueIndex++}`);
-        updateValues.push(source_currency || null);
       }
       if (description !== undefined) {
         updateFields.push(`description = $${valueIndex++}`);
