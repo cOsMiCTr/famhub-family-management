@@ -133,7 +133,9 @@ router.delete('/invitations/:id', asyncHandler(async (req, res) => {
 // List all users
 router.get('/users', asyncHandler(async (req, res) => {
   const usersResult = await query(
-    `SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, u.created_at,
+    `SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, 
+            u.account_status, u.last_login_at, u.last_activity_at, u.failed_login_attempts,
+            u.account_locked_until, u.must_change_password, u.created_at, u.updated_at,
             h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id

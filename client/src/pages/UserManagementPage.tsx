@@ -153,10 +153,12 @@ const UserManagementPage: React.FC = () => {
       setMessage('User deactivated successfully');
       setShowDeleteModal(false);
       
-      // Also refresh data to ensure consistency
-      setTimeout(() => loadData(), 500);
+      // Remove the setTimeout - just rely on optimistic update
+      // The optimistic update should be sufficient for immediate UI feedback
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to deactivate user');
+      // If there's an error, refresh data to get the correct state
+      loadData();
     } finally {
       setIsSaving(false);
     }

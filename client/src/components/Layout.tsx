@@ -222,15 +222,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <Bars3Icon className="h-5 w-5 text-gray-500" />
             </button>
             
-            <div className="flex items-center space-x-4">
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {navigation.find(item => item.href === location.pathname)?.name || t('navigation.dashboard')}
-                </h1>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center space-x-4">
+                <div className="hidden sm:block">
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {navigation.find(item => item.href === location.pathname)?.name || t('navigation.dashboard')}
+                  </h1>
+                </div>
               </div>
               
-              {/* Admin Notification Bell */}
-              <AdminNotificationBell />
+              {/* Admin Notification Bell - floated to right */}
+              <div className="flex items-center">
+                <AdminNotificationBell />
+              </div>
             </div>
           </div>
 
