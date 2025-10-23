@@ -95,6 +95,11 @@ const LoginPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Theme toggle - positioned in top right corner */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* Centered content */}
       <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
@@ -127,11 +132,6 @@ const LoginPage: React.FC = () => {
                 </h1>
                 <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">Family Management System</p>
               </div>
-            </div>
-
-            {/* Theme toggle */}
-            <div className="flex justify-center">
-              <ThemeToggle />
             </div>
 
             {/* Login form */}
