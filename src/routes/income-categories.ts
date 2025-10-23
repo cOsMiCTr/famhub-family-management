@@ -5,11 +5,19 @@ import { authenticateToken, requireAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-// Public route - Get all income categories
+// Public route - Get all income categories with income counts
 router.get('/', async (req, res) => {
   try {
     const result = await query(
-      'SELECT * FROM income_categories ORDER BY is_default DESC, name_en ASC'
+      `SELECT ic.*, 
+              COALESCE(income_counts.count, 0) as income_count
+       FROM income_categories ic
+       LEFT JOIN (
+         SELECT category_id, COUNT(*) as count
+         FROM income
+         GROUP BY category_id
+       ) income_counts ON ic.id = income_counts.category_id
+       ORDER BY ic.is_default DESC, ic.name_en ASC`
     );
 
     res.json(result.rows);

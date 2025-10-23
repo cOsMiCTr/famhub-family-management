@@ -15,6 +15,7 @@ interface IncomeCategory {
   name_tr: string;
   is_default: boolean;
   created_at: string;
+  income_count: number;
 }
 
 const IncomeCategoriesPage: React.FC = () => {
@@ -195,7 +196,7 @@ const IncomeCategoriesPage: React.FC = () => {
                       {t('incomeCategories.name')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t('incomeCategories.type')}
+                      {t('incomeCategories.incomeCount')}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
@@ -211,15 +212,9 @@ const IncomeCategoriesPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {category.is_default ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                            {t('incomeCategories.default')}
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                            {t('incomeCategories.custom')}
-                          </span>
-                        )}
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          {category.income_count} {t('income.entries')}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
@@ -230,7 +225,7 @@ const IncomeCategoriesPage: React.FC = () => {
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
-                          {!category.is_default && (
+                          {!category.is_default && category.income_count === 0 && (
                             <button
                               onClick={() => openDeleteModal(category)}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -406,6 +401,11 @@ const IncomeCategoriesPage: React.FC = () => {
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 {t('incomeCategories.deleteConfirmation')}
+                {selectedCategory && selectedCategory.income_count > 0 && (
+                  <span className="block mt-2 text-red-600 dark:text-red-400">
+                    This category has {selectedCategory.income_count} income {selectedCategory.income_count === 1 ? 'entry' : 'entries'} assigned to it.
+                  </span>
+                )}
               </p>
               <div className="flex justify-end space-x-3">
                 <button
