@@ -10,6 +10,7 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface IncomeEntry {
   id: number;
@@ -307,20 +308,6 @@ const IncomePage: React.FC = () => {
     setShowDeleteModal(true);
   };
 
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  // Format currency
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
-
   // Get category name based on current language
   const getCategoryName = useCallback((entry: IncomeEntry) => {
     const lang = i18n.language;
@@ -579,7 +566,7 @@ const IncomePage: React.FC = () => {
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                              One-time
+                              {t('income.oneTime')}
                             </span>
                           )}
                         </div>
