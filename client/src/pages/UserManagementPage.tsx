@@ -17,7 +17,8 @@ import {
   LockClosedIcon,
   LockOpenIcon,
   KeyIcon,
-  ClockIcon
+  ClockIcon,
+  UserMinusIcon
 } from '@heroicons/react/24/outline';
 
 interface User {
@@ -139,9 +140,21 @@ const UserManagementPage: React.FC = () => {
       setIsSaving(true);
       setError('');
       await apiService.deactivateUser(selectedUser.id.toString());
+      
+      // Optimistically update the user status in local state
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === selectedUser.id 
+            ? { ...user, account_status: 'locked' as const }
+            : user
+        )
+      );
+      
       setMessage('User deactivated successfully');
       setShowDeleteModal(false);
-      loadData();
+      
+      // Also refresh data to ensure consistency
+      setTimeout(() => loadData(), 500);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to deactivate user');
     } finally {
@@ -515,7 +528,7 @@ const UserManagementPage: React.FC = () => {
                                 className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                                 title="Deactivate User"
                               >
-                                <TrashIcon className="h-4 w-4" />
+                                <UserMinusIcon className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => openHardDeleteModal(user)}

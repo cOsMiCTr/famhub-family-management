@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import AdminNotificationBell from './AdminNotificationBell';
 import {
   HomeIcon,
   CurrencyDollarIcon,
@@ -227,6 +228,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   {navigation.find(item => item.href === location.pathname)?.name || t('navigation.dashboard')}
                 </h1>
               </div>
+              
+              {/* Admin Notification Bell */}
+              <AdminNotificationBell />
             </div>
           </div>
 
