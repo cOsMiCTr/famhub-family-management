@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   PlusIcon, 
@@ -81,6 +81,17 @@ const IncomePage: React.FC = () => {
     category_id: '',
     is_recurring: ''
   });
+  
+  // Local state for date inputs to prevent focus loss
+  const [localDateFilters, setLocalDateFilters] = useState({
+    start_date: '',
+    end_date: ''
+  });
+  
+  // Refs for debouncing timeouts
+  const startDateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const endDateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const [formData, setFormData] = useState({
     household_member_id: '',
     category_id: '',
@@ -93,6 +104,50 @@ const IncomePage: React.FC = () => {
     is_recurring: false,
     frequency: 'one-time'
   });
+
+  // Debounced update functions for date filters
+  const debouncedUpdateStartDate = useCallback((value: string) => {
+    if (startDateTimeoutRef.current) {
+      clearTimeout(startDateTimeoutRef.current);
+    }
+    startDateTimeoutRef.current = setTimeout(() => {
+      setFilters(prev => ({ ...prev, start_date: value }));
+    }, 500);
+  }, []);
+
+  const debouncedUpdateEndDate = useCallback((value: string) => {
+    if (endDateTimeoutRef.current) {
+      clearTimeout(endDateTimeoutRef.current);
+    }
+    endDateTimeoutRef.current = setTimeout(() => {
+      setFilters(prev => ({ ...prev, end_date: value }));
+    }, 500);
+  }, []);
+
+  // Handle date input changes
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalDateFilters(prev => ({ ...prev, start_date: value }));
+    debouncedUpdateStartDate(value);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalDateFilters(prev => ({ ...prev, end_date: value }));
+    debouncedUpdateEndDate(value);
+  };
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (startDateTimeoutRef.current) {
+        clearTimeout(startDateTimeoutRef.current);
+      }
+      if (endDateTimeoutRef.current) {
+        clearTimeout(endDateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Load data
   const loadData = async () => {
@@ -330,8 +385,8 @@ const IncomePage: React.FC = () => {
               </label>
               <input
                 type="date"
-                value={filters.start_date}
-                onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
+                value={localDateFilters.start_date}
+                onChange={handleStartDateChange}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
@@ -341,8 +396,8 @@ const IncomePage: React.FC = () => {
               </label>
               <input
                 type="date"
-                value={filters.end_date}
-                onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
+                value={localDateFilters.end_date}
+                onChange={handleEndDateChange}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
@@ -498,9 +553,13 @@ const IncomePage: React.FC = () => {
                         <div className="text-sm text-gray-900 dark:text-white">
                           {formatDate(entry.start_date)}
                         </div>
-                        {entry.end_date && (
+                        {entry.end_date ? (
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             to {formatDate(entry.end_date)}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                            {t('income.ongoing')}
                           </div>
                         )}
                       </td>
@@ -680,6 +739,9 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {t('income.leaveEmptyForOngoing')}
+                      </p>
                     </div>
                   </div>
 

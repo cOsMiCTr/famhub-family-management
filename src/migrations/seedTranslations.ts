@@ -192,6 +192,10 @@ const seedTranslations = async () => {
       { key: 'income.filterByMember', category: 'income', en: 'Filter by Member', de: 'Nach Mitglied filtern', tr: 'Üyeye Göre Filtrele' },
       { key: 'income.filterByCategory', category: 'income', en: 'Filter by Category', de: 'Nach Kategorie filtern', tr: 'Kategoriye Göre Filtrele' },
       { key: 'income.showRecurringOnly', category: 'income', en: 'Show Recurring Only', de: 'Nur Wiederkehrende anzeigen', tr: 'Sadece Tekrarlayanları Göster' },
+      { key: 'income.ongoing', category: 'income', en: 'Ongoing', de: 'Laufend', tr: 'Devam Ediyor' },
+      { key: 'income.present', category: 'income', en: 'Present', de: 'Aktuell', tr: 'Şu An' },
+      { key: 'income.leaveEmptyForOngoing', category: 'income', en: 'Leave empty for ongoing income', de: 'Für laufendes Einkommen leer lassen', tr: 'Devam eden gelir için boş bırakın' },
+      { key: 'income.currentPosition', category: 'income', en: 'Current Position', de: 'Aktuelle Position', tr: 'Mevcut Pozisyon' },
 
       // Family Members
       { key: 'familyMembers.title', category: 'familyMembers', en: 'Family Members', de: 'Familienmitglieder', tr: 'Aile Üyeleri' },
