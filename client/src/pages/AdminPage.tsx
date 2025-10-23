@@ -13,32 +13,32 @@ const AdminPage: React.FC = () => {
 
   const adminCards = [
     {
-      title: 'Admin Dashboard',
-      description: 'System Statistics',
+      title: t('admin.adminDashboard'),
+      description: t('admin.systemStatistics'),
       icon: ChartBarIcon,
       href: '/admin/dashboard',
       gradient: 'from-purple-500 to-indigo-600',
       iconBg: 'bg-gradient-to-r from-purple-500 to-indigo-600'
     },
     {
-      title: 'User Management',
-      description: 'Users & Households',
+      title: t('admin.userManagement'),
+      description: t('admin.usersHouseholds'),
       icon: UserGroupIcon,
       href: '/admin/users',
       gradient: 'from-blue-500 to-cyan-600',
       iconBg: 'bg-gradient-to-r from-blue-500 to-cyan-600'
     },
     {
-      title: 'Security Dashboard',
-      description: 'Monitor Security',
+      title: t('admin.securityDashboard'),
+      description: t('admin.monitorSecurity'),
       icon: ShieldCheckIcon,
       href: '/admin/security',
       gradient: 'from-red-500 to-pink-600',
       iconBg: 'bg-gradient-to-r from-red-500 to-pink-600'
     },
     {
-      title: 'Translations',
-      description: 'Manage Translations',
+      title: t('admin.translations'),
+      description: t('admin.manageTranslations'),
       icon: LanguageIcon,
       href: '/admin/translations',
       gradient: 'from-green-500 to-emerald-600',
