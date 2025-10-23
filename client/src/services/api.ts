@@ -77,6 +77,11 @@ class ApiService {
     return response.data;
   }
 
+  async changePassword(data: any) {
+    const response = await this.api.post('/settings/change-password', data);
+    return response.data;
+  }
+
   async getCurrencies() {
     const response = await this.api.get('/settings/currencies');
     return response.data;
@@ -222,6 +227,12 @@ class ApiService {
   async getContractCategories() {
     const response = await this.api.get('/contracts/categories');
     return response.data;
+  }
+
+  // Generic methods
+  async get(url: string, config?: any) {
+    const response = await this.api.get(url, config);
+    return response;
   }
 
   // Health check

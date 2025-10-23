@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
 import apiService from '../services/api';
 
 interface User {
@@ -20,6 +20,7 @@ interface AuthContextType {
   completeRegistration: (data: any) => Promise<void>;
   isLoading: boolean;
   isAuthenticated: boolean;
+  resetInactivityTimer: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +41,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+  const resetInactivityTimer = () => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    
+    if (user && token) {
+      inactivityTimerRef.current = setTimeout(() => {
+        console.log('User automatically logged out due to inactivity');
+        logout();
+      }, INACTIVITY_TIMEOUT);
+    }
+  };
+
+  const setupActivityListeners = () => {
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    const resetTimer = () => {
+      resetInactivityTimer();
+    };
+
+    events.forEach(event => {
+      document.addEventListener(event, resetTimer, true);
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, resetTimer, true);
+      });
+    };
+  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -51,6 +85,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (user && token) {
+      resetInactivityTimer();
+      const cleanup = setupActivityListeners();
+      
+      return () => {
+        cleanup();
+        if (inactivityTimerRef.current) {
+          clearTimeout(inactivityTimerRef.current);
+        }
+      };
+    }
+  }, [user, token]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -74,6 +122,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    
     apiService.logout().catch(console.error);
   };
 
@@ -102,6 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     completeRegistration,
     isLoading,
     isAuthenticated: !!user && !!token,
+    resetInactivityTimer,
   };
 
   return (
