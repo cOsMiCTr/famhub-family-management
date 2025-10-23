@@ -14,6 +14,8 @@ import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface IncomeEntry {
   id: number;
+  household_member_id: number;
+  category_id: number;
   amount: number;
   currency: string;
   source_currency?: string;
@@ -289,8 +291,8 @@ const IncomePage: React.FC = () => {
   const handleEdit = (entry: IncomeEntry) => {
     setSelectedEntry(entry);
     setFormData({
-      household_member_id: entry.member_name,
-      category_id: entry.category_name_en,
+      household_member_id: entry.household_member_id.toString(),
+      category_id: entry.category_id.toString(),
       amount: entry.amount.toString(),
       currency: entry.currency,
       description: entry.description || '',
@@ -307,6 +309,17 @@ const IncomePage: React.FC = () => {
     setSelectedEntry(entry);
     setShowDeleteModal(true);
   };
+
+  // Get frequency display name
+  const getFrequencyDisplayName = useCallback((frequency: string) => {
+    const frequencyMap: { [key: string]: string } = {
+      'monthly': t('income.monthly'),
+      'weekly': t('income.weekly'),
+      'yearly': t('income.yearly'),
+      'one-time': t('income.oneTime')
+    };
+    return frequencyMap[frequency] || frequency;
+  }, [t]);
 
   // Get category name based on current language
   const getCategoryName = useCallback((entry: IncomeEntry) => {
@@ -562,7 +575,7 @@ const IncomePage: React.FC = () => {
                         <div className="text-sm text-gray-900 dark:text-white">
                           {entry.is_recurring ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                              {entry.frequency}
+                              {getFrequencyDisplayName(entry.frequency)}
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">

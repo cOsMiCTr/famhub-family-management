@@ -212,6 +212,9 @@ const seedTranslations = async () => {
       { key: 'income.selectCategory', category: 'income', en: 'Select Category', de: 'Kategorie auswählen', tr: 'Kategori Seçin' },
       { key: 'income.selectMember', category: 'income', en: 'Select Member', de: 'Mitglied auswählen', tr: 'Üye Seçin' },
       { key: 'income.oneTime', category: 'income', en: 'One-time', de: 'Einmalig', tr: 'Tek Seferlik' },
+      { key: 'income.monthly', category: 'income', en: 'Monthly', de: 'Monatlich', tr: 'Aylık' },
+      { key: 'income.weekly', category: 'income', en: 'Weekly', de: 'Wöchentlich', tr: 'Haftalık' },
+      { key: 'income.yearly', category: 'income', en: 'Yearly', de: 'Jährlich', tr: 'Yıllık' },
 
       // Family Members
       { key: 'familyMembers.title', category: 'familyMembers', en: 'Family Members', de: 'Familienmitglieder', tr: 'Aile Üyeleri' },
