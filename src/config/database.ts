@@ -29,7 +29,7 @@ export async function initializeDatabase(): Promise<void> {
       const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
       const corruptedCount = await seedClient.query('SELECT COUNT(*) as count FROM translations WHERE en = \'\' OR en IS NULL');
       
-      if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0 || true) {
+      if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
         console.log('🌱 Seeding translations from JSON files...');
         const { default: seedTranslations } = await import('../migrations/seedTranslations');
         await seedTranslations();
