@@ -224,7 +224,6 @@ const IncomePage: React.FC = () => {
           amount: parseFloat(formData.amount),
           household_member_id: parseInt(formData.household_member_id),
           category_id: parseInt(formData.category_id),
-          source_currency: formData.source_currency || null,
           end_date: formData.end_date || null
         })
       });
@@ -555,11 +554,6 @@ const IncomePage: React.FC = () => {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(entry.amount, entry.currency)}
                         </div>
-                        {entry.source_currency && entry.source_currency !== entry.currency && (
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Source: {entry.source_currency}
-                          </div>
-                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">
