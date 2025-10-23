@@ -20,6 +20,11 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      FROM assets
      WHERE user_id = $1
      GROUP BY currency`, [userId]);
+    const incomeResult = await (0, database_1.query)(`SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
+     FROM income i
+     JOIN users u ON i.household_id = u.household_id
+     WHERE u.id = $1
+     GROUP BY i.currency`, [userId]);
     const currencyBreakdown = [];
     let totalInMainCurrency = 0;
     for (const asset of assetsResult.rows) {
@@ -35,6 +40,23 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         }
         catch (error) {
             console.error(`Failed to convert ${asset.currency} to ${mainCurrency}:`, error);
+        }
+    }
+    const incomeBreakdown = [];
+    let totalIncomeInMainCurrency = 0;
+    for (const income of incomeResult.rows) {
+        try {
+            const convertedAmount = await exchangeRateService_1.exchangeRateService.convertCurrency(parseFloat(income.total_amount), income.currency, mainCurrency);
+            incomeBreakdown.push({
+                currency: income.currency,
+                amount: parseFloat(income.total_amount),
+                converted_amount: convertedAmount,
+                count: parseInt(income.count)
+            });
+            totalIncomeInMainCurrency += convertedAmount;
+        }
+        catch (error) {
+            console.error(`Error converting income ${income.currency} to ${mainCurrency}:`, error);
         }
     }
     const recentIncomeResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr
@@ -92,8 +114,10 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     res.json({
         summary: {
             total_assets_main_currency: totalInMainCurrency,
+            total_income_main_currency: totalIncomeInMainCurrency,
             main_currency: mainCurrency,
             currency_breakdown: currencyBreakdown,
+            income_breakdown: incomeBreakdown,
             quick_stats: {
                 income_entries: parseInt(quickStats.income_entries) || 0,
                 expense_entries: parseInt(quickStats.expense_entries) || 0,

@@ -15,6 +15,7 @@ import {
 
 interface DashboardStats {
   totalAssets?: number;
+  totalIncome?: number;
   monthlyIncome?: number;
   activeContracts?: number;
   totalMembers?: number;
@@ -39,7 +40,15 @@ const DashboardPage: React.FC = () => {
       
       // Fetch dashboard summary from API
       const response = await apiService.get('/dashboard/summary');
-      setStats(response.data);
+      const dashboardData = response.data;
+      
+      setStats({
+        totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
+        totalIncome: dashboardData.summary?.total_income_main_currency || 0,
+        monthlyIncome: dashboardData.summary?.quick_stats?.income_entries || 0,
+        activeContracts: dashboardData.summary?.quick_stats?.active_contracts || 0,
+        currency: dashboardData.summary?.main_currency || 'USD'
+      });
     } catch (err: any) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
@@ -84,12 +93,20 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-blue-600 dark:text-blue-400'
     },
     {
-      title: 'Monthly Income',
-      value: stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...',
-      icon: ArrowTrendingUpIcon,
+      title: t('dashboard.totalIncome'),
+      value: stats ? formatCurrency(stats.totalIncome, stats.currency || 'USD') : 'Loading...',
+      icon: CurrencyDollarIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
       textColor: 'text-green-600 dark:text-green-400'
+    },
+    {
+      title: 'Monthly Income',
+      value: stats ? formatCurrency(stats.monthlyIncome, stats.currency || 'USD') : 'Loading...',
+      icon: ArrowTrendingUpIcon,
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      textColor: 'text-purple-600 dark:text-purple-400'
     },
     {
       title: t('dashboard.activeContracts'),

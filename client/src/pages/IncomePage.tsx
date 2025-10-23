@@ -111,6 +111,8 @@ const IncomePage: React.FC = () => {
     frequency: 'one-time'
   });
 
+  const [userPreferences, setUserPreferences] = useState<{currency?: string} | null>(null);
+
   // Debounced update functions for date filters
   const debouncedUpdateStartDate = useCallback((value: string) => {
     if (startDateTimeoutRef.current) {
@@ -167,7 +169,7 @@ const IncomePage: React.FC = () => {
         if (value) incomeParams.append(key, value);
       });
       
-      const [incomeRes, categoriesRes, membersRes, summaryRes] = await Promise.all([
+      const [incomeRes, categoriesRes, membersRes, summaryRes, settingsRes] = await Promise.all([
         fetch(`/api/income?${incomeParams}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
@@ -179,24 +181,29 @@ const IncomePage: React.FC = () => {
         }),
         fetch(`/api/income/summary?${incomeParams}`, {
           headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('/api/settings', {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
 
-      if (!incomeRes.ok || !categoriesRes.ok || !membersRes.ok || !summaryRes.ok) {
+      if (!incomeRes.ok || !categoriesRes.ok || !membersRes.ok || !summaryRes.ok || !settingsRes.ok) {
         throw new Error('Failed to load data');
       }
 
-      const [incomeData, categoriesData, membersData, summaryData] = await Promise.all([
+      const [incomeData, categoriesData, membersData, summaryData, settingsData] = await Promise.all([
         incomeRes.json(),
         categoriesRes.json(),
         membersRes.json(),
-        summaryRes.json()
+        summaryRes.json(),
+        settingsRes.json()
       ]);
 
       setIncomeEntries(incomeData);
       setCategories(categoriesData);
       setMembers(membersData);
       setSummary(summaryData);
+      setUserPreferences(settingsData);
     } catch (error) {
       console.error('Error loading data:', error);
       setError('Failed to load income data');
@@ -208,6 +215,16 @@ const IncomePage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [filters]);
+
+  // Update form data currency when user preferences are loaded
+  useEffect(() => {
+    if (userPreferences?.currency && !showAddModal && !showEditModal) {
+      setFormData(prev => ({
+        ...prev,
+        currency: userPreferences.currency || 'TRY'
+      }));
+    }
+  }, [userPreferences, showAddModal, showEditModal]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -293,6 +310,14 @@ const IncomePage: React.FC = () => {
     
     // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as monthly
     const effectiveFrequency = (entry.is_recurring && entry.frequency === 'one-time') ? 'monthly' : entry.frequency;
+    
+    // Debug logging for dates
+    console.log('Edit entry dates:', {
+      start_date: entry.start_date,
+      end_date: entry.end_date,
+      start_date_type: typeof entry.start_date,
+      end_date_type: typeof entry.end_date
+    });
     
     setFormData({
       household_member_id: entry.household_member_id.toString(),
@@ -435,7 +460,7 @@ const IncomePage: React.FC = () => {
                 type="date"
                 value={localDateFilters.start_date}
                 onChange={handleStartDateChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
             <div>
@@ -446,7 +471,7 @@ const IncomePage: React.FC = () => {
                 type="date"
                 value={localDateFilters.end_date}
                 onChange={handleEndDateChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
             <div>
@@ -456,7 +481,7 @@ const IncomePage: React.FC = () => {
               <select
                 value={filters.member_id}
                 onChange={(e) => setFilters({ ...filters, member_id: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">{t('income.allMembers')}</option>
                 {members.map((member) => (
@@ -473,7 +498,7 @@ const IncomePage: React.FC = () => {
               <select
                 value={filters.category_id}
                 onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">{t('incomeCategories.allCategories')}</option>
                 {categories.map((category) => (
@@ -490,7 +515,7 @@ const IncomePage: React.FC = () => {
               <select
                 value={filters.is_recurring}
                 onChange={(e) => setFilters({ ...filters, is_recurring: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">{t('income.all')}</option>
                 <option value="true">{t('income.recurringOnly')}</option>
@@ -657,7 +682,7 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.household_member_id}
                         onChange={(e) => setFormData({ ...formData, household_member_id: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
                         <option value="">{t('income.selectMember')}</option>
                         {members.map((member) => (
@@ -676,7 +701,7 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.category_id}
                         onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
                         <option value="">{t('income.selectCategory')}</option>
                         {categories.map((category) => (
@@ -699,7 +724,7 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </div>
                     
@@ -711,7 +736,7 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.currency}
                         onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
                         <option value="TRY">TRY</option>
                         <option value="USD">USD</option>
@@ -730,7 +755,7 @@ const IncomePage: React.FC = () => {
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       rows={3}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
 
@@ -744,7 +769,7 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.start_date}
                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                     </div>
                     
@@ -756,7 +781,7 @@ const IncomePage: React.FC = () => {
                         type="date"
                         value={formData.end_date}
                         onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       />
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         {t('income.leaveEmptyForOngoing')}
@@ -785,7 +810,7 @@ const IncomePage: React.FC = () => {
                         <select
                           value={formData.frequency}
                           onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
                           <option value="monthly">{t('income.monthly')}</option>
                           <option value="weekly">{t('income.weekly')}</option>

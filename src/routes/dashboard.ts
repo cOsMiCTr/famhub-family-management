@@ -27,6 +27,16 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [userId]
   );
 
+  // Get total income by currency
+  const incomeResult = await query(
+    `SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
+     FROM income i
+     JOIN users u ON i.household_id = u.household_id
+     WHERE u.id = $1
+     GROUP BY i.currency`,
+    [userId]
+  );
+
   // Convert to main currency
   const currencyBreakdown = [];
   let totalInMainCurrency = 0;
@@ -49,6 +59,31 @@ router.get('/summary', asyncHandler(async (req, res) => {
       totalInMainCurrency += convertedAmount;
     } catch (error) {
       console.error(`Failed to convert ${asset.currency} to ${mainCurrency}:`, error);
+    }
+  }
+
+  // Convert income to main currency
+  const incomeBreakdown = [];
+  let totalIncomeInMainCurrency = 0;
+
+  for (const income of incomeResult.rows) {
+    try {
+      const convertedAmount = await exchangeRateService.convertCurrency(
+        parseFloat(income.total_amount),
+        income.currency,
+        mainCurrency
+      );
+
+      incomeBreakdown.push({
+        currency: income.currency,
+        amount: parseFloat(income.total_amount),
+        converted_amount: convertedAmount,
+        count: parseInt(income.count)
+      });
+
+      totalIncomeInMainCurrency += convertedAmount;
+    } catch (error) {
+      console.error(`Error converting income ${income.currency} to ${mainCurrency}:`, error);
     }
   }
 
@@ -138,8 +173,10 @@ router.get('/summary', asyncHandler(async (req, res) => {
   res.json({
     summary: {
       total_assets_main_currency: totalInMainCurrency,
+      total_income_main_currency: totalIncomeInMainCurrency,
       main_currency: mainCurrency,
       currency_breakdown: currencyBreakdown,
+      income_breakdown: incomeBreakdown,
       quick_stats: {
         income_entries: parseInt(quickStats.income_entries) || 0,
         expense_entries: parseInt(quickStats.expense_entries) || 0,

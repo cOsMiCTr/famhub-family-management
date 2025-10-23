@@ -63,6 +63,7 @@ const seedTranslations = async () => {
       // Dashboard
       { key: 'dashboard.title', category: 'dashboard', en: 'Dashboard', de: 'Dashboard', tr: 'Kontrol Paneli' },
       { key: 'dashboard.totalAssets', category: 'dashboard', en: 'Total Assets', de: 'Gesamtvermögen', tr: 'Toplam Varlık' },
+      { key: 'dashboard.totalIncome', category: 'dashboard', en: 'Total Income', de: 'Gesamteinkommen', tr: 'Toplam Gelir' },
       { key: 'dashboard.recentIncome', category: 'dashboard', en: 'Recent Income', de: 'Letzte Einkommen', tr: 'Son Gelir' },
       { key: 'dashboard.upcomingRenewals', category: 'dashboard', en: 'Upcoming Renewals', de: 'Bevorstehende Verlängerungen', tr: 'Yaklaşan Yenilemeler' },
       { key: 'dashboard.quickStats', category: 'dashboard', en: 'Quick Stats', de: 'Schnelle Statistiken', tr: 'Hızlı İstatistikler' },
