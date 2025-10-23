@@ -63,140 +63,143 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         />
       )}
 
-      {/* Sidebar */}
-      <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div id="sidebar-content" className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
-          {/* Logo */}
-          <div id="sidebar-logo" className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FH</span>
+      {/* Desktop Layout Container */}
+      <div className="lg:flex lg:h-screen">
+        {/* Sidebar */}
+        <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex-shrink-0 ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div id="sidebar-content" className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
+            {/* Logo */}
+            <div id="sidebar-logo" className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">FH</span>
+                </div>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">FamHub</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">FamHub</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-500" />
+              </button>
             </div>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-500" />
-            </button>
-          </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <item.icon className={`mr-3 h-5 w-5 ${
-                    isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
-                  }`} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
+            {/* Navigation */}
+            <nav id="sidebar-nav" className="flex-1 px-4 py-6 space-y-2">
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      isActive
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <item.icon className={`mr-3 h-5 w-5 ${
+                      isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                    }`} />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
 
-          {/* User section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="h-10 w-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                <UserIcon className="h-5 w-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {user?.email}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {user?.role === 'admin' ? t('user.admin') : t('user.member')}
-                </p>
-              </div>
-            </div>
-            
-            {/* Controls */}
-            <div className="flex items-center space-x-2">
-              {/* Language selector */}
-              <div className="relative flex-1">
-                <button
-                  onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                  className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  <LanguageIcon className="h-4 w-4 mr-2" />
-                  <span className="mr-1">{currentLanguage.flag}</span>
-                  <span className="truncate">{currentLanguage.name}</span>
-                </button>
-                
-                {isLanguageMenuOpen && (
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => changeLanguage(lang.code)}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                          i18n.language === lang.code ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        <span className="mr-2">{lang.flag}</span>
-                        {lang.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* User section */}
+            <div id="sidebar-user-section" className="border-t border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="h-10 w-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <UserIcon className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {user?.email}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {user?.role === 'admin' ? t('user.admin') : t('user.member')}
+                  </p>
+                </div>
               </div>
               
-              {/* Theme toggle */}
-              <ThemeToggle />
+              {/* Controls */}
+              <div className="flex items-center space-x-2">
+                {/* Language selector */}
+                <div className="relative flex-1">
+                  <button
+                    onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+                    className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <LanguageIcon className="h-4 w-4 mr-2" />
+                    <span className="mr-1">{currentLanguage.flag}</span>
+                    <span className="truncate">{currentLanguage.name}</span>
+                  </button>
+                  
+                  {isLanguageMenuOpen && (
+                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => changeLanguage(lang.code)}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                            i18n.language === lang.code ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <span className="mr-2">{lang.flag}</span>
+                          {lang.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Theme toggle */}
+                <ThemeToggle />
+              </div>
+              
+              {/* Logout button */}
+              <button
+                onClick={handleLogout}
+                className="w-full mt-3 flex items-center justify-center px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                {t('auth.logout')}
+              </button>
             </div>
-            
-            {/* Logout button */}
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div id="main-content" className="lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
+          {/* Top bar */}
+          <div id="top-bar" className="sticky top-0 z-30 flex h-16 items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
             <button
-              onClick={handleLogout}
-              className="w-full mt-3 flex items-center justify-center px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-              {t('auth.logout')}
+              <Bars3Icon className="h-5 w-5 text-gray-500" />
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div id="main-content" className="lg:ml-64">
-        {/* Top bar */}
-        <div id="top-bar" className="sticky top-0 z-30 flex h-16 items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Bars3Icon className="h-5 w-5 text-gray-500" />
-          </button>
-          
-          <div className="flex items-center space-x-4">
-            <div className="hidden sm:block">
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {navigation.find(item => item.href === location.pathname)?.name || t('navigation.dashboard')}
-              </h1>
+            
+            <div className="flex items-center space-x-4">
+              <div className="hidden sm:block">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {navigation.find(item => item.href === location.pathname)?.name || t('navigation.dashboard')}
+                </h1>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Page content */}
-        <main id="page-content" className="p-4 lg:p-6">
-          <div id="content-wrapper" className="animate-fadeIn">
-            {children}
-          </div>
-        </main>
+          {/* Page content */}
+          <main id="page-content" className="flex-1 p-4 lg:p-6 overflow-auto">
+            <div id="content-wrapper" className="animate-fadeIn">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
