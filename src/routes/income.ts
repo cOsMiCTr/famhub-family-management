@@ -251,15 +251,13 @@ router.post('/',
     body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
     body('description').optional().trim(),
     body('start_date').isISO8601().withMessage('Invalid start date'),
-    body('end_date').optional().isISO8601().withMessage('Invalid end date'),
+    body('end_date').optional({ nullable: true }).isISO8601().withMessage('Invalid end date'),
     body('is_recurring').isBoolean().withMessage('is_recurring must be boolean'),
     body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time'])
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.error('Income validation errors:', errors.array());
-      console.error('Request body:', req.body);
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -338,7 +336,7 @@ router.put('/:id',
     body('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']),
     body('description').optional().trim(),
     body('start_date').optional().isISO8601(),
-    body('end_date').optional().isISO8601(),
+    body('end_date').optional({ nullable: true }).isISO8601(),
     body('is_recurring').optional().isBoolean(),
     body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time'])
   ],
