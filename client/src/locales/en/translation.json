@@ -96,6 +96,7 @@
   },
   "admin": {
     "title": "Admin Panel",
+    "userManagement": "User Management",
     "inviteUser": "Invite User",
     "userEmail": "User Email",
     "household": "Household",
@@ -112,7 +113,17 @@
     "householdUpdated": "Household updated successfully",
     "pendingInvitations": "Pending Invitations",
     "allUsers": "All Users",
-    "allHouseholds": "All Households"
+    "allHouseholds": "All Households",
+    "editUser": "Edit User",
+    "deactivateUser": "Deactivate User",
+    "revokeInvitation": "Revoke Invitation",
+    "userRole": "User Role",
+    "assignedHousehold": "Assigned Household",
+    "unassigned": "Unassigned",
+    "memberCount": "Member Count",
+    "createdBy": "Created By",
+    "expiresAt": "Expires At",
+    "sentAt": "Sent At"
   },
   "contracts": {
     "title": "Contracts",

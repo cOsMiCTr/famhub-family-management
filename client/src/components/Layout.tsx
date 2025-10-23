@@ -44,6 +44,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
   ];
 
+  // Admin-only navigation items
+  const adminNavigation = [
+    { name: t('admin.userManagement'), href: '/admin/users', icon: UserGroupIcon },
+  ];
+
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -108,6 +113,38 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   </Link>
                 );
               })}
+              
+              {/* Admin-only navigation items */}
+              {user?.role === 'admin' && (
+                <>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+                  <div className="px-3 py-2">
+                    <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Admin
+                    </h3>
+                  </div>
+                  {adminNavigation.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                          isActive
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                        }`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className={`mr-3 h-5 w-5 ${
+                          isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                        }`} />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
             </nav>
 
             {/* User section */}

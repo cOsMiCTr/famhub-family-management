@@ -96,6 +96,7 @@
   },
   "admin": {
     "title": "Admin-Panel",
+    "userManagement": "Benutzerverwaltung",
     "inviteUser": "Benutzer einladen",
     "userEmail": "Benutzer-E-Mail",
     "household": "Haushalt",
@@ -112,7 +113,17 @@
     "householdUpdated": "Haushalt erfolgreich aktualisiert",
     "pendingInvitations": "Ausstehende Einladungen",
     "allUsers": "Alle Benutzer",
-    "allHouseholds": "Alle Haushalte"
+    "allHouseholds": "Alle Haushalte",
+    "editUser": "Benutzer bearbeiten",
+    "deactivateUser": "Benutzer deaktivieren",
+    "revokeInvitation": "Einladung widerrufen",
+    "userRole": "Benutzerrolle",
+    "assignedHousehold": "Zugewiesener Haushalt",
+    "unassigned": "Nicht zugewiesen",
+    "memberCount": "Mitgliederanzahl",
+    "createdBy": "Erstellt von",
+    "expiresAt": "Läuft ab am",
+    "sentAt": "Gesendet am"
   },
   "contracts": {
     "title": "Verträge",

@@ -96,6 +96,7 @@
   },
   "admin": {
     "title": "Yönetici Paneli",
+    "userManagement": "Kullanıcı Yönetimi",
     "inviteUser": "Kullanıcı Davet Et",
     "userEmail": "Kullanıcı E-postası",
     "household": "Aile",
@@ -112,7 +113,17 @@
     "householdUpdated": "Aile başarıyla güncellendi",
     "pendingInvitations": "Bekleyen Davetler",
     "allUsers": "Tüm Kullanıcılar",
-    "allHouseholds": "Tüm Aileler"
+    "allHouseholds": "Tüm Aileler",
+    "editUser": "Kullanıcıyı Düzenle",
+    "deactivateUser": "Kullanıcıyı Devre Dışı Bırak",
+    "revokeInvitation": "Daveti İptal Et",
+    "userRole": "Kullanıcı Rolü",
+    "assignedHousehold": "Atanmış Aile",
+    "unassigned": "Atanmamış",
+    "memberCount": "Üye Sayısı",
+    "createdBy": "Oluşturan",
+    "expiresAt": "Son Geçerlilik",
+    "sentAt": "Gönderilme Tarihi"
   },
   "contracts": {
     "title": "Sözleşmeler",

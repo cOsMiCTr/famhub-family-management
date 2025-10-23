@@ -79,6 +79,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
+    const sessionStartTime = sessionStorage.getItem('sessionStartTime');
+
+    // Check if this is a new browser session (no sessionStartTime)
+    if (!sessionStartTime) {
+      // Clear any existing auth data on new browser session
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsLoading(false);
+      return;
+    }
 
     if (storedToken && storedUser) {
       const userData = JSON.parse(storedUser);
@@ -119,6 +129,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
       
+      // Set session start time for browser session tracking
+      sessionStorage.setItem('sessionStartTime', Date.now().toString());
+      
       // Apply user's language preference
       if (userData.preferred_language && userData.preferred_language !== i18n.language) {
         i18n.changeLanguage(userData.preferred_language);
@@ -134,6 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('sessionStartTime');
     
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
