@@ -182,6 +182,29 @@ async function runMigrations() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+        const addColumnIfNotExists = async (columnName, columnDefinition) => {
+            try {
+                await client.query(`ALTER TABLE users ADD COLUMN ${columnName} ${columnDefinition}`);
+                console.log(`✅ Added column: ${columnName}`);
+            }
+            catch (error) {
+                if (error.code === '42701') {
+                    console.log(`ℹ️ Column ${columnName} already exists`);
+                }
+                else {
+                    throw error;
+                }
+            }
+        };
+        await addColumnIfNotExists('must_change_password', 'BOOLEAN DEFAULT false');
+        await addColumnIfNotExists('password_changed_at', 'TIMESTAMP');
+        await addColumnIfNotExists('account_status', "VARCHAR(50) DEFAULT 'active' CHECK (account_status IN ('active', 'locked', 'pending_password_change'))");
+        await addColumnIfNotExists('failed_login_attempts', 'INTEGER DEFAULT 0');
+        await addColumnIfNotExists('last_failed_login_at', 'TIMESTAMP');
+        await addColumnIfNotExists('account_locked_until', 'TIMESTAMP');
+        await addColumnIfNotExists('last_login_at', 'TIMESTAMP');
+        await addColumnIfNotExists('last_activity_at', 'TIMESTAMP');
+        await addColumnIfNotExists('password_history', 'TEXT[] DEFAULT ARRAY[]::TEXT[]');
         try {
             await client.query(`
         ALTER TABLE users 
