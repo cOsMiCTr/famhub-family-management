@@ -92,6 +92,10 @@ const IncomePage: React.FC = () => {
   const startDateTimeoutRef = useRef<number | null>(null);
   const endDateTimeoutRef = useRef<number | null>(null);
   
+  // Ref to store the latest setFilters function
+  const setFiltersRef = useRef(setFilters);
+  setFiltersRef.current = setFilters;
+  
   const [formData, setFormData] = useState({
     household_member_id: '',
     category_id: '',
@@ -110,18 +114,18 @@ const IncomePage: React.FC = () => {
       clearTimeout(startDateTimeoutRef.current);
     }
     startDateTimeoutRef.current = setTimeout(() => {
-      setFilters(prev => ({ ...prev, start_date: value }));
+      setFiltersRef.current(prev => ({ ...prev, start_date: value }));
     }, 500);
-  }, [setFilters]);
+  }, []);
 
   const debouncedUpdateEndDate = useCallback((value: string) => {
     if (endDateTimeoutRef.current) {
       clearTimeout(endDateTimeoutRef.current);
     }
     endDateTimeoutRef.current = setTimeout(() => {
-      setFilters(prev => ({ ...prev, end_date: value }));
+      setFiltersRef.current(prev => ({ ...prev, end_date: value }));
     }, 500);
-  }, [setFilters]);
+  }, []);
 
   // Handle date input changes
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
