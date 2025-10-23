@@ -32,16 +32,16 @@
     "registrationSuccess": "Kayıt başarıyla tamamlandı"
   },
   "navigation": {
-    "dashboard": "Ana Sayfa",
+    "dashboard": "Kontrol Panelim",
     "assets": "Varlıklar",
     "contracts": "Sözleşmeler",
     "settings": "Ayarlar",
     "admin": "Yönetici",
-    "households": "Aileler",
+    "households": "Hane",
     "users": "Kullanıcılar"
   },
   "dashboard": {
-    "title": "Ana Sayfa",
+    "title": "Kontrol Panelim",
     "totalAssets": "Toplam Varlık",
     "recentIncome": "Son Gelirler",
     "upcomingRenewals": "Yaklaşan Yenilemeler",
