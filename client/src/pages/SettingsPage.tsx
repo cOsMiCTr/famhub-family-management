@@ -111,9 +111,13 @@ const SettingsPage: React.FC = () => {
       }
       
       setMessage('Settings updated successfully!');
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setMessage(''), 5000); // Increased timeout for mobile users
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update settings');
+      console.error('Settings update error:', err);
+      const errorMessage = err.response?.data?.error || 
+                          err.message || 
+                          'Failed to update settings. Please check your connection and try again.';
+      setError(errorMessage);
     } finally {
       setIsSaving(false);
     }

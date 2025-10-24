@@ -11,6 +11,15 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  /* Mobile touch optimizations */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Prevent zoom on input focus */
+  font-size: 16px;
 }
 
 /* Ensure consistent box-sizing */
@@ -102,17 +111,32 @@ textarea,
   background: rgb(107 114 128);
 }
 
-/* Modern button styles */
+/* Mobile-optimized button styles */
 .btn-primary {
-  @apply bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  /* Mobile touch optimizations */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-secondary {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium px-6 py-3 rounded-lg shadow-sm hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  @apply bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-900 font-medium px-6 py-3 rounded-lg shadow-sm hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  /* Mobile touch optimizations */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-danger {
-  @apply bg-red-500 hover:bg-red-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  @apply bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  /* Mobile touch optimizations */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Modern card styles */
@@ -132,9 +156,15 @@ textarea,
   @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900;
 }
 
-/* Modern form styles */
+/* Mobile-optimized form styles */
 .form-input {
   @apply w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400;
+  /* Mobile optimizations */
+  font-size: 16px; /* Prevent zoom on iOS */
+  min-height: 44px; /* Minimum touch target */
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .form-label {

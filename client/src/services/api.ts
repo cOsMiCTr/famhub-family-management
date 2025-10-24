@@ -6,7 +6,7 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: '/api',
-      timeout: 10000,
+      timeout: 30000, // Increased for slow mobile connections
       headers: {
         'Content-Type': 'application/json',
       },
@@ -27,10 +27,24 @@ class ApiService {
       }
     );
 
-    // Response interceptor to handle auth errors
+    // Response interceptor to handle auth errors and retry logic
     this.api.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error) => {
+        const config = error.config;
+        
+        // Retry logic for network errors (up to 3 attempts)
+        if (!config._retryCount && (error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED')) {
+          config._retryCount = 0;
+        }
+        
+        if (config._retryCount < 3 && (error.code === 'NETWORK_ERROR' || error.code === 'ECONNABORTED')) {
+          config._retryCount += 1;
+          const delay = Math.pow(2, config._retryCount) * 1000; // Exponential backoff
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return this.api(config);
+        }
+        
         // Only redirect to login for 401 errors that are NOT from the login endpoint itself
         if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
           localStorage.removeItem('token');

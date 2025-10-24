@@ -742,7 +742,7 @@ const IncomePage: React.FC = () => {
         {/* Add/Edit Modal */}
         {(showAddModal || showEditModal) && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-10 mx-auto p-5 border w-4/5 max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div className="relative top-4 mx-auto p-4 border w-[95vw] max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
               <div className="mt-3">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                   {selectedEntry ? t('income.editIncome') : t('income.addIncome')}
@@ -808,9 +808,11 @@ const IncomePage: React.FC = () => {
                       <input
                         type="number"
                         step="0.01"
+                        inputMode="decimal"
+                        autoComplete="off"
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
                           validationErrors.amount ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
                         }`}
                       />
@@ -860,7 +862,7 @@ const IncomePage: React.FC = () => {
                         type="date"
                         value={formData.start_date}
                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
                           validationErrors.start_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
                         }`}
                       />
@@ -879,7 +881,7 @@ const IncomePage: React.FC = () => {
                         type="date"
                         value={formData.end_date}
                         onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
                           validationErrors.end_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
                         }`}
                       />
@@ -944,13 +946,13 @@ const IncomePage: React.FC = () => {
                           frequency: 'one-time'
                         });
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                      className="px-6 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:active:bg-gray-500 min-h-[44px] touch-action:manipulation"
                     >
                       {t('common.cancel')}
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-action:manipulation"
                     >
                       {t('common.save')}
                     </button>
