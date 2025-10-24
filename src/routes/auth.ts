@@ -85,18 +85,32 @@ router.post('/login', [
     }
   }
 
-  // Check account status
+  // Check account status (but auto-unlock admin accounts)
   if (user.account_status === 'locked') {
-    await LoginAttemptService.recordLoginAttempt(
-      email,
-      user.id,
-      false,
-      ipAddress,
-      userAgent,
-      'Account disabled'
-    );
-    
-    throw new CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+    if (user.role === 'admin') {
+      // Auto-activate admin accounts if they're locked
+      await query(
+        `UPDATE users 
+         SET account_status = 'active',
+             account_locked_until = NULL,
+             failed_login_attempts = 0
+         WHERE id = $1`,
+        [user.id]
+      );
+      // Continue with login - don't throw error
+    } else {
+      // For non-admin users, still enforce the lock
+      await LoginAttemptService.recordLoginAttempt(
+        email,
+        user.id,
+        false,
+        ipAddress,
+        userAgent,
+        'Account disabled'
+      );
+      
+      throw new CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+    }
   }
 
   // Verify password

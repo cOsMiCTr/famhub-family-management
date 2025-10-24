@@ -48,8 +48,17 @@ router.post('/login', [
         }
     }
     if (user.account_status === 'locked') {
-        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account disabled');
-        throw new errorHandler_1.CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+        if (user.role === 'admin') {
+            await (0, database_1.query)(`UPDATE users 
+         SET account_status = 'active',
+             account_locked_until = NULL,
+             failed_login_attempts = 0
+         WHERE id = $1`, [user.id]);
+        }
+        else {
+            await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account disabled');
+            throw new errorHandler_1.CustomError('Account is disabled', 423, 'ACCOUNT_DISABLED');
+        }
     }
     const isValidPassword = await passwordService_1.PasswordService.comparePassword(password, user.password_hash);
     if (!isValidPassword) {
