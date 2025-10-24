@@ -35,8 +35,17 @@ router.post('/login', [
     const user = userResult.rows[0];
     const lockStatus = await loginAttemptService_1.LoginAttemptService.isAccountLocked(user.id);
     if (lockStatus.locked) {
-        await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account locked');
-        throw new errorHandler_1.CustomError(`Account is locked until ${lockStatus.lockedUntil?.toISOString()}`, 423, 'ACCOUNT_LOCKED');
+        if (user.role === 'admin') {
+            await (0, database_1.query)(`UPDATE users 
+         SET account_locked_until = NULL,
+             failed_login_attempts = 0,
+             account_status = 'active'
+         WHERE id = $1`, [user.id]);
+        }
+        else {
+            await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account locked');
+            throw new errorHandler_1.CustomError(`Account is locked until ${lockStatus.lockedUntil?.toISOString()}`, 423, 'ACCOUNT_LOCKED');
+        }
     }
     if (user.account_status === 'locked') {
         await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Account disabled');

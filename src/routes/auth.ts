@@ -52,23 +52,37 @@ router.post('/login', [
 
   const user = userResult.rows[0];
 
-  // Check if account is locked
+  // Check if account is locked (but auto-unlock admin accounts)
   const lockStatus = await LoginAttemptService.isAccountLocked(user.id);
   if (lockStatus.locked) {
-    await LoginAttemptService.recordLoginAttempt(
-      email,
-      user.id,
-      false,
-      ipAddress,
-      userAgent,
-      'Account locked'
-    );
-    
-    throw new CustomError(
-      `Account is locked until ${lockStatus.lockedUntil?.toISOString()}`,
-      423,
-      'ACCOUNT_LOCKED'
-    );
+    if (user.role === 'admin') {
+      // Auto-unlock admin accounts
+      await query(
+        `UPDATE users 
+         SET account_locked_until = NULL,
+             failed_login_attempts = 0,
+             account_status = 'active'
+         WHERE id = $1`,
+        [user.id]
+      );
+      // Continue with login - don't throw error
+    } else {
+      // For non-admin users, still enforce the lock
+      await LoginAttemptService.recordLoginAttempt(
+        email,
+        user.id,
+        false,
+        ipAddress,
+        userAgent,
+        'Account locked'
+      );
+      
+      throw new CustomError(
+        `Account is locked until ${lockStatus.lockedUntil?.toISOString()}`,
+        423,
+        'ACCOUNT_LOCKED'
+      );
+    }
   }
 
   // Check account status
