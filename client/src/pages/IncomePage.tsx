@@ -373,14 +373,21 @@ const IncomePage: React.FC = () => {
       end_date_type: typeof entry.end_date
     });
     
+    // Format dates for HTML date input (YYYY-MM-DD)
+    const formatDateForInput = (dateString: string | null | undefined): string => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    };
+    
     setFormData({
       household_member_id: entry.household_member_id.toString(),
       category_id: entry.category_id.toString(),
       amount: entry.amount.toString(),
       currency: entry.currency,
       description: entry.description || '',
-      start_date: entry.start_date,
-      end_date: entry.end_date || '',
+      start_date: formatDateForInput(entry.start_date),
+      end_date: formatDateForInput(entry.end_date),
       is_recurring: entry.is_recurring,
       frequency: effectiveFrequency
     });
@@ -738,10 +745,11 @@ const IncomePage: React.FC = () => {
                         {t('income.member')} *
                       </label>
                       <select
-                        required
                         value={formData.household_member_id}
                         onChange={(e) => setFormData({ ...formData, household_member_id: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                          validationErrors.household_member_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
+                        }`}
                       >
                         <option value="">{t('income.selectMember')}</option>
                         {members.map((member) => (
@@ -750,6 +758,11 @@ const IncomePage: React.FC = () => {
                           </option>
                         ))}
                       </select>
+                      {validationErrors.household_member_id && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.household_member_id}
+                        </p>
+                      )}
                     </div>
                     
                     <div>
@@ -757,10 +770,11 @@ const IncomePage: React.FC = () => {
                         {t('income.category')} *
                       </label>
                       <select
-                        required
                         value={formData.category_id}
                         onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                          validationErrors.category_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
+                        }`}
                       >
                         <option value="">{t('income.selectCategory')}</option>
                         {categories.map((category) => (
@@ -769,6 +783,11 @@ const IncomePage: React.FC = () => {
                           </option>
                         ))}
                       </select>
+                      {validationErrors.category_id && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.category_id}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -780,11 +799,17 @@ const IncomePage: React.FC = () => {
                       <input
                         type="number"
                         step="0.01"
-                        required
                         value={formData.amount}
                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                          validationErrors.amount ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
+                        }`}
                       />
+                      {validationErrors.amount && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.amount}
+                        </p>
+                      )}
                     </div>
                     
                     <div>
@@ -792,7 +817,6 @@ const IncomePage: React.FC = () => {
                         {t('income.currency')} *
                       </label>
                       <select
-                        required
                         value={formData.currency}
                         onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                         className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -825,7 +849,6 @@ const IncomePage: React.FC = () => {
                       </label>
                       <input
                         type="date"
-                        required
                         value={formData.start_date}
                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                         className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
