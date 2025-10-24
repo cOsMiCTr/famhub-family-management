@@ -35,10 +35,14 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    // Don't clear error immediately - only clear on successful login
+    // setError(''); // REMOVED - keep previous error visible while loading
 
     try {
       const response = await login(formData.email, formData.password);
+      
+      // Only clear error on success
+      setError('');
       
       // Check if password change is required
       if (response.must_change_password) {

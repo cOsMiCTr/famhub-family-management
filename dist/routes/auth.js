@@ -46,12 +46,15 @@ router.post('/login', [
     if (!isValidPassword) {
         await loginAttemptService_1.LoginAttemptService.incrementFailedAttempts(user.id);
         await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Invalid password');
-        const shouldLock = await loginAttemptService_1.LoginAttemptService.shouldLockAccount(user.id);
-        if (shouldLock) {
-            await loginAttemptService_1.LoginAttemptService.lockAccount(user.id);
+        if (user.role !== 'admin') {
+            const shouldLock = await loginAttemptService_1.LoginAttemptService.shouldLockAccount(user.id);
+            if (shouldLock) {
+                await loginAttemptService_1.LoginAttemptService.lockAccount(user.id);
+            }
         }
         const remainingAttempts = 3 - (user.failed_login_attempts + 1);
-        throw new errorHandler_1.CustomError(`Invalid email or password. ${remainingAttempts > 0 ? `${remainingAttempts} attempts remaining.` : 'Account will be locked.'}`, 401, 'INVALID_CREDENTIALS');
+        const lockWarning = user.role === 'admin' ? '' : (remainingAttempts > 0 ? ` ${remainingAttempts} attempts remaining.` : ' Account will be locked.');
+        throw new errorHandler_1.CustomError(`Invalid email or password.${lockWarning}`, 401, 'INVALID_CREDENTIALS');
     }
     await loginAttemptService_1.LoginAttemptService.resetFailedAttempts(user.id);
     await (0, database_1.query)(`UPDATE users 

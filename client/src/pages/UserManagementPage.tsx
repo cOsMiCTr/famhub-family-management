@@ -587,7 +587,7 @@ const UserManagementPage: React.FC = () => {
                             <button
                               onClick={() => handleToggleUserStatus(user.id, user.account_status)}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              title={t('admin.lockAccount')}
+                              title="Lock Account"
                               disabled={isSaving}
                             >
                               <LockClosedIcon className="h-4 w-4" />

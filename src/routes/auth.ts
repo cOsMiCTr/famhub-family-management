@@ -89,7 +89,7 @@ router.post('/login', [
   const isValidPassword = await PasswordService.comparePassword(password, user.password_hash);
   
   if (!isValidPassword) {
-    // Increment failed attempts
+    // Increment failed attempts (but don't lock admin accounts)
     await LoginAttemptService.incrementFailedAttempts(user.id);
     
     // Record failed attempt
@@ -102,15 +102,18 @@ router.post('/login', [
       'Invalid password'
     );
 
-    // Check if account should be locked
-    const shouldLock = await LoginAttemptService.shouldLockAccount(user.id);
-    if (shouldLock) {
-      await LoginAttemptService.lockAccount(user.id);
+    // Check if account should be locked (skip for admin users)
+    if (user.role !== 'admin') {
+      const shouldLock = await LoginAttemptService.shouldLockAccount(user.id);
+      if (shouldLock) {
+        await LoginAttemptService.lockAccount(user.id);
+      }
     }
 
     const remainingAttempts = 3 - (user.failed_login_attempts + 1);
+    const lockWarning = user.role === 'admin' ? '' : (remainingAttempts > 0 ? ` ${remainingAttempts} attempts remaining.` : ' Account will be locked.');
     throw new CustomError(
-      `Invalid email or password. ${remainingAttempts > 0 ? `${remainingAttempts} attempts remaining.` : 'Account will be locked.'}`,
+      `Invalid email or password.${lockWarning}`,
       401,
       'INVALID_CREDENTIALS'
     );
