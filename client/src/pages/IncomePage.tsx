@@ -30,6 +30,8 @@ interface IncomeEntry {
   member_name: string;
   member_is_shared: boolean;
   created_at: string;
+  amount_in_main_currency?: number;
+  main_currency?: string;
 }
 
 interface IncomeCategory {
@@ -218,13 +220,13 @@ const IncomePage: React.FC = () => {
 
   // Update form data currency when user preferences are loaded
   useEffect(() => {
-    if (userPreferences?.currency && !showAddModal && !showEditModal) {
+    if (userPreferences?.currency) {
       setFormData(prev => ({
         ...prev,
         currency: userPreferences.currency || 'TRY'
       }));
     }
-  }, [userPreferences, showAddModal, showEditModal]);
+  }, [userPreferences]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -265,7 +267,7 @@ const IncomePage: React.FC = () => {
         household_member_id: '',
         category_id: '',
         amount: '',
-        currency: 'TRY',
+        currency: userPreferences?.currency || 'TRY',
         description: '',
         start_date: '',
         end_date: '',
@@ -616,6 +618,11 @@ const IncomePage: React.FC = () => {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(entry.amount, entry.currency)}
                         </div>
+                        {entry.amount_in_main_currency && entry.currency !== entry.main_currency && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            ≈ {formatCurrency(entry.amount_in_main_currency, entry.main_currency || 'TRY')}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">
@@ -831,7 +838,7 @@ const IncomePage: React.FC = () => {
                           household_member_id: '',
                           category_id: '',
                           amount: '',
-                          currency: 'TRY',
+                          currency: userPreferences?.currency || 'TRY',
                           description: '',
                           start_date: '',
                           end_date: '',

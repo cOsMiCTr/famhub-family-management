@@ -2,6 +2,7 @@ import express from 'express';
 import { body, param, query as expressQuery, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
+import { exchangeRateService } from '../services/exchangeRateService';
 
 const router = express.Router();
 
@@ -34,9 +35,10 @@ router.get('/', async (req, res) => {
     const userId = req.user?.id;
     const { start_date, end_date, member_id, category_id, is_recurring } = req.query;
 
-    // Get user's household_id
-    const userResult = await query('SELECT household_id FROM users WHERE id = $1', [userId]);
+    // Get user's household_id and main_currency
+    const userResult = await query('SELECT household_id, main_currency FROM users WHERE id = $1', [userId]);
     const householdId = userResult.rows[0]?.household_id;
+    const mainCurrency = userResult.rows[0]?.main_currency || 'TRY';
 
     if (!householdId) {
       return res.status(400).json({ error: 'User is not assigned to a household' });
@@ -98,7 +100,41 @@ router.get('/', async (req, res) => {
 
     const result = await query(queryText, queryParams);
 
-    res.json(result.rows);
+    // Convert amounts to user's main currency
+    const incomeWithConvertedAmounts = await Promise.all(
+      result.rows.map(async (income) => {
+        try {
+          if (income.currency !== mainCurrency) {
+            const convertedAmount = await exchangeRateService.convertCurrency(
+              income.amount,
+              income.currency,
+              mainCurrency
+            );
+            return {
+              ...income,
+              amount_in_main_currency: convertedAmount,
+              main_currency: mainCurrency
+            };
+          } else {
+            return {
+              ...income,
+              amount_in_main_currency: income.amount,
+              main_currency: mainCurrency
+            };
+          }
+        } catch (error) {
+          console.error(`Failed to convert ${income.currency} to ${mainCurrency}:`, error);
+          // Return original amount if conversion fails
+          return {
+            ...income,
+            amount_in_main_currency: income.amount,
+            main_currency: mainCurrency
+          };
+        }
+      })
+    );
+
+    res.json(incomeWithConvertedAmounts);
   } catch (error) {
     console.error('Error fetching income:', error);
     res.status(500).json({ error: 'Failed to fetch income' });
