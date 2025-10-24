@@ -71,6 +71,9 @@ const seedTranslations = async () => {
       { key: 'dashboard.expenseEntries', category: 'dashboard', en: 'Expense Entries', de: 'Ausgabeneinträge', tr: 'Gider Girişleri' },
       { key: 'dashboard.activeContracts', category: 'dashboard', en: 'Active Contracts', de: 'Aktive Verträge', tr: 'Aktif Sözleşmeler' },
       { key: 'dashboard.exchangeRates', category: 'dashboard', en: 'Exchange Rates', de: 'Wechselkurse', tr: 'Döviz Kurları' },
+      { key: 'dashboard.basedOn', category: 'dashboard', en: 'Based on', de: 'Basierend auf', tr: 'Baz alarak' },
+      { key: 'dashboard.perUnit', category: 'dashboard', en: 'per', de: 'pro', tr: 'başına' },
+      { key: 'dashboard.noExchangeRates', category: 'dashboard', en: 'No exchange rates available', de: 'Keine Wechselkurse verfügbar', tr: 'Döviz kuru mevcut değil' },
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },

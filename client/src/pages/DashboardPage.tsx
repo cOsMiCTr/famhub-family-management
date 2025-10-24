@@ -217,41 +217,54 @@ const DashboardPage: React.FC = () => {
               <ChartBarIcon className="h-5 w-5 mr-2 text-green-500" />
               {t('dashboard.exchangeRates')}
             </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {t('dashboard.basedOn')} {stats?.currency || 'EUR'}
+            </p>
           </div>
           <div className="card-body">
             {isLoading ? (
               <LoadingSpinner size="sm" />
             ) : exchangeRates.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 {exchangeRates.map((rate, index) => {
-                  const colors = [
-                    { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400' },
-                    { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-600 dark:text-green-400' },
-                    { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400' },
-                    { bg: 'bg-yellow-50 dark:bg-yellow-900/20', text: 'text-yellow-600 dark:text-yellow-400' }
-                  ];
-                  const color = colors[index % colors.length];
-                  const currencySymbols: { [key: string]: string } = {
-                    'TRY': '₺',
-                    'USD': '$',
-                    'EUR': '€',
-                    'GBP': '£'
+                  const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
+                    'USD': { symbol: '$', name: 'US Dollar', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
+                    'EUR': { symbol: '€', name: 'Euro', flag: '🇪🇺', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
+                    'GBP': { symbol: '£', name: 'Pound', flag: '🇬🇧', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
+                    'TRY': { symbol: '₺', name: 'Turkish Lira', flag: '🇹🇷', color: 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700' }
+                  };
+                  
+                  const toCurrency = currencyInfo[rate.to_currency] || { 
+                    symbol: rate.to_currency, 
+                    name: rate.to_currency, 
+                    flag: '💱',
+                    color: 'bg-gray-100 dark:bg-gray-900/30 border-gray-300 dark:border-gray-700'
                   };
                   
                   return (
-                    <div key={index} className={`flex justify-between items-center p-3 ${color.bg} rounded-lg`}>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        1 {currencySymbols[rate.from_currency] || rate.from_currency} = {currencySymbols[rate.to_currency] || rate.to_currency}
-                      </span>
-                      <span className={`text-lg font-bold ${color.text}`}>
-                        {rate.rate.toFixed(4)}
-                      </span>
+                    <div key={index} className={`border-2 ${toCurrency.color} rounded-xl p-4 transition-all hover:scale-105`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">{toCurrency.flag}</span>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
+                          {rate.to_currency}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                          {toCurrency.symbol} {rate.rate.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No exchange rates available</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                {t('dashboard.noExchangeRates')}
+              </p>
             )}
           </div>
         </div>

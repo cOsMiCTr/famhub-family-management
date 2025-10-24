@@ -271,9 +271,12 @@ router.post('/households', [
     const householdResult = await (0, database_1.query)(`INSERT INTO households (name, created_by_admin_id)
      VALUES ($1, $2)
      RETURNING *`, [name, req.user.id]);
+    const household = householdResult.rows[0];
+    await (0, database_1.query)(`INSERT INTO household_members (household_id, name, relationship, is_shared, created_by_user_id)
+     VALUES ($1, $2, $3, $4, $5)`, [household.id, 'Household (Shared)', 'Shared', true, req.user.id]);
     res.status(201).json({
         message: 'Household created successfully',
-        household: householdResult.rows[0]
+        household: household
     });
 }));
 router.get('/households', (0, errorHandler_1.asyncHandler)(async (req, res) => {
