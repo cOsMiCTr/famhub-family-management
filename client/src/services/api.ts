@@ -30,7 +30,8 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        // Only redirect to login for 401 errors that are NOT from the login endpoint itself
+        if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';

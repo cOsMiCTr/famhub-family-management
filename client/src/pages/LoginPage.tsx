@@ -25,6 +25,11 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent any event bubbling that might cause refresh
+    
+    // Don't proceed if already loading
+    if (isLoading) return;
+    
     setIsLoading(true);
     // Don't clear error immediately - only clear on successful login
     // setError(''); // REMOVED - keep previous error visible while loading
@@ -38,6 +43,7 @@ const LoginPage: React.FC = () => {
       // Check if password change is required
       if (response.must_change_password) {
         setShowPasswordChangeModal(true);
+        setIsLoading(false);
         return;
       }
       
@@ -50,8 +56,10 @@ const LoginPage: React.FC = () => {
         });
       }
       
+      setIsLoading(false);
       navigate('/dashboard');
     } catch (err: any) {
+      console.log('Login error caught:', err); // Debug log
       const errorCode = err.response?.data?.code;
       const errorMessage = err.response?.data?.error || t('auth.invalidCredentials');
       
@@ -62,7 +70,6 @@ const LoginPage: React.FC = () => {
       } else {
         setError(errorMessage);
       }
-    } finally {
       setIsLoading(false);
     }
   };
