@@ -100,6 +100,44 @@ router.post('/test-bulk', asyncHandler(async (req, res) => {
   res.json({ message: 'Debug test completed', translations: translations.length });
 }));
 
+// Create new translation
+router.post('/', [
+  body('translation_key').notEmpty().withMessage('Translation key is required'),
+  body('category').notEmpty().withMessage('Category is required'),
+  body('en').notEmpty().withMessage('English translation is required'),
+  body('de').optional().isString(),
+  body('tr').optional().isString()
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  const { translation_key, category, en, de, tr } = req.body;
+
+  // Check if key already exists
+  const existing = await query(
+    'SELECT id FROM translations WHERE translation_key = $1',
+    [translation_key]
+  );
+
+  if (existing.rows.length > 0) {
+    return res.status(409).json({ error: 'Translation key already exists' });
+  }
+
+  const result = await query(
+    `INSERT INTO translations (translation_key, category, en, de, tr)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [translation_key, category, en, de || '', tr || '']
+  );
+
+  res.status(201).json({
+    message: 'Translation created successfully',
+    translation: result.rows[0]
+  });
+}));
+
 // Bulk update translations - MUST come before /:id route
 router.put('/bulk', [
   body('translations').isArray().withMessage('Translations must be an array'),

@@ -346,6 +346,21 @@ class ApiService {
     return response;
   }
 
+  async post(url: string, data?: any, config?: any) {
+    const response = await this.api.post(url, data, config);
+    return response;
+  }
+
+  async put(url: string, data?: any, config?: any) {
+    const response = await this.api.put(url, data, config);
+    return response;
+  }
+
+  async delete(url: string, config?: any) {
+    const response = await this.api.delete(url, config);
+    return response;
+  }
+
   // Health check
   async healthCheck() {
     const response = await this.api.get('/health');

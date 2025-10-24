@@ -9,7 +9,8 @@ import {
   CheckIcon,
   XMarkIcon,
   LanguageIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 
 interface Translation {
@@ -21,6 +22,14 @@ interface Translation {
   tr: string;
   created_at: string;
   updated_at: string;
+}
+
+interface NewTranslation {
+  translation_key: string;
+  category: string;
+  en: string;
+  de: string;
+  tr: string;
 }
 
 const TranslationManagementPage: React.FC = () => {
@@ -40,6 +49,16 @@ const TranslationManagementPage: React.FC = () => {
   // Edit states
   const [editingTranslations, setEditingTranslations] = useState<{[key: number]: Partial<Translation>}>({});
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Add translation modal states
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTranslation, setNewTranslation] = useState<NewTranslation>({
+    translation_key: '',
+    category: '',
+    en: '',
+    de: '',
+    tr: ''
+  });
   
   // Ref for search input to maintain focus
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -94,7 +113,7 @@ const TranslationManagementPage: React.FC = () => {
     }, 0);
   };
 
-  const handleTranslationChange = (id: number, field: 'de' | 'tr', value: string) => {
+  const handleTranslationChange = (id: number, field: 'en' | 'de' | 'tr', value: string) => {
     setEditingTranslations(prev => ({
       ...prev,
       [id]: {
@@ -147,15 +166,43 @@ const TranslationManagementPage: React.FC = () => {
     setHasChanges(false);
   };
 
-  const getTranslationValue = (translation: Translation, field: 'de' | 'tr') => {
+  const handleAddTranslation = async () => {
+    try {
+      setIsSaving(true);
+      setError('');
+      
+      await apiService.post('/translations', newTranslation);
+      
+      setMessage('Translation added successfully');
+      setShowAddModal(false);
+      setNewTranslation({
+        translation_key: '',
+        category: '',
+        en: '',
+        de: '',
+        tr: ''
+      });
+      
+      await loadTranslations();
+      await reloadTranslations();
+      
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to add translation');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const getTranslationValue = (translation: Translation, field: 'en' | 'de' | 'tr') => {
     const editingData = editingTranslations[translation.id];
     if (editingData && editingData[field] !== undefined) {
       return editingData[field] as string;
     }
-    return translation[field] || translation.en;
+    return translation[field] || (field !== 'en' ? translation.en : '');
   };
 
-  const isTranslationChanged = (id: number, field: 'de' | 'tr') => {
+  const isTranslationChanged = (id: number, field: 'en' | 'de' | 'tr') => {
     const editingData = editingTranslations[id];
     if (!editingData || editingData[field] === undefined) {
       return false;
@@ -179,8 +226,19 @@ const TranslationManagementPage: React.FC = () => {
           </p>
         </div>
         
-        {hasChanges && (
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            {t('translations.addKey')}
+          </button>
+        </div>
+      </div>
+
+      {hasChanges && (
+        <div className="flex justify-end items-center space-x-3">
             <button
               onClick={resetChanges}
               className="btn-secondary flex items-center"
@@ -202,9 +260,8 @@ const TranslationManagementPage: React.FC = () => {
                 </>
               )}
             </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Messages */}
       {error && (
@@ -273,24 +330,27 @@ const TranslationManagementPage: React.FC = () => {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Category
+                  {t('translations.key')}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {t('translations.category')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   <div className="flex items-center">
                     <LanguageIcon className="h-4 w-4 mr-1" />
-                    English (Default)
+                    {t('translations.english')}
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   <div className="flex items-center">
                     <LanguageIcon className="h-4 w-4 mr-1" />
-                    German
+                    {t('translations.german')}
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   <div className="flex items-center">
                     <LanguageIcon className="h-4 w-4 mr-1" />
-                    Turkish
+                    {t('translations.turkish')}
                   </div>
                 </th>
               </tr>
@@ -298,14 +358,29 @@ const TranslationManagementPage: React.FC = () => {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {translations.map((translation) => (
                 <tr key={translation.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600 dark:text-gray-400">
+                    {translation.translation_key}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
                       {translation.category}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                      {translation.en}
+                    <div className="relative">
+                      <textarea
+                        value={getTranslationValue(translation, 'en')}
+                        onChange={(e) => handleTranslationChange(translation.id, 'en', e.target.value)}
+                        className={`w-full text-sm border rounded-md p-2 resize-none transition-colors ${
+                          isTranslationChanged(translation.id, 'en')
+                            ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
+                            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'
+                        } text-gray-900 dark:text-white`}
+                        rows={2}
+                      />
+                      {isTranslationChanged(translation.id, 'en') && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"></div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -371,6 +446,96 @@ const TranslationManagementPage: React.FC = () => {
           <li>• {t('translations.instruction5')}</li>
         </ul>
       </div>
+
+      {/* Add Translation Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                {t('translations.addKey')}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Translation Key *
+                  </label>
+                  <input
+                    type="text"
+                    value={newTranslation.translation_key}
+                    onChange={(e) => setNewTranslation({...newTranslation, translation_key: e.target.value})}
+                    placeholder="e.g., dashboard.newFeature"
+                    className="mt-1 block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Category *
+                  </label>
+                  <input
+                    type="text"
+                    value={newTranslation.category}
+                    onChange={(e) => setNewTranslation({...newTranslation, category: e.target.value})}
+                    placeholder="e.g., dashboard"
+                    className="mt-1 block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    English Text *
+                  </label>
+                  <input
+                    type="text"
+                    value={newTranslation.en}
+                    onChange={(e) => setNewTranslation({...newTranslation, en: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    German Text (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newTranslation.de}
+                    onChange={(e) => setNewTranslation({...newTranslation, de: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Turkish Text (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newTranslation.tr}
+                    onChange={(e) => setNewTranslation({...newTranslation, tr: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setNewTranslation({translation_key: '', category: '', en: '', de: '', tr: ''});
+                  }}
+                  className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleAddTranslation}
+                  disabled={!newTranslation.translation_key || !newTranslation.category || !newTranslation.en || isSaving}
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSaving ? 'Adding...' : t('common.add')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

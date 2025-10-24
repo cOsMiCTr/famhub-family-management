@@ -164,11 +164,12 @@ const seedTranslations = async () => {
       { key: 'translations.translationsFound', category: 'translations', en: 'translations found', de: 'Übersetzungen gefunden', tr: 'çeviri bulundu' },
       { key: 'translations.noTranslationsFound', category: 'translations', en: 'No translations found', de: 'Keine Übersetzungen gefunden', tr: 'Çeviri bulunamadı' },
       { key: 'translations.instructions', category: 'translations', en: 'Instructions', de: 'Anweisungen', tr: 'Talimatlar' },
-      { key: 'translations.instruction1', category: 'translations', en: 'English translations are shown as reference and cannot be edited', de: 'Englische Übersetzungen werden als Referenz angezeigt und können nicht bearbeitet werden', tr: 'İngilizce çeviriler referans olarak gösterilir ve düzenlenemez' },
-      { key: 'translations.instruction2', category: 'translations', en: 'German and Turkish translations can be edited directly in the table', de: 'Deutsche und türkische Übersetzungen können direkt in der Tabelle bearbeitet werden', tr: 'Almanca ve Türkçe çeviriler tabloda doğrudan düzenlenebilir' },
+      { key: 'translations.instruction1', category: 'translations', en: 'All translations can be edited directly in the table', de: 'Alle Übersetzungen können direkt in der Tabelle bearbeitet werden', tr: 'Tüm çeviriler tabloda doğrudan düzenlenebilir' },
+      { key: 'translations.instruction2', category: 'translations', en: 'Use the "+ Add Key" button to create new translation entries', de: 'Verwenden Sie die Schaltfläche "+ Schlüssel hinzufügen", um neue Übersetzungseinträge zu erstellen', tr: 'Yeni çeviri girişleri oluşturmak için "+ Anahtar Ekle" düğmesini kullanın' },
       { key: 'translations.instruction3', category: 'translations', en: 'Changed translations are highlighted in yellow', de: 'Geänderte Übersetzungen werden gelb hervorgehoben', tr: 'Değiştirilen çeviriler sarı renkte vurgulanır' },
       { key: 'translations.instruction4', category: 'translations', en: 'Click "Save All Changes" to update all modified translations', de: 'Klicken Sie auf "Alle Änderungen speichern", um alle geänderten Übersetzungen zu aktualisieren', tr: 'Değiştirilen tüm çevirileri güncellemek için "Tüm Değişiklikleri Kaydet"e tıklayın' },
       { key: 'translations.instruction5', category: 'translations', en: 'Changes are applied immediately and will be visible to all users', de: 'Änderungen werden sofort angewendet und sind für alle Benutzer sichtbar', tr: 'Değişiklikler hemen uygulanır ve tüm kullanıcılar tarafından görülebilir' },
+      { key: 'translations.addKey', category: 'translations', en: 'Add Key', de: 'Schlüssel hinzufügen', tr: 'Anahtar Ekle' },
 
       // Income
       { key: 'income.title', category: 'income', en: 'Income Management', de: 'Einkommensverwaltung', tr: 'Gelir Yönetimi' },
