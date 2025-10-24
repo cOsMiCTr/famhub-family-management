@@ -359,7 +359,7 @@ const SettingsPage: React.FC = () => {
                       >
                         {currencies.map((currency) => (
                           <option key={currency.code} value={currency.code}>
-                            {currency.symbol} {currency.name}
+                            {currency.name}
                           </option>
                         ))}
                       </select>
