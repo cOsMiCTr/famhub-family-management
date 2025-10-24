@@ -169,6 +169,11 @@ router.post('/change-password', [
     await (0, database_1.query)(`UPDATE users 
      SET password_hash = $1,
          password_changed_at = NOW(),
+         account_status = CASE 
+           WHEN must_change_password = true THEN 'active'
+           ELSE account_status
+         END,
+         must_change_password = false,
          updated_at = NOW()
      WHERE id = $2`, [newPasswordHash, req.user.id]);
     await passwordService_1.PasswordService.addToPasswordHistory(req.user.id, user.password_hash);

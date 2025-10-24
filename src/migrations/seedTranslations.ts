@@ -35,6 +35,11 @@ const seedTranslations = async () => {
       { key: 'common.warning', category: 'common', en: 'Warning', de: 'Warnung', tr: 'Uyarı' },
       { key: 'common.info', category: 'common', en: 'Info', de: 'Info', tr: 'Bilgi' },
 
+      // Status
+      { key: 'status.active', category: 'status', en: 'Active', de: 'Aktiv', tr: 'Aktif' },
+      { key: 'status.locked', category: 'status', en: 'Locked', de: 'Gesperrt', tr: 'Kilitli' },
+      { key: 'status.pendingPasswordChange', category: 'status', en: 'Pending Password Change', de: 'Passwortänderung ausstehend', tr: 'Şifre Değişikliği Bekliyor' },
+
       // Auth
       { key: 'auth.login', category: 'auth', en: 'Login', de: 'Anmelden', tr: 'Giriş Yap' },
       { key: 'auth.logout', category: 'auth', en: 'Logout', de: 'Abmelden', tr: 'Çıkış Yap' },

@@ -219,6 +219,11 @@ router.post('/change-password', [
     `UPDATE users 
      SET password_hash = $1,
          password_changed_at = NOW(),
+         account_status = CASE 
+           WHEN must_change_password = true THEN 'active'
+           ELSE account_status
+         END,
+         must_change_password = false,
          updated_at = NOW()
      WHERE id = $2`,
     [newPasswordHash, req.user.id]

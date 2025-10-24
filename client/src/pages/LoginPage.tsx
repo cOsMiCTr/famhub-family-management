@@ -77,10 +77,8 @@ const LoginPage: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
-    if (error) {
-      setError('');
-    }
+    // Don't clear error immediately - let user read it
+    // Error will be cleared on next submit attempt
   };
 
   const handlePasswordChangeSuccess = () => {
@@ -152,12 +150,29 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div className="card-body">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 animate-fadeIn">
-                      <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+                {/* Error Message - Outside form for better visibility */}
+                {error && (
+                  <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 animate-fadeIn">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start">
+                        <ExclamationTriangleIcon className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+                        <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setError('')}
+                        className="ml-4 text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors"
+                        aria-label="Dismiss error"
+                      >
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                  )}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
 
                   <div>
                     <input
@@ -209,12 +224,19 @@ const LoginPage: React.FC = () => {
 
             {/* Last Login Info */}
             {lastLoginInfo && (
-              <div className="mt-4 text-center">
-                <div className="inline-flex items-center px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-                  <span className="text-sm text-green-700 dark:text-green-300">
-                    Last login: {lastLoginInfo.date} at {lastLoginInfo.time}
-                  </span>
+              <div className="mt-6 animate-fadeIn">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <CheckCircleIcon className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                        Login successful!
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        Last login: {lastLoginInfo.date} at {lastLoginInfo.time}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

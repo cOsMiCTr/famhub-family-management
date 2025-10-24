@@ -328,16 +328,16 @@ const UserManagementPage: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { color: 'bg-green-100 text-green-800', text: 'Active' },
-      locked: { color: 'bg-red-100 text-red-800', text: 'Locked' },
-      pending_password_change: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending Password Change' }
+      active: { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300', textKey: 'status.active' },
+      locked: { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', textKey: 'status.locked' },
+      pending_password_change: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300', textKey: 'status.pendingPasswordChange' }
     };
     
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
     
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
+        {t(config.textKey)}
       </span>
     );
   };

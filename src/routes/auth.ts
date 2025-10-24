@@ -123,7 +123,11 @@ router.post('/login', [
     `UPDATE users 
      SET last_login_at = NOW(), 
          last_activity_at = NOW(),
-         account_locked_until = NULL
+         account_locked_until = NULL,
+         account_status = CASE 
+           WHEN must_change_password = true THEN 'pending_password_change'
+           ELSE 'active'
+         END
      WHERE id = $1`,
     [user.id]
   );

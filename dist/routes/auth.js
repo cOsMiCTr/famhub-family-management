@@ -57,7 +57,11 @@ router.post('/login', [
     await (0, database_1.query)(`UPDATE users 
      SET last_login_at = NOW(), 
          last_activity_at = NOW(),
-         account_locked_until = NULL
+         account_locked_until = NULL,
+         account_status = CASE 
+           WHEN must_change_password = true THEN 'pending_password_change'
+           ELSE 'active'
+         END
      WHERE id = $1`, [user.id]);
     await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, true, ipAddress, userAgent);
     const jwtSecret = process.env.JWT_SECRET;
