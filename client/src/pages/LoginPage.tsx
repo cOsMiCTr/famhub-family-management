@@ -9,7 +9,7 @@ import PasswordChangeModal from '../components/PasswordChangeModal';
 import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const LoginPage: React.FC = () => {
-  const { t, ready } = useTranslation();
+  const { t } = useTranslation();
   const { login } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
@@ -22,15 +22,6 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [lastLoginInfo, setLastLoginInfo] = useState<{ date?: string; time?: string } | null>(null);
-
-  // Show loading spinner while translations are loading
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <LoadingSpinner />
-      </div>
-    );
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
