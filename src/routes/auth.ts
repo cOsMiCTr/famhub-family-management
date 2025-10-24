@@ -195,6 +195,13 @@ router.post('/login', [
   // Force password change if account status is pending_password_change
   // This handles cases where must_change_password might be out of sync
   const shouldChangePassword = user.must_change_password || user.account_status === 'pending_password_change';
+  
+  // Debug logging
+  console.log(`Login for ${user.email}:`, {
+    must_change_password: user.must_change_password,
+    account_status: user.account_status,
+    shouldChangePassword
+  });
 
   res.json({
     message: 'Login successful',

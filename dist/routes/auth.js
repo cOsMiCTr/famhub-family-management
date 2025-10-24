@@ -100,6 +100,11 @@ router.post('/login', [
     });
     const { password_hash, ...userWithoutPassword } = user;
     const shouldChangePassword = user.must_change_password || user.account_status === 'pending_password_change';
+    console.log(`Login for ${user.email}:`, {
+        must_change_password: user.must_change_password,
+        account_status: user.account_status,
+        shouldChangePassword
+    });
     res.json({
         message: 'Login successful',
         token,

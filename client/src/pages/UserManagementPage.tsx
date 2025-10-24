@@ -18,7 +18,8 @@ import {
   LockOpenIcon,
   KeyIcon,
   ClockIcon,
-  UserMinusIcon
+  UserMinusIcon,
+  ShieldExclamationIcon
 } from '@heroicons/react/24/outline';
 
 interface User {
@@ -197,6 +198,20 @@ const UserManagementPage: React.FC = () => {
       loadData();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to reset password');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleForcePasswordChange = async (userId: number) => {
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.forcePasswordChange(userId.toString());
+      setMessage('User will be forced to change password on next login');
+      loadData();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to force password change');
     } finally {
       setIsSaving(false);
     }
@@ -601,6 +616,15 @@ const UserManagementPage: React.FC = () => {
                             disabled={isSaving}
                           >
                             <KeyIcon className="h-4 w-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleForcePasswordChange(user.id)}
+                            className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                            title="Force Password Change (no reset)"
+                            disabled={isSaving}
+                          >
+                            <ShieldExclamationIcon className="h-4 w-4" />
                           </button>
                           
                           {user.role !== 'admin' && (

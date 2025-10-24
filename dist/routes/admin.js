@@ -162,6 +162,26 @@ router.put('/users/:id', [
         user: updatedUserResult.rows[0]
     });
 }));
+router.post('/users/:id/force-password-change', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const userResult = await (0, database_1.query)('SELECT id, email, role FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('User');
+    }
+    const user = userResult.rows[0];
+    await (0, database_1.query)(`UPDATE users 
+     SET must_change_password = true,
+         account_status = 'pending_password_change',
+         updated_at = NOW()
+     WHERE id = $1`, [id]);
+    res.json({
+        message: 'User will be forced to change password on next login',
+        user: {
+            id: user.id,
+            email: user.email
+        }
+    });
+}));
 router.post('/users/:id/reset-password', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.params;
     const userResult = await (0, database_1.query)('SELECT id, email, role FROM users WHERE id = $1', [id]);

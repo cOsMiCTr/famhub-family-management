@@ -246,6 +246,41 @@ router.put('/users/:id', [
   });
 }));
 
+// Force password change for a user (without resetting password)
+router.post('/users/:id/force-password-change', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Check if user exists
+  const userResult = await query(
+    'SELECT id, email, role FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  const user = userResult.rows[0];
+
+  // Update user status to force password change
+  await query(
+    `UPDATE users 
+     SET must_change_password = true,
+         account_status = 'pending_password_change',
+         updated_at = NOW()
+     WHERE id = $1`,
+    [id]
+  );
+
+  res.json({
+    message: 'User will be forced to change password on next login',
+    user: {
+      id: user.id,
+      email: user.email
+    }
+  });
+}));
+
 // Reset user password
 router.post('/users/:id/reset-password', asyncHandler(async (req, res) => {
   const { id } = req.params;
