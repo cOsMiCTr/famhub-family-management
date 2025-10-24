@@ -114,19 +114,19 @@ const IncomePage: React.FC = () => {
   const setFiltersRef = useRef(setFilters);
   setFiltersRef.current = setFilters;
   
+  const [userPreferences, setUserPreferences] = useState<{currency?: string} | null>(null);
+  
   const [formData, setFormData] = useState({
     household_member_id: '',
     category_id: '',
     amount: '',
-    currency: 'TRY',
+    currency: userPreferences?.currency || 'TRY',
     description: '',
     start_date: '',
     end_date: '',
     is_recurring: false,
     frequency: 'one-time'
   });
-
-  const [userPreferences, setUserPreferences] = useState<{currency?: string} | null>(null);
 
   // Debounced update functions for date filters
   const debouncedUpdateStartDate = useCallback((value: string) => {
@@ -233,13 +233,13 @@ const IncomePage: React.FC = () => {
 
   // Update form data currency when user preferences are loaded
   useEffect(() => {
-    if (userPreferences?.currency) {
+    if (userPreferences?.currency && !showAddModal && !showEditModal) {
       setFormData(prev => ({
         ...prev,
         currency: userPreferences.currency || 'TRY'
       }));
     }
-  }, [userPreferences]);
+  }, [userPreferences, showAddModal, showEditModal]);
 
   // Validate form with custom messages
   const validateForm = (): boolean => {
@@ -497,7 +497,16 @@ const IncomePage: React.FC = () => {
                 {t('income.summary')}
               </button>
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={() => {
+                  setShowAddModal(true);
+                  // Set currency to user's preference when opening add modal
+                  if (userPreferences?.currency) {
+                    setFormData(prev => ({
+                      ...prev,
+                      currency: userPreferences.currency || 'TRY'
+                    }));
+                  }
+                }}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
