@@ -37,7 +37,7 @@ interface PasswordChange {
 
 const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   
   const [settings, setSettings] = useState<UserSettings>({
@@ -106,8 +106,25 @@ const SettingsPage: React.FC = () => {
       // Update language if changed
       if (settings.preferred_language !== i18n.language) {
         i18n.changeLanguage(settings.preferred_language);
+        // Save language to localStorage for i18n persistence
+        localStorage.setItem('i18nextLng', settings.preferred_language);
         // Reload translations for the new language
         await reloadTranslations();
+      }
+      
+      // Update user data in localStorage with new preferences
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        userData.preferred_language = settings.preferred_language;
+        userData.main_currency = settings.main_currency;
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Update AuthContext user state
+        updateUser({
+          preferred_language: settings.preferred_language,
+          main_currency: settings.main_currency
+        });
       }
       
       setMessage('Settings updated successfully!');
