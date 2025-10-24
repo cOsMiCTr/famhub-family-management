@@ -120,7 +120,7 @@ const IncomePage: React.FC = () => {
     household_member_id: '',
     category_id: '',
     amount: '',
-    currency: userPreferences?.currency || 'TRY',
+    currency: userPreferences?.currency || 'USD',
     description: '',
     start_date: '',
     end_date: '',
@@ -236,7 +236,7 @@ const IncomePage: React.FC = () => {
     if (userPreferences?.currency && !showAddModal && !showEditModal) {
       setFormData(prev => ({
         ...prev,
-        currency: userPreferences.currency || 'TRY'
+        currency: userPreferences.currency || 'USD'
       }));
     }
   }, [userPreferences, showAddModal, showEditModal]);
@@ -319,7 +319,7 @@ const IncomePage: React.FC = () => {
         household_member_id: '',
         category_id: '',
         amount: '',
-        currency: userPreferences?.currency || 'TRY',
+        currency: userPreferences?.currency || 'USD',
         description: '',
         start_date: '',
         end_date: '',
@@ -503,7 +503,7 @@ const IncomePage: React.FC = () => {
                   if (userPreferences?.currency) {
                     setFormData(prev => ({
                       ...prev,
-                      currency: userPreferences.currency || 'TRY'
+                      currency: userPreferences.currency || 'USD'
                     }));
                   }
                 }}
@@ -684,7 +684,7 @@ const IncomePage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {entry.amount_in_main_currency ? formatCurrency(entry.amount_in_main_currency, entry.main_currency || 'TRY') : formatCurrency(entry.amount, entry.currency)}
+                          {entry.amount_in_main_currency ? formatCurrency(entry.amount_in_main_currency, entry.main_currency || 'USD') : formatCurrency(entry.amount, entry.currency)}
                         </div>
                         {entry.amount_in_main_currency && entry.currency !== entry.main_currency && (
                           <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -830,11 +830,11 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                         className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
-                        <option value="TRY">TRY</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="GOLD">GOLD</option>
+                        <option value="USD">$ US Dollar ($)</option>
+                        <option value="EUR">€ Euro (€)</option>
+                        <option value="GBP">£ British Pound (£)</option>
+                        <option value="TRY">₺ Turkish Lira (₺)</option>
+                        <option value="GOLD">Au Gold (Au)</option>
                       </select>
                     </div>
                   </div>
@@ -936,7 +936,7 @@ const IncomePage: React.FC = () => {
                           household_member_id: '',
                           category_id: '',
                           amount: '',
-                          currency: userPreferences?.currency || 'TRY',
+                          currency: userPreferences?.currency || 'USD',
                           description: '',
                           start_date: '',
                           end_date: '',
@@ -1032,7 +1032,7 @@ const IncomePage: React.FC = () => {
                       {t('income.totalAmount')}
                     </h5>
                     <div className="text-xl font-bold text-green-900 dark:text-green-100">
-                      {formatCurrency(summary.statistics.total_amount, userPreferences?.currency || 'TRY')}
+                      {formatCurrency(summary.statistics.total_amount, userPreferences?.currency || 'USD')}
                     </div>
                   </div>
                   
@@ -1041,7 +1041,7 @@ const IncomePage: React.FC = () => {
                       {t('income.averageAmount')}
                     </h5>
                     <div className="text-xl font-bold text-purple-900 dark:text-purple-100">
-                      {formatCurrency(summary.statistics.average_amount, userPreferences?.currency || 'TRY')}
+                      {formatCurrency(summary.statistics.average_amount, userPreferences?.currency || 'USD')}
                     </div>
                   </div>
                   
@@ -1053,7 +1053,7 @@ const IncomePage: React.FC = () => {
                       {summary.statistics.recurring_count} {t('income.entries')}
                     </div>
                     <div className="text-sm text-orange-700 dark:text-orange-300">
-                      {formatCurrency(summary.statistics.recurring_total, userPreferences?.currency || 'TRY')}
+                      {formatCurrency(summary.statistics.recurring_total, userPreferences?.currency || 'USD')}
                     </div>
                   </div>
                   
@@ -1062,7 +1062,7 @@ const IncomePage: React.FC = () => {
                       {t('income.monthlyIncome')}
                     </h5>
                     <div className="text-xl font-bold text-indigo-900 dark:text-indigo-100">
-                      {formatCurrency(summary.statistics.monthly_recurring_total, userPreferences?.currency || 'TRY')}
+                      {formatCurrency(summary.statistics.monthly_recurring_total, userPreferences?.currency || 'USD')}
                     </div>
                     <div className="text-sm text-indigo-700 dark:text-indigo-300">
                       {t('income.monthlyEquivalent')}
@@ -1077,7 +1077,7 @@ const IncomePage: React.FC = () => {
                       {summary.statistics.one_time_count} {t('income.entries')}
                     </div>
                     <div className="text-sm text-gray-700 dark:text-gray-300">
-                      {formatCurrency(summary.statistics.one_time_total, userPreferences?.currency || 'TRY')}
+                      {formatCurrency(summary.statistics.one_time_total, userPreferences?.currency || 'USD')}
                     </div>
                   </div>
                 </div>
