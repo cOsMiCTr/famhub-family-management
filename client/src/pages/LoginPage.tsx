@@ -54,12 +54,16 @@ const LoginPage: React.FC = () => {
       
       // Check if password change is required
       console.log('Checking must_change_password:', response.must_change_password);
-      if (response.must_change_password) {
-        console.log('Opening password change modal');
+      if (response.must_change_password === true) {
+        console.log('Opening password change modal - BEFORE setState');
         setShowPasswordChangeModal(true);
+        console.log('Opening password change modal - AFTER setState');
         setIsLoading(false);
+        console.log('Stopping execution with return');
         return;
       }
+      
+      console.log('Password change NOT required, continuing to dashboard');
       
       // Store last login info for display
       if (response.last_login_at) {
@@ -97,9 +101,39 @@ const LoginPage: React.FC = () => {
     // Error will be cleared on next submit attempt
   };
 
-  const handlePasswordChangeSuccess = () => {
+  const handlePasswordChangeSuccess = async () => {
     setShowPasswordChangeModal(false);
-    navigate('/dashboard');
+    
+    // Get the temp token and re-login to set authenticated state
+    const tempToken = localStorage.getItem('temp_token');
+    if (tempToken) {
+      // Move temp token to actual token
+      localStorage.setItem('token', tempToken);
+      localStorage.removeItem('temp_token');
+      
+      // Fetch user data with the token and set authenticated state
+      try {
+        const response = await fetch('/api/settings', {
+          headers: {
+            'Authorization': `Bearer ${tempToken}`
+          }
+        });
+        const data = await response.json();
+        
+        // Now set the authenticated state in AuthContext
+        localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.setItem('sessionStartTime', Date.now().toString());
+        
+        // Force page reload to trigger auth context update
+        window.location.href = '/dashboard';
+      } catch (err) {
+        console.error('Error fetching user data after password change:', err);
+        // Fallback to simple navigation
+        navigate('/dashboard');
+      }
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const handlePasswordChangeError = (error: string) => {

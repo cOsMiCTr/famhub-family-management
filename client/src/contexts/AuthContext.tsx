@@ -121,20 +121,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.login(email, password);
       
-      const { token: newToken, user: userData } = response;
+      const { token: newToken, user: userData, must_change_password } = response;
       
-      setToken(newToken);
-      setUser(userData);
-      
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(userData));
-      
-      // Set session start time for browser session tracking
-      sessionStorage.setItem('sessionStartTime', Date.now().toString());
-      
-      // Apply user's language preference
-      if (userData.preferred_language && userData.preferred_language !== i18n.language) {
-        i18n.changeLanguage(userData.preferred_language);
+      // Only set authenticated state if password change is NOT required
+      // If password change is required, LoginPage will handle it with a modal
+      if (!must_change_password) {
+        setToken(newToken);
+        setUser(userData);
+        
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Set session start time for browser session tracking
+        sessionStorage.setItem('sessionStartTime', Date.now().toString());
+        
+        // Apply user's language preference
+        if (userData.preferred_language && userData.preferred_language !== i18n.language) {
+          i18n.changeLanguage(userData.preferred_language);
+        }
+      } else {
+        // Store token temporarily for password change request
+        // But don't set user/token in state to avoid triggering authentication
+        localStorage.setItem('temp_token', newToken);
+        console.log('Password change required - not setting authenticated state');
       }
       
       return response;
