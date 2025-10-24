@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,6 +23,11 @@ const LoginPage: React.FC = () => {
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [lastLoginInfo, setLastLoginInfo] = useState<{ date?: string; time?: string } | null>(null);
 
+  // Debug logging for modal state changes
+  useEffect(() => {
+    console.log('showPasswordChangeModal changed to:', showPasswordChangeModal);
+  }, [showPasswordChangeModal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent any event bubbling that might cause refresh
@@ -37,11 +42,20 @@ const LoginPage: React.FC = () => {
     try {
       const response = await login(formData.email, formData.password);
       
+      // Debug logging
+      console.log('Login response:', {
+        must_change_password: response.must_change_password,
+        user: response.user,
+        full_response: response
+      });
+      
       // Only clear error on success
       setError('');
       
       // Check if password change is required
+      console.log('Checking must_change_password:', response.must_change_password);
       if (response.must_change_password) {
+        console.log('Opening password change modal');
         setShowPasswordChangeModal(true);
         setIsLoading(false);
         return;
