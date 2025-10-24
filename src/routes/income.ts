@@ -177,11 +177,26 @@ router.get('/summary', async (req, res) => {
       paramIndex++;
     }
 
-    // Get total
-    const totalResult = await query(
+    // Get comprehensive statistics with monthly calculations
+    const statsResult = await query(
       `SELECT 
         SUM(i.amount) as total,
-        COUNT(*) as count
+        COUNT(*) as count,
+        AVG(i.amount) as average,
+        MIN(i.amount) as min_amount,
+        MAX(i.amount) as max_amount,
+        COUNT(CASE WHEN i.is_recurring = true THEN 1 END) as recurring_count,
+        COUNT(CASE WHEN i.is_recurring = false THEN 1 END) as one_time_count,
+        SUM(CASE WHEN i.is_recurring = true THEN i.amount ELSE 0 END) as recurring_total,
+        SUM(CASE WHEN i.is_recurring = false THEN i.amount ELSE 0 END) as one_time_total,
+        -- Monthly calculations for recurring income
+        SUM(CASE 
+          WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
+          WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
+          WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
+          ELSE 0 
+        END) as monthly_recurring_total,
+        SUM(CASE WHEN i.is_recurring = false THEN i.amount ELSE 0 END) as one_time_total
        ${baseQuery}`,
       queryParams
     );
@@ -220,8 +235,20 @@ router.get('/summary', async (req, res) => {
     }
 
     res.json({
-      total: totalResult.rows[0],
-      breakdown: breakdownResult.rows
+      total: statsResult.rows[0],
+      breakdown: breakdownResult.rows,
+      statistics: {
+        total_amount: statsResult.rows[0].total || 0,
+        total_entries: statsResult.rows[0].count || 0,
+        average_amount: statsResult.rows[0].average || 0,
+        min_amount: statsResult.rows[0].min_amount || 0,
+        max_amount: statsResult.rows[0].max_amount || 0,
+        recurring_count: statsResult.rows[0].recurring_count || 0,
+        one_time_count: statsResult.rows[0].one_time_count || 0,
+        recurring_total: statsResult.rows[0].recurring_total || 0,
+        one_time_total: statsResult.rows[0].one_time_total || 0,
+        monthly_recurring_total: statsResult.rows[0].monthly_recurring_total || 0
+      }
     });
   } catch (error) {
     console.error('Error fetching income summary:', error);

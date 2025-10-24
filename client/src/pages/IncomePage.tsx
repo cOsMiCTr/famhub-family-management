@@ -64,6 +64,18 @@ interface IncomeSummary {
     total: number;
     count: number;
   }>;
+  statistics: {
+    total_amount: number;
+    total_entries: number;
+    average_amount: number;
+    min_amount: number;
+    max_amount: number;
+    recurring_count: number;
+    one_time_count: number;
+    recurring_total: number;
+    one_time_total: number;
+    monthly_recurring_total: number;
+  };
 }
 
 const IncomePage: React.FC = () => {
@@ -74,6 +86,7 @@ const IncomePage: React.FC = () => {
   const [summary, setSummary] = useState<IncomeSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -228,9 +241,48 @@ const IncomePage: React.FC = () => {
     }
   }, [userPreferences]);
 
+  // Validate form with custom messages
+  const validateForm = (): boolean => {
+    const errors: {[key: string]: string} = {};
+    
+    // Required fields validation
+    if (!formData.household_member_id) {
+      errors.household_member_id = t('income.selectMember');
+    }
+    if (!formData.category_id) {
+      errors.category_id = t('income.selectCategory');
+    }
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      errors.amount = t('income.amountRequired');
+    }
+    if (!formData.start_date) {
+      errors.start_date = t('income.startDateRequired');
+    }
+    
+    // Date validation
+    if (formData.start_date && formData.end_date) {
+      const startDate = new Date(formData.start_date);
+      const endDate = new Date(formData.end_date);
+      if (endDate <= startDate) {
+        errors.end_date = t('income.endDateAfterStart');
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous validation errors
+    setValidationErrors({});
+    
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
     
     try {
       const url = selectedEntry 
@@ -616,11 +668,11 @@ const IncomePage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {formatCurrency(entry.amount, entry.currency)}
+                          {entry.amount_in_main_currency ? formatCurrency(entry.amount_in_main_currency, entry.main_currency || 'TRY') : formatCurrency(entry.amount, entry.currency)}
                         </div>
                         {entry.amount_in_main_currency && entry.currency !== entry.main_currency && (
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            ≈ {formatCurrency(entry.amount_in_main_currency, entry.main_currency || 'TRY')}
+                            ≈ {formatCurrency(entry.amount, entry.currency)}
                           </div>
                         )}
                       </td>
@@ -776,8 +828,15 @@ const IncomePage: React.FC = () => {
                         required
                         value={formData.start_date}
                         onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                          validationErrors.start_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
+                        }`}
                       />
+                      {validationErrors.start_date && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.start_date}
+                        </p>
+                      )}
                     </div>
                     
                     <div>
@@ -788,8 +847,15 @@ const IncomePage: React.FC = () => {
                         type="date"
                         value={formData.end_date}
                         onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                          validationErrors.end_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
+                        }`}
                       />
+                      {validationErrors.end_date && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {validationErrors.end_date}
+                        </p>
+                      )}
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         {t('income.leaveEmptyForOngoing')}
                       </p>
@@ -922,7 +988,64 @@ const IncomePage: React.FC = () => {
                       {t('income.totalIncome')}
                     </h4>
                     <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
-                      {summary.total.count} {t('income.entries')}
+                      {summary.statistics.total_entries} {t('income.entries')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced KPIs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-green-900 dark:text-green-100 mb-1">
+                      {t('income.totalAmount')}
+                    </h5>
+                    <div className="text-xl font-bold text-green-900 dark:text-green-100">
+                      {formatCurrency(summary.statistics.total_amount, userPreferences?.currency || 'TRY')}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">
+                      {t('income.averageAmount')}
+                    </h5>
+                    <div className="text-xl font-bold text-purple-900 dark:text-purple-100">
+                      {formatCurrency(summary.statistics.average_amount, userPreferences?.currency || 'TRY')}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-orange-900 dark:text-orange-100 mb-1">
+                      {t('income.recurringIncome')}
+                    </h5>
+                    <div className="text-xl font-bold text-orange-900 dark:text-orange-100">
+                      {summary.statistics.recurring_count} {t('income.entries')}
+                    </div>
+                    <div className="text-sm text-orange-700 dark:text-orange-300">
+                      {formatCurrency(summary.statistics.recurring_total, userPreferences?.currency || 'TRY')}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-indigo-900 dark:text-indigo-100 mb-1">
+                      {t('income.monthlyIncome')}
+                    </h5>
+                    <div className="text-xl font-bold text-indigo-900 dark:text-indigo-100">
+                      {formatCurrency(summary.statistics.monthly_recurring_total, userPreferences?.currency || 'TRY')}
+                    </div>
+                    <div className="text-sm text-indigo-700 dark:text-indigo-300">
+                      {t('income.monthlyEquivalent')}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                      {t('income.oneTimeIncome')}
+                    </h5>
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                      {summary.statistics.one_time_count} {t('income.entries')}
+                    </div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                      {formatCurrency(summary.statistics.one_time_total, userPreferences?.currency || 'TRY')}
                     </div>
                   </div>
                 </div>

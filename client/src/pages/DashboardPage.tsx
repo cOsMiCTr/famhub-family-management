@@ -86,7 +86,7 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-blue-600 dark:text-blue-400'
     },
     {
-      title: t('dashboard.totalIncome'),
+      title: t('dashboard.netIncome'),
       value: stats ? formatCurrency(stats.totalIncome || 0, stats.currency || 'USD') : 'Loading...',
       icon: CurrencyDollarIcon,
       color: 'bg-green-500',
@@ -94,7 +94,7 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-green-600 dark:text-green-400'
     },
     {
-      title: 'Monthly Income',
+      title: t('dashboard.monthlyIncome'),
       value: stats ? formatCurrency(stats.monthlyIncome || 0, stats.currency || 'USD') : 'Loading...',
       icon: ArrowTrendingUpIcon,
       color: 'bg-purple-500',
