@@ -140,6 +140,19 @@ const LoginPage: React.FC = () => {
     setError(error);
   };
 
+  const handlePasswordChangeCancel = () => {
+    // Close modal and clean up
+    setShowPasswordChangeModal(false);
+    localStorage.removeItem('temp_token');
+    
+    // Reset form and error state
+    setFormData({ email: '', password: '' });
+    setError('');
+    setIsLoading(false);
+    
+    console.log('Password change cancelled - returning to login');
+  };
+
   return (
     <div className={`min-h-screen ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       {/* Background pattern */}
@@ -300,6 +313,7 @@ const LoginPage: React.FC = () => {
         isOpen={showPasswordChangeModal}
         onSuccess={handlePasswordChangeSuccess}
         onError={handlePasswordChangeError}
+        onCancel={handlePasswordChangeCancel}
       />
     </div>
   );

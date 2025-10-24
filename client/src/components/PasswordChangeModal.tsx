@@ -10,9 +10,10 @@ interface PasswordChangeModalProps {
   isOpen: boolean;
   onSuccess: () => void;
   onError: (error: string) => void;
+  onCancel?: () => void;
 }
 
-const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuccess, onError }) => {
+const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuccess, onError, onCancel }) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     current_password: '',
@@ -264,6 +265,16 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onSuc
                   'Change Password'
                 )}
               </button>
+              {onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={isLoading}
+                  className="btn-secondary mt-3 sm:mt-0 sm:w-auto w-full"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </form>
         </div>

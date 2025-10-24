@@ -15,7 +15,8 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        // Check for regular token first, then temp_token (for password change flow)
+        const token = localStorage.getItem('token') || localStorage.getItem('temp_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
