@@ -79,7 +79,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       )}
 
       {/* Desktop Layout Container */}
-      <div className="lg:flex lg:h-screen">
+      <div className="lg:flex lg:min-h-screen">
         {/* Sidebar */}
         <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex-shrink-0 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'

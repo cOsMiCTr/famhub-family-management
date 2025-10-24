@@ -491,7 +491,7 @@ const IncomePage: React.FC = () => {
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowSummaryModal(true)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
+                className="btn-secondary"
               >
                 <ChartBarIcon className="h-5 w-5 mr-2" />
                 {t('income.summary')}
@@ -507,7 +507,7 @@ const IncomePage: React.FC = () => {
                     }));
                   }
                 }}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="btn-primary"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 {t('income.addIncome')}
@@ -609,7 +609,7 @@ const IncomePage: React.FC = () => {
                 <div className="mt-4">
                   <button
                     onClick={() => setError(null)}
-                    className="bg-red-100 px-3 py-2 rounded-md text-sm font-medium text-red-800 hover:bg-red-200"
+                    className="btn-danger text-xs px-3 py-2 min-h-[36px]"
                   >
                     {t('common.close')}
                   </button>
@@ -632,7 +632,7 @@ const IncomePage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
