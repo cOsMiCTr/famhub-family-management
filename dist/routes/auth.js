@@ -80,7 +80,7 @@ router.post('/login', [
          last_activity_at = NOW(),
          account_locked_until = NULL,
          account_status = CASE 
-           WHEN must_change_password = true THEN 'pending_password_change'
+           WHEN must_change_password = true OR account_status = 'pending_password_change' THEN 'pending_password_change'
            ELSE 'active'
          END
      WHERE id = $1`, [user.id]);
@@ -99,11 +99,12 @@ router.post('/login', [
         expiresIn: process.env.JWT_EXPIRES_IN || '7d'
     });
     const { password_hash, ...userWithoutPassword } = user;
+    const shouldChangePassword = user.must_change_password || user.account_status === 'pending_password_change';
     res.json({
         message: 'Login successful',
         token,
         user: userWithoutPassword,
-        must_change_password: user.must_change_password,
+        must_change_password: shouldChangePassword,
         last_login_at: user.last_login_at
     });
 }));
