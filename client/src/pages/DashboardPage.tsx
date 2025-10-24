@@ -228,10 +228,10 @@ const DashboardPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 {exchangeRates.map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
-                    'USD': { symbol: '$', name: 'US Dollar', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
-                    'EUR': { symbol: '€', name: 'Euro', flag: '🇪🇺', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
-                    'GBP': { symbol: '£', name: 'Pound', flag: '🇬🇧', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
-                    'TRY': { symbol: '₺', name: 'Turkish Lira', flag: '🇹🇷', color: 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700' }
+                    'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
+                    'EUR': { symbol: '€', name: 'Euro (€)', flag: '🇪🇺', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
+                    'GBP': { symbol: '£', name: 'British Pound (£)', flag: '🇬🇧', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
+                    'TRY': { symbol: '₺', name: 'Turkish Lira (₺)', flag: '🇹🇷', color: 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700' }
                   };
                   
                   const toCurrency = currencyInfo[rate.to_currency] || { 

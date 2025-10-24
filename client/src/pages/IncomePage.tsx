@@ -830,11 +830,11 @@ const IncomePage: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                         className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       >
-                        <option value="USD">$ US Dollar ($)</option>
-                        <option value="EUR">€ Euro (€)</option>
-                        <option value="GBP">£ British Pound (£)</option>
-                        <option value="TRY">₺ Turkish Lira (₺)</option>
-                        <option value="GOLD">Au Gold (Au)</option>
+                        <option value="USD">US Dollar ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">British Pound (£)</option>
+                        <option value="TRY">Turkish Lira (₺)</option>
+                        <option value="GOLD">Gold (Au)</option>
                       </select>
                     </div>
                   </div>

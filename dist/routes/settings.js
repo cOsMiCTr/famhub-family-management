@@ -75,39 +75,39 @@ router.put('/', [
 router.get('/currencies', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const currencies = [
         {
-            code: 'TRY',
-            name: 'Turkish Lira',
-            symbol: '₺',
-            name_de: 'Türkische Lira',
-            name_tr: 'Türk Lirası'
-        },
-        {
-            code: 'GBP',
-            name: 'British Pound',
-            symbol: '£',
-            name_de: 'Britisches Pfund',
-            name_tr: 'İngiliz Sterlini'
-        },
-        {
             code: 'USD',
-            name: 'US Dollar',
+            name: 'US Dollar ($)',
             symbol: '$',
-            name_de: 'US-Dollar',
-            name_tr: 'ABD Doları'
+            name_de: 'US-Dollar ($)',
+            name_tr: 'ABD Doları ($)'
         },
         {
             code: 'EUR',
-            name: 'Euro',
+            name: 'Euro (€)',
             symbol: '€',
-            name_de: 'Euro',
-            name_tr: 'Euro'
+            name_de: 'Euro (€)',
+            name_tr: 'Euro (€)'
+        },
+        {
+            code: 'GBP',
+            name: 'British Pound (£)',
+            symbol: '£',
+            name_de: 'Britisches Pfund (£)',
+            name_tr: 'İngiliz Sterlini (£)'
+        },
+        {
+            code: 'TRY',
+            name: 'Turkish Lira (₺)',
+            symbol: '₺',
+            name_de: 'Türkische Lira (₺)',
+            name_tr: 'Türk Lirası (₺)'
         },
         {
             code: 'GOLD',
-            name: 'Gold',
+            name: 'Gold (Au)',
             symbol: 'Au',
-            name_de: 'Gold',
-            name_tr: 'Altın'
+            name_de: 'Gold (Au)',
+            name_tr: 'Altın (Au)'
         }
     ];
     res.json({
