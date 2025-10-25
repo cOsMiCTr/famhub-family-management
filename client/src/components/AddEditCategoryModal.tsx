@@ -566,6 +566,15 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                   </label>
                 )}
               </div>
+              
+              {/* Compact Settings Explanations */}
+              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md text-xs text-gray-600 dark:text-gray-400">
+                <div className="space-y-1">
+                  <div><strong>Ticker Symbol:</strong> Required for stocks, ETFs, bonds (e.g., AAPL, SPY)</div>
+                  <div><strong>Depreciation:</strong> Enables automatic value reduction over time</div>
+                  <div><strong>Default:</strong> Pre-selected when creating new assets</div>
+                </div>
+              </div>
             </div>
 
             {/* Actions */}
