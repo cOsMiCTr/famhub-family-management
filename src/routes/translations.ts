@@ -21,8 +21,8 @@ router.get('/', asyncHandler(async (req, res) => {
   }
 
   if (search) {
-    const searchCondition = ` AND en ILIKE $${paramCount}`;
-    whereClause += whereClause ? searchCondition : ` WHERE en ILIKE $${paramCount}`;
+    const searchCondition = ` AND (translation_key ILIKE $${paramCount} OR en ILIKE $${paramCount})`;
+    whereClause += whereClause ? searchCondition : ` WHERE (translation_key ILIKE $${paramCount} OR en ILIKE $${paramCount})`;
     params.push(`%${search}%`);
   }
 
