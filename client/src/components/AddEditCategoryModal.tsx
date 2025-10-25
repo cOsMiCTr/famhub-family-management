@@ -104,7 +104,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
   onSave,
   mode
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   
   // Icon mapping for categories
@@ -188,82 +188,106 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     return iconMap[iconName] || CubeTransparentIcon;
   };
 
-  const availableIcons = [
-    // Sorted alphabetically by label
-    { value: 'AcademicCapIcon', label: 'Education', component: AcademicCapIcon },
-    { value: 'ArchiveBoxIcon', label: 'Archive', component: ArchiveBoxIcon },
-    { value: 'ArrowDownIcon', label: 'Arrow Down', component: ArrowDownIcon },
-    { value: 'ArrowLeftIcon', label: 'Arrow Left', component: ArrowLeftIcon },
-    { value: 'ArrowRightIcon', label: 'Arrow Right', component: ArrowRightIcon },
-    { value: 'ArrowTrendingDownIcon', label: 'Trending Down', component: ArrowTrendingDownIcon },
-    { value: 'ArrowTrendingUpIcon', label: 'Trending Up', component: ArrowTrendingUpIcon },
-    { value: 'ArrowUpIcon', label: 'Arrow Up', component: ArrowUpIcon },
-    { value: 'BanknotesIcon', label: 'Banknotes', component: BanknotesIcon },
-    { value: 'BeakerIcon', label: 'Beaker', component: BeakerIcon },
-    { value: 'BoltIcon', label: 'Lightning', component: BoltIcon },
-    { value: 'BookOpenIcon', label: 'Book', component: BookOpenIcon },
-    { value: 'BriefcaseIcon', label: 'Briefcase', component: BriefcaseIcon },
-    { value: 'BuildingOffice2Icon', label: 'Office Building 2', component: BuildingOffice2Icon },
-    { value: 'BuildingOfficeIcon', label: 'Office Building', component: BuildingOfficeIcon },
-    { value: 'CalculatorIcon', label: 'Calculator', component: CalculatorIcon },
-    { value: 'CalendarIcon', label: 'Calendar', component: CalendarIcon },
-    { value: 'CameraIcon', label: 'Camera', component: CameraIcon },
-    { value: 'CakeIcon', label: 'Cake', component: CakeIcon },
-    { value: 'ChartBarIcon', label: 'Chart Bar', component: ChartBarIcon },
-    { value: 'ChartPieIcon', label: 'Chart Pie', component: ChartPieIcon },
-    { value: 'CheckIcon', label: 'Check', component: CheckIcon },
-    { value: 'ClipboardDocumentIcon', label: 'Clipboard', component: ClipboardDocumentIcon },
-    { value: 'CloudIcon', label: 'Cloud', component: CloudIcon },
-    { value: 'CogIcon', label: 'Settings', component: CogIcon },
-    { value: 'ComputerDesktopIcon', label: 'Computer', component: ComputerDesktopIcon },
-    { value: 'CreditCardIcon', label: 'Credit Card', component: CreditCardIcon },
-    { value: 'CubeTransparentIcon', label: 'Cube', component: CubeTransparentIcon },
-    { value: 'CurrencyDollarIcon', label: 'Currency', component: CurrencyDollarIcon },
-    { value: 'DevicePhoneMobileIcon', label: 'Mobile Phone', component: DevicePhoneMobileIcon },
-    { value: 'DocumentTextIcon', label: 'Document', component: DocumentTextIcon },
-    { value: 'ExclamationTriangleIcon', label: 'Warning', component: ExclamationTriangleIcon },
-    { value: 'EyeIcon', label: 'Eye', component: EyeIcon },
-    { value: 'EyeSlashIcon', label: 'Eye Slash', component: EyeSlashIcon },
-    { value: 'FaceFrownIcon', label: 'Frown', component: FaceFrownIcon },
-    { value: 'FaceSmileIcon', label: 'Smile', component: FaceSmileIcon },
-    { value: 'FireIcon', label: 'Fire', component: FireIcon },
-    { value: 'FolderIcon', label: 'Folder', component: FolderIcon },
-    { value: 'GiftIcon', label: 'Gift', component: GiftIcon },
-    { value: 'GlobeAltIcon', label: 'Globe', component: GlobeAltIcon },
-    { value: 'HandRaisedIcon', label: 'Hand Raised', component: HandRaisedIcon },
-    { value: 'HandThumbDownIcon', label: 'Thumbs Down', component: HandThumbDownIcon },
-    { value: 'HandThumbUpIcon', label: 'Thumbs Up', component: HandThumbUpIcon },
-    { value: 'HeartIcon', label: 'Heart', component: HeartIcon },
-    { value: 'HomeIcon', label: 'Home', component: HomeIcon },
-    { value: 'InformationCircleIcon', label: 'Info', component: InformationCircleIcon },
-    { value: 'KeyIcon', label: 'Key', component: KeyIcon },
-    { value: 'LightBulbIcon', label: 'Light Bulb', component: LightBulbIcon },
-    { value: 'LockClosedIcon', label: 'Lock', component: LockClosedIcon },
-    { value: 'MagnifyingGlassIcon', label: 'Search', component: MagnifyingGlassIcon },
-    { value: 'MapIcon', label: 'Map', component: MapIcon },
-    { value: 'MinusIcon', label: 'Minus', component: MinusIcon },
-    { value: 'MoonIcon', label: 'Moon', component: MoonIcon },
-    { value: 'MusicalNoteIcon', label: 'Music', component: MusicalNoteIcon },
-    { value: 'PaintBrushIcon', label: 'Paint Brush', component: PaintBrushIcon },
-    { value: 'PencilIcon', label: 'Pencil', component: PencilIcon },
-    { value: 'PlusIcon', label: 'Plus', component: PlusIcon },
-    { value: 'PuzzlePieceIcon', label: 'Puzzle', component: PuzzlePieceIcon },
-    { value: 'QuestionMarkCircleIcon', label: 'Question', component: QuestionMarkCircleIcon },
-    { value: 'ReceiptPercentIcon', label: 'Receipt', component: ReceiptPercentIcon },
-    { value: 'RocketLaunchIcon', label: 'Rocket', component: RocketLaunchIcon },
-    { value: 'ScissorsIcon', label: 'Scissors', component: ScissorsIcon },
-    { value: 'ShieldCheckIcon', label: 'Shield', component: ShieldCheckIcon },
-    { value: 'ShoppingBagIcon', label: 'Shopping Bag', component: ShoppingBagIcon },
-    { value: 'ShoppingCartIcon', label: 'Shopping Cart', component: ShoppingCartIcon },
-    { value: 'SparklesIcon', label: 'Sparkles', component: SparklesIcon },
-    { value: 'StarIcon', label: 'Star', component: StarIcon },
-    { value: 'SunIcon', label: 'Sun', component: SunIcon },
-    { value: 'TruckIcon', label: 'Truck', component: TruckIcon },
-    { value: 'UserIcon', label: 'User', component: UserIcon },
-    { value: 'UsersIcon', label: 'Users', component: UsersIcon },
-    { value: 'WrenchScrewdriverIcon', label: 'Tools', component: WrenchScrewdriverIcon },
-    { value: 'XCircleIcon', label: 'X Circle', component: XCircleIcon },
+  // Icon definitions with translations
+  const iconDefinitions = [
+    { value: 'AcademicCapIcon', label_en: 'Education', label_de: 'Bildung', label_tr: 'Eğitim', component: AcademicCapIcon },
+    { value: 'ArchiveBoxIcon', label_en: 'Archive', label_de: 'Archiv', label_tr: 'Arşiv', component: ArchiveBoxIcon },
+    { value: 'ArrowDownIcon', label_en: 'Arrow Down', label_de: 'Pfeil Runter', label_tr: 'Aşağı Ok', component: ArrowDownIcon },
+    { value: 'ArrowLeftIcon', label_en: 'Arrow Left', label_de: 'Pfeil Links', label_tr: 'Sol Ok', component: ArrowLeftIcon },
+    { value: 'ArrowRightIcon', label_en: 'Arrow Right', label_de: 'Pfeil Rechts', label_tr: 'Sağ Ok', component: ArrowRightIcon },
+    { value: 'ArrowTrendingDownIcon', label_en: 'Trending Down', label_de: 'Fallend', label_tr: 'Düşen', component: ArrowTrendingDownIcon },
+    { value: 'ArrowTrendingUpIcon', label_en: 'Trending Up', label_de: 'Steigend', label_tr: 'Yükselen', component: ArrowTrendingUpIcon },
+    { value: 'ArrowUpIcon', label_en: 'Arrow Up', label_de: 'Pfeil Hoch', label_tr: 'Yukarı Ok', component: ArrowUpIcon },
+    { value: 'BanknotesIcon', label_en: 'Banknotes', label_de: 'Banknoten', label_tr: 'Banknotlar', component: BanknotesIcon },
+    { value: 'BeakerIcon', label_en: 'Beaker', label_de: 'Becherglas', label_tr: 'Beher', component: BeakerIcon },
+    { value: 'BoltIcon', label_en: 'Lightning', label_de: 'Blitz', label_tr: 'Şimşek', component: BoltIcon },
+    { value: 'BookOpenIcon', label_en: 'Book', label_de: 'Buch', label_tr: 'Kitap', component: BookOpenIcon },
+    { value: 'BriefcaseIcon', label_en: 'Briefcase', label_de: 'Aktenkoffer', label_tr: 'Çanta', component: BriefcaseIcon },
+    { value: 'BuildingOffice2Icon', label_en: 'Office Building 2', label_de: 'Bürogebäude 2', label_tr: 'Ofis Binası 2', component: BuildingOffice2Icon },
+    { value: 'BuildingOfficeIcon', label_en: 'Office Building', label_de: 'Bürogebäude', label_tr: 'Ofis Binası', component: BuildingOfficeIcon },
+    { value: 'CalculatorIcon', label_en: 'Calculator', label_de: 'Taschenrechner', label_tr: 'Hesap Makinesi', component: CalculatorIcon },
+    { value: 'CalendarIcon', label_en: 'Calendar', label_de: 'Kalender', label_tr: 'Takvim', component: CalendarIcon },
+    { value: 'CameraIcon', label_en: 'Camera', label_de: 'Kamera', label_tr: 'Kamera', component: CameraIcon },
+    { value: 'CakeIcon', label_en: 'Cake', label_de: 'Kuchen', label_tr: 'Pasta', component: CakeIcon },
+    { value: 'ChartBarIcon', label_en: 'Chart Bar', label_de: 'Balkendiagramm', label_tr: 'Çubuk Grafik', component: ChartBarIcon },
+    { value: 'ChartPieIcon', label_en: 'Chart Pie', label_de: 'Kreisdiagramm', label_tr: 'Pasta Grafik', component: ChartPieIcon },
+    { value: 'CheckIcon', label_en: 'Check', label_de: 'Haken', label_tr: 'Onay', component: CheckIcon },
+    { value: 'ClipboardDocumentIcon', label_en: 'Clipboard', label_de: 'Zwischenablage', label_tr: 'Pano', component: ClipboardDocumentIcon },
+    { value: 'CloudIcon', label_en: 'Cloud', label_de: 'Wolke', label_tr: 'Bulut', component: CloudIcon },
+    { value: 'CogIcon', label_en: 'Settings', label_de: 'Einstellungen', label_tr: 'Ayarlar', component: CogIcon },
+    { value: 'ComputerDesktopIcon', label_en: 'Computer', label_de: 'Computer', label_tr: 'Bilgisayar', component: ComputerDesktopIcon },
+    { value: 'CreditCardIcon', label_en: 'Credit Card', label_de: 'Kreditkarte', label_tr: 'Kredi Kartı', component: CreditCardIcon },
+    { value: 'CubeTransparentIcon', label_en: 'Cube', label_de: 'Würfel', label_tr: 'Küp', component: CubeTransparentIcon },
+    { value: 'CurrencyDollarIcon', label_en: 'Currency', label_de: 'Währung', label_tr: 'Para Birimi', component: CurrencyDollarIcon },
+    { value: 'DevicePhoneMobileIcon', label_en: 'Mobile Phone', label_de: 'Handy', label_tr: 'Cep Telefonu', component: DevicePhoneMobileIcon },
+    { value: 'DocumentTextIcon', label_en: 'Document', label_de: 'Dokument', label_tr: 'Belge', component: DocumentTextIcon },
+    { value: 'ExclamationTriangleIcon', label_en: 'Warning', label_de: 'Warnung', label_tr: 'Uyarı', component: ExclamationTriangleIcon },
+    { value: 'EyeIcon', label_en: 'Eye', label_de: 'Auge', label_tr: 'Göz', component: EyeIcon },
+    { value: 'EyeSlashIcon', label_en: 'Eye Slash', label_de: 'Auge Durchgestrichen', label_tr: 'Göz Çizgili', component: EyeSlashIcon },
+    { value: 'FaceFrownIcon', label_en: 'Frown', label_de: 'Stirnrunzeln', label_tr: 'Kaş Çatma', component: FaceFrownIcon },
+    { value: 'FaceSmileIcon', label_en: 'Smile', label_de: 'Lächeln', label_tr: 'Gülümseme', component: FaceSmileIcon },
+    { value: 'FireIcon', label_en: 'Fire', label_de: 'Feuer', label_tr: 'Ateş', component: FireIcon },
+    { value: 'FolderIcon', label_en: 'Folder', label_de: 'Ordner', label_tr: 'Klasör', component: FolderIcon },
+    { value: 'GiftIcon', label_en: 'Gift', label_de: 'Geschenk', label_tr: 'Hediye', component: GiftIcon },
+    { value: 'GlobeAltIcon', label_en: 'Globe', label_de: 'Globus', label_tr: 'Dünya', component: GlobeAltIcon },
+    { value: 'HandRaisedIcon', label_en: 'Hand Raised', label_de: 'Hand Gehoben', label_tr: 'El Kalkık', component: HandRaisedIcon },
+    { value: 'HandThumbDownIcon', label_en: 'Thumbs Down', label_de: 'Daumen Runter', label_tr: 'Başparmak Aşağı', component: HandThumbDownIcon },
+    { value: 'HandThumbUpIcon', label_en: 'Thumbs Up', label_de: 'Daumen Hoch', label_tr: 'Başparmak Yukarı', component: HandThumbUpIcon },
+    { value: 'HeartIcon', label_en: 'Heart', label_de: 'Herz', label_tr: 'Kalp', component: HeartIcon },
+    { value: 'HomeIcon', label_en: 'Home', label_de: 'Zuhause', label_tr: 'Ev', component: HomeIcon },
+    { value: 'InformationCircleIcon', label_en: 'Info', label_de: 'Info', label_tr: 'Bilgi', component: InformationCircleIcon },
+    { value: 'KeyIcon', label_en: 'Key', label_de: 'Schlüssel', label_tr: 'Anahtar', component: KeyIcon },
+    { value: 'LightBulbIcon', label_en: 'Light Bulb', label_de: 'Glühbirne', label_tr: 'Ampul', component: LightBulbIcon },
+    { value: 'LockClosedIcon', label_en: 'Lock', label_de: 'Schloss', label_tr: 'Kilit', component: LockClosedIcon },
+    { value: 'MagnifyingGlassIcon', label_en: 'Search', label_de: 'Suchen', label_tr: 'Arama', component: MagnifyingGlassIcon },
+    { value: 'MapIcon', label_en: 'Map', label_de: 'Karte', label_tr: 'Harita', component: MapIcon },
+    { value: 'MinusIcon', label_en: 'Minus', label_de: 'Minus', label_tr: 'Eksi', component: MinusIcon },
+    { value: 'MoonIcon', label_en: 'Moon', label_de: 'Mond', label_tr: 'Ay', component: MoonIcon },
+    { value: 'MusicalNoteIcon', label_en: 'Music', label_de: 'Musik', label_tr: 'Müzik', component: MusicalNoteIcon },
+    { value: 'PaintBrushIcon', label_en: 'Paint Brush', label_de: 'Pinsel', label_tr: 'Fırça', component: PaintBrushIcon },
+    { value: 'PencilIcon', label_en: 'Pencil', label_de: 'Bleistift', label_tr: 'Kalem', component: PencilIcon },
+    { value: 'PlusIcon', label_en: 'Plus', label_de: 'Plus', label_tr: 'Artı', component: PlusIcon },
+    { value: 'PuzzlePieceIcon', label_en: 'Puzzle', label_de: 'Puzzle', label_tr: 'Bulmaca', component: PuzzlePieceIcon },
+    { value: 'QuestionMarkCircleIcon', label_en: 'Question', label_de: 'Frage', label_tr: 'Soru', component: QuestionMarkCircleIcon },
+    { value: 'ReceiptPercentIcon', label_en: 'Receipt', label_de: 'Quittung', label_tr: 'Fiş', component: ReceiptPercentIcon },
+    { value: 'RocketLaunchIcon', label_en: 'Rocket', label_de: 'Rakete', label_tr: 'Roket', component: RocketLaunchIcon },
+    { value: 'ScissorsIcon', label_en: 'Scissors', label_de: 'Schere', label_tr: 'Makas', component: ScissorsIcon },
+    { value: 'ShieldCheckIcon', label_en: 'Shield', label_de: 'Schild', label_tr: 'Kalkan', component: ShieldCheckIcon },
+    { value: 'ShoppingBagIcon', label_en: 'Shopping Bag', label_de: 'Einkaufstasche', label_tr: 'Alışveriş Çantası', component: ShoppingBagIcon },
+    { value: 'ShoppingCartIcon', label_en: 'Shopping Cart', label_de: 'Einkaufswagen', label_tr: 'Alışveriş Arabası', component: ShoppingCartIcon },
+    { value: 'SparklesIcon', label_en: 'Sparkles', label_de: 'Funkeln', label_tr: 'Pırıltı', component: SparklesIcon },
+    { value: 'StarIcon', label_en: 'Star', label_de: 'Stern', label_tr: 'Yıldız', component: StarIcon },
+    { value: 'SunIcon', label_en: 'Sun', label_de: 'Sonne', label_tr: 'Güneş', component: SunIcon },
+    { value: 'TruckIcon', label_en: 'Truck', label_de: 'LKW', label_tr: 'Kamyon', component: TruckIcon },
+    { value: 'UserIcon', label_en: 'User', label_de: 'Benutzer', label_tr: 'Kullanıcı', component: UserIcon },
+    { value: 'UsersIcon', label_en: 'Users', label_de: 'Benutzer', label_tr: 'Kullanıcılar', component: UsersIcon },
+    { value: 'WrenchScrewdriverIcon', label_en: 'Tools', label_de: 'Werkzeuge', label_tr: 'Araçlar', component: WrenchScrewdriverIcon },
+    { value: 'XCircleIcon', label_en: 'X Circle', label_de: 'X Kreis', label_tr: 'X Daire', component: XCircleIcon },
   ];
+
+  // Simple function to get sorted icons based on current language
+  const getSortedIcons = () => {
+    const currentLang = i18n.language || 'en';
+    let langKey = 'label_en'; // default to English
+    
+    if (currentLang.startsWith('de')) {
+      langKey = 'label_de';
+    } else if (currentLang.startsWith('tr')) {
+      langKey = 'label_tr';
+    }
+    
+    return [...iconDefinitions].sort((a, b) => {
+      const labelA = a[langKey as keyof typeof a] || a.label_en;
+      const labelB = b[langKey as keyof typeof b] || b.label_en;
+      return String(labelA).localeCompare(String(labelB), currentLang);
+    }).map(icon => ({
+      value: icon.value,
+      label: icon[langKey as keyof typeof icon] || icon.label_en,
+      component: icon.component
+    }));
+  };
+
+  const availableIcons = getSortedIcons();
 
   const [formData, setFormData] = useState({
     name_en: '',
@@ -452,10 +476,11 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                     {formData.icon ? (
                       <>
                         {(() => {
-                          const IconComponent = getCategoryIcon(formData.icon);
+                          const IconComponent = getCategoryIcon(formData.icon) as any;
                           const iconLabel = availableIcons.find(i => i.value === formData.icon)?.label;
                           return (
                             <>
+                              {/* @ts-expect-error */}
                               <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
                               <span>{iconLabel}</span>
                             </>
@@ -474,7 +499,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                 {showIconDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
                     {availableIcons.map(icon => {
-                      const IconComponent = icon.component;
+                      const IconComponent = icon.component as any;
                       return (
                         <button
                           key={icon.value}
@@ -485,6 +510,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
                         >
+                          {/* @ts-expect-error */}
                           <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
                           <span>{icon.label}</span>
                         </button>
