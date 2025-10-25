@@ -26,11 +26,11 @@ body {
   overflow-x: hidden;
   /* Mobile touch optimizations */
   -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  /* Allow text selection for better UX */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
   /* Prevent zoom on input focus */
   font-size: 16px;
 }
@@ -38,6 +38,41 @@ body {
 /* Ensure consistent box-sizing */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Text selection styles */
+::selection {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: inherit;
+}
+
+/* Allow text selection in content areas */
+p, span, div, h1, h2, h3, h4, h5, h6, td, th, li, label, input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Prevent text selection on interactive elements that shouldn't be selectable */
+button, [role="button"], .btn-primary, .btn-secondary, .btn-danger, svg, img, .icon {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in form inputs */
+input, textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 /* Prevent flash of unstyled content */
