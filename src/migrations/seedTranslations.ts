@@ -11,6 +11,7 @@ const seedTranslations = async () => {
     const translations = [
       // Common
       { key: 'common.loading', category: 'common', en: 'Loading...', de: 'Lädt...', tr: 'Yükleniyor...' },
+      { key: 'common.name', category: 'common', en: 'Name', de: 'Name', tr: 'Ad' },
       { key: 'common.save', category: 'common', en: 'Save', de: 'Speichern', tr: 'Kaydet' },
       { key: 'common.cancel', category: 'common', en: 'Cancel', de: 'Abbrechen', tr: 'İptal' },
       { key: 'common.delete', category: 'common', en: 'Delete', de: 'Löschen', tr: 'Sil' },
