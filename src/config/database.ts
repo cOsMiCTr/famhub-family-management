@@ -161,7 +161,7 @@ async function runMigrations(): Promise<void> {
         name_de VARCHAR(255) NOT NULL,
         name_en VARCHAR(255) NOT NULL,
         name_tr VARCHAR(255) NOT NULL,
-        type VARCHAR(20) DEFAULT 'income' CHECK (type IN ('income', 'expense')),
+        type VARCHAR(20) DEFAULT 'income' CHECK (type IN ('income', 'expense', 'asset')),
         category_type VARCHAR(50) DEFAULT 'other' CHECK (category_type IN ('real_estate', 'stocks', 'etf', 'bonds', 'crypto', 'gold', 'vehicles', 'collectibles', 'cash', 'other')),
         icon VARCHAR(50),
         requires_ticker BOOLEAN DEFAULT false,
@@ -497,7 +497,12 @@ async function runMigrations(): Promise<void> {
       await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS icon VARCHAR(50)`);
       await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS requires_ticker BOOLEAN DEFAULT false`);
       await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS depreciation_enabled BOOLEAN DEFAULT false`);
-      console.log('✅ Updated asset_categories table with new columns');
+      
+      // Update the type constraint to allow 'asset'
+      await client.query(`ALTER TABLE asset_categories DROP CONSTRAINT IF EXISTS asset_categories_type_check`);
+      await client.query(`ALTER TABLE asset_categories ADD CONSTRAINT asset_categories_type_check CHECK (type IN ('income', 'expense', 'asset'))`);
+      
+      console.log('✅ Updated asset_categories table with new columns and constraint');
     } catch (error: any) {
       console.log('ℹ️ Asset_categories table columns already updated or table does not exist');
     }
