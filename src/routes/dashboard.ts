@@ -174,7 +174,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
   const exchangeRates = await exchangeRateService.getAllExchangeRates();
   const relevantRates = exchangeRates.filter(rate => 
     rate.from_currency === mainCurrency && 
-    ['EUR', 'USD', 'GBP', 'TRY'].includes(rate.to_currency)
+    ['EUR', 'USD', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD'].includes(rate.to_currency)
   );
 
   res.json({

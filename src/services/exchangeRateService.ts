@@ -1,5 +1,6 @@
 import axios from 'axios';
 import cron from 'node-cron';
+import * as cheerio from 'cheerio';
 import { query } from '../config/database';
 
 interface ExchangeRateData {
@@ -82,7 +83,7 @@ class ExchangeRateService {
       );
 
       const rates = response.data.conversion_rates;
-      const currencies = ['TRY', 'GBP', 'USD', 'EUR'];
+      const currencies = ['TRY', 'GBP', 'USD', 'EUR', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF'];
 
       const exchangeRates: ExchangeRateData[] = [];
 
@@ -130,12 +131,12 @@ class ExchangeRateService {
     try {
       // Using Metals-API
       const response = await axios.get(
-        `https://metals-api.com/api/latest?access_key=${this.goldApiKey}&base=USD&symbols=TRY,GBP,EUR`,
+        `https://metals-api.com/api/latest?access_key=${this.goldApiKey}&base=USD&symbols=TRY,GBP,EUR,CNY,JPY,CAD,AUD,CHF`,
         { timeout: 10000 }
       );
 
       const goldPriceUSD = response.data.rates.GOLD || 2000; // Fallback gold price
-      const currencies = ['TRY', 'GBP', 'USD', 'EUR'];
+      const currencies = ['TRY', 'GBP', 'USD', 'EUR', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF'];
 
       const goldRates: ExchangeRateData[] = [];
 
@@ -175,7 +176,34 @@ class ExchangeRateService {
 
   // Set fallback exchange rates when API is unavailable
   private async setFallbackRates(): Promise<void> {
-    const fallbackRates: ExchangeRateData[] = [
+    console.log('🔄 Attempting to use last known rates as fallback...');
+    
+    // First, check if we have recent rates in database (less than 24 hours old)
+    const recentRates = await query(
+      `SELECT from_currency, to_currency, rate, updated_at 
+       FROM exchange_rates 
+       WHERE updated_at > NOW() - INTERVAL '24 hours'
+       ORDER BY updated_at DESC`
+    );
+    
+    if (recentRates.rows.length > 0) {
+      console.log(`✅ Using ${recentRates.rows.length} recent rates as fallback`);
+      return; // Keep existing recent rates, don't overwrite
+    }
+    
+    // If no recent rates, try scraping
+    console.log('⚠️ No recent rates found, attempting to scrape...');
+    const scrapedRates = await this.scrapeAllRates();
+    
+    if (scrapedRates.length > 0) {
+      console.log(`✅ Scraped ${scrapedRates.length} rates successfully`);
+      await this.storeExchangeRates(scrapedRates);
+      return;
+    }
+    
+    // Last resort: use static fallback rates
+    console.log('⚠️ Scraping failed, using static fallback rates');
+    const staticRates: ExchangeRateData[] = [
       { from_currency: 'USD', to_currency: 'EUR', rate: 0.85 },
       { from_currency: 'EUR', to_currency: 'USD', rate: 1.18 },
       { from_currency: 'USD', to_currency: 'GBP', rate: 0.73 },
@@ -187,10 +215,21 @@ class ExchangeRateService {
       { from_currency: 'EUR', to_currency: 'TRY', rate: 35.3 },
       { from_currency: 'TRY', to_currency: 'EUR', rate: 0.028 },
       { from_currency: 'GBP', to_currency: 'TRY', rate: 41.1 },
-      { from_currency: 'TRY', to_currency: 'GBP', rate: 0.024 }
+      { from_currency: 'TRY', to_currency: 'GBP', rate: 0.024 },
+      // Additional currencies
+      { from_currency: 'USD', to_currency: 'CNY', rate: 7.2 },
+      { from_currency: 'CNY', to_currency: 'USD', rate: 0.139 },
+      { from_currency: 'USD', to_currency: 'JPY', rate: 150.0 },
+      { from_currency: 'JPY', to_currency: 'USD', rate: 0.0067 },
+      { from_currency: 'USD', to_currency: 'CAD', rate: 1.35 },
+      { from_currency: 'CAD', to_currency: 'USD', rate: 0.74 },
+      { from_currency: 'USD', to_currency: 'AUD', rate: 1.5 },
+      { from_currency: 'AUD', to_currency: 'USD', rate: 0.67 },
+      { from_currency: 'USD', to_currency: 'CHF', rate: 0.88 },
+      { from_currency: 'CHF', to_currency: 'USD', rate: 1.14 }
     ];
 
-    await this.storeExchangeRates(fallbackRates);
+    await this.storeExchangeRates(staticRates);
   }
 
   // Set fallback gold rates
@@ -203,7 +242,17 @@ class ExchangeRateService {
       { from_currency: 'GOLD', to_currency: 'GBP', rate: 1460 },
       { from_currency: 'GBP', to_currency: 'GOLD', rate: 0.000685 },
       { from_currency: 'GOLD', to_currency: 'TRY', rate: 60000 },
-      { from_currency: 'TRY', to_currency: 'GOLD', rate: 0.0000167 }
+      { from_currency: 'TRY', to_currency: 'GOLD', rate: 0.0000167 },
+      { from_currency: 'GOLD', to_currency: 'CNY', rate: 14400 },
+      { from_currency: 'CNY', to_currency: 'GOLD', rate: 0.0000694 },
+      { from_currency: 'GOLD', to_currency: 'JPY', rate: 300000 },
+      { from_currency: 'JPY', to_currency: 'GOLD', rate: 0.0000033 },
+      { from_currency: 'GOLD', to_currency: 'CAD', rate: 2700 },
+      { from_currency: 'CAD', to_currency: 'GOLD', rate: 0.000370 },
+      { from_currency: 'GOLD', to_currency: 'AUD', rate: 3000 },
+      { from_currency: 'AUD', to_currency: 'GOLD', rate: 0.000333 },
+      { from_currency: 'GOLD', to_currency: 'CHF', rate: 1760 },
+      { from_currency: 'CHF', to_currency: 'GOLD', rate: 0.000568 }
     ];
 
     await this.storeExchangeRates(fallbackGoldRates);
@@ -257,6 +306,211 @@ class ExchangeRateService {
       to_currency: row.to_currency,
       rate: parseFloat(row.rate)
     }));
+  }
+
+  // Scrape all exchange rates from multiple sources
+  private async scrapeAllRates(): Promise<ExchangeRateData[]> {
+    const allRates: ExchangeRateData[] = [];
+    
+    try {
+      // Scrape from multiple sources in parallel
+      const [ecbRates, cbrtRates, boeRates, fedRates] = await Promise.allSettled([
+        this.scrapeECBRates(),
+        this.scrapeCBRTRates(),
+        this.scrapeBOERates(),
+        this.scrapeFedRates()
+      ]);
+
+      // Collect successful results
+      if (ecbRates.status === 'fulfilled') allRates.push(...ecbRates.value);
+      if (cbrtRates.status === 'fulfilled') allRates.push(...cbrtRates.value);
+      if (boeRates.status === 'fulfilled') allRates.push(...boeRates.value);
+      if (fedRates.status === 'fulfilled') allRates.push(...fedRates.value);
+
+      console.log(`📊 Scraped ${allRates.length} rates from ${[ecbRates, cbrtRates, boeRates, fedRates].filter(r => r.status === 'fulfilled').length} sources`);
+      
+    } catch (error) {
+      console.error('Error in scrapeAllRates:', error);
+    }
+
+    return allRates;
+  }
+
+  // Scrape ECB rates (EUR-based)
+  private async scrapeECBRates(): Promise<ExchangeRateData[]> {
+    try {
+      const response = await axios.get('https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html', {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      const $ = cheerio.load(response.data);
+      const rates: ExchangeRateData[] = [];
+
+      // Parse ECB HTML table
+      $('table.forextable tr').each((_, row) => {
+        const cells = $(row).find('td');
+        if (cells.length >= 3) {
+          const currency = $(cells[0]).text().trim();
+          const rateText = $(cells[2]).text().trim();
+          const rate = parseFloat(rateText);
+
+          if (currency && !isNaN(rate) && currency.length === 3) {
+            rates.push({
+              from_currency: 'EUR',
+              to_currency: currency,
+              rate: rate
+            });
+            rates.push({
+              from_currency: currency,
+              to_currency: 'EUR',
+              rate: 1 / rate
+            });
+          }
+        }
+      });
+
+      console.log(`🇪🇺 ECB: Scraped ${rates.length} EUR-based rates`);
+      return rates;
+    } catch (error) {
+      console.error('ECB scraping failed:', error);
+      return [];
+    }
+  }
+
+  // Scrape CBRT rates (TRY-based)
+  private async scrapeCBRTRates(): Promise<ExchangeRateData[]> {
+    try {
+      const response = await axios.get('https://www.tcmb.gov.tr/wps/wcm/connect/tr/tcmb+tr/main+menu/istatistikler/resmi+doviz+kurlari', {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      const $ = cheerio.load(response.data);
+      const rates: ExchangeRateData[] = [];
+
+      // Parse CBRT HTML table
+      $('table tr').each((_, row) => {
+        const cells = $(row).find('td');
+        if (cells.length >= 3) {
+          const currency = $(cells[0]).text().trim();
+          const rateText = $(cells[1]).text().trim().replace(',', '.');
+          const rate = parseFloat(rateText);
+
+          if (currency && !isNaN(rate) && currency.length === 3) {
+            rates.push({
+              from_currency: 'TRY',
+              to_currency: currency,
+              rate: rate
+            });
+            rates.push({
+              from_currency: currency,
+              to_currency: 'TRY',
+              rate: 1 / rate
+            });
+          }
+        }
+      });
+
+      console.log(`🇹🇷 CBRT: Scraped ${rates.length} TRY-based rates`);
+      return rates;
+    } catch (error) {
+      console.error('CBRT scraping failed:', error);
+      return [];
+    }
+  }
+
+  // Scrape Bank of England rates (GBP-based)
+  private async scrapeBOERates(): Promise<ExchangeRateData[]> {
+    try {
+      const response = await axios.get('https://www.bankofengland.co.uk/boeapps/database/Rates.asp', {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      const $ = cheerio.load(response.data);
+      const rates: ExchangeRateData[] = [];
+
+      // Parse BoE HTML table
+      $('table tr').each((_, row) => {
+        const cells = $(row).find('td');
+        if (cells.length >= 3) {
+          const currency = $(cells[0]).text().trim();
+          const rateText = $(cells[1]).text().trim();
+          const rate = parseFloat(rateText);
+
+          if (currency && !isNaN(rate) && currency.length === 3) {
+            rates.push({
+              from_currency: 'GBP',
+              to_currency: currency,
+              rate: rate
+            });
+            rates.push({
+              from_currency: currency,
+              to_currency: 'GBP',
+              rate: 1 / rate
+            });
+          }
+        }
+      });
+
+      console.log(`🇬🇧 BoE: Scraped ${rates.length} GBP-based rates`);
+      return rates;
+    } catch (error) {
+      console.error('BoE scraping failed:', error);
+      return [];
+    }
+  }
+
+  // Scrape Federal Reserve rates (USD-based)
+  private async scrapeFedRates(): Promise<ExchangeRateData[]> {
+    try {
+      const currencies = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY'];
+      const rates: ExchangeRateData[] = [];
+
+      // Scrape individual FRED series
+      for (const currency of currencies) {
+        try {
+          const response = await axios.get(`https://fred.stlouisfed.org/series/DEXUS${currency.toLowerCase()}`, {
+            timeout: 5000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          const $ = cheerio.load(response.data);
+          const rateText = $('.series-meta-observation-value').text().trim();
+          const rate = parseFloat(rateText);
+
+          if (!isNaN(rate) && rate > 0) {
+            rates.push({
+              from_currency: 'USD',
+              to_currency: currency,
+              rate: rate
+            });
+            rates.push({
+              from_currency: currency,
+              to_currency: 'USD',
+              rate: 1 / rate
+            });
+          }
+        } catch (error) {
+          console.warn(`Failed to scrape ${currency} rate from FRED:`, error);
+        }
+      }
+
+      console.log(`🇺🇸 Fed: Scraped ${rates.length} USD-based rates`);
+      return rates;
+    } catch (error) {
+      console.error('Fed scraping failed:', error);
+      return [];
+    }
   }
 
   // Force update exchange rates (for manual refresh)

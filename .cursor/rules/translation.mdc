@@ -1,3 +1,5 @@
 ---
 alwaysApply: true
 ---
+
+- always add the newly added labels, texts to seedTranslation 

@@ -18,6 +18,11 @@ declare class ExchangeRateService {
     getExchangeRate(fromCurrency: string, toCurrency: string): Promise<number>;
     convertCurrency(amount: number, fromCurrency: string, toCurrency: string): Promise<number>;
     getAllExchangeRates(): Promise<ExchangeRateData[]>;
+    private scrapeAllRates;
+    private scrapeECBRates;
+    private scrapeCBRTRates;
+    private scrapeBOERates;
+    private scrapeFedRates;
     forceUpdate(): Promise<void>;
 }
 export declare const exchangeRateService: ExchangeRateService;
