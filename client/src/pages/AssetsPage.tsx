@@ -18,55 +18,10 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
-
-interface Asset {
-  id: number;
-  name: string;
-  amount: number;
-  currency: string;
-  category_id: number;
-  description?: string;
-  date: string;
-  household_member_id?: number;
-  purchase_date?: string;
-  purchase_price?: number;
-  purchase_currency?: string;
-  current_value?: number;
-  last_valuation_date?: string;
-  valuation_method?: string;
-  ownership_type: string;
-  ownership_percentage: number;
-  status: string;
-  location?: string;
-  notes?: string;
-  photo_url?: string;
-  category_name_en: string;
-  category_name_de: string;
-  category_name_tr: string;
-  category_type: string;
-  icon?: string;
-  member_name?: string;
-  user_email: string;
-}
-
-interface AssetCategory {
-  id: number;
-  name_en: string;
-  name_de: string;
-  name_tr: string;
-  category_type: string;
-  icon?: string;
-  requires_ticker: boolean;
-  depreciation_enabled: boolean;
-  is_default: boolean;
-  asset_count: number;
-}
-
-interface HouseholdMember {
-  id: number;
-  name: string;
-  relationship: string;
-}
+import { Asset, AssetCategory, HouseholdMember, formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwnershipColor, filterAssets } from '../utils/assetUtils';
+import AddEditAssetModal from '../components/AddEditAssetModal';
+import ValuationHistoryModal from '../components/ValuationHistoryModal';
+import PhotoUploadModal from '../components/PhotoUploadModal';
 
 interface AssetSummary {
   total_assets: number;
@@ -179,73 +134,101 @@ const AssetsPage: React.FC = () => {
     fetchSummary();
   }, []);
 
-  // Filter assets based on search term
-  const filteredAssets = assets.filter(asset => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      asset.name.toLowerCase().includes(searchLower) ||
-      asset.description?.toLowerCase().includes(searchLower) ||
-      asset.category_name_en.toLowerCase().includes(searchLower) ||
-      asset.member_name?.toLowerCase().includes(searchLower) ||
-      asset.location?.toLowerCase().includes(searchLower)
-    );
-  });
+  // Filter assets based on search term and other criteria
+  const filteredAssets = filterAssets(assets, searchTerm, selectedCategory, selectedStatus, selectedMember, selectedCurrency);
 
-  // Format currency
-  const formatCurrency = (amount: number, currency: string) => {
-    const symbols: { [key: string]: string } = {
-      'USD': '$',
-      'EUR': '€',
-      'GBP': '£',
-      'TRY': '₺',
-      'GOLD': 'Au'
-    };
-    
-    const symbol = symbols[currency] || currency;
-    return `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${symbol}`;
-  };
+  // Handle asset creation/update
+  const handleSaveAsset = async (assetData: any) => {
+    try {
+      if (selectedAsset) {
+        // Update existing asset
+        const response = await fetch(`/api/assets/${selectedAsset.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(assetData),
+        });
 
-  // Calculate ROI
-  const calculateROI = (asset: Asset) => {
-    if (!asset.purchase_price || asset.purchase_price <= 0) return null;
-    
-    const purchasePrice = asset.purchase_price;
-    const currentValue = asset.current_value || asset.amount;
-    const roi = ((currentValue - purchasePrice) / purchasePrice) * 100;
-    
-    return roi;
-  };
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update asset');
+        }
+      } else {
+        // Create new asset
+        const response = await fetch('/api/assets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(assetData),
+        });
 
-  // Get category name based on language
-  const getCategoryName = (category: AssetCategory) => {
-    const lang = localStorage.getItem('i18nextLng') || 'en';
-    switch (lang) {
-      case 'de': return category.name_de;
-      case 'tr': return category.name_tr;
-      default: return category.name_en;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create asset');
+        }
+      }
+
+      // Refresh assets list
+      await fetchAssets();
+      await fetchSummary();
+    } catch (error) {
+      throw error;
     }
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'sold': return 'bg-blue-100 text-blue-800';
-      case 'transferred': return 'bg-yellow-100 text-yellow-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+  // Handle asset deletion
+  const handleDeleteAsset = async (asset: Asset) => {
+    if (!window.confirm(`Are you sure you want to delete "${asset.name}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/assets/${asset.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete asset');
+      }
+
+      // Refresh assets list
+      await fetchAssets();
+      await fetchSummary();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete asset');
     }
   };
 
-  // Get ownership type color
-  const getOwnershipColor = (type: string) => {
-    switch (type) {
-      case 'single': return 'bg-blue-100 text-blue-800';
-      case 'shared': return 'bg-purple-100 text-purple-800';
-      case 'household': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+  // Handle valuation addition
+  const handleAddValuation = async (valuationData: any) => {
+    try {
+      const response = await fetch(`/api/assets/${selectedAsset?.id}/valuation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(valuationData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add valuation');
+      }
+
+      // Refresh assets list to get updated current value
+      await fetchAssets();
+    } catch (error) {
+      throw error;
     }
+  };
+
+  // Handle photo upload
+  const handlePhotoUploaded = async (photoUrl: string) => {
+    // Refresh assets list to get updated photo URL
+    await fetchAssets();
   };
 
   if (loading && assets.length === 0) {
@@ -587,11 +570,7 @@ const AssetsPage: React.FC = () => {
                           <PencilIcon className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to delete this asset?')) {
-                              // TODO: Implement delete
-                            }
-                          }}
+                          onClick={() => handleDeleteAsset(asset)}
                           className="text-gray-400 hover:text-red-600"
                           title="Delete Asset"
                         >
@@ -672,8 +651,42 @@ const AssetsPage: React.FC = () => {
         )}
       </div>
 
-      {/* TODO: Add modals for Add/Edit Asset, Valuation, Photo Upload */}
-      {/* These will be implemented in the next step */}
+      {/* Modals */}
+      <AddEditAssetModal
+        isOpen={showAddModal || showEditModal}
+        onClose={() => {
+          setShowAddModal(false);
+          setShowEditModal(false);
+          setSelectedAsset(null);
+        }}
+        onSave={handleSaveAsset}
+        asset={selectedAsset}
+        categories={categories}
+        members={members}
+      />
+
+      <ValuationHistoryModal
+        isOpen={showValuationModal}
+        onClose={() => {
+          setShowValuationModal(false);
+          setSelectedAsset(null);
+        }}
+        assetId={selectedAsset?.id || 0}
+        assetName={selectedAsset?.name || ''}
+        onAddValuation={handleAddValuation}
+      />
+
+      <PhotoUploadModal
+        isOpen={showPhotoModal}
+        onClose={() => {
+          setShowPhotoModal(false);
+          setSelectedAsset(null);
+        }}
+        assetId={selectedAsset?.id || 0}
+        assetName={selectedAsset?.name || ''}
+        currentPhotoUrl={selectedAsset?.photo_url}
+        onPhotoUploaded={handlePhotoUploaded}
+      />
     </div>
   );
 };
