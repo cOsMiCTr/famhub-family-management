@@ -288,7 +288,11 @@ const seedTranslations = async () => {
       { key: 'incomeCategories.isDefault', category: 'incomeCategories', en: 'Default Category', de: 'Standardkategorie', tr: 'Varsayılan Kategori' },
       { key: 'incomeCategories.noCategoriesFound', category: 'incomeCategories', en: 'No income categories found', de: 'Keine Einkommenskategorien gefunden', tr: 'Gelir kategorisi bulunamadı' },
       { key: 'incomeCategories.cannotDeleteDefault', category: 'incomeCategories', en: 'Cannot delete default category', de: 'Standardkategorie kann nicht gelöscht werden', tr: 'Varsayılan kategori silinemez' },
-      { key: 'incomeCategories.hasDependencies', category: 'incomeCategories', en: 'Cannot delete category with assigned income entries', de: 'Kategorie mit zugewiesenen Einkommenseinträgen kann nicht gelöscht werden', tr: 'Atanmış gelir girişi olan kategori silinemez' }
+      { key: 'incomeCategories.hasDependencies', category: 'incomeCategories', en: 'Cannot delete category with assigned income entries', de: 'Kategorie mit zugewiesenen Einkommenseinträgen kann nicht gelöscht werden', tr: 'Atanmış gelir girişi olan kategori silinemez' },
+
+      // Additional Income Keys (missing from Income page)
+      { key: 'common.saving', category: 'common', en: 'Saving...', de: 'Speichern...', tr: 'Kaydediliyor...' },
+      { key: 'common.update', category: 'common', en: 'Update', de: 'Aktualisieren', tr: 'Güncelle' }
     ];
 
     // Insert translations
