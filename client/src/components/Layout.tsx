@@ -57,6 +57,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('admin.securityDashboard'), href: '/admin/security', icon: ShieldCheckIcon },
     { name: t('admin.translations'), href: '/admin/translations', icon: LanguageIcon },
     { name: t('incomeCategories.title'), href: '/admin/income-categories', icon: DocumentTextIcon },
+    { name: t('assetCategories.title'), href: '/admin/asset-categories', icon: CurrencyDollarIcon },
   ];
 
   const languages = [

@@ -1,14 +1,48 @@
 import express from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError, createNotFoundError } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
+
+// Configure multer for photo uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../public/uploads/assets');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `asset-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 // Get asset categories
 router.get('/categories', asyncHandler(async (req, res) => {
@@ -16,19 +50,28 @@ router.get('/categories', asyncHandler(async (req, res) => {
     'SELECT * FROM asset_categories ORDER BY is_default DESC, name_en ASC'
   );
 
-  res.json({
-    categories: categoriesResult.rows
-  });
+  res.json(categoriesResult.rows);
 }));
 
-// Create asset/income entry
+// Create asset entry
 router.post('/', [
+  body('name').trim().notEmpty().withMessage('Asset name is required'),
   body('amount').isFloat({ min: 0 }).withMessage('Valid amount required'),
   body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
   body('category_id').isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
   body('date').isISO8601().withMessage('Valid date required'),
-  body('household_id').optional().isInt({ min: 1 }).withMessage('Valid household ID required')
+  body('household_member_id').optional().isInt({ min: 1 }).withMessage('Valid household member ID required'),
+  body('purchase_date').optional().isISO8601().withMessage('Valid purchase date required'),
+  body('purchase_price').optional().isFloat({ min: 0 }).withMessage('Valid purchase price required'),
+  body('purchase_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
+  body('current_value').optional().isFloat({ min: 0 }).withMessage('Valid current value required'),
+  body('valuation_method').optional().isLength({ max: 50 }).withMessage('Valuation method too long'),
+  body('ownership_type').optional().isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
+  body('ownership_percentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
+  body('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
+  body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
+  body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -39,13 +82,16 @@ router.post('/', [
     throw new Error('User not authenticated');
   }
 
-  const { amount, currency, category_id, description, date, household_id } = req.body;
+  const { 
+    name, amount, currency, category_id, description, date, household_member_id,
+    purchase_date, purchase_price, purchase_currency, current_value, valuation_method,
+    ownership_type, ownership_percentage, status, location, notes
+  } = req.body;
 
-  // Use user's household if not specified
-  const finalHouseholdId = household_id || req.user.household_id;
-
-  if (!finalHouseholdId) {
-    throw createValidationError('Household ID required');
+  // Use user's household
+  const householdId = req.user.household_id;
+  if (!householdId) {
+    throw createValidationError('User must be assigned to a household');
   }
 
   // Verify category exists
@@ -58,29 +104,58 @@ router.post('/', [
     throw createNotFoundError('Asset category');
   }
 
+  // Verify household member exists if specified
+  if (household_member_id) {
+    const memberResult = await query(
+      'SELECT id FROM household_members WHERE id = $1 AND household_id = $2',
+      [household_member_id, householdId]
+    );
+
+    if (memberResult.rows.length === 0) {
+      throw createNotFoundError('Household member');
+    }
+  }
+
   // Create asset entry
   const assetResult = await query(
-    `INSERT INTO assets (user_id, household_id, amount, currency, category_id, description, date)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     RETURNING *`,
-    [req.user.id, finalHouseholdId, amount, currency, category_id, description, date]
+    `INSERT INTO assets (
+      user_id, household_id, household_member_id, name, amount, currency, 
+      category_id, description, date, purchase_date, purchase_price, 
+      purchase_currency, current_value, last_valuation_date, valuation_method,
+      ownership_type, ownership_percentage, status, location, notes
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+    RETURNING *`,
+    [
+      req.user.id, householdId, household_member_id || null, name, amount, currency,
+      category_id, description || null, date, purchase_date || null, purchase_price || null,
+      purchase_currency || null, current_value || amount, current_value ? new Date().toISOString().split('T')[0] : null, valuation_method || null,
+      ownership_type || 'single', ownership_percentage || 100.00, status || 'active', location || null, notes || null
+    ]
   );
 
   const asset = assetResult.rows[0];
 
-  // Get category name for response
-  const categoryNameResult = await query(
-    'SELECT name_en, name_de, name_tr FROM asset_categories WHERE id = $1',
-    [category_id]
-  );
+  // Create initial valuation history entry if current_value is provided
+  if (current_value) {
+    await query(
+      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [asset.id, new Date().toISOString().split('T')[0], current_value, currency, valuation_method || 'Manual', req.user.id]
+    );
+  }
 
-  const categoryName = categoryNameResult.rows[0];
+  // Get category and member names for response
+  const [categoryNameResult, memberNameResult] = await Promise.all([
+    query('SELECT name_en, name_de, name_tr FROM asset_categories WHERE id = $1', [category_id]),
+    household_member_id ? query('SELECT name FROM household_members WHERE id = $1', [household_member_id]) : Promise.resolve({ rows: [] })
+  ]);
 
   res.status(201).json({
     message: 'Asset created successfully',
     asset: {
       ...asset,
-      category_name: categoryName
+      category_name: categoryNameResult.rows[0],
+      member_name: memberNameResult.rows[0]?.name || null
     }
   });
 }));
@@ -98,6 +173,8 @@ router.get('/', asyncHandler(async (req, res) => {
     currency, 
     start_date, 
     end_date,
+    status,
+    ownership_type,
     household_view = false 
   } = req.query;
 
@@ -135,96 +212,25 @@ router.get('/', asyncHandler(async (req, res) => {
     params.push(end_date);
   }
 
+  if (status) {
+    conditions.push(`a.status = $${paramCount++}`);
+    params.push(status);
+  }
+
+  if (ownership_type) {
+    conditions.push(`a.ownership_type = $${paramCount++}`);
+    params.push(ownership_type);
+  }
+
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   // Get assets with pagination
   const assetsResult = await query(
     `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
-            ac.type as category_type, u.email as user_email
+            ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
-     JOIN users u ON a.user_id = u.id
-     ${whereClause}
-     ORDER BY a.date DESC, a.created_at DESC
-     LIMIT $${paramCount++} OFFSET $${paramCount++}`,
-    [...params, parseInt(limit as string), offset]
-  );
-
-  // Get total count
-  const countResult = await query(
-    `SELECT COUNT(*) as total
-     FROM assets a
-     ${whereClause}`,
-    params
-  );
-
-  const total = parseInt(countResult.rows[0].total);
-
-  res.json({
-    assets: assetsResult.rows,
-    pagination: {
-      page: parseInt(page as string),
-      limit: parseInt(limit as string),
-      total,
-      pages: Math.ceil(total / parseInt(limit as string))
-    }
-  });
-}));
-
-// Get household assets (if user has permission)
-router.get('/household/:householdId', asyncHandler(async (req, res) => {
-  if (!req.user) {
-    throw new Error('User not authenticated');
-  }
-
-  const { householdId } = req.params;
-  const { 
-    page = 1, 
-    limit = 50, 
-    category_id, 
-    currency, 
-    start_date, 
-    end_date 
-  } = req.query;
-
-  // Check if user has permission to view this household
-  if (req.user.role !== 'admin' && req.user.household_id !== parseInt(householdId)) {
-    throw new Error('Access denied to this household');
-  }
-
-  const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-  const conditions = ['a.household_id = $1'];
-  const params = [householdId];
-  let paramCount = 2;
-
-  if (category_id) {
-    conditions.push(`a.category_id = $${paramCount++}`);
-    params.push(category_id);
-  }
-
-  if (currency) {
-    conditions.push(`a.currency = $${paramCount++}`);
-    params.push(currency);
-  }
-
-  if (start_date) {
-    conditions.push(`a.date >= $${paramCount++}`);
-    params.push(start_date);
-  }
-
-  if (end_date) {
-    conditions.push(`a.date <= $${paramCount++}`);
-    params.push(end_date);
-  }
-
-  const whereClause = `WHERE ${conditions.join(' AND ')}`;
-
-  // Get household assets
-  const assetsResult = await query(
-    `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
-            ac.type as category_type, u.email as user_email
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
+     LEFT JOIN household_members hm ON a.household_member_id = hm.id
      JOIN users u ON a.user_id = u.id
      ${whereClause}
      ORDER BY a.date DESC, a.created_at DESC
@@ -263,9 +269,10 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
   const assetResult = await query(
     `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
-            ac.type as category_type, u.email as user_email
+            ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
+     LEFT JOIN household_members hm ON a.household_member_id = hm.id
      JOIN users u ON a.user_id = u.id
      WHERE a.id = $1`,
     [id]
@@ -277,7 +284,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
   const asset = assetResult.rows[0];
 
-  // Check if user can access this asset
+  // Check permissions
   if (req.user.role !== 'admin' && asset.user_id !== req.user.id) {
     throw new Error('Access denied to this asset');
   }
@@ -289,11 +296,23 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 // Update asset
 router.put('/:id', [
+  body('name').optional().trim().notEmpty().withMessage('Asset name cannot be empty'),
   body('amount').optional().isFloat({ min: 0 }).withMessage('Valid amount required'),
   body('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
   body('category_id').optional().isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
-  body('date').optional().isISO8601().withMessage('Valid date required')
+  body('date').optional().isISO8601().withMessage('Valid date required'),
+  body('household_member_id').optional().isInt({ min: 1 }).withMessage('Valid household member ID required'),
+  body('purchase_date').optional().isISO8601().withMessage('Valid purchase date required'),
+  body('purchase_price').optional().isFloat({ min: 0 }).withMessage('Valid purchase price required'),
+  body('purchase_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
+  body('current_value').optional().isFloat({ min: 0 }).withMessage('Valid current value required'),
+  body('valuation_method').optional().isLength({ max: 50 }).withMessage('Valuation method too long'),
+  body('ownership_type').optional().isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
+  body('ownership_percentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
+  body('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
+  body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
+  body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -305,7 +324,7 @@ router.put('/:id', [
   }
 
   const { id } = req.params;
-  const { amount, currency, category_id, description, date } = req.body;
+  const updateData = req.body;
 
   // Check if asset exists and user can access it
   const existingAssetResult = await query(
@@ -329,42 +348,52 @@ router.put('/:id', [
   const updateValues = [];
   let paramCount = 1;
 
-  if (amount !== undefined) {
-    updateFields.push(`amount = $${paramCount++}`);
-    updateValues.push(amount);
-  }
+  const allowedFields = [
+    'name', 'amount', 'currency', 'category_id', 'description', 'date',
+    'household_member_id', 'purchase_date', 'purchase_price', 'purchase_currency',
+    'current_value', 'valuation_method', 'ownership_type', 'ownership_percentage',
+    'status', 'location', 'notes'
+  ];
 
-  if (currency !== undefined) {
-    updateFields.push(`currency = $${paramCount++}`);
-    updateValues.push(currency);
-  }
-
-  if (category_id !== undefined) {
-    updateFields.push(`category_id = $${paramCount++}`);
-    updateValues.push(category_id);
-  }
-
-  if (description !== undefined) {
-    updateFields.push(`description = $${paramCount++}`);
-    updateValues.push(description);
-  }
-
-  if (date !== undefined) {
-    updateFields.push(`date = $${paramCount++}`);
-    updateValues.push(date);
+  for (const field of allowedFields) {
+    if (updateData[field] !== undefined) {
+      updateFields.push(`${field} = $${paramCount++}`);
+      updateValues.push(updateData[field]);
+    }
   }
 
   if (updateFields.length === 0) {
-    throw createValidationError('No fields to update');
+    throw createValidationError('No valid fields to update');
+  }
+
+  // If current_value is being updated, update last_valuation_date
+  if (updateData.current_value !== undefined) {
+    updateFields.push(`last_valuation_date = $${paramCount++}`);
+    updateValues.push(new Date().toISOString().split('T')[0]);
   }
 
   updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-  updateValues.push(id);
 
   const result = await query(
-    `UPDATE assets SET ${updateFields.join(', ')} WHERE id = $${paramCount} RETURNING *`,
-    updateValues
+    `UPDATE assets SET ${updateFields.join(', ')} WHERE id = $${paramCount++} RETURNING *`,
+    [...updateValues, id]
   );
+
+  // Create valuation history entry if current_value was updated
+  if (updateData.current_value !== undefined) {
+    await query(
+      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        id, 
+        new Date().toISOString().split('T')[0], 
+        updateData.current_value, 
+        updateData.currency || existingAsset.currency,
+        updateData.valuation_method || 'Manual',
+        req.user.id
+      ]
+    );
+  }
 
   res.json({
     message: 'Asset updated successfully',
@@ -404,57 +433,251 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   });
 }));
 
-// Get asset summary with currency conversion
-router.get('/summary/currency-conversion', asyncHandler(async (req, res) => {
+// Get asset valuation history
+router.get('/:id/history', asyncHandler(async (req, res) => {
   if (!req.user) {
     throw new Error('User not authenticated');
   }
 
-  const { main_currency = req.user.main_currency || 'USD' } = req.query;
+  const { id } = req.params;
 
-  // Get user's assets grouped by currency
-  const assetsResult = await query(
-    `SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
-     FROM assets
-     WHERE user_id = $1
-     GROUP BY currency`,
-    [req.user.id]
-  );
+  // Check if asset exists and user can access it
+  const assetResult = await query('SELECT * FROM assets WHERE id = $1', [id]);
 
-  const currencyTotals = assetsResult.rows;
-  const convertedTotals = [];
-
-  // Convert each currency to main currency
-  for (const currencyTotal of currencyTotals) {
-    try {
-      const convertedAmount = await exchangeRateService.convertCurrency(
-        parseFloat(currencyTotal.total_amount),
-        currencyTotal.currency,
-        main_currency as string
-      );
-
-      convertedTotals.push({
-        currency: currencyTotal.currency,
-        original_amount: parseFloat(currencyTotal.total_amount),
-        converted_amount: convertedAmount,
-        count: parseInt(currencyTotal.count)
-      });
-    } catch (error) {
-      console.error(`Failed to convert ${currencyTotal.currency} to ${main_currency}:`, error);
-    }
+  if (assetResult.rows.length === 0) {
+    throw createNotFoundError('Asset');
   }
 
-  // Calculate total in main currency
-  const totalInMainCurrency = convertedTotals.reduce(
-    (sum, item) => sum + item.converted_amount,
-    0
+  const asset = assetResult.rows[0];
+
+  // Check permissions
+  if (req.user.role !== 'admin' && asset.user_id !== req.user.id) {
+    throw new Error('Access denied to this asset');
+  }
+
+  const historyResult = await query(
+    `SELECT avh.*, u.email as created_by_email
+     FROM asset_valuation_history avh
+     LEFT JOIN users u ON avh.created_by = u.id
+     WHERE avh.asset_id = $1
+     ORDER BY avh.valuation_date DESC`,
+    [id]
   );
 
   res.json({
-    main_currency,
-    currency_breakdown: convertedTotals,
-    total_in_main_currency: totalInMainCurrency,
-    timestamp: new Date().toISOString()
+    asset_id: id,
+    history: historyResult.rows
+  });
+}));
+
+// Add valuation entry
+router.post('/:id/valuation', [
+  body('value').isFloat({ min: 0 }).withMessage('Valid value required'),
+  body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
+  body('valuation_date').isISO8601().withMessage('Valid valuation date required'),
+  body('valuation_method').optional().isLength({ max: 50 }).withMessage('Valuation method too long'),
+  body('notes').optional().isLength({ max: 500 }).withMessage('Notes too long')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw createValidationError('Invalid input data');
+  }
+
+  if (!req.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { id } = req.params;
+  const { value, currency, valuation_date, valuation_method, notes } = req.body;
+
+  // Check if asset exists and user can access it
+  const assetResult = await query('SELECT * FROM assets WHERE id = $1', [id]);
+
+  if (assetResult.rows.length === 0) {
+    throw createNotFoundError('Asset');
+  }
+
+  const asset = assetResult.rows[0];
+
+  // Check permissions
+  if (req.user.role !== 'admin' && asset.user_id !== req.user.id) {
+    throw new Error('Access denied to this asset');
+  }
+
+  // Create valuation history entry
+  const historyResult = await query(
+    `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, notes, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [id, valuation_date, value, currency, valuation_method || 'Manual', notes || null, req.user.id]
+  );
+
+  // Update asset's current value and last valuation date
+  await query(
+    `UPDATE assets SET current_value = $1, last_valuation_date = $2, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $3`,
+    [value, valuation_date, id]
+  );
+
+  res.status(201).json({
+    message: 'Valuation added successfully',
+    valuation: historyResult.rows[0]
+  });
+}));
+
+// Upload photo
+router.post('/:id/photo', upload.single('photo'), asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { id } = req.params;
+
+  if (!req.file) {
+    throw createValidationError('No photo file provided');
+  }
+
+  // Check if asset exists and user can access it
+  const assetResult = await query('SELECT * FROM assets WHERE id = $1', [id]);
+
+  if (assetResult.rows.length === 0) {
+    throw createNotFoundError('Asset');
+  }
+
+  const asset = assetResult.rows[0];
+
+  // Check permissions
+  if (req.user.role !== 'admin' && asset.user_id !== req.user.id) {
+    throw new Error('Access denied to this asset');
+  }
+
+  // Delete old photo if exists
+  if (asset.photo_url) {
+    const oldPhotoPath = path.join(__dirname, '../../public', asset.photo_url);
+    if (fs.existsSync(oldPhotoPath)) {
+      fs.unlinkSync(oldPhotoPath);
+    }
+  }
+
+  // Update asset with new photo URL
+  const photoUrl = `/uploads/assets/${req.file.filename}`;
+  await query(
+    'UPDATE assets SET photo_url = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+    [photoUrl, id]
+  );
+
+  res.json({
+    message: 'Photo uploaded successfully',
+    photo_url: photoUrl
+  });
+}));
+
+// Get asset summary with currency conversion
+router.get('/summary', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { 
+    start_date, 
+    end_date, 
+    category_id,
+    status = 'active'
+  } = req.query;
+
+  const conditions = ['a.user_id = $1', 'a.status = $2'];
+  const params = [req.user.id, status];
+  let paramCount = 3;
+
+  if (start_date) {
+    conditions.push(`a.date >= $${paramCount++}`);
+    params.push(start_date);
+  }
+
+  if (end_date) {
+    conditions.push(`a.date <= $${paramCount++}`);
+    params.push(end_date);
+  }
+
+  if (category_id) {
+    conditions.push(`a.category_id = $${paramCount++}`);
+    params.push(category_id);
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  // Get assets with category information
+  const assetsResult = await query(
+    `SELECT a.*, ac.name_en as category_name_en, ac.category_type, ac.icon
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     ${whereClause}
+     ORDER BY a.current_value DESC`,
+    params
+  );
+
+  // Get exchange rates
+  const exchangeRates = await exchangeRateService.getAllExchangeRates();
+  const userCurrency = req.user.main_currency || 'USD';
+
+  // Calculate totals by category and currency
+  const categoryTotals: { [key: string]: { [key: string]: number } } = {};
+  const currencyTotals: { [key: string]: number } = {};
+  let totalValueInMainCurrency = 0;
+
+  for (const asset of assetsResult.rows) {
+    const categoryName = asset.category_name_en;
+    const assetCurrency = asset.currency;
+    const assetValue = parseFloat(asset.current_value || asset.amount);
+
+    // Initialize category totals
+    if (!categoryTotals[categoryName]) {
+      categoryTotals[categoryName] = {};
+    }
+
+    // Add to category totals
+    if (!categoryTotals[categoryName][assetCurrency]) {
+      categoryTotals[categoryName][assetCurrency] = 0;
+    }
+    categoryTotals[categoryName][assetCurrency] += assetValue;
+
+    // Add to currency totals
+    if (!currencyTotals[assetCurrency]) {
+      currencyTotals[assetCurrency] = 0;
+    }
+    currencyTotals[assetCurrency] += assetValue;
+
+    // Convert to main currency
+    if (assetCurrency === userCurrency) {
+      totalValueInMainCurrency += assetValue;
+    } else {
+      const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
+      if (rate) {
+        totalValueInMainCurrency += assetValue * parseFloat(rate.rate);
+      }
+    }
+  }
+
+  // Calculate ROI for assets with purchase price
+  const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
+  const totalROI = assetsWithROI.reduce((sum, asset) => {
+    const purchasePrice = parseFloat(asset.purchase_price);
+    const currentValue = parseFloat(asset.current_value || asset.amount);
+    return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
+  }, 0);
+  const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
+
+  res.json({
+    summary: {
+      total_assets: assetsResult.rows.length,
+      total_value_main_currency: totalValueInMainCurrency,
+      main_currency: userCurrency,
+      average_roi: averageROI,
+      assets_with_roi: assetsWithROI.length
+    },
+    category_totals: categoryTotals,
+    currency_totals: currencyTotals,
+    assets: assetsResult.rows
   });
 }));
 
