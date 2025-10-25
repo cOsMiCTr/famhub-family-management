@@ -260,7 +260,7 @@ const AssetsPage: React.FC = () => {
             }`}
           >
             {householdView ? <EyeIcon className="h-4 w-4" /> : <EyeSlashIcon className="h-4 w-4" />}
-            {householdView ? 'Household View' : 'Personal View'}
+            {householdView ? t('assets.householdView') : t('assets.personalView')}
           </button>
           <button
             onClick={() => setShowAddModal(true)}
@@ -368,7 +368,7 @@ const AssetsPage: React.FC = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search assets..."
+                  placeholder={t('assets.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -381,7 +381,7 @@ const AssetsPage: React.FC = () => {
                 className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <FunnelIcon className="h-4 w-4 mr-2" />
-                Filters
+                {t('assets.filters')}
               </button>
             </div>
           </div>
@@ -393,7 +393,7 @@ const AssetsPage: React.FC = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               >
-                <option value="">All Categories</option>
+                      <option value="">{t('assets.allCategories')}</option>
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>
                     {getCategoryName(category)}
@@ -406,11 +406,11 @@ const AssetsPage: React.FC = () => {
                 onChange={(e) => setSelectedStatus(e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="sold">Sold</option>
-                <option value="transferred">Transferred</option>
-                <option value="inactive">Inactive</option>
+                      <option value="">{t('assets.allStatus')}</option>
+                      <option value="active">{t('assets.active')}</option>
+                      <option value="sold">{t('assets.sold')}</option>
+                      <option value="transferred">{t('assets.transferred')}</option>
+                      <option value="inactive">{t('assets.inactive')}</option>
               </select>
 
               <select
@@ -418,7 +418,7 @@ const AssetsPage: React.FC = () => {
                 onChange={(e) => setSelectedMember(e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               >
-                <option value="">All Members</option>
+                      <option value="">{t('assets.allMembers')}</option>
                 {members.map(member => (
                   <option key={member.id} value={member.id}>
                     {member.name}
@@ -431,7 +431,7 @@ const AssetsPage: React.FC = () => {
                 onChange={(e) => setSelectedCurrency(e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
               >
-                <option value="">All Currencies</option>
+                      <option value="">{t('assets.allCurrencies')}</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
@@ -454,9 +454,9 @@ const AssetsPage: React.FC = () => {
         {filteredAssets.length === 0 ? (
           <div className="text-center py-12">
             <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No assets found</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">{t('assets.noAssetsFound')}</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Get started by adding your first asset.
+              {t('assets.getStarted')}
             </p>
             <div className="mt-6">
               <button
@@ -595,22 +595,22 @@ const AssetsPage: React.FC = () => {
                 disabled={currentPage === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
+                {t('assets.previous')}
               </button>
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                {t('assets.next')}
               </button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Showing <span className="font-medium">{(currentPage - 1) * 20 + 1}</span> to{' '}
-                  <span className="font-medium">{Math.min(currentPage * 20, totalAssets)}</span> of{' '}
-                  <span className="font-medium">{totalAssets}</span> results
+                  {t('assets.showing')} <span className="font-medium">{(currentPage - 1) * 20 + 1}</span> {t('assets.to')}{' '}
+                  <span className="font-medium">{Math.min(currentPage * 20, totalAssets)}</span> {t('assets.of')}{' '}
+                  <span className="font-medium">{totalAssets}</span> {t('assets.results')}
                 </p>
               </div>
               <div>

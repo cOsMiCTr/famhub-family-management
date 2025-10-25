@@ -184,7 +184,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Basic Information */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-medium text-gray-900 dark:text-white">Basic Information</h4>
+                  <h4 className="text-md font-medium text-gray-900 dark:text-white">{t('assets.basicInformation')}</h4>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -211,7 +211,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                       required
                     >
-                      <option value="">Select Category</option>
+                      <option value="">{t('assets.selectCategory')}</option>
                       {categories.map(category => (
                         <option key={category.id} value={category.id}>
                           {category.name_en}
@@ -285,7 +285,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
                 {/* Purchase Information */}
                 <div className="space-y-4">
-                  <h4 className="text-md font-medium text-gray-900 dark:text-white">Purchase Information</h4>
+                  <h4 className="text-md font-medium text-gray-900 dark:text-white">{t('assets.purchaseInformation')}</h4>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -357,10 +357,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         onChange={handleInputChange}
                         className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                       >
-                        <option value="manual">Manual</option>
-                        <option value="market">Market Value</option>
-                        <option value="appraisal">Appraisal</option>
-                        <option value="estimate">Estimate</option>
+                        <option value="manual">{t('assets.manual')}</option>
+                        <option value="market">{t('assets.market')}</option>
+                        <option value="appraisal">{t('assets.appraisal')}</option>
+                        <option value="estimate">{t('assets.estimate')}</option>
                       </select>
                     </div>
                   </div>
@@ -375,7 +375,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       onChange={handleInputChange}
                       className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="">Select Member</option>
+                      <option value="">{t('assets.selectMember')}</option>
                       {members.map(member => (
                         <option key={member.id} value={member.id}>
                           {member.name} ({member.relationship})
@@ -395,9 +395,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         onChange={handleInputChange}
                         className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                       >
-                        <option value="single">Single Owner</option>
-                        <option value="shared">Shared Ownership</option>
-                        <option value="household">Household Shared</option>
+                        <option value="single">{t('assets.singleOwner')}</option>
+                        <option value="shared">{t('assets.sharedOwnership')}</option>
+                        <option value="household">{t('assets.householdShared')}</option>
                       </select>
                     </div>
                     <div>
@@ -427,10 +427,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       onChange={handleInputChange}
                       className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="active">Active</option>
-                      <option value="sold">Sold</option>
-                      <option value="transferred">Transferred</option>
-                      <option value="inactive">Inactive</option>
+                        <option value="active">{t('assets.active')}</option>
+                        <option value="sold">{t('assets.sold')}</option>
+                        <option value="transferred">{t('assets.transferred')}</option>
+                        <option value="inactive">{t('assets.inactive')}</option>
                     </select>
                   </div>
 
@@ -469,14 +469,14 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                 disabled={loading}
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Saving...' : (asset ? 'Update Asset' : 'Add Asset')}
+                {loading ? t('assets.saving') : (asset ? t('assets.updateAsset') : t('assets.addAsset'))}
               </button>
               <button
                 type="button"
                 onClick={onClose}
                 className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
-                Cancel
+                {t('assets.cancel')}
               </button>
             </div>
           </form>

@@ -214,6 +214,68 @@ const seedTranslations = async () => {
       { key: 'assets.estimate', category: 'assets', en: 'Estimate', de: 'Schätzung', tr: 'Tahmin' },
       { key: 'assets.manual', category: 'assets', en: 'Manual', de: 'Manuell', tr: 'Manuel' },
 
+      // Asset Form Labels
+      { key: 'assets.basicInformation', category: 'assets', en: 'Basic Information', de: 'Grundinformationen', tr: 'Temel Bilgiler' },
+      { key: 'assets.purchaseInformation', category: 'assets', en: 'Purchase Information', de: 'Kaufinformationen', tr: 'Satın Alma Bilgileri' },
+      { key: 'assets.selectCategory', category: 'assets', en: 'Select Category', de: 'Kategorie auswählen', tr: 'Kategori Seç' },
+      { key: 'assets.selectMember', category: 'assets', en: 'Select Member', de: 'Mitglied auswählen', tr: 'Üye Seç' },
+      { key: 'assets.singleOwner', category: 'assets', en: 'Single Owner', de: 'Einzeleigentum', tr: 'Tek Sahip' },
+      { key: 'assets.sharedOwnership', category: 'assets', en: 'Shared Ownership', de: 'Miteigentum', tr: 'Ortak Mülkiyet' },
+      { key: 'assets.householdShared', category: 'assets', en: 'Household Shared', de: 'Haushaltsgemeinschaft', tr: 'Hane Paylaşımlı' },
+      { key: 'assets.updateAsset', category: 'assets', en: 'Update Asset', de: 'Vermögen aktualisieren', tr: 'Varlık Güncelle' },
+      { key: 'assets.saving', category: 'assets', en: 'Saving...', de: 'Speichern...', tr: 'Kaydediliyor...' },
+      { key: 'assets.cancel', category: 'assets', en: 'Cancel', de: 'Abbrechen', tr: 'İptal' },
+
+      // Asset Form Validation Messages
+      { key: 'assets.nameRequired', category: 'assets', en: 'Asset name is required', de: 'Vermögensname ist erforderlich', tr: 'Varlık adı gereklidir' },
+      { key: 'assets.amountRequired', category: 'assets', en: 'Valid amount is required', de: 'Gültiger Betrag ist erforderlich', tr: 'Geçerli miktar gereklidir' },
+      { key: 'assets.currencyRequired', category: 'assets', en: 'Currency is required', de: 'Währung ist erforderlich', tr: 'Para birimi gereklidir' },
+      { key: 'assets.categoryRequired', category: 'assets', en: 'Category is required', de: 'Kategorie ist erforderlich', tr: 'Kategori gereklidir' },
+      { key: 'assets.dateRequired', category: 'assets', en: 'Date is required', de: 'Datum ist erforderlich', tr: 'Tarih gereklidir' },
+      { key: 'assets.purchasePriceInvalid', category: 'assets', en: 'Purchase price must be greater than 0', de: 'Kaufpreis muss größer als 0 sein', tr: 'Satın alma fiyatı 0\'dan büyük olmalıdır' },
+      { key: 'assets.currentValueInvalid', category: 'assets', en: 'Current value must be greater than 0', de: 'Aktueller Wert muss größer als 0 sein', tr: 'Güncel değer 0\'dan büyük olmalıdır' },
+      { key: 'assets.ownershipPercentageInvalid', category: 'assets', en: 'Ownership percentage must be between 0 and 100', de: 'Eigentumsanteil muss zwischen 0 und 100 liegen', tr: 'Mülkiyet yüzdesi 0 ile 100 arasında olmalıdır' },
+
+      // Asset Form Placeholders
+      { key: 'assets.datePlaceholder', category: 'assets', en: 'dd.mm.yyyy', de: 'tt.mm.jjjj', tr: 'gg.aa.yyyy' },
+      { key: 'assets.purchaseDatePlaceholder', category: 'assets', en: 'dd.mm.yyyy', de: 'tt.mm.jjjj', tr: 'gg.aa.yyyy' },
+
+      // Asset Actions
+      { key: 'assets.addValuation', category: 'assets', en: 'Add Valuation', de: 'Bewertung hinzufügen', tr: 'Değerlendirme Ekle' },
+      { key: 'assets.editAsset', category: 'assets', en: 'Edit Asset', de: 'Vermögen bearbeiten', tr: 'Varlık Düzenle' },
+      { key: 'assets.deleteAsset', category: 'assets', en: 'Delete Asset', de: 'Vermögen löschen', tr: 'Varlık Sil' },
+      { key: 'assets.confirmDelete', category: 'assets', en: 'Are you sure you want to delete this asset?', de: 'Sind Sie sicher, dass Sie dieses Vermögen löschen möchten?', tr: 'Bu varlığı silmek istediğinizden emin misiniz?' },
+
+      // Asset Summary Labels
+      { key: 'assets.totalAssets', category: 'assets', en: 'Total Assets', de: 'Gesamtvermögen', tr: 'Toplam Varlıklar' },
+      { key: 'assets.totalValue', category: 'assets', en: 'Total Value', de: 'Gesamtwert', tr: 'Toplam Değer' },
+      { key: 'assets.averageROI', category: 'assets', en: 'Average ROI', de: 'Durchschnittlicher ROI', tr: 'Ortalama ROI' },
+      { key: 'assets.withROIData', category: 'assets', en: 'With ROI Data', de: 'Mit ROI-Daten', tr: 'ROI Verisi Olan' },
+
+      // Asset Filters
+      { key: 'assets.filters', category: 'assets', en: 'Filters', de: 'Filter', tr: 'Filtreler' },
+      { key: 'assets.allCategories', category: 'assets', en: 'All Categories', de: 'Alle Kategorien', tr: 'Tüm Kategoriler' },
+      { key: 'assets.allStatus', category: 'assets', en: 'All Status', de: 'Alle Status', tr: 'Tüm Durumlar' },
+      { key: 'assets.allMembers', category: 'assets', en: 'All Members', de: 'Alle Mitglieder', tr: 'Tüm Üyeler' },
+      { key: 'assets.allCurrencies', category: 'assets', en: 'All Currencies', de: 'Alle Währungen', tr: 'Tüm Para Birimleri' },
+      { key: 'assets.searchPlaceholder', category: 'assets', en: 'Search assets...', de: 'Vermögen suchen...', tr: 'Varlık ara...' },
+
+      // Asset View Toggle
+      { key: 'assets.householdView', category: 'assets', en: 'Household View', de: 'Haushaltsansicht', tr: 'Hane Görünümü' },
+      { key: 'assets.personalView', category: 'assets', en: 'Personal View', de: 'Persönliche Ansicht', tr: 'Kişisel Görünüm' },
+
+      // Asset Empty States
+      { key: 'assets.noAssetsFound', category: 'assets', en: 'No assets found', de: 'Keine Vermögenswerte gefunden', tr: 'Varlık bulunamadı' },
+      { key: 'assets.getStarted', category: 'assets', en: 'Get started by adding your first asset.', de: 'Beginnen Sie mit dem Hinzufügen Ihres ersten Vermögenswerts.', tr: 'İlk varlığınızı ekleyerek başlayın.' },
+
+      // Asset Pagination
+      { key: 'assets.previous', category: 'assets', en: 'Previous', de: 'Vorherige', tr: 'Önceki' },
+      { key: 'assets.next', category: 'assets', en: 'Next', de: 'Nächste', tr: 'Sonraki' },
+      { key: 'assets.showing', category: 'assets', en: 'Showing', de: 'Zeige', tr: 'Gösteriliyor' },
+      { key: 'assets.to', category: 'assets', en: 'to', de: 'bis', tr: 'ile' },
+      { key: 'assets.of', category: 'assets', en: 'of', de: 'von', tr: 'toplam' },
+      { key: 'assets.results', category: 'assets', en: 'results', de: 'Ergebnisse', tr: 'sonuç' },
+
       // Contracts
       { key: 'contracts.title', category: 'contracts', en: 'Contracts', de: 'Verträge', tr: 'Sözleşmeler' },
       { key: 'contracts.addContract', category: 'contracts', en: 'Add Contract', de: 'Vertrag hinzufügen', tr: 'Sözleşme Ekle' },
