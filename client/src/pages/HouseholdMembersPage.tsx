@@ -286,9 +286,9 @@ const HouseholdMembersPage: React.FC = () => {
         {/* Members List */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
           {(() => {
-            console.log('🔍 Debug - Rendering members list, members.length:', members.length);
-            console.log('🔍 Debug - Members array:', members);
-            return members.length === 0 ? (
+            console.log('🔍 Debug - Rendering check: loading=', loading, 'members.length=', members.length);
+            console.log('🔍 Debug - Will show empty state?', !loading && members.length === 0);
+            return !loading && members.length === 0 ? (
               <div className="text-center py-12">
                 <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
