@@ -50,7 +50,7 @@ const HouseholdMembersPage: React.FC = () => {
   const loadMembers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/household-members', {
+      const response = await fetch(`/api/household-members?t=${Date.now()}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
