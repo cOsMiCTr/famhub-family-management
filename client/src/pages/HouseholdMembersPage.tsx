@@ -63,7 +63,9 @@ const HouseholdMembersPage: React.FC = () => {
       const data = await response.json();
       console.log('🔍 Debug - Household members API response:', data);
       console.log('🔍 Debug - Members array length:', data.length);
+      console.log('🔍 Debug - Setting members state with:', data);
       setMembers(data);
+      console.log('🔍 Debug - Members state set, current members:', members);
     } catch (error) {
       console.error('Error loading household members:', error);
       setError('Failed to load household members');
@@ -215,6 +217,22 @@ const HouseholdMembersPage: React.FC = () => {
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-lg font-semibold mb-2">{error}</div>
+          <button 
+            onClick={loadMembers}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
