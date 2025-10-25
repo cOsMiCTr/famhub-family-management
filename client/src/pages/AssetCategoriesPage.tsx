@@ -7,6 +7,7 @@ import {
   TagIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
+import AddEditCategoryModal from '../components/AddEditCategoryModal';
 
 interface AssetCategory {
   id: number;
@@ -50,6 +51,55 @@ const AssetCategoriesPage: React.FC = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Add category
+  const handleAddCategory = async (categoryData: Partial<AssetCategory>) => {
+    try {
+      const response = await fetch('/api/asset-categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add category');
+      }
+      
+      await fetchCategories();
+      setShowAddModal(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to add category');
+    }
+  };
+
+  // Edit category
+  const handleEditCategory = async (categoryData: Partial<AssetCategory>) => {
+    if (!selectedCategory) return;
+
+    try {
+      const response = await fetch(`/api/asset-categories/${selectedCategory.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update category');
+      }
+      
+      await fetchCategories();
+      setShowEditModal(false);
+      setSelectedCategory(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update category');
+    }
+  };
 
   // Delete category
   const handleDelete = async (category: AssetCategory) => {
@@ -264,8 +314,27 @@ const AssetCategoriesPage: React.FC = () => {
         )}
       </div>
 
-      {/* TODO: Add modals for Add/Edit Category */}
-      {/* These will be implemented in the next step */}
+      {/* Add Category Modal */}
+      {showAddModal && (
+        <AddEditCategoryModal
+          onClose={() => setShowAddModal(false)}
+          onSave={handleAddCategory}
+          mode="add"
+        />
+      )}
+
+      {/* Edit Category Modal */}
+      {showEditModal && selectedCategory && (
+        <AddEditCategoryModal
+          category={selectedCategory}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedCategory(null);
+          }}
+          onSave={handleEditCategory}
+          mode="edit"
+        />
+      )}
     </div>
   );
 };
