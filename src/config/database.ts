@@ -58,12 +58,13 @@ export async function initializeDatabase(): Promise<void> {
       categoryClient.release();
     }
 
-    // Seed asset categories if table is empty
+    // Seed asset categories if table is empty or has wrong type
     const assetCategoryClient = await pool.connect();
     try {
       const assetCategoryCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories');
+      const wrongTypeCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories WHERE type = \'income\'');
       
-      if (parseInt(assetCategoryCount.rows[0].count) === 0) {
+      if (parseInt(assetCategoryCount.rows[0].count) === 0 || parseInt(wrongTypeCount.rows[0].count) > 0) {
         console.log('🌱 Seeding asset categories...');
         const { default: seedAssetCategories } = await import('../migrations/seedAssetCategories');
         await seedAssetCategories();
