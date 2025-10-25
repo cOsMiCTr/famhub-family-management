@@ -64,6 +64,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
@@ -131,6 +132,18 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
       setCurrentStep(1);
     }
   }, [isOpen, asset]);
+
+  // Handle clicking outside to close category dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showCategoryDropdown && !(event.target as Element).closest('.category-dropdown')) {
+        setShowCategoryDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showCategoryDropdown]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -315,43 +328,60 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Category *
                       </label>
-                      <select
-                        name="category_id"
-                        value={formData.category_id}
-                        onChange={handleInputChange}
-                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
-                        required
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map(category => {
-                          const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
-                          return (
-                            <option key={category.id} value={category.id}>
-                              {category.name_en}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      {/* Show selected category icon */}
-                      {formData.category_id && (
-                        <div className="mt-3 flex items-center">
-                          {(() => {
-                            const selectedCategory = categories.find(c => c.id.toString() === formData.category_id);
-                            if (selectedCategory) {
-                              const IconComponent = getCategoryIcon(selectedCategory.icon || 'CubeTransparentIcon');
+                      <div className="relative category-dropdown">
+                        <button
+                          type="button"
+                          onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg text-left flex items-center justify-between"
+                        >
+                          <div className="flex items-center">
+                            {formData.category_id ? (
+                              <>
+                                {(() => {
+                                  const selectedCategory = categories.find(c => c.id.toString() === formData.category_id);
+                                  if (selectedCategory) {
+                                    const IconComponent = getCategoryIcon(selectedCategory.icon || 'CubeTransparentIcon');
+                                    return (
+                                      <>
+                                        <IconComponent className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3" />
+                                        <span>{selectedCategory.name_en}</span>
+                                      </>
+                                    );
+                                  }
+                                  return <span>Select a category</span>;
+                                })()}
+                              </>
+                            ) : (
+                              <span>Select a category</span>
+                            )}
+                          </div>
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        
+                        {showCategoryDropdown && (
+                          <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+                            {categories.map(category => {
+                              const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
                               return (
-                                <>
-                                  <IconComponent className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3" />
-                                  <span className="text-lg text-gray-900 dark:text-white">
-                                    {selectedCategory.name_en}
-                                  </span>
-                                </>
+                                <button
+                                  key={category.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({ ...prev, category_id: category.id.toString() }));
+                                    setShowCategoryDropdown(false);
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
+                                >
+                                  <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
+                                  <span>{category.name_en}</span>
+                                </button>
                               );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      )}
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

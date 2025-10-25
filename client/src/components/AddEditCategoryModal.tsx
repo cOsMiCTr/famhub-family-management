@@ -72,6 +72,8 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     depreciation_enabled: false,
     is_default: false
   });
+  
+  const [showIconDropdown, setShowIconDropdown] = useState(false);
 
   useEffect(() => {
     if (category && mode === 'edit') {
@@ -88,6 +90,18 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
       });
     }
   }, [category, mode]);
+
+  // Handle clicking outside to close icon dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showIconDropdown && !(event.target as Element).closest('.icon-dropdown')) {
+        setShowIconDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showIconDropdown]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -224,35 +238,57 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('assetCategories.icon')}
               </label>
-              <select
-                name="icon"
-                value={formData.icon}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">Select an icon</option>
-                {availableIcons.map(icon => (
-                  <option key={icon.value} value={icon.value}>
-                    {icon.label}
-                  </option>
-                ))}
-              </select>
-              {/* Show selected icon preview */}
-              {formData.icon && (
-                <div className="mt-2 flex items-center">
-                  {(() => {
-                    const IconComponent = getCategoryIcon(formData.icon);
-                    return (
+              <div className="relative icon-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setShowIconDropdown(!showIconDropdown)}
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-left flex items-center justify-between"
+                >
+                  <div className="flex items-center">
+                    {formData.icon ? (
                       <>
-                        <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {availableIcons.find(i => i.value === formData.icon)?.label}
-                        </span>
+                        {(() => {
+                          const IconComponent = getCategoryIcon(formData.icon);
+                          const iconLabel = availableIcons.find(i => i.value === formData.icon)?.label;
+                          return (
+                            <>
+                              <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
+                              <span>{iconLabel}</span>
+                            </>
+                          );
+                        })()}
                       </>
-                    );
-                  })()}
-                </div>
-              )}
+                    ) : (
+                      <span>Select an icon</span>
+                    )}
+                  </div>
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showIconDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+                    {availableIcons.map(icon => {
+                      const IconComponent = icon.component;
+                      return (
+                        <button
+                          key={icon.value}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, icon: icon.value }));
+                            setShowIconDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
+                        >
+                          <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" />
+                          <span>{icon.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Settings */}
