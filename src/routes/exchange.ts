@@ -2,8 +2,12 @@ import express from 'express';
 import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError } from '../middleware/errorHandler';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
 
 // Get all exchange rates
 router.get('/', asyncHandler(async (req, res) => {
@@ -75,6 +79,26 @@ router.post('/update', asyncHandler(async (req, res) => {
     message: 'Exchange rates updated successfully',
     timestamp: new Date().toISOString()
   });
+}));
+
+// Manual sync exchange rates (for all users)
+router.post('/sync', asyncHandler(async (req, res) => {
+  try {
+    await exchangeRateService.forceUpdate();
+    
+    res.json({
+      success: true,
+      message: 'Exchange rates synced successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Exchange rate sync error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to sync exchange rates',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 }));
 
 export default router;

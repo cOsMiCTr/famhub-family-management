@@ -81,6 +81,9 @@ const seedTranslations = async () => {
       { key: 'dashboard.basedOn', category: 'dashboard', en: 'Based on', de: 'Basierend auf', tr: 'Baz alarak' },
       { key: 'dashboard.perUnit', category: 'dashboard', en: 'per', de: 'pro', tr: 'başına' },
       { key: 'dashboard.noExchangeRates', category: 'dashboard', en: 'No exchange rates available', de: 'Keine Wechselkurse verfügbar', tr: 'Döviz kuru mevcut değil' },
+      { key: 'dashboard.sync', category: 'dashboard', en: 'Sync', de: 'Synchronisieren', tr: 'Senkronize Et' },
+      { key: 'dashboard.syncing', category: 'dashboard', en: 'Syncing...', de: 'Synchronisiere...', tr: 'Senkronize Ediliyor...' },
+      { key: 'dashboard.lastUpdated', category: 'dashboard', en: 'Last updated', de: 'Zuletzt aktualisiert', tr: 'Son güncelleme' },
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },

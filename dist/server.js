@@ -58,7 +58,7 @@ app.use('/api/assets', assets_1.default);
 app.use('/api/contracts', contracts_1.default);
 app.use('/api/dashboard', dashboard_1.default);
 app.use('/api/settings', settings_1.default);
-app.use('/api/exchange-rates', exchange_1.default);
+app.use('/api/exchange', exchange_1.default);
 app.use('/api/translations', translations_1.default);
 app.use('/api/household-members', household_members_1.default);
 app.use('/api/income-categories', income_categories_1.default);

@@ -11,7 +11,8 @@ import {
   CurrencyDollarIcon,
   ArrowTrendingUpIcon,
   CalendarIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
@@ -27,6 +28,7 @@ interface ExchangeRate {
   from_currency: string;
   to_currency: string;
   rate: number;
+  updated_at?: string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -36,6 +38,8 @@ const DashboardPage: React.FC = () => {
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -59,6 +63,7 @@ const DashboardPage: React.FC = () => {
       });
       
       setExchangeRates(dashboardData.exchange_rates || []);
+      setLastUpdated(dashboardData.timestamp || new Date().toISOString());
     } catch (err: any) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
@@ -73,6 +78,28 @@ const DashboardPage: React.FC = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const syncExchangeRates = async () => {
+    try {
+      setIsSyncing(true);
+      setError(null);
+      
+      const response = await apiService.syncExchangeRates();
+      
+      if (response.success) {
+        // Refresh dashboard data to get updated rates
+        await fetchDashboardData();
+        setLastUpdated(new Date().toISOString());
+      } else {
+        setError(response.message || 'Failed to sync exchange rates');
+      }
+    } catch (err: any) {
+      console.error('Sync error:', err);
+      setError('Failed to sync exchange rates');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -213,13 +240,30 @@ const DashboardPage: React.FC = () => {
         {/* Exchange Rates */}
         <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.5s' }}>
           <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-green-500" />
-              {t('dashboard.exchangeRates')}
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {t('dashboard.basedOn')} {stats?.currency || 'EUR'}
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <ChartBarIcon className="h-5 w-5 mr-2 text-green-500" />
+                  {t('dashboard.exchangeRates')}
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t('dashboard.basedOn')} {stats?.currency || 'EUR'}
+                </p>
+                {lastUpdated && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {t('dashboard.lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={syncExchangeRates}
+                disabled={isSyncing}
+                className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowPathIcon className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? t('dashboard.syncing') : t('dashboard.sync')}</span>
+              </button>
+            </div>
           </div>
           <div className="card-body">
             {isLoading ? (

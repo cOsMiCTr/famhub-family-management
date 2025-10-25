@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+router.use(auth_1.authenticateToken);
 router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const rates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
     res.json({
@@ -55,6 +57,24 @@ router.post('/update', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         message: 'Exchange rates updated successfully',
         timestamp: new Date().toISOString()
     });
+}));
+router.post('/sync', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        await exchangeRateService_1.exchangeRateService.forceUpdate();
+        res.json({
+            success: true,
+            message: 'Exchange rates synced successfully',
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        console.error('Exchange rate sync error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to sync exchange rates',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
 }));
 exports.default = router;
 //# sourceMappingURL=exchange.js.map

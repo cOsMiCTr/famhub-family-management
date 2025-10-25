@@ -387,6 +387,12 @@ class ApiService {
     const response = await this.api.get('/health');
     return response.data;
   }
+
+  // Sync exchange rates
+  async syncExchangeRates() {
+    const response = await this.api.post('/exchange/sync');
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

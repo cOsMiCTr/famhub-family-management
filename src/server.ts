@@ -75,7 +75,7 @@ app.use('/api/assets', assetsRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/exchange-rates', exchangeRoutes);
+app.use('/api/exchange', exchangeRoutes);
 app.use('/api/translations', translationRoutes);
 app.use('/api/household-members', householdMembersRoutes);
 app.use('/api/income-categories', incomeCategoriesRoutes);
