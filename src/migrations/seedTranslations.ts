@@ -84,6 +84,17 @@ const seedTranslations = async () => {
       { key: 'dashboard.sync', category: 'dashboard', en: 'Sync', de: 'Synchronisieren', tr: 'Senkronize Et' },
       { key: 'dashboard.syncing', category: 'dashboard', en: 'Syncing...', de: 'Synchronisiere...', tr: 'Senkronize Ediliyor...' },
       { key: 'dashboard.lastUpdated', category: 'dashboard', en: 'Last updated', de: 'Zuletzt aktualisiert', tr: 'Son güncelleme' },
+      { key: 'dashboard.showConversions', category: 'dashboard', en: 'Show Conversions', de: 'Umrechnungen anzeigen', tr: 'Dönüşümleri Göster' },
+      { key: 'dashboard.hideConversions', category: 'dashboard', en: 'Hide Conversions', de: 'Umrechnungen ausblenden', tr: 'Dönüşümleri Gizle' },
+      { key: 'dashboard.configureRates', category: 'dashboard', en: 'Configure Exchange Rates', de: 'Wechselkurse konfigurieren', tr: 'Döviz Kurlarını Yapılandır' },
+      { key: 'dashboard.selectCurrencies', category: 'dashboard', en: 'Select currencies to display', de: 'Anzuzeigende Währungen auswählen', tr: 'Görüntülenecek para birimlerini seçin' },
+      { key: 'dashboard.convertTo', category: 'dashboard', en: 'Convert to', de: 'Konvertieren zu', tr: 'Dönüştür' },
+      { key: 'dashboard.converted', category: 'dashboard', en: 'Converted', de: 'Konvertiert', tr: 'Dönüştürüldü' },
+      { key: 'dashboard.inYourCurrency', category: 'dashboard', en: 'in your currency', de: 'in Ihrer Währung', tr: 'para biriminizde' },
+      { key: 'dashboard.viewIn', category: 'dashboard', en: 'View in', de: 'Anzeigen in', tr: 'Görüntüle' },
+      { key: 'dashboard.convertAllTo', category: 'dashboard', en: 'Convert all to', de: 'Alle konvertieren zu', tr: 'Hepsini dönüştür' },
+      { key: 'dashboard.showInCurrency', category: 'dashboard', en: 'Show in currency', de: 'In Währung anzeigen', tr: 'Para biriminde göster' },
+      { key: 'dashboard.toggleConversions', category: 'dashboard', en: 'Toggle Conversions', de: 'Umrechnungen umschalten', tr: 'Dönüşümleri Değiştir' },
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },

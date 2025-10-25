@@ -51,6 +51,10 @@ const DashboardPage: React.FC = () => {
   const [showRateConfig, setShowRateConfig] = useState(false);
   const [tempConversionCurrency, setTempConversionCurrency] = useState<string | null>(null);
   const [lastUpdateHighlight, setLastUpdateHighlight] = useState(false);
+  
+  // Exchange Rate section specific controls
+  const [exchangeRateConversionCurrency, setExchangeRateConversionCurrency] = useState<string | null>(null);
+  const [showExchangeRateConversions, setShowExchangeRateConversions] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -58,6 +62,8 @@ const DashboardPage: React.FC = () => {
     // Load user preferences from localStorage
     const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
     const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
+    const savedExchangeRateConversion = localStorage.getItem('dashboard_exchange_rate_conversion');
+    const savedShowExchangeRateConversions = localStorage.getItem('dashboard_show_exchange_rate_conversions');
     
     if (savedExchangeRates) {
       setSelectedExchangeRates(JSON.parse(savedExchangeRates));
@@ -65,6 +71,14 @@ const DashboardPage: React.FC = () => {
     
     if (savedShowConversions) {
       setShowConversions(JSON.parse(savedShowConversions));
+    }
+    
+    if (savedExchangeRateConversion) {
+      setExchangeRateConversionCurrency(savedExchangeRateConversion);
+    }
+    
+    if (savedShowExchangeRateConversions) {
+      setShowExchangeRateConversions(JSON.parse(savedShowExchangeRateConversions));
     }
   }, []);
 
@@ -166,6 +180,23 @@ const DashboardPage: React.FC = () => {
     const newValue = !showConversions;
     setShowConversions(newValue);
     localStorage.setItem('dashboard_show_conversions', JSON.stringify(newValue));
+  };
+  
+  // Handle exchange rate section conversion toggle
+  const toggleExchangeRateConversions = () => {
+    const newValue = !showExchangeRateConversions;
+    setShowExchangeRateConversions(newValue);
+    localStorage.setItem('dashboard_show_exchange_rate_conversions', JSON.stringify(newValue));
+  };
+  
+  // Handle exchange rate section currency change
+  const handleExchangeRateCurrencyChange = (currency: string | null) => {
+    setExchangeRateConversionCurrency(currency);
+    if (currency) {
+      localStorage.setItem('dashboard_exchange_rate_conversion', currency);
+    } else {
+      localStorage.removeItem('dashboard_exchange_rate_conversion');
+    }
   };
   
   const statsCards = [
@@ -413,6 +444,50 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
           <div className="card-body">
+            {/* Exchange Rate Controls */}
+            <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="flex items-center space-x-4">
+                {/* Currency Conversion Dropdown */}
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('dashboard.convertAllTo')}:
+                  </label>
+                  <select
+                    value={exchangeRateConversionCurrency || ''}
+                    onChange={(e) => handleExchangeRateCurrencyChange(e.target.value || null)}
+                    className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">{t('dashboard.showInCurrency')}</option>
+                    {getAvailableCurrencies().map(currency => (
+                      <option key={currency} value={currency}>{currency}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Show/Hide Conversions Toggle */}
+                <button
+                  onClick={toggleExchangeRateConversions}
+                  className={`flex items-center space-x-2 px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
+                    showExchangeRateConversions 
+                      ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' 
+                      : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500'
+                  }`}
+                >
+                  {showExchangeRateConversions ? (
+                    <>
+                      <EyeSlashIcon className="h-4 w-4" />
+                      <span>{t('dashboard.hideConversions')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeIcon className="h-4 w-4" />
+                      <span>{t('dashboard.showConversions')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            
             {isLoading ? (
               <LoadingSpinner size="sm" />
             ) : exchangeRates.length > 0 ? (
@@ -460,6 +535,21 @@ const DashboardPage: React.FC = () => {
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
                         </div>
+                        
+                        {/* Show converted value if conversion is enabled */}
+                        {showExchangeRateConversions && exchangeRateConversionCurrency && exchangeRateConversionCurrency !== rate.to_currency && (
+                          <div className="mt-2 p-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              {t('dashboard.converted')}:
+                            </div>
+                            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                              {exchangeRateConversionCurrency} {(rate.rate * (exchangeRates.find(r => r.from_currency === rate.to_currency && r.to_currency === exchangeRateConversionCurrency)?.rate || 1)).toFixed(2)}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {t('dashboard.perUnit')} {rate.to_currency}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
