@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
+import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
 import { validateAssetForm } from '../utils/assetUtils';
 
 interface AddEditAssetModalProps {

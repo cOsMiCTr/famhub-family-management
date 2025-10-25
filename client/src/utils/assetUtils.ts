@@ -1,3 +1,9 @@
+export interface HouseholdMember {
+  id: number;
+  name: string;
+  relationship: string;
+}
+
 // Asset utility functions for formatting, calculations, and display
 
 export interface Asset {

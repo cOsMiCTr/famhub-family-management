@@ -18,7 +18,8 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
-import { Asset, AssetCategory, HouseholdMember, formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwnershipColor, filterAssets } from '../utils/assetUtils';
+import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
+import { formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwnershipColor, filterAssets } from '../utils/assetUtils';
 import AddEditAssetModal from '../components/AddEditAssetModal';
 import ValuationHistoryModal from '../components/ValuationHistoryModal';
 import PhotoUploadModal from '../components/PhotoUploadModal';
