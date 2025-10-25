@@ -176,21 +176,6 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [req.user.household_id]
   );
 
-  // Debug: Get all users to see household_id distribution
-  const debugUsersResult = await query(
-    `SELECT id, email, household_id, role, created_at
-     FROM users
-     ORDER BY household_id, created_at`
-  );
-  
-  console.log('🔍 Debug - All users in database:');
-  debugUsersResult.rows.forEach(user => {
-    console.log(`  User ${user.id}: ${user.email}, household_id: ${user.household_id}, role: ${user.role}`);
-  });
-  
-  console.log(`🔍 Debug - Current user household_id: ${req.user.household_id}`);
-  console.log(`🔍 Debug - Members count for household ${req.user.household_id}: ${membersResult.rows[0].member_count}`);
-
   const quickStats = quickStatsResult.rows[0];
 
   // Get exchange rates for user's main currency
