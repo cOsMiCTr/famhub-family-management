@@ -34,6 +34,11 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   members
 }) => {
   const { t } = useTranslation();
+  
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 4;
+  
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
@@ -123,6 +128,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
       }
       setErrors([]);
       setSharedOwnershipPercentages({});
+      setCurrentStep(1);
     }
   }, [isOpen, asset]);
 
@@ -136,6 +142,35 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([]);
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const canProceedToNext = () => {
+    switch (currentStep) {
+      case 1: // What is it?
+        return formData.name && formData.category_id;
+      case 2: // Who owns it?
+        return formData.ownership_type === 'single' ? formData.household_member_id : 
+               formData.ownership_type === 'shared' ? Object.keys(sharedOwnershipPercentages).length > 0 :
+               true; // household shared
+      case 3: // What's it worth?
+        return formData.amount && formData.currency;
+      case 4: // Optional details
+        return true;
+      default:
+        return false;
     }
   };
 
@@ -192,13 +227,19 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           <form onSubmit={handleSubmit}>
             <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-                  {asset ? t('assets.editAsset') : t('assets.addAsset')}
-                </h3>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    {asset ? t('assets.editAsset') : t('assets.addAsset')}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Step {currentStep} of {totalSteps}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={onClose}
@@ -206,6 +247,28 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex items-center">
+                  {Array.from({ length: totalSteps }, (_, i) => (
+                    <div key={i} className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        i + 1 <= currentStep 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {i + 1}
+                      </div>
+                      {i < totalSteps - 1 && (
+                        <div className={`w-12 h-1 mx-2 ${
+                          i + 1 < currentStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                        }`} />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {errors.length > 0 && (
@@ -220,373 +283,398 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h4 className="text-md font-medium text-gray-900 dark:text-white">{t('assets.basicInformation')}</h4>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.name')} *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      required
-                    />
-                  </div>
+              {/* Step Content */}
+              <div className="min-h-[400px]">
+                {currentStep === 1 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        What is it?
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Tell us about the asset you want to add.
+                      </p>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.category')} *
-                    </label>
-                    <select
-                      name="category_id"
-                      value={formData.category_id}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      required
-                    >
-                      <option value="">{t('assets.selectCategory')}</option>
-                      {categories.map(category => {
-                        const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
-                        return (
-                          <option key={category.id} value={category.id}>
-                            {category.name_en}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    {/* Show selected category icon */}
-                    {formData.category_id && (
-                      <div className="mt-2 flex items-center">
-                        {(() => {
-                          const selectedCategory = categories.find(c => c.id.toString() === formData.category_id);
-                          if (selectedCategory) {
-                            const IconComponent = getCategoryIcon(selectedCategory.icon || 'CubeTransparentIcon');
-                            return (
-                              <>
-                                <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
-                                <span className="text-sm text-gray-600 dark:text-gray-400">
-                                  {selectedCategory.name_en}
-                                </span>
-                              </>
-                            );
-                          }
-                          return null;
-                        })()}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Asset Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="e.g., My Car, Investment Portfolio, House"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Category *
+                      </label>
+                      <select
+                        name="category_id"
+                        value={formData.category_id}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
+                        required
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map(category => {
+                          const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
+                          return (
+                            <option key={category.id} value={category.id}>
+                              {category.name_en}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      {/* Show selected category icon */}
+                      {formData.category_id && (
+                        <div className="mt-3 flex items-center">
+                          {(() => {
+                            const selectedCategory = categories.find(c => c.id.toString() === formData.category_id);
+                            if (selectedCategory) {
+                              const IconComponent = getCategoryIcon(selectedCategory.icon || 'CubeTransparentIcon');
+                              return (
+                                <>
+                                  <IconComponent className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3" />
+                                  <span className="text-lg text-gray-900 dark:text-white">
+                                    {selectedCategory.name_en}
+                                  </span>
+                                </>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        Who owns it?
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Choose the ownership type and assign owners.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        Ownership Type
+                      </label>
+                      <div className="space-y-3">
+                        <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <input
+                            type="radio"
+                            name="ownership_type"
+                            value="single"
+                            checked={formData.ownership_type === 'single'}
+                            onChange={handleInputChange}
+                            className="mr-3"
+                          />
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white">Single Owner</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">One person owns this asset</div>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <input
+                            type="radio"
+                            name="ownership_type"
+                            value="shared"
+                            checked={formData.ownership_type === 'shared'}
+                            onChange={handleInputChange}
+                            className="mr-3"
+                          />
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white">Shared Ownership</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">Multiple people own this asset</div>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <input
+                            type="radio"
+                            name="ownership_type"
+                            value="household"
+                            checked={formData.ownership_type === 'household'}
+                            onChange={handleInputChange}
+                            className="mr-3"
+                          />
+                          <div>
+                            <div className="font-medium text-gray-900 dark:text-white">Household Shared</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">All household members share equally</div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Single Owner Selection */}
+                    {formData.ownership_type === 'single' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Owner
+                        </label>
+                        <select
+                          name="household_member_id"
+                          value={formData.household_member_id}
+                          onChange={handleInputChange}
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        >
+                          <option value="">Select owner</option>
+                          {members.map(member => (
+                            <option key={member.id} value={member.id}>
+                              {member.name} ({member.relationship})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Shared Ownership Distribution */}
+                    {formData.ownership_type === 'shared' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                          Ownership Distribution
+                        </label>
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-64 overflow-y-auto">
+                          <div className="space-y-3">
+                            {members.map(member => (
+                              <div key={member.id} className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="font-medium text-gray-900 dark:text-white">
+                                    {member.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    {member.relationship}
+                                  </div>
+                                </div>
+                                <div className="w-24">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    value={sharedOwnershipPercentages[member.id] || 0}
+                                    onChange={(e) => {
+                                      const value = parseFloat(e.target.value) || 0;
+                                      setSharedOwnershipPercentages(prev => ({
+                                        ...prev,
+                                        [member.id]: value
+                                      }));
+                                    }}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                    placeholder="0%"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total:</span>
+                              <span className={`text-sm font-medium ${
+                                Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) === 100
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-red-600 dark:text-red-400'
+                              }`}>
+                                {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0).toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
+                )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                {currentStep === 3 && (
+                  <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.value')} *
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="amount"
-                        value={formData.amount}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        required
-                      />
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        What's it worth?
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Enter the current value and optional purchase information.
+                      </p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Currency *
-                      </label>
-                      <select
-                        name="currency"
-                        value={formData.currency}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        required
-                      >
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="TRY">TRY</option>
-                        <option value="GOLD">GOLD</option>
-                      </select>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Current Value *
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          name="amount"
+                          value={formData.amount}
+                          onChange={handleInputChange}
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
+                          placeholder="0.00"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Currency *
+                        </label>
+                        <select
+                          name="currency"
+                          value={formData.currency}
+                          onChange={handleInputChange}
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          required
+                        >
+                          <option value="USD">USD</option>
+                          <option value="EUR">EUR</option>
+                          <option value="GBP">GBP</option>
+                          <option value="TRY">TRY</option>
+                          <option value="GOLD">GOLD</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Date *
-                    </label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Description
-                    </label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Purchase Information */}
-                <div className="space-y-4">
-                  <h4 className="text-md font-medium text-gray-900 dark:text-white">{t('assets.purchaseInformation')}</h4>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.purchaseDate')}
-                    </label>
-                    <input
-                      type="date"
-                      name="purchase_date"
-                      value={formData.purchase_date}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.purchasePrice')}
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="purchase_price"
-                        value={formData.purchase_price}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.purchaseCurrency')}
-                      </label>
-                      <select
-                        name="purchase_currency"
-                        value={formData.purchase_currency}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="TRY">TRY</option>
-                        <option value="GOLD">GOLD</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.currentValue')}
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        name="current_value"
-                        value={formData.current_value}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.valuationMethod')}
-                      </label>
-                      <select
-                        name="valuation_method"
-                        value={formData.valuation_method}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="manual">{t('assets.manual')}</option>
-                        <option value="market">{t('assets.market')}</option>
-                        <option value="appraisal">{t('assets.appraisal')}</option>
-                        <option value="estimate">{t('assets.estimate')}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.owner')}
-                    </label>
-                    <select
-                      name="household_member_id"
-                      value={formData.household_member_id}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    >
-                      <option value="">{t('assets.selectMember')}</option>
-                      {members.map(member => (
-                        <option key={member.id} value={member.id}>
-                          {member.name} ({member.relationship})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.ownershipType')}
-                    </label>
-                    <select
-                      name="ownership_type"
-                      value={formData.ownership_type}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    >
-                      <option value="single">{t('assets.singleOwner')}</option>
-                      <option value="shared">{t('assets.sharedOwnership')}</option>
-                      <option value="household">{t('assets.householdShared')}</option>
-                    </select>
-                  </div>
-
-                  {/* Single Owner Percentage */}
-                  {formData.ownership_type === 'single' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.ownershipPercentage')}
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        name="ownership_percentage"
-                        value={formData.ownership_percentage}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      />
-                    </div>
-                  )}
-
-                  {/* Shared Ownership - Multiple Members */}
-                  {formData.ownership_type === 'shared' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {t('assets.sharedOwnership')} - {t('assets.ownershipPercentage')}
-                      </label>
-                      <div className="space-y-3">
-                        {members.map(member => (
-                          <div key={member.id} className="flex items-center space-x-3">
-                            <div className="flex-1">
-                              <label className="block text-sm text-gray-600 dark:text-gray-400">
-                                {member.name} ({member.relationship})
-                              </label>
-                            </div>
-                            <div className="w-24">
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                max="100"
-                                value={sharedOwnershipPercentages[member.id] || 0}
-                                onChange={(e) => {
-                                  const value = parseFloat(e.target.value) || 0;
-                                  setSharedOwnershipPercentages(prev => ({
-                                    ...prev,
-                                    [member.id]: value
-                                  }));
-                                }}
-                                className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                placeholder="0%"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Total: {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0).toFixed(1)}%
+                    <div className="border-t pt-6">
+                      <h5 className="text-md font-medium text-gray-900 dark:text-white mb-4">
+                        Purchase Information (Optional)
+                      </h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Purchase Price
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="purchase_price"
+                            value={formData.purchase_price}
+                            onChange={handleInputChange}
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Purchase Date
+                          </label>
+                          <input
+                            type="date"
+                            name="purchase_date"
+                            value={formData.purchase_date}
+                            onChange={handleInputChange}
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                          />
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Household Shared - No percentage needed */}
-                  {formData.ownership_type === 'household' && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900 p-3 rounded-md">
-                      {t('assets.householdShared')} - All household members share equally
+                {currentStep === 4 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        Additional Details (Optional)
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Add any additional information about this asset.
+                      </p>
                     </div>
-                  )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.status')}
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    >
-                        <option value="active">{t('assets.active')}</option>
-                        <option value="sold">{t('assets.sold')}</option>
-                        <option value="transferred">{t('assets.transferred')}</option>
-                        <option value="inactive">{t('assets.inactive')}</option>
-                    </select>
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="Additional details about this asset..."
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.location')}
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="e.g., Garage, Bank Account, Investment Platform"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('assets.notes')}
-                    </label>
-                    <textarea
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Notes
+                      </label>
+                      <textarea
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleInputChange}
+                        rows={2}
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="Any additional notes..."
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
+            {/* Footer with Navigation */}
             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? t('assets.saving') : (asset ? t('assets.updateAsset') : t('assets.addAsset'))}
-              </button>
+              {currentStep === totalSteps ? (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                >
+                  {loading ? t('assets.saving') : (asset ? t('assets.updateAsset') : t('assets.addAsset'))}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  disabled={!canProceedToNext()}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              )}
+              
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                >
+                  Previous
+                </button>
+              )}
+              
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
               >
                 {t('assets.cancel')}
               </button>
