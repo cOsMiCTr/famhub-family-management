@@ -112,7 +112,7 @@ class ExchangeRateService {
         }
         catch (error) {
             console.error('Failed to fetch fiat rates:', error);
-            await this.setFallbackRates();
+            await this.setFallbackRates(false);
         }
     }
     async updateGoldRates() {
@@ -156,17 +156,18 @@ class ExchangeRateService {
             await this.setFallbackGoldRates();
         }
     }
-    async setFallbackRates() {
+    async setFallbackRates(forceScraping = false) {
         console.log('🔄 Attempting to use last known rates as fallback...');
+        const threshold = forceScraping ? '1 hour' : '24 hours';
         const recentRates = await (0, database_1.query)(`SELECT from_currency, to_currency, rate, updated_at 
        FROM exchange_rates 
-       WHERE updated_at > NOW() - INTERVAL '24 hours'
+       WHERE updated_at > NOW() - INTERVAL '${threshold}'
        ORDER BY updated_at DESC`);
-        if (recentRates.rows.length > 0) {
-            console.log(`✅ Using ${recentRates.rows.length} recent rates as fallback`);
+        if (recentRates.rows.length > 0 && !forceScraping) {
+            console.log(`✅ Using ${recentRates.rows.length} recent rates as fallback (${threshold} threshold)`);
             return;
         }
-        console.log('⚠️ No recent rates found, attempting to scrape...');
+        console.log(`⚠️ No recent rates found (${threshold} threshold) or force scraping enabled, attempting to scrape...`);
         const scrapedRates = await this.scrapeAllRates();
         if (scrapedRates.length > 0) {
             console.log(`✅ Scraped ${scrapedRates.length} rates successfully`);
@@ -308,6 +309,9 @@ class ExchangeRateService {
                 }
             });
             console.log(`🇪🇺 ECB: Scraped ${rates.length} EUR-based rates`);
+            if (rates.length > 0) {
+                console.log(`🇪🇺 ECB: Sample rates:`, rates.slice(0, 3));
+            }
             return rates;
         }
         catch (error) {
@@ -433,6 +437,15 @@ class ExchangeRateService {
     }
     async forceUpdate() {
         console.log('🔄 Force updating exchange rates...');
+        if (!this.currencyApiKey) {
+            console.log('🔄 Manual sync: Attempting scraping without API keys...');
+            const scrapedRates = await this.scrapeAllRates();
+            if (scrapedRates.length > 0) {
+                console.log(`✅ Manual sync: Scraped ${scrapedRates.length} rates successfully`);
+                await this.storeExchangeRates(scrapedRates);
+                return;
+            }
+        }
         await this.updateExchangeRates();
     }
 }

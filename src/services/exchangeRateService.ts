@@ -116,7 +116,7 @@ class ExchangeRateService {
 
     } catch (error) {
       console.error('Failed to fetch fiat rates:', error);
-      await this.setFallbackRates();
+      await this.setFallbackRates(false);
     }
   }
 
@@ -175,24 +175,27 @@ class ExchangeRateService {
   }
 
   // Set fallback exchange rates when API is unavailable
-  private async setFallbackRates(): Promise<void> {
+  private async setFallbackRates(forceScraping: boolean = false): Promise<void> {
     console.log('🔄 Attempting to use last known rates as fallback...');
     
-    // First, check if we have recent rates in database (less than 24 hours old)
+    // For manual sync, use a shorter threshold (1 hour instead of 24 hours)
+    const threshold = forceScraping ? '1 hour' : '24 hours';
+    
+    // First, check if we have recent rates in database
     const recentRates = await query(
       `SELECT from_currency, to_currency, rate, updated_at 
        FROM exchange_rates 
-       WHERE updated_at > NOW() - INTERVAL '24 hours'
+       WHERE updated_at > NOW() - INTERVAL '${threshold}'
        ORDER BY updated_at DESC`
     );
     
-    if (recentRates.rows.length > 0) {
-      console.log(`✅ Using ${recentRates.rows.length} recent rates as fallback`);
+    if (recentRates.rows.length > 0 && !forceScraping) {
+      console.log(`✅ Using ${recentRates.rows.length} recent rates as fallback (${threshold} threshold)`);
       return; // Keep existing recent rates, don't overwrite
     }
     
-    // If no recent rates, try scraping
-    console.log('⚠️ No recent rates found, attempting to scrape...');
+    // If no recent rates or force scraping, try scraping
+    console.log(`⚠️ No recent rates found (${threshold} threshold) or force scraping enabled, attempting to scrape...`);
     const scrapedRates = await this.scrapeAllRates();
     
     if (scrapedRates.length > 0) {
@@ -373,6 +376,9 @@ class ExchangeRateService {
       });
 
       console.log(`🇪🇺 ECB: Scraped ${rates.length} EUR-based rates`);
+      if (rates.length > 0) {
+        console.log(`🇪🇺 ECB: Sample rates:`, rates.slice(0, 3));
+      }
       return rates;
     } catch (error) {
       console.error('ECB scraping failed:', error);
@@ -516,6 +522,19 @@ class ExchangeRateService {
   // Force update exchange rates (for manual refresh)
   async forceUpdate(): Promise<void> {
     console.log('🔄 Force updating exchange rates...');
+    
+    // For manual sync, try scraping first even if APIs are not configured
+    if (!this.currencyApiKey) {
+      console.log('🔄 Manual sync: Attempting scraping without API keys...');
+      const scrapedRates = await this.scrapeAllRates();
+      
+      if (scrapedRates.length > 0) {
+        console.log(`✅ Manual sync: Scraped ${scrapedRates.length} rates successfully`);
+        await this.storeExchangeRates(scrapedRates);
+        return;
+      }
+    }
+    
     await this.updateExchangeRates();
   }
 }
