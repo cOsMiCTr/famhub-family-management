@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ExchangeRateConfigModal from '../components/ExchangeRateConfigModal';
 import { formatCurrency } from '../utils/formatters';
 import { 
   WalletIcon, 
@@ -12,7 +13,10 @@ import {
   ArrowTrendingUpIcon,
   CalendarIcon,
   UserGroupIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  Cog6ToothIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
@@ -40,9 +44,28 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  
+  // New state for currency conversion features
+  const [showConversions, setShowConversions] = useState(false);
+  const [selectedExchangeRates, setSelectedExchangeRates] = useState<string[]>(['USD', 'GBP', 'TRY']);
+  const [showRateConfig, setShowRateConfig] = useState(false);
+  const [tempConversionCurrency, setTempConversionCurrency] = useState<string | null>(null);
+  const [lastUpdateHighlight, setLastUpdateHighlight] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Load user preferences from localStorage
+    const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
+    const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
+    
+    if (savedExchangeRates) {
+      setSelectedExchangeRates(JSON.parse(savedExchangeRates));
+    }
+    
+    if (savedShowConversions) {
+      setShowConversions(JSON.parse(savedShowConversions));
+    }
   }, []);
 
   const fetchDashboardData = async () => {
@@ -92,6 +115,12 @@ const DashboardPage: React.FC = () => {
         // Refresh dashboard data to get updated rates
         await fetchDashboardData();
         setLastUpdated(new Date().toISOString());
+        
+        // Trigger highlight animation
+        setLastUpdateHighlight(true);
+        setTimeout(() => {
+          setLastUpdateHighlight(false);
+        }, 3000);
       } else {
         setError(response.message || 'Failed to sync exchange rates');
       }
@@ -103,30 +132,75 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  // Helper function to get converted value
+  const getConvertedValue = (amount: number, fromCurrency: string, toCurrency: string): string => {
+    if (fromCurrency === toCurrency) return '';
+    
+    const rate = exchangeRates.find(r => 
+      r.from_currency === fromCurrency && r.to_currency === toCurrency
+    );
+    
+    if (!rate) return '';
+    
+    const convertedAmount = amount * rate.rate;
+    return formatCurrency(convertedAmount, toCurrency);
+  };
+  
+  // Helper function to get available currencies from exchange rates
+  const getAvailableCurrencies = (): string[] => {
+    const currencies = new Set<string>();
+    exchangeRates.forEach(rate => {
+      currencies.add(rate.to_currency);
+    });
+    return Array.from(currencies).sort();
+  };
+  
+  // Handle exchange rate configuration
+  const handleExchangeRateConfig = (selectedCurrencies: string[]) => {
+    setSelectedExchangeRates(selectedCurrencies);
+    localStorage.setItem('dashboard_exchange_rates', JSON.stringify(selectedCurrencies));
+  };
+  
+  // Handle conversion toggle
+  const toggleConversions = () => {
+    const newValue = !showConversions;
+    setShowConversions(newValue);
+    localStorage.setItem('dashboard_show_conversions', JSON.stringify(newValue));
+  };
+  
   const statsCards = [
     {
       title: t('dashboard.totalAssets'),
       value: stats ? formatCurrency(stats.totalAssets || 0, stats.currency || 'USD') : 'Loading...',
+      convertedValue: tempConversionCurrency && stats ? 
+        getConvertedValue(stats.totalAssets || 0, stats.currency || 'USD', tempConversionCurrency) : '',
       icon: WalletIcon,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      textColor: 'text-blue-600 dark:text-blue-400'
+      textColor: 'text-blue-600 dark:text-blue-400',
+      isFinancial: true
     },
     {
       title: t('dashboard.netIncome'),
       value: stats ? formatCurrency(stats.totalIncome || 0, stats.currency || 'USD') : 'Loading...',
+      convertedValue: tempConversionCurrency && stats ? 
+        getConvertedValue(stats.totalIncome || 0, stats.currency || 'USD', tempConversionCurrency) : '',
       icon: CurrencyDollarIcon,
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
-      textColor: 'text-green-600 dark:text-green-400'
+      textColor: 'text-green-600 dark:text-green-400',
+      isFinancial: true
     },
     {
       title: t('dashboard.monthlyIncome'),
       value: stats ? formatCurrency(stats.monthlyIncome || 0, stats.currency || 'USD') : 'Loading...',
+      convertedValue: tempConversionCurrency && stats ? 
+        getConvertedValue(stats.monthlyIncome || 0, stats.currency || 'USD', tempConversionCurrency) : '',
       icon: ArrowTrendingUpIcon,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      textColor: 'text-purple-600 dark:text-purple-400'
+      textColor: 'text-purple-600 dark:text-purple-400',
+      isFinancial: true
     },
     {
       title: t('dashboard.activeContracts'),
@@ -134,7 +208,8 @@ const DashboardPage: React.FC = () => {
       icon: DocumentTextIcon,
       color: 'bg-yellow-500',
       bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
-      textColor: 'text-yellow-600 dark:text-yellow-400'
+      textColor: 'text-yellow-600 dark:text-yellow-400',
+      isFinancial: false
     },
     {
       title: 'Family Members',
@@ -142,7 +217,8 @@ const DashboardPage: React.FC = () => {
       icon: UserGroupIcon,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      textColor: 'text-purple-600 dark:text-purple-400'
+      textColor: 'text-purple-600 dark:text-purple-400',
+      isFinancial: false
     }
   ];
 
@@ -150,12 +226,58 @@ const DashboardPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fadeIn">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {t('dashboard.title')}
-        </h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-          Welcome to your family management dashboard
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {t('dashboard.title')}
+            </h1>
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
+              Welcome to your family management dashboard
+            </p>
+          </div>
+          
+          {/* Currency Conversion Controls */}
+          <div className="flex items-center space-x-4">
+            {/* Temporary Currency Conversion Dropdown */}
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('dashboard.viewIn')}:
+              </label>
+              <select
+                value={tempConversionCurrency || ''}
+                onChange={(e) => setTempConversionCurrency(e.target.value || null)}
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">{t('dashboard.convertTo')}</option>
+                {getAvailableCurrencies().map(currency => (
+                  <option key={currency} value={currency}>{currency}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Show/Hide Conversions Toggle */}
+            <button
+              onClick={toggleConversions}
+              className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                showConversions 
+                  ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' 
+                  : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              {showConversions ? (
+                <>
+                  <EyeSlashIcon className="h-4 w-4" />
+                  <span>{t('dashboard.hideConversions')}</span>
+                </>
+              ) : (
+                <>
+                  <EyeIcon className="h-4 w-4" />
+                  <span>{t('dashboard.showConversions')}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -188,9 +310,23 @@ const DashboardPage: React.FC = () => {
                     {isLoading ? (
                       <LoadingSpinner size="sm" />
                     ) : (
-                      <p className={`text-2xl font-bold ${card.textColor}`}>
-                        {card.value}
-                      </p>
+                      <div>
+                        <p className={`text-2xl font-bold ${card.textColor}`}>
+                          {card.value}
+                        </p>
+                        {/* Show converted value if temporary conversion is active */}
+                        {tempConversionCurrency && card.convertedValue && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            ≈ {card.convertedValue} ({tempConversionCurrency})
+                          </p>
+                        )}
+                        {/* Show conversion toggle if enabled and no temp conversion */}
+                        {showConversions && !tempConversionCurrency && card.isFinancial && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {t('dashboard.inYourCurrency')}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -250,27 +386,45 @@ const DashboardPage: React.FC = () => {
                   {t('dashboard.basedOn')} {stats?.currency || 'EUR'}
                 </p>
                 {lastUpdated && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  <p className={`text-xs text-gray-400 dark:text-gray-500 mt-1 ${
+                    lastUpdateHighlight ? 'highlight-animation' : ''
+                  }`}>
                     {t('dashboard.lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
                   </p>
                 )}
               </div>
-              <button
-                onClick={syncExchangeRates}
-                disabled={isSyncing}
-                className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ArrowPathIcon className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>{isSyncing ? t('dashboard.syncing') : t('dashboard.sync')}</span>
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowRateConfig(true)}
+                  className="flex items-center space-x-1 px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  title={t('dashboard.configureRates')}
+                >
+                  <Cog6ToothIcon className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={syncExchangeRates}
+                  disabled={isSyncing}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowPathIcon className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? t('dashboard.syncing') : t('dashboard.sync')}</span>
+                </button>
+              </div>
             </div>
           </div>
           <div className="card-body">
             {isLoading ? (
               <LoadingSpinner size="sm" />
             ) : exchangeRates.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {exchangeRates.map((rate, index) => {
+              <div className={`grid gap-3 ${
+                selectedExchangeRates.length === 3 ? 'grid-cols-3' :
+                selectedExchangeRates.length === 4 ? 'grid-cols-2' :
+                selectedExchangeRates.length === 5 ? 'grid-cols-3' :
+                'grid-cols-2'
+              }`}>
+                {exchangeRates
+                  .filter(rate => selectedExchangeRates.includes(rate.to_currency))
+                  .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
                     'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
                     'EUR': { symbol: '€', name: 'Euro (€)', flag: '🇪🇺', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
@@ -350,6 +504,15 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Exchange Rate Configuration Modal */}
+      <ExchangeRateConfigModal
+        isOpen={showRateConfig}
+        onClose={() => setShowRateConfig(false)}
+        onSave={handleExchangeRateConfig}
+        availableCurrencies={getAvailableCurrencies()}
+        currentSelection={selectedExchangeRates}
+      />
     </div>
   );
 };

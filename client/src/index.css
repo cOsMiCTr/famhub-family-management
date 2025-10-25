@@ -7,6 +7,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Dashboard animations */
+@keyframes highlightFade {
+  0% { background-color: rgba(34, 197, 94, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.highlight-animation {
+  animation: highlightFade 3s ease-out;
+  transition: background-color 3s ease-out;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
 body {
   margin: 0;
   padding: 0;
