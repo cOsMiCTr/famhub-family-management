@@ -1,6 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { XMarkIcon, HomeIcon, ChartBarIcon, ChartPieIcon, DocumentTextIcon, CurrencyDollarIcon, SparklesIcon, TruckIcon, PaintBrushIcon, BanknotesIcon, CubeTransparentIcon } from '@heroicons/react/24/outline';
+import { 
+  XMarkIcon, 
+  HomeIcon, 
+  ChartBarIcon, 
+  ChartPieIcon, 
+  DocumentTextIcon, 
+  CurrencyDollarIcon, 
+  SparklesIcon, 
+  TruckIcon, 
+  PaintBrushIcon, 
+  BanknotesIcon, 
+  CubeTransparentIcon,
+  BuildingOfficeIcon,
+  BuildingOffice2Icon,
+  BriefcaseIcon,
+  ComputerDesktopIcon,
+  DevicePhoneMobileIcon,
+  CameraIcon,
+  MusicalNoteIcon,
+  BookOpenIcon,
+  AcademicCapIcon,
+  HeartIcon,
+  GiftIcon,
+  StarIcon,
+  FireIcon,
+  BoltIcon,
+  SunIcon,
+  MoonIcon,
+  GlobeAltIcon,
+  MapIcon,
+  ClockIcon,
+  CalendarIcon,
+  UserIcon,
+  UsersIcon,
+  ShieldCheckIcon,
+  LockClosedIcon,
+  KeyIcon,
+  CogIcon,
+  WrenchScrewdriverIcon,
+  ScissorsIcon,
+  PencilIcon,
+  ClipboardDocumentIcon,
+  FolderIcon,
+  ArchiveBoxIcon,
+  ShoppingBagIcon,
+  ShoppingCartIcon,
+  CreditCardIcon,
+  ReceiptPercentIcon,
+  CalculatorIcon,
+  PlusIcon,
+  MinusIcon,
+  CheckIcon,
+  XCircleIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  QuestionMarkCircleIcon,
+  LightBulbIcon,
+  PuzzlePieceIcon,
+  RocketLaunchIcon,
+  BeakerIcon,
+  MagnifyingGlassIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  HandRaisedIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
+  FaceSmileIcon,
+  FaceFrownIcon,
+  CakeIcon,
+  CloudIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon
+} from '@heroicons/react/24/outline';
 
 interface AssetCategory {
   id: number;
@@ -44,11 +120,76 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
       'PaintBrushIcon': PaintBrushIcon,
       'BanknotesIcon': BanknotesIcon,
       'CubeTransparentIcon': CubeTransparentIcon,
+      'BuildingOfficeIcon': BuildingOfficeIcon,
+      'BuildingOffice2Icon': BuildingOffice2Icon,
+      'BriefcaseIcon': BriefcaseIcon,
+      'ComputerDesktopIcon': ComputerDesktopIcon,
+      'DevicePhoneMobileIcon': DevicePhoneMobileIcon,
+      'CameraIcon': CameraIcon,
+      'MusicalNoteIcon': MusicalNoteIcon,
+      'BookOpenIcon': BookOpenIcon,
+      'AcademicCapIcon': AcademicCapIcon,
+      'HeartIcon': HeartIcon,
+      'GiftIcon': GiftIcon,
+      'StarIcon': StarIcon,
+      'FireIcon': FireIcon,
+      'BoltIcon': BoltIcon,
+      'SunIcon': SunIcon,
+      'MoonIcon': MoonIcon,
+      'GlobeAltIcon': GlobeAltIcon,
+      'MapIcon': MapIcon,
+      'ClockIcon': ClockIcon,
+      'CalendarIcon': CalendarIcon,
+      'UserIcon': UserIcon,
+      'UsersIcon': UsersIcon,
+      'ShieldCheckIcon': ShieldCheckIcon,
+      'LockClosedIcon': LockClosedIcon,
+      'KeyIcon': KeyIcon,
+      'CogIcon': CogIcon,
+      'WrenchScrewdriverIcon': WrenchScrewdriverIcon,
+      'ScissorsIcon': ScissorsIcon,
+      'PencilIcon': PencilIcon,
+      'ClipboardDocumentIcon': ClipboardDocumentIcon,
+      'FolderIcon': FolderIcon,
+      'ArchiveBoxIcon': ArchiveBoxIcon,
+      'ShoppingBagIcon': ShoppingBagIcon,
+      'ShoppingCartIcon': ShoppingCartIcon,
+      'CreditCardIcon': CreditCardIcon,
+      'ReceiptPercentIcon': ReceiptPercentIcon,
+      'CalculatorIcon': CalculatorIcon,
+      'PlusIcon': PlusIcon,
+      'MinusIcon': MinusIcon,
+      'CheckIcon': CheckIcon,
+      'XCircleIcon': XCircleIcon,
+      'ExclamationTriangleIcon': ExclamationTriangleIcon,
+      'InformationCircleIcon': InformationCircleIcon,
+      'QuestionMarkCircleIcon': QuestionMarkCircleIcon,
+      'LightBulbIcon': LightBulbIcon,
+      'PuzzlePieceIcon': PuzzlePieceIcon,
+      'RocketLaunchIcon': RocketLaunchIcon,
+      'BeakerIcon': BeakerIcon,
+      'MagnifyingGlassIcon': MagnifyingGlassIcon,
+      'EyeIcon': EyeIcon,
+      'EyeSlashIcon': EyeSlashIcon,
+      'HandRaisedIcon': HandRaisedIcon,
+      'HandThumbUpIcon': HandThumbUpIcon,
+      'HandThumbDownIcon': HandThumbDownIcon,
+      'FaceSmileIcon': FaceSmileIcon,
+      'FaceFrownIcon': FaceFrownIcon,
+      'CakeIcon': CakeIcon,
+      'CloudIcon': CloudIcon,
+      'ArrowTrendingUpIcon': ArrowTrendingUpIcon,
+      'ArrowTrendingDownIcon': ArrowTrendingDownIcon,
+      'ArrowUpIcon': ArrowUpIcon,
+      'ArrowDownIcon': ArrowDownIcon,
+      'ArrowRightIcon': ArrowRightIcon,
+      'ArrowLeftIcon': ArrowLeftIcon,
     };
     return iconMap[iconName] || CubeTransparentIcon;
   };
 
   const availableIcons = [
+    // Original icons
     { value: 'HomeIcon', label: 'Home', component: HomeIcon },
     { value: 'ChartBarIcon', label: 'Chart Bar', component: ChartBarIcon },
     { value: 'ChartPieIcon', label: 'Chart Pie', component: ChartPieIcon },
@@ -59,6 +200,104 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     { value: 'PaintBrushIcon', label: 'Paint Brush', component: PaintBrushIcon },
     { value: 'BanknotesIcon', label: 'Banknotes', component: BanknotesIcon },
     { value: 'CubeTransparentIcon', label: 'Cube', component: CubeTransparentIcon },
+    
+    // Buildings & Real Estate
+    { value: 'BuildingOfficeIcon', label: 'Office Building', component: BuildingOfficeIcon },
+    { value: 'BuildingOffice2Icon', label: 'Office Building 2', component: BuildingOffice2Icon },
+    
+    // Business & Work
+    { value: 'BriefcaseIcon', label: 'Briefcase', component: BriefcaseIcon },
+    { value: 'ComputerDesktopIcon', label: 'Computer', component: ComputerDesktopIcon },
+    { value: 'DevicePhoneMobileIcon', label: 'Mobile Phone', component: DevicePhoneMobileIcon },
+    
+    // Entertainment & Hobbies
+    { value: 'CameraIcon', label: 'Camera', component: CameraIcon },
+    { value: 'MusicalNoteIcon', label: 'Music', component: MusicalNoteIcon },
+    { value: 'BookOpenIcon', label: 'Book', component: BookOpenIcon },
+    { value: 'AcademicCapIcon', label: 'Education', component: AcademicCapIcon },
+    
+    // Personal & Lifestyle
+    { value: 'HeartIcon', label: 'Heart', component: HeartIcon },
+    { value: 'GiftIcon', label: 'Gift', component: GiftIcon },
+    { value: 'StarIcon', label: 'Star', component: StarIcon },
+    
+    // Nature & Weather
+    { value: 'FireIcon', label: 'Fire', component: FireIcon },
+    { value: 'BoltIcon', label: 'Lightning', component: BoltIcon },
+    { value: 'SunIcon', label: 'Sun', component: SunIcon },
+    { value: 'MoonIcon', label: 'Moon', component: MoonIcon },
+    { value: 'GlobeAltIcon', label: 'Globe', component: GlobeAltIcon },
+    { value: 'MapIcon', label: 'Map', component: MapIcon },
+    
+    // Time & Organization
+    { value: 'ClockIcon', label: 'Clock', component: ClockIcon },
+    { value: 'CalendarIcon', label: 'Calendar', component: CalendarIcon },
+    { value: 'UserIcon', label: 'User', component: UserIcon },
+    { value: 'UsersIcon', label: 'Users', component: UsersIcon },
+    
+    // Security & Tools
+    { value: 'ShieldCheckIcon', label: 'Shield', component: ShieldCheckIcon },
+    { value: 'LockClosedIcon', label: 'Lock', component: LockClosedIcon },
+    { value: 'KeyIcon', label: 'Key', component: KeyIcon },
+    { value: 'CogIcon', label: 'Settings', component: CogIcon },
+    { value: 'WrenchScrewdriverIcon', label: 'Tools', component: WrenchScrewdriverIcon },
+    { value: 'ScissorsIcon', label: 'Scissors', component: ScissorsIcon },
+    
+    // Office & Productivity
+    { value: 'PencilIcon', label: 'Pencil', component: PencilIcon },
+    { value: 'ClipboardDocumentIcon', label: 'Clipboard', component: ClipboardDocumentIcon },
+    { value: 'FolderIcon', label: 'Folder', component: FolderIcon },
+    { value: 'ArchiveBoxIcon', label: 'Archive', component: ArchiveBoxIcon },
+    
+    // Shopping & Finance
+    { value: 'ShoppingBagIcon', label: 'Shopping Bag', component: ShoppingBagIcon },
+    { value: 'ShoppingCartIcon', label: 'Shopping Cart', component: ShoppingCartIcon },
+    { value: 'CreditCardIcon', label: 'Credit Card', component: CreditCardIcon },
+    { value: 'ReceiptPercentIcon', label: 'Receipt', component: ReceiptPercentIcon },
+    { value: 'CalculatorIcon', label: 'Calculator', component: CalculatorIcon },
+    
+    // Charts & Analytics
+    { value: 'ArrowTrendingUpIcon', label: 'Trending Up', component: ArrowTrendingUpIcon },
+    { value: 'ArrowTrendingDownIcon', label: 'Trending Down', component: ArrowTrendingDownIcon },
+    
+    // Actions & Status
+    { value: 'PlusIcon', label: 'Plus', component: PlusIcon },
+    { value: 'MinusIcon', label: 'Minus', component: MinusIcon },
+    { value: 'CheckIcon', label: 'Check', component: CheckIcon },
+    { value: 'XCircleIcon', label: 'X Circle', component: XCircleIcon },
+    { value: 'ExclamationTriangleIcon', label: 'Warning', component: ExclamationTriangleIcon },
+    { value: 'InformationCircleIcon', label: 'Info', component: InformationCircleIcon },
+    { value: 'QuestionMarkCircleIcon', label: 'Question', component: QuestionMarkCircleIcon },
+    
+    // Ideas & Innovation
+    { value: 'LightBulbIcon', label: 'Light Bulb', component: LightBulbIcon },
+    { value: 'PuzzlePieceIcon', label: 'Puzzle', component: PuzzlePieceIcon },
+    { value: 'RocketLaunchIcon', label: 'Rocket', component: RocketLaunchIcon },
+    { value: 'BeakerIcon', label: 'Beaker', component: BeakerIcon },
+    
+    // Search & Visibility
+    { value: 'MagnifyingGlassIcon', label: 'Search', component: MagnifyingGlassIcon },
+    { value: 'EyeIcon', label: 'Eye', component: EyeIcon },
+    { value: 'EyeSlashIcon', label: 'Eye Slash', component: EyeSlashIcon },
+    
+    // Interaction & Feedback
+    { value: 'HandRaisedIcon', label: 'Hand Raised', component: HandRaisedIcon },
+    { value: 'HandThumbUpIcon', label: 'Thumbs Up', component: HandThumbUpIcon },
+    { value: 'HandThumbDownIcon', label: 'Thumbs Down', component: HandThumbDownIcon },
+    { value: 'FaceSmileIcon', label: 'Smile', component: FaceSmileIcon },
+    { value: 'FaceFrownIcon', label: 'Frown', component: FaceFrownIcon },
+    
+    // Celebrations
+    { value: 'CakeIcon', label: 'Cake', component: CakeIcon },
+    
+    // Cloud & Technology
+    { value: 'CloudIcon', label: 'Cloud', component: CloudIcon },
+    
+    // Arrows & Navigation
+    { value: 'ArrowUpIcon', label: 'Arrow Up', component: ArrowUpIcon },
+    { value: 'ArrowDownIcon', label: 'Arrow Down', component: ArrowDownIcon },
+    { value: 'ArrowRightIcon', label: 'Arrow Right', component: ArrowRightIcon },
+    { value: 'ArrowLeftIcon', label: 'Arrow Left', component: ArrowLeftIcon },
   ];
 
   const [formData, setFormData] = useState({
