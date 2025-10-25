@@ -95,6 +95,7 @@ const seedTranslations = async () => {
       { key: 'dashboard.convertAllTo', category: 'dashboard', en: 'Convert all to', de: 'Alle konvertieren zu', tr: 'Hepsini dönüştür' },
       { key: 'dashboard.showInCurrency', category: 'dashboard', en: 'Show in currency', de: 'In Währung anzeigen', tr: 'Para biriminde göster' },
       { key: 'dashboard.toggleConversions', category: 'dashboard', en: 'Toggle Conversions', de: 'Umrechnungen umschalten', tr: 'Dönüşümleri Değiştir' },
+      { key: 'dashboard.familyMembers', category: 'dashboard', en: 'Family Members', de: 'Familienmitglieder', tr: 'Aile Üyeleri' },
 
       // Admin
       { key: 'admin.title', category: 'admin', en: 'Admin Panel', de: 'Admin-Panel', tr: 'Yönetici Paneli' },

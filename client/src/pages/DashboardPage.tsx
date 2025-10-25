@@ -82,6 +82,7 @@ const DashboardPage: React.FC = () => {
         totalIncome: dashboardData.summary?.total_income_main_currency || 0,
         monthlyIncome: dashboardData.summary?.quick_stats?.income_entries || 0,
         activeContracts: dashboardData.summary?.quick_stats?.active_contracts || 0,
+        totalMembers: dashboardData.summary?.member_count || 0,
         currency: dashboardData.summary?.main_currency || 'USD'
       });
       
@@ -213,7 +214,7 @@ const DashboardPage: React.FC = () => {
       isFinancial: false
     },
     {
-      title: 'Family Members',
+      title: t('dashboard.familyMembers'),
       value: stats ? (stats.totalMembers?.toString() || '0') : 'Loading...',
       icon: UserGroupIcon,
       color: 'bg-purple-500',
