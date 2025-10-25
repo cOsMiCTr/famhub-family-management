@@ -189,115 +189,80 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
   };
 
   const availableIcons = [
-    // Original icons
-    { value: 'HomeIcon', label: 'Home', component: HomeIcon },
+    // Sorted alphabetically by label
+    { value: 'AcademicCapIcon', label: 'Education', component: AcademicCapIcon },
+    { value: 'ArchiveBoxIcon', label: 'Archive', component: ArchiveBoxIcon },
+    { value: 'ArrowDownIcon', label: 'Arrow Down', component: ArrowDownIcon },
+    { value: 'ArrowLeftIcon', label: 'Arrow Left', component: ArrowLeftIcon },
+    { value: 'ArrowRightIcon', label: 'Arrow Right', component: ArrowRightIcon },
+    { value: 'ArrowTrendingDownIcon', label: 'Trending Down', component: ArrowTrendingDownIcon },
+    { value: 'ArrowTrendingUpIcon', label: 'Trending Up', component: ArrowTrendingUpIcon },
+    { value: 'ArrowUpIcon', label: 'Arrow Up', component: ArrowUpIcon },
+    { value: 'BanknotesIcon', label: 'Banknotes', component: BanknotesIcon },
+    { value: 'BeakerIcon', label: 'Beaker', component: BeakerIcon },
+    { value: 'BoltIcon', label: 'Lightning', component: BoltIcon },
+    { value: 'BookOpenIcon', label: 'Book', component: BookOpenIcon },
+    { value: 'BriefcaseIcon', label: 'Briefcase', component: BriefcaseIcon },
+    { value: 'BuildingOffice2Icon', label: 'Office Building 2', component: BuildingOffice2Icon },
+    { value: 'BuildingOfficeIcon', label: 'Office Building', component: BuildingOfficeIcon },
+    { value: 'CalculatorIcon', label: 'Calculator', component: CalculatorIcon },
+    { value: 'CalendarIcon', label: 'Calendar', component: CalendarIcon },
+    { value: 'CameraIcon', label: 'Camera', component: CameraIcon },
+    { value: 'CakeIcon', label: 'Cake', component: CakeIcon },
     { value: 'ChartBarIcon', label: 'Chart Bar', component: ChartBarIcon },
     { value: 'ChartPieIcon', label: 'Chart Pie', component: ChartPieIcon },
-    { value: 'DocumentTextIcon', label: 'Document', component: DocumentTextIcon },
-    { value: 'CurrencyDollarIcon', label: 'Currency', component: CurrencyDollarIcon },
-    { value: 'SparklesIcon', label: 'Sparkles', component: SparklesIcon },
-    { value: 'TruckIcon', label: 'Truck', component: TruckIcon },
-    { value: 'PaintBrushIcon', label: 'Paint Brush', component: PaintBrushIcon },
-    { value: 'BanknotesIcon', label: 'Banknotes', component: BanknotesIcon },
-    { value: 'CubeTransparentIcon', label: 'Cube', component: CubeTransparentIcon },
-    
-    // Buildings & Real Estate
-    { value: 'BuildingOfficeIcon', label: 'Office Building', component: BuildingOfficeIcon },
-    { value: 'BuildingOffice2Icon', label: 'Office Building 2', component: BuildingOffice2Icon },
-    
-    // Business & Work
-    { value: 'BriefcaseIcon', label: 'Briefcase', component: BriefcaseIcon },
-    { value: 'ComputerDesktopIcon', label: 'Computer', component: ComputerDesktopIcon },
-    { value: 'DevicePhoneMobileIcon', label: 'Mobile Phone', component: DevicePhoneMobileIcon },
-    
-    // Entertainment & Hobbies
-    { value: 'CameraIcon', label: 'Camera', component: CameraIcon },
-    { value: 'MusicalNoteIcon', label: 'Music', component: MusicalNoteIcon },
-    { value: 'BookOpenIcon', label: 'Book', component: BookOpenIcon },
-    { value: 'AcademicCapIcon', label: 'Education', component: AcademicCapIcon },
-    
-    // Personal & Lifestyle
-    { value: 'HeartIcon', label: 'Heart', component: HeartIcon },
-    { value: 'GiftIcon', label: 'Gift', component: GiftIcon },
-    { value: 'StarIcon', label: 'Star', component: StarIcon },
-    
-    // Nature & Weather
-    { value: 'FireIcon', label: 'Fire', component: FireIcon },
-    { value: 'BoltIcon', label: 'Lightning', component: BoltIcon },
-    { value: 'SunIcon', label: 'Sun', component: SunIcon },
-    { value: 'MoonIcon', label: 'Moon', component: MoonIcon },
-    { value: 'GlobeAltIcon', label: 'Globe', component: GlobeAltIcon },
-    { value: 'MapIcon', label: 'Map', component: MapIcon },
-    
-    // Time & Organization
-    { value: 'ClockIcon', label: 'Clock', component: ClockIcon },
-    { value: 'CalendarIcon', label: 'Calendar', component: CalendarIcon },
-    { value: 'UserIcon', label: 'User', component: UserIcon },
-    { value: 'UsersIcon', label: 'Users', component: UsersIcon },
-    
-    // Security & Tools
-    { value: 'ShieldCheckIcon', label: 'Shield', component: ShieldCheckIcon },
-    { value: 'LockClosedIcon', label: 'Lock', component: LockClosedIcon },
-    { value: 'KeyIcon', label: 'Key', component: KeyIcon },
-    { value: 'CogIcon', label: 'Settings', component: CogIcon },
-    { value: 'WrenchScrewdriverIcon', label: 'Tools', component: WrenchScrewdriverIcon },
-    { value: 'ScissorsIcon', label: 'Scissors', component: ScissorsIcon },
-    
-    // Office & Productivity
-    { value: 'PencilIcon', label: 'Pencil', component: PencilIcon },
-    { value: 'ClipboardDocumentIcon', label: 'Clipboard', component: ClipboardDocumentIcon },
-    { value: 'FolderIcon', label: 'Folder', component: FolderIcon },
-    { value: 'ArchiveBoxIcon', label: 'Archive', component: ArchiveBoxIcon },
-    
-    // Shopping & Finance
-    { value: 'ShoppingBagIcon', label: 'Shopping Bag', component: ShoppingBagIcon },
-    { value: 'ShoppingCartIcon', label: 'Shopping Cart', component: ShoppingCartIcon },
-    { value: 'CreditCardIcon', label: 'Credit Card', component: CreditCardIcon },
-    { value: 'ReceiptPercentIcon', label: 'Receipt', component: ReceiptPercentIcon },
-    { value: 'CalculatorIcon', label: 'Calculator', component: CalculatorIcon },
-    
-    // Charts & Analytics
-    { value: 'ArrowTrendingUpIcon', label: 'Trending Up', component: ArrowTrendingUpIcon },
-    { value: 'ArrowTrendingDownIcon', label: 'Trending Down', component: ArrowTrendingDownIcon },
-    
-    // Actions & Status
-    { value: 'PlusIcon', label: 'Plus', component: PlusIcon },
-    { value: 'MinusIcon', label: 'Minus', component: MinusIcon },
     { value: 'CheckIcon', label: 'Check', component: CheckIcon },
-    { value: 'XCircleIcon', label: 'X Circle', component: XCircleIcon },
+    { value: 'ClipboardDocumentIcon', label: 'Clipboard', component: ClipboardDocumentIcon },
+    { value: 'CloudIcon', label: 'Cloud', component: CloudIcon },
+    { value: 'CogIcon', label: 'Settings', component: CogIcon },
+    { value: 'ComputerDesktopIcon', label: 'Computer', component: ComputerDesktopIcon },
+    { value: 'CreditCardIcon', label: 'Credit Card', component: CreditCardIcon },
+    { value: 'CubeTransparentIcon', label: 'Cube', component: CubeTransparentIcon },
+    { value: 'CurrencyDollarIcon', label: 'Currency', component: CurrencyDollarIcon },
+    { value: 'DevicePhoneMobileIcon', label: 'Mobile Phone', component: DevicePhoneMobileIcon },
+    { value: 'DocumentTextIcon', label: 'Document', component: DocumentTextIcon },
     { value: 'ExclamationTriangleIcon', label: 'Warning', component: ExclamationTriangleIcon },
-    { value: 'InformationCircleIcon', label: 'Info', component: InformationCircleIcon },
-    { value: 'QuestionMarkCircleIcon', label: 'Question', component: QuestionMarkCircleIcon },
-    
-    // Ideas & Innovation
-    { value: 'LightBulbIcon', label: 'Light Bulb', component: LightBulbIcon },
-    { value: 'PuzzlePieceIcon', label: 'Puzzle', component: PuzzlePieceIcon },
-    { value: 'RocketLaunchIcon', label: 'Rocket', component: RocketLaunchIcon },
-    { value: 'BeakerIcon', label: 'Beaker', component: BeakerIcon },
-    
-    // Search & Visibility
-    { value: 'MagnifyingGlassIcon', label: 'Search', component: MagnifyingGlassIcon },
     { value: 'EyeIcon', label: 'Eye', component: EyeIcon },
     { value: 'EyeSlashIcon', label: 'Eye Slash', component: EyeSlashIcon },
-    
-    // Interaction & Feedback
-    { value: 'HandRaisedIcon', label: 'Hand Raised', component: HandRaisedIcon },
-    { value: 'HandThumbUpIcon', label: 'Thumbs Up', component: HandThumbUpIcon },
-    { value: 'HandThumbDownIcon', label: 'Thumbs Down', component: HandThumbDownIcon },
-    { value: 'FaceSmileIcon', label: 'Smile', component: FaceSmileIcon },
     { value: 'FaceFrownIcon', label: 'Frown', component: FaceFrownIcon },
-    
-    // Celebrations
-    { value: 'CakeIcon', label: 'Cake', component: CakeIcon },
-    
-    // Cloud & Technology
-    { value: 'CloudIcon', label: 'Cloud', component: CloudIcon },
-    
-    // Arrows & Navigation
-    { value: 'ArrowUpIcon', label: 'Arrow Up', component: ArrowUpIcon },
-    { value: 'ArrowDownIcon', label: 'Arrow Down', component: ArrowDownIcon },
-    { value: 'ArrowRightIcon', label: 'Arrow Right', component: ArrowRightIcon },
-    { value: 'ArrowLeftIcon', label: 'Arrow Left', component: ArrowLeftIcon },
+    { value: 'FaceSmileIcon', label: 'Smile', component: FaceSmileIcon },
+    { value: 'FireIcon', label: 'Fire', component: FireIcon },
+    { value: 'FolderIcon', label: 'Folder', component: FolderIcon },
+    { value: 'GiftIcon', label: 'Gift', component: GiftIcon },
+    { value: 'GlobeAltIcon', label: 'Globe', component: GlobeAltIcon },
+    { value: 'HandRaisedIcon', label: 'Hand Raised', component: HandRaisedIcon },
+    { value: 'HandThumbDownIcon', label: 'Thumbs Down', component: HandThumbDownIcon },
+    { value: 'HandThumbUpIcon', label: 'Thumbs Up', component: HandThumbUpIcon },
+    { value: 'HeartIcon', label: 'Heart', component: HeartIcon },
+    { value: 'HomeIcon', label: 'Home', component: HomeIcon },
+    { value: 'InformationCircleIcon', label: 'Info', component: InformationCircleIcon },
+    { value: 'KeyIcon', label: 'Key', component: KeyIcon },
+    { value: 'LightBulbIcon', label: 'Light Bulb', component: LightBulbIcon },
+    { value: 'LockClosedIcon', label: 'Lock', component: LockClosedIcon },
+    { value: 'MagnifyingGlassIcon', label: 'Search', component: MagnifyingGlassIcon },
+    { value: 'MapIcon', label: 'Map', component: MapIcon },
+    { value: 'MinusIcon', label: 'Minus', component: MinusIcon },
+    { value: 'MoonIcon', label: 'Moon', component: MoonIcon },
+    { value: 'MusicalNoteIcon', label: 'Music', component: MusicalNoteIcon },
+    { value: 'PaintBrushIcon', label: 'Paint Brush', component: PaintBrushIcon },
+    { value: 'PencilIcon', label: 'Pencil', component: PencilIcon },
+    { value: 'PlusIcon', label: 'Plus', component: PlusIcon },
+    { value: 'PuzzlePieceIcon', label: 'Puzzle', component: PuzzlePieceIcon },
+    { value: 'QuestionMarkCircleIcon', label: 'Question', component: QuestionMarkCircleIcon },
+    { value: 'ReceiptPercentIcon', label: 'Receipt', component: ReceiptPercentIcon },
+    { value: 'RocketLaunchIcon', label: 'Rocket', component: RocketLaunchIcon },
+    { value: 'ScissorsIcon', label: 'Scissors', component: ScissorsIcon },
+    { value: 'ShieldCheckIcon', label: 'Shield', component: ShieldCheckIcon },
+    { value: 'ShoppingBagIcon', label: 'Shopping Bag', component: ShoppingBagIcon },
+    { value: 'ShoppingCartIcon', label: 'Shopping Cart', component: ShoppingCartIcon },
+    { value: 'SparklesIcon', label: 'Sparkles', component: SparklesIcon },
+    { value: 'StarIcon', label: 'Star', component: StarIcon },
+    { value: 'SunIcon', label: 'Sun', component: SunIcon },
+    { value: 'TruckIcon', label: 'Truck', component: TruckIcon },
+    { value: 'UserIcon', label: 'User', component: UserIcon },
+    { value: 'UsersIcon', label: 'Users', component: UsersIcon },
+    { value: 'WrenchScrewdriverIcon', label: 'Tools', component: WrenchScrewdriverIcon },
+    { value: 'XCircleIcon', label: 'X Circle', component: XCircleIcon },
   ];
 
   const [formData, setFormData] = useState({
