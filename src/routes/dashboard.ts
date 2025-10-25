@@ -168,11 +168,11 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [userId, req.user.household_id]
   );
 
-  // Get household members count
+  // Get household members count (total family members, not just users)
   const membersResult = await query(
     `SELECT COUNT(*) as member_count
-     FROM users u
-     WHERE u.household_id = $1`,
+     FROM household_members hm
+     WHERE hm.household_id = $1`,
     [req.user.household_id]
   );
 

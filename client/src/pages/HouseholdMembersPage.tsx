@@ -61,6 +61,8 @@ const HouseholdMembersPage: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log('🔍 Debug - Household members API response:', data);
+      console.log('🔍 Debug - Members array length:', data.length);
       setMembers(data);
     } catch (error) {
       console.error('Error loading household members:', error);
@@ -265,17 +267,20 @@ const HouseholdMembersPage: React.FC = () => {
 
         {/* Members List */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-          {members.length === 0 ? (
-            <div className="text-center py-12">
-              <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                {t('familyMembers.noMembersFound')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Get started by adding a new family member.
-              </p>
-            </div>
-          ) : (
+          {(() => {
+            console.log('🔍 Debug - Rendering members list, members.length:', members.length);
+            console.log('🔍 Debug - Members array:', members);
+            return members.length === 0 ? (
+              <div className="text-center py-12">
+                <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                  {t('familyMembers.noMembersFound')}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Get started by adding a new family member.
+                </p>
+              </div>
+            ) : (
             <div className="overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
@@ -369,7 +374,8 @@ const HouseholdMembersPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Add/Edit Modal */}
