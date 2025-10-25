@@ -653,7 +653,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
     } else {
       const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
       if (rate) {
-        totalValueInMainCurrency += assetValue * parseFloat(rate.rate);
+        totalValueInMainCurrency += assetValue * rate.rate;
       }
     }
   }
