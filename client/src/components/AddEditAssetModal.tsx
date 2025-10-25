@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { 
+  HomeIcon, 
+  ChartBarIcon, 
+  ChartPieIcon, 
+  DocumentTextIcon, 
+  CurrencyDollarIcon, 
+  SparklesIcon, 
+  TruckIcon, 
+  PaintBrushIcon, 
+  BanknotesIcon, 
+  CubeTransparentIcon 
+} from '@heroicons/react/24/outline';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
 import { validateAssetForm } from '../utils/assetUtils';
 
@@ -42,8 +54,28 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
     notes: ''
   });
   
+  // For shared ownership - track percentages for each member
+  const [sharedOwnershipPercentages, setSharedOwnershipPercentages] = useState<{[key: number]: number}>({});
+  
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Icon mapping for categories
+  const getCategoryIcon = (iconName: string) => {
+    const iconMap: {[key: string]: React.ComponentType<any>} = {
+      'HomeIcon': HomeIcon,
+      'ChartBarIcon': ChartBarIcon,
+      'ChartPieIcon': ChartPieIcon,
+      'DocumentTextIcon': DocumentTextIcon,
+      'CurrencyDollarIcon': CurrencyDollarIcon,
+      'SparklesIcon': SparklesIcon,
+      'TruckIcon': TruckIcon,
+      'PaintBrushIcon': PaintBrushIcon,
+      'BanknotesIcon': BanknotesIcon,
+      'CubeTransparentIcon': CubeTransparentIcon,
+    };
+    return iconMap[iconName] || CubeTransparentIcon;
+  };
 
   // Reset form when modal opens/closes or asset changes
   useEffect(() => {
@@ -90,6 +122,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         });
       }
       setErrors([]);
+      setSharedOwnershipPercentages({});
     }
   }, [isOpen, asset]);
 
@@ -126,11 +159,17 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         household_member_id: formData.household_member_id ? parseInt(formData.household_member_id) : null,
         purchase_price: formData.purchase_price ? parseFloat(formData.purchase_price) : null,
         current_value: formData.current_value ? parseFloat(formData.current_value) : null,
-        ownership_percentage: parseFloat(formData.ownership_percentage),
+        ownership_percentage: formData.ownership_type === 'shared' 
+          ? Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0)
+          : parseFloat(formData.ownership_percentage),
         purchase_date: formData.purchase_date || null,
         description: formData.description || null,
         location: formData.location || null,
-        notes: formData.notes || null
+        notes: formData.notes || null,
+        // Add shared ownership data if applicable
+        ...(formData.ownership_type === 'shared' && {
+          shared_ownership_percentages: sharedOwnershipPercentages
+        })
       };
 
       await onSave(submitData);
@@ -212,12 +251,35 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       required
                     >
                       <option value="">{t('assets.selectCategory')}</option>
-                      {categories.map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.name_en}
-                        </option>
-                      ))}
+                      {categories.map(category => {
+                        const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
+                        return (
+                          <option key={category.id} value={category.id}>
+                            {category.name_en}
+                          </option>
+                        );
+                      })}
                     </select>
+                    {/* Show selected category icon */}
+                    {formData.category_id && (
+                      <div className="mt-2 flex items-center">
+                        {(() => {
+                          const selectedCategory = categories.find(c => c.id.toString() === formData.category_id);
+                          if (selectedCategory) {
+                            const IconComponent = getCategoryIcon(selectedCategory.icon || 'CubeTransparentIcon');
+                            return (
+                              <>
+                                <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
+                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                  {selectedCategory.name_en}
+                                </span>
+                              </>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -384,22 +446,24 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('assets.ownershipType')}
-                      </label>
-                      <select
-                        name="ownership_type"
-                        value={formData.ownership_type}
-                        onChange={handleInputChange}
-                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="single">{t('assets.singleOwner')}</option>
-                        <option value="shared">{t('assets.sharedOwnership')}</option>
-                        <option value="household">{t('assets.householdShared')}</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t('assets.ownershipType')}
+                    </label>
+                    <select
+                      name="ownership_type"
+                      value={formData.ownership_type}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="single">{t('assets.singleOwner')}</option>
+                      <option value="shared">{t('assets.sharedOwnership')}</option>
+                      <option value="household">{t('assets.householdShared')}</option>
+                    </select>
+                  </div>
+
+                  {/* Single Owner Percentage */}
+                  {formData.ownership_type === 'single' && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         {t('assets.ownershipPercentage')}
@@ -415,7 +479,55 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                       />
                     </div>
-                  </div>
+                  )}
+
+                  {/* Shared Ownership - Multiple Members */}
+                  {formData.ownership_type === 'shared' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {t('assets.sharedOwnership')} - {t('assets.ownershipPercentage')}
+                      </label>
+                      <div className="space-y-3">
+                        {members.map(member => (
+                          <div key={member.id} className="flex items-center space-x-3">
+                            <div className="flex-1">
+                              <label className="block text-sm text-gray-600 dark:text-gray-400">
+                                {member.name} ({member.relationship})
+                              </label>
+                            </div>
+                            <div className="w-24">
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                value={sharedOwnershipPercentages[member.id] || 0}
+                                onChange={(e) => {
+                                  const value = parseFloat(e.target.value) || 0;
+                                  setSharedOwnershipPercentages(prev => ({
+                                    ...prev,
+                                    [member.id]: value
+                                  }));
+                                }}
+                                className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                placeholder="0%"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          Total: {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Household Shared - No percentage needed */}
+                  {formData.ownership_type === 'household' && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900 p-3 rounded-md">
+                      {t('assets.householdShared')} - All household members share equally
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

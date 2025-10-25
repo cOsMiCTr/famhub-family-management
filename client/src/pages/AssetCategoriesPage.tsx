@@ -5,7 +5,17 @@ import {
   PencilIcon, 
   TrashIcon, 
   TagIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  HomeIcon, 
+  ChartBarIcon, 
+  ChartPieIcon, 
+  DocumentTextIcon, 
+  CurrencyDollarIcon, 
+  SparklesIcon, 
+  TruckIcon, 
+  PaintBrushIcon, 
+  BanknotesIcon, 
+  CubeTransparentIcon 
 } from '@heroicons/react/24/outline';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
 
@@ -31,6 +41,23 @@ const AssetCategoriesPage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<AssetCategory | null>(null);
+
+  // Icon mapping for categories
+  const getCategoryIcon = (iconName: string) => {
+    const iconMap: {[key: string]: React.ComponentType<any>} = {
+      'HomeIcon': HomeIcon,
+      'ChartBarIcon': ChartBarIcon,
+      'ChartPieIcon': ChartPieIcon,
+      'DocumentTextIcon': DocumentTextIcon,
+      'CurrencyDollarIcon': CurrencyDollarIcon,
+      'SparklesIcon': SparklesIcon,
+      'TruckIcon': TruckIcon,
+      'PaintBrushIcon': PaintBrushIcon,
+      'BanknotesIcon': BanknotesIcon,
+      'CubeTransparentIcon': CubeTransparentIcon,
+    };
+    return iconMap[iconName] || CubeTransparentIcon;
+  };
 
   // Fetch categories
   const fetchCategories = async () => {
@@ -255,7 +282,19 @@ const AssetCategoriesPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {category.icon || '-'}
+                      <div className="flex items-center">
+                        {(() => {
+                          const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
+                          return (
+                            <>
+                              <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
+                              <span className="text-xs text-gray-400 dark:text-gray-500">
+                                {category.icon || 'CubeTransparentIcon'}
+                              </span>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">

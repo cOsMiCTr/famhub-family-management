@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, HomeIcon, ChartBarIcon, ChartPieIcon, DocumentTextIcon, CurrencyDollarIcon, SparklesIcon, TruckIcon, PaintBrushIcon, BanknotesIcon, CubeTransparentIcon } from '@heroicons/react/24/outline';
 
 interface AssetCategory {
   id: number;
@@ -30,6 +30,37 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  
+  // Icon mapping for categories
+  const getCategoryIcon = (iconName: string) => {
+    const iconMap: {[key: string]: React.ComponentType<any>} = {
+      'HomeIcon': HomeIcon,
+      'ChartBarIcon': ChartBarIcon,
+      'ChartPieIcon': ChartPieIcon,
+      'DocumentTextIcon': DocumentTextIcon,
+      'CurrencyDollarIcon': CurrencyDollarIcon,
+      'SparklesIcon': SparklesIcon,
+      'TruckIcon': TruckIcon,
+      'PaintBrushIcon': PaintBrushIcon,
+      'BanknotesIcon': BanknotesIcon,
+      'CubeTransparentIcon': CubeTransparentIcon,
+    };
+    return iconMap[iconName] || CubeTransparentIcon;
+  };
+
+  const availableIcons = [
+    { value: 'HomeIcon', label: 'Home', component: HomeIcon },
+    { value: 'ChartBarIcon', label: 'Chart Bar', component: ChartBarIcon },
+    { value: 'ChartPieIcon', label: 'Chart Pie', component: ChartPieIcon },
+    { value: 'DocumentTextIcon', label: 'Document', component: DocumentTextIcon },
+    { value: 'CurrencyDollarIcon', label: 'Currency', component: CurrencyDollarIcon },
+    { value: 'SparklesIcon', label: 'Sparkles', component: SparklesIcon },
+    { value: 'TruckIcon', label: 'Truck', component: TruckIcon },
+    { value: 'PaintBrushIcon', label: 'Paint Brush', component: PaintBrushIcon },
+    { value: 'BanknotesIcon', label: 'Banknotes', component: BanknotesIcon },
+    { value: 'CubeTransparentIcon', label: 'Cube', component: CubeTransparentIcon },
+  ];
+
   const [formData, setFormData] = useState({
     name_en: '',
     name_de: '',
@@ -193,14 +224,35 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('assetCategories.icon')}
               </label>
-              <input
-                type="text"
+              <select
                 name="icon"
                 value={formData.icon}
                 onChange={handleChange}
-                placeholder="e.g., home-modern, chart-bar"
                 className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              >
+                <option value="">Select an icon</option>
+                {availableIcons.map(icon => (
+                  <option key={icon.value} value={icon.value}>
+                    {icon.label}
+                  </option>
+                ))}
+              </select>
+              {/* Show selected icon preview */}
+              {formData.icon && (
+                <div className="mt-2 flex items-center">
+                  {(() => {
+                    const IconComponent = getCategoryIcon(formData.icon);
+                    return (
+                      <>
+                        <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {availableIcons.find(i => i.value === formData.icon)?.label}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
 
             {/* Settings */}
