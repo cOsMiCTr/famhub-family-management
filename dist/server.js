@@ -22,6 +22,7 @@ const translations_1 = __importDefault(require("./routes/translations"));
 const household_members_1 = __importDefault(require("./routes/household-members"));
 const income_categories_1 = __importDefault(require("./routes/income-categories"));
 const income_1 = __importDefault(require("./routes/income"));
+const asset_categories_1 = __importDefault(require("./routes/asset-categories"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const database_1 = require("./config/database");
 const app = (0, express_1.default)();
@@ -63,6 +64,7 @@ app.use('/api/translations', translations_1.default);
 app.use('/api/household-members', household_members_1.default);
 app.use('/api/income-categories', income_categories_1.default);
 app.use('/api/income', income_1.default);
+app.use('/api/asset-categories', asset_categories_1.default);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',

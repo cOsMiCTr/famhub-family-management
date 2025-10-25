@@ -111,8 +111,8 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      LEFT JOIN contracts c ON c.household_id = $2
      WHERE a.user_id = $1`, [userId, req.user.household_id]);
     const membersResult = await (0, database_1.query)(`SELECT COUNT(*) as member_count
-     FROM users u
-     WHERE u.household_id = $1`, [req.user.household_id]);
+     FROM household_members hm
+     WHERE hm.household_id = $1`, [req.user.household_id]);
     const quickStats = quickStatsResult.rows[0];
     const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
     const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&

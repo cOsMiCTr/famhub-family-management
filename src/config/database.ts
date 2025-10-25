@@ -137,6 +137,22 @@ async function runMigrations(): Promise<void> {
       )
     `);
 
+    // Create household_members table first (needed by assets table)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS household_members (
+        id SERIAL PRIMARY KEY,
+        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        relationship VARCHAR(100),
+        date_of_birth DATE,
+        notes TEXT,
+        is_shared BOOLEAN DEFAULT false,
+        created_by_user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create asset_categories table
     await client.query(`
       CREATE TABLE IF NOT EXISTS asset_categories (
@@ -311,21 +327,6 @@ async function runMigrations(): Promise<void> {
       )
     `);
 
-    // Create household_members table
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS household_members (
-        id SERIAL PRIMARY KEY,
-        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
-        name VARCHAR(255) NOT NULL,
-        relationship VARCHAR(100),
-        date_of_birth DATE,
-        notes TEXT,
-        is_shared BOOLEAN DEFAULT false,
-        created_by_user_id INTEGER REFERENCES users(id),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
 
     // Create income_categories table
     await client.query(`

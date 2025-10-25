@@ -89,6 +89,22 @@ async function initializeDatabase() {
         finally {
             categoryClient.release();
         }
+        const assetCategoryClient = await exports.pool.connect();
+        try {
+            const assetCategoryCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories');
+            if (parseInt(assetCategoryCount.rows[0].count) === 0) {
+                console.log('🌱 Seeding asset categories...');
+                const { default: seedAssetCategories } = await Promise.resolve().then(() => __importStar(require('../migrations/seedAssetCategories')));
+                await seedAssetCategories();
+                console.log('✅ Asset categories seeded successfully');
+            }
+            else {
+                console.log('✅ Asset categories are intact');
+            }
+        }
+        finally {
+            assetCategoryClient.release();
+        }
     }
     catch (error) {
         console.error('❌ Database initialization failed:', error);
@@ -148,6 +164,10 @@ async function runMigrations() {
         name_en VARCHAR(255) NOT NULL,
         name_tr VARCHAR(255) NOT NULL,
         type VARCHAR(20) DEFAULT 'income' CHECK (type IN ('income', 'expense')),
+        category_type VARCHAR(50) DEFAULT 'other' CHECK (category_type IN ('real_estate', 'stocks', 'etf', 'bonds', 'crypto', 'gold', 'vehicles', 'collectibles', 'cash', 'other')),
+        icon VARCHAR(50),
+        requires_ticker BOOLEAN DEFAULT false,
+        depreciation_enabled BOOLEAN DEFAULT false,
         is_default BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -157,13 +177,42 @@ async function runMigrations() {
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
+        household_member_id INTEGER REFERENCES household_members(id) ON DELETE SET NULL,
+        name VARCHAR(255) NOT NULL,
         amount DECIMAL(15,2) NOT NULL,
         currency VARCHAR(4) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
         category_id INTEGER REFERENCES asset_categories(id),
         description TEXT,
         date DATE NOT NULL,
+        purchase_date DATE,
+        purchase_price DECIMAL(15,2),
+        purchase_currency VARCHAR(4) CHECK (purchase_currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        current_value DECIMAL(15,2),
+        last_valuation_date DATE,
+        valuation_method VARCHAR(50),
+        ownership_type VARCHAR(20) DEFAULT 'single' CHECK (ownership_type IN ('single', 'shared', 'household')),
+        ownership_percentage DECIMAL(5,2) DEFAULT 100.00,
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'sold', 'transferred', 'inactive')),
+        location TEXT,
+        notes TEXT,
+        photo_url TEXT,
+        linked_loan_id INTEGER,
+        linked_contract_id INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS asset_valuation_history (
+        id SERIAL PRIMARY KEY,
+        asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
+        valuation_date DATE NOT NULL,
+        value DECIMAL(15,2) NOT NULL,
+        currency VARCHAR(4) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
+        valuation_method VARCHAR(50),
+        notes TEXT,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
         await client.query(`
@@ -395,12 +444,52 @@ async function runMigrations() {
         catch (error) {
             console.log('ℹ️ admin_notifications foreign key constraint already updated or table does not exist');
         }
+        try {
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS household_member_id INTEGER REFERENCES household_members(id) ON DELETE SET NULL`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS name VARCHAR(255)`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS purchase_date DATE`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(15,2)`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS purchase_currency VARCHAR(4) CHECK (purchase_currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD'))`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS current_value DECIMAL(15,2)`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS last_valuation_date DATE`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS valuation_method VARCHAR(50)`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS ownership_type VARCHAR(20) DEFAULT 'single' CHECK (ownership_type IN ('single', 'shared', 'household'))`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS ownership_percentage DECIMAL(5,2) DEFAULT 100.00`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'sold', 'transferred', 'inactive'))`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS location TEXT`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS notes TEXT`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS linked_loan_id INTEGER`);
+            await client.query(`ALTER TABLE assets ADD COLUMN IF NOT EXISTS linked_contract_id INTEGER`);
+            await client.query(`UPDATE assets SET name = COALESCE(description, 'Unnamed Asset') WHERE name IS NULL`);
+            await client.query(`ALTER TABLE assets ALTER COLUMN name SET NOT NULL`);
+            console.log('✅ Updated assets table with new columns');
+        }
+        catch (error) {
+            console.log('ℹ️ Assets table columns already updated or table does not exist');
+        }
+        try {
+            await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS category_type VARCHAR(50) DEFAULT 'other' CHECK (category_type IN ('real_estate', 'stocks', 'etf', 'bonds', 'crypto', 'gold', 'vehicles', 'collectibles', 'cash', 'other'))`);
+            await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS icon VARCHAR(50)`);
+            await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS requires_ticker BOOLEAN DEFAULT false`);
+            await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS depreciation_enabled BOOLEAN DEFAULT false`);
+            console.log('✅ Updated asset_categories table with new columns');
+        }
+        catch (error) {
+            console.log('ℹ️ Asset_categories table columns already updated or table does not exist');
+        }
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_household ON users(household_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_account_status ON users(account_status)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_locked_until ON users(account_locked_until)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_user_date ON assets(user_id, date)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_household ON assets(household_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_member ON assets(household_member_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_category ON assets(category_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_status ON assets(status)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_ownership ON assets(ownership_type)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_asset_valuation_history_asset ON asset_valuation_history(asset_id)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_asset_valuation_history_date ON asset_valuation_history(valuation_date)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_contracts_household ON contracts(household_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_contracts_status ON contracts(status)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read)`);
