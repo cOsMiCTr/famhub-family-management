@@ -265,6 +265,7 @@ const seedTranslations = async () => {
       { key: 'familyMembers.assetAssignments', category: 'familyMembers', en: 'Asset Assignments', de: 'Vermögenszuweisungen', tr: 'Varlık Atamaları' },
       { key: 'familyMembers.contractAssignments', category: 'familyMembers', en: 'Contract Assignments', de: 'Vertragszuweisungen', tr: 'Sözleşme Atamaları' },
       { key: 'familyMembers.noMembersFound', category: 'familyMembers', en: 'No family members found', de: 'Keine Familienmitglieder gefunden', tr: 'Aile üyesi bulunamadı' },
+    { key: 'familyMembers.membersCount', category: 'familyMembers', en: '{{count}} family members', de: '{{count}} Familienmitglieder', tr: '{{count}} aile üyesi' },
       { key: 'familyMembers.cannotDeleteShared', category: 'familyMembers', en: 'Cannot delete shared household member', de: 'Geteiltes Haushaltsmitglied kann nicht gelöscht werden', tr: 'Paylaşılan hane üyesi silinemez' },
       { key: 'familyMembers.cannotEditShared', category: 'familyMembers', en: 'Cannot edit shared household member', de: 'Geteiltes Haushaltsmitglied kann nicht bearbeitet werden', tr: 'Paylaşılan hane üyesi düzenlenemez' },
       { key: 'familyMembers.hasDependencies', category: 'familyMembers', en: 'Cannot delete member with assigned income or assets', de: 'Mitglied mit zugewiesenem Einkommen oder Vermögen kann nicht gelöscht werden', tr: 'Atanmış gelir veya varlığı olan üye silinemez' },

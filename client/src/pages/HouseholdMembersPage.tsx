@@ -61,11 +61,7 @@ const HouseholdMembersPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('🔍 Debug - Household members API response:', data);
-      console.log('🔍 Debug - Members array length:', data.length);
-      console.log('🔍 Debug - Setting members state with:', data);
       setMembers(data);
-      console.log('🔍 Debug - Members state set, current members:', members);
     } catch (error) {
       console.error('Error loading household members:', error);
       setError('Failed to load household members');
@@ -246,7 +242,10 @@ const HouseholdMembersPage: React.FC = () => {
                 {t('familyMembers.title')}
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                {t('familyMembers.noMembersFound')}
+                {members.length === 0 
+                  ? t('familyMembers.noMembersFound')
+                  : t('familyMembers.membersCount', { count: members.length })
+                }
               </p>
             </div>
             <button
@@ -285,10 +284,7 @@ const HouseholdMembersPage: React.FC = () => {
 
         {/* Members List */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-          {(() => {
-            console.log('🔍 Debug - Rendering check: loading=', loading, 'members.length=', members.length);
-            console.log('🔍 Debug - Will show empty state?', !loading && members.length === 0);
-            return !loading && members.length === 0 ? (
+          {!loading && members.length === 0 ? (
               <div className="text-center py-12">
                 <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -392,8 +388,7 @@ const HouseholdMembersPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
-            );
-          })()}
+          )}
         </div>
 
         {/* Add/Edit Modal */}
