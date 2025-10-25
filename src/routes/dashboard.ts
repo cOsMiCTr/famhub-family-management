@@ -168,6 +168,14 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [userId, req.user.household_id]
   );
 
+  // Get household members count
+  const membersResult = await query(
+    `SELECT COUNT(*) as member_count
+     FROM users u
+     WHERE u.household_id = $1`,
+    [req.user.household_id]
+  );
+
   const quickStats = quickStatsResult.rows[0];
 
   // Get exchange rates for user's main currency
@@ -184,6 +192,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
       main_currency: mainCurrency,
       currency_breakdown: currencyBreakdown,
       income_breakdown: incomeBreakdown,
+      member_count: parseInt(membersResult.rows[0].member_count) || 0,
       quick_stats: {
         income_entries: parseInt(quickStats.income_entries) || 0,
         expense_entries: parseInt(quickStats.expense_entries) || 0,

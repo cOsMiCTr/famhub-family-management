@@ -110,6 +110,9 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      JOIN asset_categories ac ON a.category_id = ac.id
      LEFT JOIN contracts c ON c.household_id = $2
      WHERE a.user_id = $1`, [userId, req.user.household_id]);
+    const membersResult = await (0, database_1.query)(`SELECT COUNT(*) as member_count
+     FROM users u
+     WHERE u.household_id = $1`, [req.user.household_id]);
     const quickStats = quickStatsResult.rows[0];
     const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
     const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&
@@ -121,6 +124,7 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             main_currency: mainCurrency,
             currency_breakdown: currencyBreakdown,
             income_breakdown: incomeBreakdown,
+            member_count: parseInt(membersResult.rows[0].member_count) || 0,
             quick_stats: {
                 income_entries: parseInt(quickStats.income_entries) || 0,
                 expense_entries: parseInt(quickStats.expense_entries) || 0,
