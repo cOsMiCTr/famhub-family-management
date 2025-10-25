@@ -29,11 +29,14 @@ export async function initializeDatabase(): Promise<void> {
       const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
       const corruptedCount = await seedClient.query('SELECT COUNT(*) as count FROM translations WHERE en = \'\' OR en IS NULL');
       
-        // Force reseed translations to add new keys
-        console.log('🔄 Forcing translation reseed to add new keys...');
-        const { default: seedTranslations } = await import('../migrations/seedTranslations');
-        await seedTranslations();
-        console.log('✅ Translations reseeded successfully');
+        if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
+          console.log('🌱 Seeding translations from JSON files...');
+          const { default: seedTranslations } = await import('../migrations/seedTranslations');
+          await seedTranslations();
+          console.log('✅ Translations seeded successfully');
+        } else {
+          console.log('✅ Translations are intact');
+        }
     } finally {
       seedClient.release();
     }
