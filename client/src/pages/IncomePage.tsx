@@ -10,6 +10,7 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SearchableCategorySelector from '../components/SearchableCategorySelector';
 import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface IncomeEntry {
@@ -774,30 +775,13 @@ const IncomePage: React.FC = () => {
                       )}
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.category')} *
-                      </label>
-                      <select
-                        value={formData.category_id}
-                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                          validationErrors.category_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      >
-                        <option value="">{t('income.selectCategory')}</option>
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {getCategoryDisplayName(category)}
-                          </option>
-                        ))}
-                      </select>
-                      {validationErrors.category_id && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.category_id}
-                        </p>
-                      )}
-                    </div>
+                    <SearchableCategorySelector
+                      categories={categories}
+                      selectedCategoryId={formData.category_id}
+                      onCategoryChange={(categoryId) => setFormData({ ...formData, category_id: categoryId })}
+                      error={validationErrors.category_id}
+                      placeholder={t('income.selectCategory')}
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
