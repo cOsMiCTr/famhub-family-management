@@ -76,14 +76,14 @@ const AssetsPage: React.FC = () => {
       });
 
       const response = await fetch(`/api/assets?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch assets');
+      if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
       setAssets(data.assets);
       setTotalPages(data.pagination.pages);
       setTotalAssets(data.pagination.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch assets');
+      setError(err instanceof Error ? err.message : t('assets.failedToFetch'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ const AssetsPage: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/assets/categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
+      if (!response.ok) throw new Error(t('assets.failedToFetchCategories'));
       
       const data = await response.json();
       setCategories(data);
@@ -104,7 +104,7 @@ const AssetsPage: React.FC = () => {
   const fetchMembers = async () => {
     try {
       const response = await fetch('/api/household-members');
-      if (!response.ok) throw new Error('Failed to fetch members');
+      if (!response.ok) throw new Error(t('assets.failedToFetchMembers'));
       
       const data = await response.json();
       setMembers(data.members);
@@ -116,7 +116,7 @@ const AssetsPage: React.FC = () => {
   const fetchSummary = async () => {
     try {
       const response = await fetch('/api/assets/summary');
-      if (!response.ok) throw new Error('Failed to fetch summary');
+      if (!response.ok) throw new Error(t('assets.failedToFetchSummary'));
       
       const data = await response.json();
       setSummary(data.summary);
@@ -153,7 +153,7 @@ const AssetsPage: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to update asset');
+          throw new Error(errorData.message || t('assets.failedToUpdate'));
         }
       } else {
         // Create new asset
@@ -167,7 +167,7 @@ const AssetsPage: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to create asset');
+          throw new Error(errorData.message || t('assets.failedToCreate'));
         }
       }
 
@@ -192,14 +192,14 @@ const AssetsPage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete asset');
+        throw new Error(errorData.message || t('assets.failedToDelete'));
       }
 
       // Refresh assets list
       await fetchAssets();
       await fetchSummary();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to delete asset');
+      alert(error instanceof Error ? error.message : t('assets.failedToDelete'));
     }
   };
 
@@ -216,7 +216,7 @@ const AssetsPage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add valuation');
+        throw new Error(errorData.message || t('assets.failedToAddValuation'));
       }
 
       // Refresh assets list to get updated current value
@@ -505,7 +505,7 @@ const AssetsPage: React.FC = () => {
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
                           <TagIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                          {category ? getCategoryName(category) : 'Unknown Category'}
+                          {category ? getCategoryName(category) : t('assets.unknownCategory')}
                           {asset.member_name && (
                             <>
                               <span className="mx-2">•</span>
@@ -546,7 +546,7 @@ const AssetsPage: React.FC = () => {
                             setShowValuationModal(true);
                           }}
                           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          title="Add Valuation"
+                          title={t('assets.addValuationTooltip')}
                         >
                           <ChartBarIcon className="h-4 w-4" />
                         </button>
@@ -556,7 +556,7 @@ const AssetsPage: React.FC = () => {
                             setShowPhotoModal(true);
                           }}
                           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          title="Upload Photo"
+                          title={t('assets.uploadPhotoTooltip')}
                         >
                           <PhotoIcon className="h-4 w-4" />
                         </button>
@@ -566,14 +566,14 @@ const AssetsPage: React.FC = () => {
                             setShowEditModal(true);
                           }}
                           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                          title="Edit Asset"
+                          title={t('assets.editAssetTooltip')}
                         >
                           <PencilIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteAsset(asset)}
                           className="text-gray-400 hover:text-red-600"
-                          title="Delete Asset"
+                          title={t('assets.deleteAssetTooltip')}
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>

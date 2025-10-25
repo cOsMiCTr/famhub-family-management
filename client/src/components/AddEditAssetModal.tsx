@@ -136,7 +136,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
       await onSave(submitData);
       onClose();
     } catch (error) {
-      setErrors([error instanceof Error ? error.message : 'Failed to save asset']);
+      setErrors([error instanceof Error ? error.message : t('assets.failedToSave')]);
     } finally {
       setLoading(false);
     }

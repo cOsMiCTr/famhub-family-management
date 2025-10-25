@@ -276,6 +276,61 @@ const seedTranslations = async () => {
       { key: 'assets.of', category: 'assets', en: 'of', de: 'von', tr: 'toplam' },
       { key: 'assets.results', category: 'assets', en: 'results', de: 'Ergebnisse', tr: 'sonuç' },
 
+      // Asset Error Messages
+      { key: 'assets.failedToFetch', category: 'assets', en: 'Failed to fetch assets', de: 'Vermögenswerte konnten nicht abgerufen werden', tr: 'Varlıklar getirilemedi' },
+      { key: 'assets.failedToFetchCategories', category: 'assets', en: 'Failed to fetch categories', de: 'Kategorien konnten nicht abgerufen werden', tr: 'Kategoriler getirilemedi' },
+      { key: 'assets.failedToFetchMembers', category: 'assets', en: 'Failed to fetch members', de: 'Mitglieder konnten nicht abgerufen werden', tr: 'Üyeler getirilemedi' },
+      { key: 'assets.failedToFetchSummary', category: 'assets', en: 'Failed to fetch summary', de: 'Zusammenfassung konnte nicht abgerufen werden', tr: 'Özet getirilemedi' },
+      { key: 'assets.failedToUpdate', category: 'assets', en: 'Failed to update asset', de: 'Vermögenswert konnte nicht aktualisiert werden', tr: 'Varlık güncellenemedi' },
+      { key: 'assets.failedToCreate', category: 'assets', en: 'Failed to create asset', de: 'Vermögenswert konnte nicht erstellt werden', tr: 'Varlık oluşturulamadı' },
+      { key: 'assets.failedToDelete', category: 'assets', en: 'Failed to delete asset', de: 'Vermögenswert konnte nicht gelöscht werden', tr: 'Varlık silinemedi' },
+      { key: 'assets.failedToAddValuation', category: 'assets', en: 'Failed to add valuation', de: 'Bewertung konnte nicht hinzugefügt werden', tr: 'Değerlendirme eklenemedi' },
+      { key: 'assets.failedToSave', category: 'assets', en: 'Failed to save asset', de: 'Vermögenswert konnte nicht gespeichert werden', tr: 'Varlık kaydedilemedi' },
+      { key: 'assets.unknownCategory', category: 'assets', en: 'Unknown Category', de: 'Unbekannte Kategorie', tr: 'Bilinmeyen Kategori' },
+
+      // Asset Categories Error Messages
+      { key: 'assetCategories.failedToFetch', category: 'assetCategories', en: 'Failed to fetch categories', de: 'Kategorien konnten nicht abgerufen werden', tr: 'Kategoriler getirilemedi' },
+      { key: 'assetCategories.failedToAdd', category: 'assetCategories', en: 'Failed to add category', de: 'Kategorie konnte nicht hinzugefügt werden', tr: 'Kategori eklenemedi' },
+      { key: 'assetCategories.failedToUpdate', category: 'assetCategories', en: 'Failed to update category', de: 'Kategorie konnte nicht aktualisiert werden', tr: 'Kategori güncellenemedi' },
+      { key: 'assetCategories.failedToDelete', category: 'assetCategories', en: 'Failed to delete category', de: 'Kategorie konnte nicht gelöscht werden', tr: 'Kategori silinemedi' },
+      { key: 'assetCategories.cannotDeleteDefault', category: 'assetCategories', en: 'Cannot delete default category', de: 'Standardkategorie kann nicht gelöscht werden', tr: 'Varsayılan kategori silinemez' },
+      { key: 'assetCategories.cannotDeleteWithAssets', category: 'assetCategories', en: 'Cannot delete category with assigned assets', de: 'Kategorie mit zugewiesenen Vermögenswerten kann nicht gelöscht werden', tr: 'Atanmış varlığı olan kategori silinemez' },
+      { key: 'assetCategories.confirmDelete', category: 'assetCategories', en: 'Are you sure you want to delete', de: 'Sind Sie sicher, dass Sie löschen möchten', tr: 'Silmek istediğinizden emin misiniz' },
+
+      // Asset Categories UI Labels
+      { key: 'assetCategories.manageSettings', category: 'assetCategories', en: 'Manage asset categories and their settings', de: 'Vermögenskategorien und ihre Einstellungen verwalten', tr: 'Varlık kategorilerini ve ayarlarını yönetin' },
+      { key: 'assetCategories.assetCategoriesCount', category: 'assetCategories', en: 'Asset Categories', de: 'Vermögenskategorien', tr: 'Varlık Kategorileri' },
+      { key: 'assetCategories.noCategoriesFound', category: 'assetCategories', en: 'No categories found', de: 'Keine Kategorien gefunden', tr: 'Kategori bulunamadı' },
+      { key: 'assetCategories.getStarted', category: 'assetCategories', en: 'Get started by adding your first category.', de: 'Beginnen Sie mit dem Hinzufügen Ihrer ersten Kategorie.', tr: 'İlk kategorinizi ekleyerek başlayın.' },
+      { key: 'assetCategories.category', category: 'assetCategories', en: 'Category', de: 'Kategorie', tr: 'Kategori' },
+      { key: 'assetCategories.type', category: 'assetCategories', en: 'Type', de: 'Typ', tr: 'Tür' },
+      { key: 'assetCategories.icon', category: 'assetCategories', en: 'Icon', de: 'Symbol', tr: 'İkon' },
+      { key: 'assetCategories.settings', category: 'assetCategories', en: 'Settings', de: 'Einstellungen', tr: 'Ayarlar' },
+      { key: 'assetCategories.assets', category: 'assetCategories', en: 'Assets', de: 'Vermögenswerte', tr: 'Varlıklar' },
+      { key: 'assetCategories.actions', category: 'assetCategories', en: 'Actions', de: 'Aktionen', tr: 'İşlemler' },
+      { key: 'assetCategories.default', category: 'assetCategories', en: 'Default', de: 'Standard', tr: 'Varsayılan' },
+      { key: 'assetCategories.requiresTicker', category: 'assetCategories', en: 'Requires Ticker', de: 'Ticker erforderlich', tr: 'Ticker Gerekli' },
+      { key: 'assetCategories.depreciationEnabled', category: 'assetCategories', en: 'Depreciation Enabled', de: 'Abschreibung aktiviert', tr: 'Amortisman Etkin' },
+      { key: 'assetCategories.editCategory', category: 'assetCategories', en: 'Edit Category', de: 'Kategorie bearbeiten', tr: 'Kategori Düzenle' },
+      { key: 'assetCategories.deleteCategory', category: 'assetCategories', en: 'Delete Category', de: 'Kategorie löschen', tr: 'Kategori Sil' },
+      { key: 'assetCategories.cannotDeleteDefaultTooltip', category: 'assetCategories', en: 'Cannot delete default category', de: 'Standardkategorie kann nicht gelöscht werden', tr: 'Varsayılan kategori silinemez' },
+      { key: 'assetCategories.cannotDeleteWithAssetsTooltip', category: 'assetCategories', en: 'Cannot delete category with assets', de: 'Kategorie mit Vermögenswerten kann nicht gelöscht werden', tr: 'Varlığı olan kategori silinemez' },
+
+      // Asset Categories Form Labels
+      { key: 'assetCategories.typeLabel', category: 'assetCategories', en: 'Type', de: 'Typ', tr: 'Tür' },
+      { key: 'assetCategories.settingsLabel', category: 'assetCategories', en: 'Settings', de: 'Einstellungen', tr: 'Ayarlar' },
+      { key: 'assetCategories.income', category: 'assetCategories', en: 'Income', de: 'Einkommen', tr: 'Gelir' },
+      { key: 'assetCategories.expense', category: 'assetCategories', en: 'Expense', de: 'Ausgabe', tr: 'Gider' },
+      { key: 'assetCategories.requiresTickerSymbol', category: 'assetCategories', en: 'Requires Ticker Symbol', de: 'Ticker-Symbol erforderlich', tr: 'Ticker Sembolü Gerekli' },
+      { key: 'assetCategories.depreciationEnabledLabel', category: 'assetCategories', en: 'Depreciation Enabled', de: 'Abschreibung aktiviert', tr: 'Amortisman Etkin' },
+      { key: 'assetCategories.defaultCategory', category: 'assetCategories', en: 'Default Category', de: 'Standardkategorie', tr: 'Varsayılan Kategori' },
+
+      // Asset Tooltips
+      { key: 'assets.addValuationTooltip', category: 'assets', en: 'Add Valuation', de: 'Bewertung hinzufügen', tr: 'Değerlendirme Ekle' },
+      { key: 'assets.uploadPhotoTooltip', category: 'assets', en: 'Upload Photo', de: 'Foto hochladen', tr: 'Fotoğraf Yükle' },
+      { key: 'assets.editAssetTooltip', category: 'assets', en: 'Edit Asset', de: 'Vermögen bearbeiten', tr: 'Varlık Düzenle' },
+      { key: 'assets.deleteAssetTooltip', category: 'assets', en: 'Delete Asset', de: 'Vermögen löschen', tr: 'Varlık Sil' },
+
       // Contracts
       { key: 'contracts.title', category: 'contracts', en: 'Contracts', de: 'Verträge', tr: 'Sözleşmeler' },
       { key: 'contracts.addContract', category: 'contracts', en: 'Add Contract', de: 'Vertrag hinzufügen', tr: 'Sözleşme Ekle' },

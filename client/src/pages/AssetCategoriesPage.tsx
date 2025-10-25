@@ -37,12 +37,12 @@ const AssetCategoriesPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch('/api/asset-categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
+      if (!response.ok) throw new Error(t('assetCategories.failedToFetch'));
       
       const data = await response.json();
       setCategories(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch categories');
+      setError(err instanceof Error ? err.message : t('assetCategories.failedToFetch'));
     } finally {
       setLoading(false);
     }
@@ -65,13 +65,13 @@ const AssetCategoriesPage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add category');
+        throw new Error(errorData.message || t('assetCategories.failedToAdd'));
       }
       
       await fetchCategories();
       setShowAddModal(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to add category');
+      alert(err instanceof Error ? err.message : t('assetCategories.failedToAdd'));
     }
   };
 
@@ -90,30 +90,30 @@ const AssetCategoriesPage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update category');
+        throw new Error(errorData.message || t('assetCategories.failedToUpdate'));
       }
       
       await fetchCategories();
       setShowEditModal(false);
       setSelectedCategory(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update category');
+      alert(err instanceof Error ? err.message : t('assetCategories.failedToUpdate'));
     }
   };
 
   // Delete category
   const handleDelete = async (category: AssetCategory) => {
     if (category.is_default) {
-      alert('Cannot delete default category');
+      alert(t('assetCategories.cannotDeleteDefault'));
       return;
     }
 
     if (category.asset_count > 0) {
-      alert('Cannot delete category with assigned assets');
+      alert(t('assetCategories.cannotDeleteWithAssets'));
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to delete "${category.name_en}"?`)) {
+    if (!window.confirm(`${t('assetCategories.confirmDelete')} "${category.name_en}"?`)) {
       return;
     }
 
@@ -122,11 +122,11 @@ const AssetCategoriesPage: React.FC = () => {
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('Failed to delete category');
+      if (!response.ok) throw new Error(t('assetCategories.failedToDelete'));
       
       await fetchCategories();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete category');
+      alert(err instanceof Error ? err.message : t('assetCategories.failedToDelete'));
     }
   };
 
@@ -162,7 +162,7 @@ const AssetCategoriesPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('assetCategories.title')}</h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Manage asset categories and their settings
+            {t('assetCategories.manageSettings')}
           </p>
         </div>
         <button
@@ -178,16 +178,16 @@ const AssetCategoriesPage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-            Asset Categories ({categories.length})
+            {t('assetCategories.assetCategoriesCount')} ({categories.length})
           </h3>
         </div>
         
         {categories.length === 0 ? (
           <div className="text-center py-12">
             <TagIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No categories found</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">{t('assetCategories.noCategoriesFound')}</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Get started by adding your first category.
+              {t('assetCategories.getStarted')}
             </p>
             <div className="mt-6">
               <button
@@ -195,7 +195,7 @@ const AssetCategoriesPage: React.FC = () => {
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
-                Add Category
+                {t('assetCategories.addCategory')}
               </button>
             </div>
           </div>
@@ -205,22 +205,22 @@ const AssetCategoriesPage: React.FC = () => {
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Category
+                    {t('assetCategories.category')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Type
+                    {t('assetCategories.type')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Icon
+                    {t('assetCategories.icon')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Settings
+                    {t('assetCategories.settings')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Assets
+                    {t('assetCategories.assets')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
+                    {t('assetCategories.actions')}
                   </th>
                 </tr>
               </thead>
@@ -244,7 +244,7 @@ const AssetCategoriesPage: React.FC = () => {
                         </div>
                         {category.is_default && (
                           <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                            Default
+                            {t('assetCategories.default')}
                           </span>
                         )}
                       </div>
@@ -261,12 +261,12 @@ const AssetCategoriesPage: React.FC = () => {
                       <div className="flex flex-col space-y-1">
                         {category.requires_ticker && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                            Requires Ticker
+                            {t('assetCategories.requiresTicker')}
                           </span>
                         )}
                         {category.depreciation_enabled && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            Depreciation Enabled
+                            {t('assetCategories.depreciationEnabled')}
                           </span>
                         )}
                       </div>
@@ -282,7 +282,7 @@ const AssetCategoriesPage: React.FC = () => {
                             setShowEditModal(true);
                           }}
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                          title="Edit Category"
+                          title={t('assetCategories.editCategory')}
                         >
                           <PencilIcon className="h-4 w-4" />
                         </button>
@@ -296,10 +296,10 @@ const AssetCategoriesPage: React.FC = () => {
                           }`}
                           title={
                             category.is_default
-                              ? 'Cannot delete default category'
+                              ? t('assetCategories.cannotDeleteDefaultTooltip')
                               : category.asset_count > 0
-                              ? 'Cannot delete category with assets'
-                              : 'Delete Category'
+                              ? t('assetCategories.cannotDeleteWithAssetsTooltip')
+                              : t('assetCategories.deleteCategory')
                           }
                         >
                           <TrashIcon className="h-4 w-4" />

@@ -156,7 +156,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Type *
+                  {t('assetCategories.typeLabel')} *
                 </label>
                 <select
                   name="type"
@@ -165,8 +165,8 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                   required
                   className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="income">Income</option>
-                  <option value="expense">Expense</option>
+                  <option value="income">{t('assetCategories.income')}</option>
+                  <option value="expense">{t('assetCategories.expense')}</option>
                 </select>
               </div>
               <div>
@@ -205,7 +205,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
 
             {/* Settings */}
             <div className="space-y-3">
-              <h4 className="text-md font-medium text-gray-900 dark:text-white">Settings</h4>
+              <h4 className="text-md font-medium text-gray-900 dark:text-white">{t('assetCategories.settingsLabel')}</h4>
               <div className="space-y-2">
                 <label className="flex items-center">
                   <input
@@ -216,7 +216,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                     className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Requires Ticker Symbol
+                    {t('assetCategories.requiresTickerSymbol')}
                   </span>
                 </label>
                 <label className="flex items-center">
@@ -228,7 +228,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                     className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Depreciation Enabled
+                    {t('assetCategories.depreciationEnabledLabel')}
                   </span>
                 </label>
                 {mode === 'add' && (
@@ -241,7 +241,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                       className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     />
                     <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      Default Category
+                      {t('assetCategories.defaultCategory')}
                     </span>
                   </label>
                 )}
