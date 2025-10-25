@@ -31,6 +31,12 @@ router.get('/', async (req, res) => {
       [householdId]
     );
 
+    console.log(`🔍 Debug - Household members for household_id ${householdId}:`);
+    console.log(`  Found ${result.rows.length} members`);
+    result.rows.forEach(member => {
+      console.log(`    Member: ${member.name} (${member.relationship})`);
+    });
+
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching household members:', error);
