@@ -474,7 +474,20 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                 >
                   <div className="flex items-center">
                     {formData.icon ? (
-                      <span>{String(availableIcons.find(i => i.value === formData.icon)?.label)}</span>
+                      <>
+                        {(() => {
+                          const IconComponent = getCategoryIcon(formData.icon);
+                          const iconLabel = availableIcons.find(i => i.value === formData.icon)?.label;
+                          return (
+                            <>
+                              {React.createElement(IconComponent as any, { 
+                                className: "h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" 
+                              })}
+                              <span>{String(iconLabel)}</span>
+                            </>
+                          );
+                        })()}
+                      </>
                     ) : (
                       <span>Select an icon</span>
                     )}
@@ -486,19 +499,25 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                 
                 {showIconDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
-                    {availableIcons.map(icon => (
-                      <button
-                        key={icon.value}
-                        type="button"
-                        onClick={() => {
-                          setFormData(prev => ({ ...prev, icon: icon.value }));
-                          setShowIconDropdown(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
-                      >
-                        <span>{String(icon.label)}</span>
-                      </button>
-                    ))}
+                    {availableIcons.map(icon => {
+                      const IconComponent = icon.component;
+                      return (
+                        <button
+                          key={icon.value}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, icon: icon.value }));
+                            setShowIconDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center"
+                        >
+                          {React.createElement(IconComponent as any, { 
+                            className: "h-5 w-5 text-gray-500 dark:text-gray-400 mr-3" 
+                          })}
+                          <span>{String(icon.label)}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
