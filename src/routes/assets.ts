@@ -160,6 +160,115 @@ router.post('/', [
   });
 }));
 
+// Get asset summary with currency conversion (MUST BE BEFORE /:id ROUTE)
+router.get('/summary', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { 
+    start_date, 
+    end_date, 
+    category_id,
+    status = 'active'
+  } = req.query;
+
+  const conditions = ['a.user_id = $1', 'a.status = $2'];
+  const params = [req.user.id, status];
+  let paramCount = 3;
+
+  if (start_date) {
+    conditions.push(`a.date >= $${paramCount++}`);
+    params.push(start_date);
+  }
+
+  if (end_date) {
+    conditions.push(`a.date <= $${paramCount++}`);
+    params.push(end_date);
+  }
+
+  if (category_id) {
+    conditions.push(`a.category_id = $${paramCount++}`);
+    params.push(category_id);
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  // Get assets with category information
+  const assetsResult = await query(
+    `SELECT a.*, ac.name_en as category_name_en, ac.category_type, ac.icon
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     ${whereClause}
+     ORDER BY a.current_value DESC`,
+    params
+  );
+
+  // Get exchange rates
+  const exchangeRates = await exchangeRateService.getAllExchangeRates();
+  const userCurrency = req.user.main_currency || 'USD';
+
+  // Calculate totals by category and currency
+  const categoryTotals: { [key: string]: { [key: string]: number } } = {};
+  const currencyTotals: { [key: string]: number } = {};
+  let totalValueInMainCurrency = 0;
+
+  for (const asset of assetsResult.rows) {
+    const categoryName = asset.category_name_en;
+    const assetCurrency = asset.currency;
+    const assetValue = parseFloat(asset.current_value || asset.amount);
+
+    // Initialize category totals
+    if (!categoryTotals[categoryName]) {
+      categoryTotals[categoryName] = {};
+    }
+
+    // Add to category totals
+    if (!categoryTotals[categoryName][assetCurrency]) {
+      categoryTotals[categoryName][assetCurrency] = 0;
+    }
+    categoryTotals[categoryName][assetCurrency] += assetValue;
+
+    // Add to currency totals
+    if (!currencyTotals[assetCurrency]) {
+      currencyTotals[assetCurrency] = 0;
+    }
+    currencyTotals[assetCurrency] += assetValue;
+
+    // Convert to main currency
+    if (assetCurrency === userCurrency) {
+      totalValueInMainCurrency += assetValue;
+    } else {
+      const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
+      if (rate) {
+        totalValueInMainCurrency += assetValue * rate.rate;
+      }
+    }
+  }
+
+  // Calculate ROI for assets with purchase price
+  const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
+  const totalROI = assetsWithROI.reduce((sum, asset) => {
+    const purchasePrice = parseFloat(asset.purchase_price);
+    const currentValue = parseFloat(asset.current_value || asset.amount);
+    return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
+  }, 0);
+  const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
+
+  res.json({
+    summary: {
+      total_assets: assetsResult.rows.length,
+      total_value_main_currency: totalValueInMainCurrency,
+      main_currency: userCurrency,
+      average_roi: averageROI,
+      assets_with_roi: assetsWithROI.length
+    },
+    category_totals: categoryTotals,
+    currency_totals: currencyTotals,
+    assets: assetsResult.rows
+  });
+}));
+
 // Get user's assets
 router.get('/', asyncHandler(async (req, res) => {
   if (!req.user) {
@@ -569,115 +678,6 @@ router.post('/:id/photo', upload.single('photo'), asyncHandler(async (req, res) 
   res.json({
     message: 'Photo uploaded successfully',
     photo_url: photoUrl
-  });
-}));
-
-// Get asset summary with currency conversion
-router.get('/summary', asyncHandler(async (req, res) => {
-  if (!req.user) {
-    throw new Error('User not authenticated');
-  }
-
-  const { 
-    start_date, 
-    end_date, 
-    category_id,
-    status = 'active'
-  } = req.query;
-
-  const conditions = ['a.user_id = $1', 'a.status = $2'];
-  const params = [req.user.id, status];
-  let paramCount = 3;
-
-  if (start_date) {
-    conditions.push(`a.date >= $${paramCount++}`);
-    params.push(start_date);
-  }
-
-  if (end_date) {
-    conditions.push(`a.date <= $${paramCount++}`);
-    params.push(end_date);
-  }
-
-  if (category_id) {
-    conditions.push(`a.category_id = $${paramCount++}`);
-    params.push(category_id);
-  }
-
-  const whereClause = `WHERE ${conditions.join(' AND ')}`;
-
-  // Get assets with category information
-  const assetsResult = await query(
-    `SELECT a.*, ac.name_en as category_name_en, ac.category_type, ac.icon
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     ${whereClause}
-     ORDER BY a.current_value DESC`,
-    params
-  );
-
-  // Get exchange rates
-  const exchangeRates = await exchangeRateService.getAllExchangeRates();
-  const userCurrency = req.user.main_currency || 'USD';
-
-  // Calculate totals by category and currency
-  const categoryTotals: { [key: string]: { [key: string]: number } } = {};
-  const currencyTotals: { [key: string]: number } = {};
-  let totalValueInMainCurrency = 0;
-
-  for (const asset of assetsResult.rows) {
-    const categoryName = asset.category_name_en;
-    const assetCurrency = asset.currency;
-    const assetValue = parseFloat(asset.current_value || asset.amount);
-
-    // Initialize category totals
-    if (!categoryTotals[categoryName]) {
-      categoryTotals[categoryName] = {};
-    }
-
-    // Add to category totals
-    if (!categoryTotals[categoryName][assetCurrency]) {
-      categoryTotals[categoryName][assetCurrency] = 0;
-    }
-    categoryTotals[categoryName][assetCurrency] += assetValue;
-
-    // Add to currency totals
-    if (!currencyTotals[assetCurrency]) {
-      currencyTotals[assetCurrency] = 0;
-    }
-    currencyTotals[assetCurrency] += assetValue;
-
-    // Convert to main currency
-    if (assetCurrency === userCurrency) {
-      totalValueInMainCurrency += assetValue;
-    } else {
-      const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
-      if (rate) {
-        totalValueInMainCurrency += assetValue * rate.rate;
-      }
-    }
-  }
-
-  // Calculate ROI for assets with purchase price
-  const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
-  const totalROI = assetsWithROI.reduce((sum, asset) => {
-    const purchasePrice = parseFloat(asset.purchase_price);
-    const currentValue = parseFloat(asset.current_value || asset.amount);
-    return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
-  }, 0);
-  const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
-
-  res.json({
-    summary: {
-      total_assets: assetsResult.rows.length,
-      total_value_main_currency: totalValueInMainCurrency,
-      main_currency: userCurrency,
-      average_roi: averageROI,
-      assets_with_roi: assetsWithROI.length
-    },
-    category_totals: categoryTotals,
-    currency_totals: currencyTotals,
-    assets: assetsResult.rows
   });
 }));
 
