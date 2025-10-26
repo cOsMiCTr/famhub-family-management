@@ -528,7 +528,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                         >
                           <option value="">Select owner</option>
-                          {members.map(member => (
+                          {members && members.map && members.map(member => (
                             <option key={member.id} value={member.id}>
                               {member.name} ({member.relationship})
                             </option>
@@ -545,7 +545,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         </label>
                         <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-64 overflow-y-auto">
                           <div className="space-y-3">
-                            {members.map(member => (
+                            {members && members.map && members.map(member => (
                               <div key={member.id} className="flex items-center justify-between">
                                 <div className="flex-1">
                                   <div className="font-medium text-gray-900 dark:text-white">

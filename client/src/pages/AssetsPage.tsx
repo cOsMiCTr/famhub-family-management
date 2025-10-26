@@ -125,7 +125,7 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetchMembers'));
       
       const data = await response.json();
-      setMembers(data.members);
+      setMembers(Array.isArray(data) ? data : data.members || []);
     } catch (err) {
       console.error('Failed to fetch members:', err);
     }
