@@ -72,103 +72,114 @@ const AssetCategoriesPage: React.FC = () => {
     return iconMap[iconName] || CubeTransparentIcon;
   };
 
-  // Fetch categories
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/asset-categories');
-      if (!response.ok) throw new Error(t('assetCategories.failedToFetch'));
-      
-      const data = await response.json();
-      setCategories(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('assetCategories.failedToFetch'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  // Add category
-  const handleAddCategory = async (categoryData: Partial<AssetCategory>) => {
-    try {
-      const response = await fetch('/api/asset-categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(categoryData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || t('assetCategories.failedToAdd'));
+// Fetch categories
+const fetchCategories = async () => {
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/asset-categories', {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
-      
-      await fetchCategories();
-      setShowAddModal(false);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : t('assetCategories.failedToAdd'));
+    });
+    if (!response.ok) throw new Error(t('assetCategories.failedToFetch'));
+    
+    const data = await response.json();
+    setCategories(data);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : t('assetCategories.failedToFetch'));
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Add category
+const handleAddCategory = async (categoryData: Partial<AssetCategory>) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/asset-categories', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(categoryData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || t('assetCategories.failedToAdd'));
     }
-  };
+    
+    await fetchCategories();
+    setShowAddModal(false);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : t('assetCategories.failedToAdd'));
+  }
+};
 
-  // Edit category
-  const handleEditCategory = async (categoryData: Partial<AssetCategory>) => {
-    if (!selectedCategory) return;
+ // Edit category
+const handleEditCategory = async (categoryData: Partial<AssetCategory>) => {
+  if (!selectedCategory) return;
 
-    try {
-      const response = await fetch(`/api/asset-categories/${selectedCategory.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(categoryData),
-      });
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/asset-categories/${selectedCategory.id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(categoryData),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || t('assetCategories.failedToUpdate'));
-      }
-      
-      await fetchCategories();
-      setShowEditModal(false);
-      setSelectedCategory(null);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : t('assetCategories.failedToUpdate'));
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || t('assetCategories.failedToUpdate'));
     }
-  };
+    
+    await fetchCategories();
+    setShowEditModal(false);
+    setSelectedCategory(null);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : t('assetCategories.failedToUpdate'));
+  }
+};
 
-  // Delete category
-  const handleDelete = async (category: AssetCategory) => {
-    if (category.is_default) {
-      alert(t('assetCategories.cannotDeleteDefault'));
-      return;
-    }
+ // Delete category
+const handleDelete = async (category: AssetCategory) => {
+  if (category.is_default) {
+    alert(t('assetCategories.cannotDeleteDefault'));
+    return;
+  }
 
-    if (category.asset_count > 0) {
-      alert(t('assetCategories.cannotDeleteWithAssets'));
-      return;
-    }
+  if (category.asset_count > 0) {
+    alert(t('assetCategories.cannotDeleteWithAssets'));
+    return;
+  }
 
-    if (!window.confirm(`${t('assetCategories.confirmDelete')} "${category.name_en}"?`)) {
-      return;
-    }
+  if (!window.confirm(`${t('assetCategories.confirmDelete')} "${category.name_en}"?`)) {
+    return;
+  }
 
-    try {
-      const response = await fetch(`/api/asset-categories/${category.id}`, {
-        method: 'DELETE',
-      });
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/asset-categories/${category.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (!response.ok) throw new Error(t('assetCategories.failedToDelete'));
-      
-      await fetchCategories();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : t('assetCategories.failedToDelete'));
-    }
-  };
+    if (!response.ok) throw new Error(t('assetCategories.failedToDelete'));
+    
+    await fetchCategories();
+  } catch (err) {
+    alert(err instanceof Error ? err.message : t('assetCategories.failedToDelete'));
+  }
+};
 
   // Get category type name
   const getCategoryTypeName = (type: string) => {
