@@ -198,6 +198,11 @@ const handleDelete = async (category: AssetCategory) => {
     return typeNames[type] || type;
   };
 
+  // Load categories on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
