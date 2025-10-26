@@ -110,6 +110,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
     const iconMap: {[key: string]: React.ComponentType<any>} = {
+      // Old format (full component names with "Icon" suffix)
       'HomeIcon': HomeIcon,
       'ChartBarIcon': ChartBarIcon,
       'ChartPieIcon': ChartPieIcon,
@@ -184,6 +185,82 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
       'ArrowDownIcon': ArrowDownIcon,
       'ArrowRightIcon': ArrowRightIcon,
       'ArrowLeftIcon': ArrowLeftIcon,
+      // New format (Heroicon names without "Icon" suffix)
+      'home-modern': HomeIcon,
+      'chart-bar': ChartBarIcon,
+      'chart-bar-square': ChartBarIcon,
+      'document-text': DocumentTextIcon,
+      'currency-bitcoin': CurrencyDollarIcon,
+      'currency-dollar': CurrencyDollarIcon,
+      'sparkles': SparklesIcon,
+      'truck': TruckIcon,
+      'paint-brush': PaintBrushIcon,
+      'banknotes': BanknotesIcon,
+      'cube': CubeTransparentIcon,
+      'building-office': BuildingOfficeIcon,
+      'building-office-2': BuildingOffice2Icon,
+      'briefcase': BriefcaseIcon,
+      'computer-desktop': ComputerDesktopIcon,
+      'device-phone-mobile': DevicePhoneMobileIcon,
+      'camera': CameraIcon,
+      'musical-note': MusicalNoteIcon,
+      'book-open': BookOpenIcon,
+      'academic-cap': AcademicCapIcon,
+      'heart': HeartIcon,
+      'gift': GiftIcon,
+      'star': StarIcon,
+      'fire': FireIcon,
+      'bolt': BoltIcon,
+      'sun': SunIcon,
+      'moon': MoonIcon,
+      'globe-alt': GlobeAltIcon,
+      'map': MapIcon,
+      'clock': ClockIcon,
+      'calendar': CalendarIcon,
+      'user': UserIcon,
+      'users': UsersIcon,
+      'shield-check': ShieldCheckIcon,
+      'lock-closed': LockClosedIcon,
+      'key': KeyIcon,
+      'cog': CogIcon,
+      'wrench-screwdriver': WrenchScrewdriverIcon,
+      'scissors': ScissorsIcon,
+      'pencil': PencilIcon,
+      'clipboard-document': ClipboardDocumentIcon,
+      'folder': FolderIcon,
+      'archive-box': ArchiveBoxIcon,
+      'shopping-bag': ShoppingBagIcon,
+      'shopping-cart': ShoppingCartIcon,
+      'credit-card': CreditCardIcon,
+      'receipt-percent': ReceiptPercentIcon,
+      'calculator': CalculatorIcon,
+      'plus': PlusIcon,
+      'minus': MinusIcon,
+      'check': CheckIcon,
+      'x-circle': XCircleIcon,
+      'exclamation-triangle': ExclamationTriangleIcon,
+      'information-circle': InformationCircleIcon,
+      'question-mark-circle': QuestionMarkCircleIcon,
+      'light-bulb': LightBulbIcon,
+      'puzzle-piece': PuzzlePieceIcon,
+      'rocket-launch': RocketLaunchIcon,
+      'beaker': BeakerIcon,
+      'magnifying-glass': MagnifyingGlassIcon,
+      'eye': EyeIcon,
+      'eye-slash': EyeSlashIcon,
+      'hand-raised': HandRaisedIcon,
+      'hand-thumb-up': HandThumbUpIcon,
+      'hand-thumb-down': HandThumbDownIcon,
+      'face-smile': FaceSmileIcon,
+      'face-frown': FaceFrownIcon,
+      'cake': CakeIcon,
+      'cloud': CloudIcon,
+      'arrow-trending-up': ArrowTrendingUpIcon,
+      'arrow-trending-down': ArrowTrendingDownIcon,
+      'arrow-up': ArrowUpIcon,
+      'arrow-down': ArrowDownIcon,
+      'arrow-right': ArrowRightIcon,
+      'arrow-left': ArrowLeftIcon,
     };
     return iconMap[iconName] || CubeTransparentIcon;
   };
@@ -477,7 +554,20 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                       <>
                         {(() => {
                           const IconComponent = getCategoryIcon(formData.icon);
-                          const iconLabel = availableIcons.find(i => i.value === formData.icon)?.label;
+                          // Try to find the label in availableIcons first
+                          let iconLabel = availableIcons.find(i => i.value === formData.icon)?.label;
+                          // If not found, try to find by converting the icon name format
+                          if (!iconLabel) {
+                            // Convert "home-modern" to "HomeIcon" or try exact match
+                            const convertedName = formData.icon.split('-').map(word => 
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                            ).join('') + 'Icon';
+                            iconLabel = availableIcons.find(i => i.value === convertedName)?.label;
+                          }
+                          // If still not found, use the icon name as-is
+                          if (!iconLabel) {
+                            iconLabel = formData.icon.charAt(0).toUpperCase() + formData.icon.slice(1).replace(/-/g, ' ');
+                          }
                           return (
                             <>
                               {React.createElement(IconComponent as any, { 
