@@ -66,6 +66,7 @@ const AssetsPage: React.FC = () => {
   const fetchAssets = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20',
@@ -75,7 +76,12 @@ const AssetsPage: React.FC = () => {
         ...(householdView && { household_view: 'true' })
       });
 
-      const response = await fetch(`/api/assets?${params}`);
+      const response = await fetch(`/api/assets?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
@@ -91,7 +97,13 @@ const AssetsPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/assets/categories');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/assets/categories', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error(t('assets.failedToFetchCategories'));
       
       const data = await response.json();
@@ -103,7 +115,13 @@ const AssetsPage: React.FC = () => {
 
   const fetchMembers = async () => {
     try {
-      const response = await fetch('/api/household-members');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/household-members', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error(t('assets.failedToFetchMembers'));
       
       const data = await response.json();
@@ -115,7 +133,13 @@ const AssetsPage: React.FC = () => {
 
   const fetchSummary = async () => {
     try {
-      const response = await fetch('/api/assets/summary');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/assets/summary', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) throw new Error(t('assets.failedToFetchSummary'));
       
       const data = await response.json();
