@@ -44,7 +44,9 @@ const AssetCategoriesPage: React.FC = () => {
 
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
+    // Map database icon names (like "home-modern") to Heroicon components
     const iconMap: {[key: string]: React.ComponentType<any>} = {
+      // Old format (full component names)
       'HomeIcon': HomeIcon,
       'ChartBarIcon': ChartBarIcon,
       'ChartPieIcon': ChartPieIcon,
@@ -55,6 +57,17 @@ const AssetCategoriesPage: React.FC = () => {
       'PaintBrushIcon': PaintBrushIcon,
       'BanknotesIcon': BanknotesIcon,
       'CubeTransparentIcon': CubeTransparentIcon,
+      // New format (Heroicon names without Icon suffix)
+      'home-modern': HomeIcon,
+      'chart-bar': ChartBarIcon,
+      'chart-bar-square': ChartBarIcon,
+      'document-text': DocumentTextIcon,
+      'currency-bitcoin': CurrencyDollarIcon,
+      'sparkles': SparklesIcon,
+      'truck': TruckIcon,
+      'paint-brush': PaintBrushIcon,
+      'banknotes': BanknotesIcon,
+      'cube': CubeTransparentIcon,
     };
     return iconMap[iconName] || CubeTransparentIcon;
   };
