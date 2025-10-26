@@ -167,9 +167,11 @@ const AssetsPage: React.FC = () => {
     try {
       if (selectedAsset) {
         // Update existing asset
+        const token = localStorage.getItem('token');
         const response = await fetch(`/api/assets/${selectedAsset.id}`, {
           method: 'PUT',
           headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(assetData),
@@ -181,9 +183,11 @@ const AssetsPage: React.FC = () => {
         }
       } else {
         // Create new asset
+        const token = localStorage.getItem('token');
         const response = await fetch('/api/assets', {
           method: 'POST',
           headers: {
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(assetData),
@@ -210,8 +214,13 @@ const AssetsPage: React.FC = () => {
     }
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/assets/${asset.id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
