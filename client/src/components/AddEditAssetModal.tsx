@@ -342,7 +342,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
     e.preventDefault();
     
     // Validate form
-    const validation = validateAssetForm(formData);
+    const validation = validateAssetForm(formData, currentStep);
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;

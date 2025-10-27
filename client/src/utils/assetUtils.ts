@@ -152,19 +152,22 @@ export const getCurrentDateForInput = (): string => {
 };
 
 // Validate asset form data
-export const validateAssetForm = (formData: any): { isValid: boolean; errors: string[] } => {
+export const validateAssetForm = (formData: any, currentStep?: number): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
   if (!formData.name || formData.name.trim() === '') {
     errors.push('Asset name is required');
   }
 
-  if (!formData.amount || formData.amount <= 0) {
-    errors.push('Valid amount is required');
-  }
+  // Only validate amount and currency if we're past step 3 (where they're entered)
+  if (currentStep === undefined || currentStep >= 4) {
+    if (!formData.amount || formData.amount <= 0) {
+      errors.push('Valid amount is required');
+    }
 
-  if (!formData.currency) {
-    errors.push('Currency is required');
+    if (!formData.currency) {
+      errors.push('Currency is required');
+    }
   }
 
   if (!formData.category_id) {
