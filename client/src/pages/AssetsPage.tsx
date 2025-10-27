@@ -595,7 +595,7 @@ const AssetsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-1 px-2 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+            <div className="hidden md:grid grid-cols-12 gap-1 px-2 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
               <div className="col-span-1 flex justify-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
               </div>
@@ -629,8 +629,151 @@ const AssetsPage: React.FC = () => {
                 const category = categories.find(c => c.id === asset.category_id);
                 
                 return (
-                  <li key={asset.id} className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-12 gap-2 items-center">
+                  <li key={asset.id} className="border-b border-gray-200 dark:border-gray-700">
+                    {/* Mobile View */}
+                    <div className="md:hidden p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3 flex-1">
+                          {category && category.icon ? (
+                            (() => {
+                              const IconComponent = getCategoryIcon(category.icon);
+                              return (
+                                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                                  <IconComponent className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                                </div>
+                              );
+                            })()
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                              <TagIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {asset.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {category ? getCategoryName(category) : t('assets.unknownCategory')}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          asset.status === 'active' 
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                        }`}>
+                          {t(`assets.${asset.status}`)}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Value</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {formatCurrency(asset.current_value || asset.amount, asset.currency)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">ROI</p>
+                          {roi !== null ? (
+                            <p className={`text-sm font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {roi.toFixed(1)}%
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-400">-</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shares</p>
+                        {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {[...asset.shared_ownership].sort((a, b) => b.ownership_percentage - a.ownership_percentage).map((owner, index) => {
+                              const colors = [
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300',
+                                'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
+                                'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300',
+                                'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-300',
+                                'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300',
+                                'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-300',
+                                'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300'
+                              ];
+                              const colorClass = colors[index % colors.length];
+                              return (
+                                <span key={owner.household_member_id} className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${colorClass}`}>
+                                  {owner.member_name}: {owner.ownership_percentage}%
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : asset.ownership_type === 'single' && asset.member_name ? (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            {asset.member_name}: 100%
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </div>
+
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleToggleStatus(asset)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            asset.status === 'active' 
+                              ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20' 
+                              : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
+                          title={asset.status === 'active' ? t('assets.setInactiveTooltip') : t('assets.setActiveTooltip')}
+                        >
+                          {asset.status === 'active' ? (
+                            <CheckCircleIcon className="h-5 w-5" />
+                          ) : (
+                            <XCircleIcon className="h-5 w-5" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedAsset(asset);
+                            setShowValuationModal(true);
+                          }}
+                          className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                          title={t('assets.addValuationTooltip')}
+                        >
+                          <ChartBarIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedAsset(asset);
+                            setShowPhotoModal(true);
+                          }}
+                          className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 dark:hover:text-purple-400 transition-colors"
+                          title={t('assets.uploadPhotoTooltip')}
+                        >
+                          <PhotoIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedAsset(asset);
+                            setShowEditModal(true);
+                          }}
+                          className="p-2 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                          title={t('assets.editAssetTooltip')}
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAsset(asset)}
+                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                          title={t('assets.deleteAssetTooltip')}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Desktop View */}
+                    <div className="hidden md:grid md:grid-cols-12 gap-2 items-center px-4 py-4">
                       {/* Icon Column */}
                       <div className="col-span-1 flex justify-center">
                         {category && category.icon ? (
