@@ -462,6 +462,7 @@ const DashboardPage: React.FC = () => {
                   })
                   .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
+                    // Fiat
                     'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
                     'EUR': { symbol: '€', name: 'Euro (€)', flag: '🇪🇺', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
                     'GBP': { symbol: '£', name: 'British Pound (£)', flag: '🇬🇧', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
@@ -471,7 +472,22 @@ const DashboardPage: React.FC = () => {
                     'CAD': { symbol: 'C$', name: 'Canadian Dollar (C$)', flag: '🇨🇦', color: 'bg-indigo-100 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700' },
                     'AUD': { symbol: 'A$', name: 'Australian Dollar (A$)', flag: '🇦🇺', color: 'bg-teal-100 dark:bg-teal-900/30 border-teal-300 dark:border-teal-700' },
                     'CHF': { symbol: 'CHF', name: 'Swiss Franc (CHF)', flag: '🇨🇭', color: 'bg-gray-100 dark:bg-gray-900/30 border-gray-300 dark:border-gray-700' },
-                    'GOLD': { symbol: 'Au', name: 'Gold (Au)', flag: '🥇', color: 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700' }
+                    // Metals
+                    'GOLD': { symbol: 'Au', name: 'Gold (Au)', flag: '🥇', color: 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700' },
+                    'SILVER': { symbol: 'Ag', name: 'Silver (Ag)', flag: '🥈', color: 'bg-slate-100 dark:bg-slate-900/30 border-slate-300 dark:border-slate-700' },
+                    'PLATINUM': { symbol: 'Pt', name: 'Platinum (Pt)', flag: '💎', color: 'bg-sky-100 dark:bg-sky-900/30 border-sky-300 dark:border-sky-700' },
+                    'PALLADIUM': { symbol: 'Pd', name: 'Palladium (Pd)', flag: '🔷', color: 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-700' },
+                    // Cryptocurrencies
+                    'BTC': { symbol: '₿', name: 'Bitcoin (₿)', flag: '₿', color: 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700' },
+                    'ETH': { symbol: 'Ξ', name: 'Ethereum (Ξ)', flag: 'Ξ', color: 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-300 dark:border-cyan-700' },
+                    'BNB': { symbol: 'BNB', name: 'Binance Coin', flag: '🔶', color: 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700' },
+                    'ADA': { symbol: '₳', name: 'Cardano (₳)', flag: '🔵', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
+                    'SOL': { symbol: '◎', name: 'Solana (◎)', flag: '🟣', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
+                    'DOT': { symbol: '●', name: 'Polkadot (●)', flag: '🔴', color: 'bg-pink-100 dark:bg-pink-900/30 border-pink-300 dark:border-pink-700' },
+                    'MATIC': { symbol: 'POL', name: 'Polygon', flag: '🔷', color: 'bg-violet-100 dark:bg-violet-900/30 border-violet-300 dark:border-violet-700' },
+                    'AVAX': { symbol: 'AVAX', name: 'Avalanche', flag: '🔴', color: 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700' },
+                    'LINK': { symbol: 'LINK', name: 'Chainlink', flag: '🔗', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
+                    'UNI': { symbol: 'UNI', name: 'Uniswap', flag: '🌈', color: 'bg-pink-100 dark:bg-pink-900/30 border-pink-300 dark:border-pink-700' }
                   };
                   
                   const toCurrency = currencyInfo[rate.to_currency] || { 
