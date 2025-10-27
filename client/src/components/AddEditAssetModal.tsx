@@ -634,16 +634,36 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                             ))}
                           </div>
                           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total:</span>
-                              <span className={`text-sm font-medium ${
-                                Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) === 100
-                                  ? 'text-green-600 dark:text-green-400'
-                                  : 'text-red-600 dark:text-red-400'
-                              }`}>
-                                {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0).toFixed(1)}%
-                              </span>
+                            <div className="mb-2">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Ownership:</span>
+                                <span className={`text-sm font-medium ${
+                                  Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) === 100
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`}>
+                                  {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0).toFixed(1)}%
+                                </span>
+                              </div>
+                              {/* Progress bar */}
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div 
+                                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                                    Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) === 100
+                                      ? 'bg-green-600'
+                                      : Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) > 100
+                                      ? 'bg-red-600'
+                                      : 'bg-blue-600'
+                                  }`}
+                                  style={{ width: `${Math.min(Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0), 100)}%` }}
+                                />
+                              </div>
                             </div>
+                            {Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0) !== 100 && (
+                              <p className="text-xs text-orange-600 dark:text-orange-400">
+                                Total must equal 100%
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
