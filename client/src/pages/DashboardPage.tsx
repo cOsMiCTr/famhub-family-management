@@ -553,6 +553,7 @@ const DashboardPage: React.FC = () => {
                     // Cryptocurrencies
                     'BTC': { symbol: '₿', name: 'Bitcoin (₿)', flag: '₿', color: 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700' },
                     'ETH': { symbol: 'Ξ', name: 'Ethereum (Ξ)', flag: 'Ξ', color: 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-300 dark:border-cyan-700' },
+                    'XRP': { symbol: 'XRP', name: 'Ripple (XRP)', flag: '💧', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
                     'BNB': { symbol: 'BNB', name: 'Binance Coin', flag: '🔶', color: 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700' },
                     'ADA': { symbol: '₳', name: 'Cardano (₳)', flag: '🔵', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
                     'SOL': { symbol: '◎', name: 'Solana (◎)', flag: '🟣', color: 'bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700' },
@@ -573,15 +574,12 @@ const DashboardPage: React.FC = () => {
                   return (
                     <div key={index} className={`border-2 ${toCurrency.color} rounded-xl p-4 transition-all hover:scale-105`}>
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{toCurrency.flag}</span>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              {toCurrency.name}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 uppercase">
-                              {rate.to_currency}
-                            </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {toCurrency.name}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 uppercase">
+                            {rate.to_currency}
                           </div>
                         </div>
                       </div>

@@ -303,7 +303,7 @@ class ExchangeRateService {
   
   // Create cross-conversions between all currencies through common pairs
   private async createCrossConversions(): Promise<void> {
-    const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH'];
+    const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'XRP'];
     
     try {
       for (const fromCurrency of currencies) {
@@ -671,6 +671,7 @@ class ExchangeRateService {
       const cryptos = [
         { code: 'BTC', url: 'https://www.coingecko.com/en/coins/bitcoin' },
         { code: 'ETH', url: 'https://www.coingecko.com/en/coins/ethereum' },
+        { code: 'XRP', url: 'https://www.coingecko.com/en/coins/ripple' },
         { code: 'BNB', url: 'https://www.coingecko.com/en/coins/binancecoin' },
         { code: 'ADA', url: 'https://www.coingecko.com/en/coins/cardano' },
         { code: 'SOL', url: 'https://www.coingecko.com/en/coins/solana' },
