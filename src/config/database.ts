@@ -464,6 +464,9 @@ async function runMigrations(): Promise<void> {
     await addColumnToTable('assets', 'household_member_id', 'INTEGER REFERENCES household_members(id) ON DELETE SET NULL');
     await addColumnToTable('contracts', 'assigned_member_ids', 'INTEGER[] DEFAULT ARRAY[]::INTEGER[]');
     
+    // Add user_id to household_members if it doesn't exist
+    await addColumnToTable('household_members', 'user_id', 'INTEGER REFERENCES users(id) ON DELETE SET NULL');
+    
     // Add allowed_currency_types to asset_categories if it doesn't exist
     await addColumnToTable('asset_categories', 'allowed_currency_types', "JSONB DEFAULT '[\"fiat\"]'::jsonb");
 
