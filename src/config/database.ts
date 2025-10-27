@@ -235,6 +235,19 @@ async function runMigrations(): Promise<void> {
       )
     `);
 
+    // Create shared_ownership_distribution table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shared_ownership_distribution (
+        id SERIAL PRIMARY KEY,
+        asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
+        household_member_id INTEGER REFERENCES household_members(id) ON DELETE CASCADE,
+        ownership_percentage DECIMAL(5,2) NOT NULL CHECK (ownership_percentage >= 0 AND ownership_percentage <= 100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(asset_id, household_member_id)
+      )
+    `);
+
     // Create contract_categories table
     await client.query(`
       CREATE TABLE IF NOT EXISTS contract_categories (

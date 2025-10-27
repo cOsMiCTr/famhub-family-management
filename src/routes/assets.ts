@@ -404,8 +404,42 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const total = parseInt(countResult.rows[0].total);
 
+  // Get shared ownership distributions for all assets
+  const assetIds = assetsResult.rows.map(a => a.id);
+  let sharedOwnershipMap: { [key: number]: any[] } = {};
+  
+  if (assetIds.length > 0) {
+    const sharedOwnershipResult = await query(
+      `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
+       FROM shared_ownership_distribution sod
+       JOIN household_members hm ON sod.household_member_id = hm.id
+       WHERE sod.asset_id = ANY($1)`,
+      [assetIds]
+    );
+
+    // Group by asset_id
+    sharedOwnershipResult.rows.forEach(row => {
+      if (!sharedOwnershipMap[row.asset_id]) {
+        sharedOwnershipMap[row.asset_id] = [];
+      }
+      sharedOwnershipMap[row.asset_id].push({
+        household_member_id: row.household_member_id,
+        ownership_percentage: parseFloat(row.ownership_percentage),
+        member_name: row.member_name,
+        relationship: row.relationship,
+        role: row.role
+      });
+    });
+  }
+
+  // Attach shared ownership to each asset
+  const assetsWithOwnership = assetsResult.rows.map(asset => ({
+    ...asset,
+    shared_ownership: sharedOwnershipMap[asset.id] || []
+  }));
+
   res.json({
-    assets: assetsResult.rows,
+    assets: assetsWithOwnership,
     pagination: {
       page: parseInt(page as string),
       limit: parseInt(limit as string),
@@ -445,8 +479,28 @@ router.get('/:id', asyncHandler(async (req, res) => {
     throw new Error('Access denied to this asset');
   }
 
+  // Get shared ownership distribution
+  const sharedOwnershipResult = await query(
+    `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
+     FROM shared_ownership_distribution sod
+     JOIN household_members hm ON sod.household_member_id = hm.id
+     WHERE sod.asset_id = $1`,
+    [id]
+  );
+
+  const assetWithOwnership = {
+    ...asset,
+    shared_ownership: sharedOwnershipResult.rows.map(row => ({
+      household_member_id: row.household_member_id,
+      ownership_percentage: parseFloat(row.ownership_percentage),
+      member_name: row.member_name,
+      relationship: row.relationship,
+      role: row.role
+    }))
+  };
+
   res.json({
-    asset
+    asset: assetWithOwnership
   });
 }));
 

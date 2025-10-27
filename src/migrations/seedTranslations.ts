@@ -36,6 +36,10 @@ const seedTranslations = async () => {
       { key: 'common.warning', category: 'common', en: 'Warning', de: 'Warnung', tr: 'Uyarı' },
       { key: 'common.info', category: 'common', en: 'Info', de: 'Info', tr: 'Bilgi' },
       { key: 'common.actions', category: 'common', en: 'Actions', de: 'Aktionen', tr: 'İşlemler' },
+      { key: 'common.nameRequired', category: 'common', en: 'Name is required', de: 'Name ist erforderlich', tr: 'Ad zorunludur' },
+      { key: 'common.amountRequired', category: 'common', en: 'Amount is required', de: 'Betrag ist erforderlich', tr: 'Tutar zorunludur' },
+      { key: 'common.currencyRequired', category: 'common', en: 'Currency is required', de: 'Währung ist erforderlich', tr: 'Para birimi zorunludur' },
+      { key: 'common.categoryRequired', category: 'common', en: 'Category is required', de: 'Kategorie ist erforderlich', tr: 'Kategori zorunludur' },
 
       // Status
       { key: 'status.active', category: 'status', en: 'Active', de: 'Aktiv', tr: 'Aktif' },
@@ -157,6 +161,7 @@ const seedTranslations = async () => {
       { key: 'currencies.filterByType', category: 'currencies', en: 'Filter by Type', de: 'Nach Typ filtern', tr: 'Türe Göre Filtrele' },
       { key: 'currencies.filterByStatus', category: 'currencies', en: 'Filter by Status', de: 'Nach Status filtern', tr: 'Duruma Göre Filtrele' },
       { key: 'currencies.searchPlaceholder', category: 'currencies', en: 'Search by code or name', de: 'Nach Code oder Name suchen', tr: 'Kod veya isme göre ara' },
+      { key: 'currencies.searchLabel', category: 'currencies', en: 'Search', de: 'Suchen', tr: 'Ara' },
       { key: 'currencies.noCurrencies', category: 'currencies', en: 'No currencies found', de: 'Keine Währungen gefunden', tr: 'Para birimi bulunamadı' },
       { key: 'currencies.allTypes', category: 'currencies', en: 'All Types', de: 'Alle Typen', tr: 'Tüm Türler' },
       { key: 'currencies.allStatus', category: 'currencies', en: 'All Status', de: 'Alle Status', tr: 'Tüm Durumlar' },
