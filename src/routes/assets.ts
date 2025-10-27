@@ -197,12 +197,43 @@ router.get('/summary', asyncHandler(async (req, res) => {
     start_date, 
     end_date, 
     category_id,
-    status = 'active'
+    status = 'active',
+    household_view = false
   } = req.query;
 
-  const conditions = ['a.user_id = $1', 'a.status = $2'];
-  const params = [req.user.id, status];
-  let paramCount = 3;
+  const conditions = ['a.status = $1'];
+  const params = [status];
+  let paramCount = 2;
+
+  // Build query conditions
+  if (household_view === 'true' && req.user.household_id) {
+    conditions.push(`a.household_id = $${paramCount++}`);
+    params.push(req.user.household_id);
+  } else {
+    // Personal view: show assets where user is owner OR user is in shared ownership
+    // Get user's household member ID
+    const userMemberResult = await query(
+      'SELECT id FROM household_members WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    if (userMemberResult.rows.length > 0) {
+      const userMemberId = userMemberResult.rows[0].id;
+      // Include assets where:
+      // 1. User is the primary owner, OR
+      // 2. User is part of shared ownership distribution
+      conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id AND household_member_id = $${paramCount}
+      ))`);
+      params.push(req.user.id);
+      params.push(userMemberId);
+    } else {
+      // Fallback if no household member record - only show assets user owns
+      conditions.push(`a.user_id = $${paramCount++}`);
+      params.push(req.user.id);
+    }
+  }
 
   if (start_date) {
     conditions.push(`a.date >= $${paramCount++}`);

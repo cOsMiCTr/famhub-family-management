@@ -19,13 +19,36 @@ router.get('/summary', asyncHandler(async (req, res) => {
   const mainCurrency = req.user.main_currency || 'USD';
 
   // Get total assets by currency (use current_value if available, otherwise amount)
-  const assetsResult = await query(
-    `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
-     FROM assets
-     WHERE user_id = $1 AND status = 'active'
-     GROUP BY currency`,
+  // Show only personal assets (user owns or has share in)
+  // Get user's household member ID
+  const userMemberResult = await query(
+    'SELECT id FROM household_members WHERE user_id = $1',
     [userId]
   );
+  
+  let assetsResult;
+  if (userMemberResult.rows.length > 0) {
+    const userMemberId = userMemberResult.rows[0].id;
+    assetsResult = await query(
+      `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+       FROM assets a
+       WHERE (a.user_id = $1 OR EXISTS (
+         SELECT 1 FROM shared_ownership_distribution 
+         WHERE asset_id = a.id AND household_member_id = $2
+       )) AND status = 'active'
+       GROUP BY currency`,
+      [userId, userMemberId]
+    );
+  } else {
+    // Fallback if no household member record
+    assetsResult = await query(
+      `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+       FROM assets
+       WHERE user_id = $1 AND status = 'active'
+       GROUP BY currency`,
+      [userId]
+    );
+  }
 
   // Get total income by currency
   const incomeResult = await query(

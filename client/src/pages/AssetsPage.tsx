@@ -198,7 +198,11 @@ const AssetsPage: React.FC = () => {
   const fetchSummary = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/assets/summary', {
+      const params = new URLSearchParams({
+        ...(householdView && { household_view: 'true' })
+      });
+      
+      const response = await fetch(`/api/assets/summary?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -212,6 +216,10 @@ const AssetsPage: React.FC = () => {
       console.error('Failed to fetch summary:', err);
     }
   };
+
+  useEffect(() => {
+    fetchSummary();
+  }, [householdView]);
 
   useEffect(() => {
     fetchAssets();
