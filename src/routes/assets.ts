@@ -163,14 +163,14 @@ router.post('/', [
     }
   }
 
-  // Create initial valuation history entry if current_value is provided
-  if (current_value) {
-    await query(
-      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [asset.id, new Date().toISOString().split('T')[0], current_value, currency, valuation_method || 'Manual', req.user.id]
-    );
-  }
+  // Create initial valuation history entry
+  // Use current_value if provided, otherwise use amount as the initial value
+  const initialValue = current_value || amount;
+  await query(
+    `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [asset.id, date, initialValue, currency, valuation_method || 'Manual', req.user.id]
+  );
 
   // Get category and member names for response
   const [categoryNameResult, memberNameResult] = await Promise.all([
