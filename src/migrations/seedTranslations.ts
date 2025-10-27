@@ -261,6 +261,19 @@ const seedTranslations = async () => {
       { key: 'assets.allCurrencies', category: 'assets', en: 'All Currencies', de: 'Alle Währungen', tr: 'Tüm Para Birimleri' },
       { key: 'assets.searchPlaceholder', category: 'assets', en: 'Search assets...', de: 'Vermögen suchen...', tr: 'Varlık ara...' },
 
+      // Export and View Options
+      { key: 'assets.exportCSV', category: 'assets', en: 'Export to CSV', de: 'Als CSV exportieren', tr: 'CSV Olarak Dışa Aktar' },
+      { key: 'assets.exportPDF', category: 'assets', en: 'Export to PDF', de: 'Als PDF exportieren', tr: 'PDF Olarak Dışa Aktar' },
+      { key: 'assets.viewPhoto', category: 'assets', en: 'View Photo', de: 'Foto ansehen', tr: 'Fotoğrafı Görüntüle' },
+      { key: 'assets.fullSize', category: 'assets', en: 'Full Size', de: 'Vollständige Größe', tr: 'Tam Boyut' },
+      { key: 'assets.clickToClose', category: 'assets', en: 'Click outside to close', de: 'Zum Schließen außerhalb klicken', tr: 'Kapatmak için dışına tıklayın' },
+      { key: 'assets.allocationByCategory', category: 'assets', en: 'Allocation by Category', de: 'Verteilung nach Kategorie', tr: 'Kategoriye Göre Dağılım' },
+      { key: 'assets.totalPercentage', category: 'assets', en: 'Total', de: 'Gesamt', tr: 'Toplam' },
+      { key: 'assets.ownershipDistribution', category: 'assets', en: 'Ownership Distribution', de: 'Eigentumsverteilung', tr: 'Mülkiyet Dağılımı' },
+      { key: 'assets.noHistory', category: 'assets', en: 'No valuation history available', de: 'Kein Bewertungsverlauf verfügbar', tr: 'Değerlendirme geçmişi bulunamadı' },
+      { key: 'assets.addFirstValuation', category: 'assets', en: 'Add a valuation to see history over time', de: 'Fügen Sie eine Bewertung hinzu, um die Historie im Zeitverlauf zu sehen', tr: 'Zaman içindeki geçmişi görmek için bir değerlendirme ekleyin' },
+      { key: 'assets.valueOverTime', category: 'assets', en: 'Value Over Time', de: 'Wert im Zeitverlauf', tr: 'Zaman İçinde Değer' },
+
       // Asset View Toggle
       { key: 'assets.householdView', category: 'assets', en: 'Household View', de: 'Haushaltsansicht', tr: 'Hane Görünümü' },
       { key: 'assets.personalView', category: 'assets', en: 'Personal View', de: 'Persönliche Ansicht', tr: 'Kişisel Görünüm' },

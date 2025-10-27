@@ -61,7 +61,7 @@ router.post('/', [
   body('category_id').isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
   body('date').isISO8601().withMessage('Valid date required'),
-  body('household_member_id').optional().isInt({ min: 1 }).withMessage('Valid household member ID required'),
+  body('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
   body('purchase_date').optional().isISO8601().withMessage('Valid purchase date required'),
   body('purchase_price').optional().isFloat({ min: 0 }).withMessage('Valid purchase price required'),
   body('purchase_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
@@ -257,6 +257,39 @@ router.get('/summary', asyncHandler(async (req, res) => {
   }, 0);
   const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
 
+  // Calculate allocation by category
+  const allocationByCategory = Object.entries(categoryTotals).map(([categoryName, currencies]) => {
+    const categoryTotal = Object.values(currencies).reduce((sum, val) => sum + val, 0);
+    return {
+      category_name: categoryName,
+      total_value: categoryTotal,
+      percentage: totalValueInMainCurrency > 0 ? (categoryTotal / totalValueInMainCurrency) * 100 : 0
+    };
+  }).sort((a, b) => b.total_value - a.total_value);
+
+  // Calculate allocation by category type
+  const typeTotals: { [key: string]: number } = {};
+  for (const asset of assetsResult.rows) {
+    const categoryType = asset.category_type || 'other';
+    const assetValue = parseFloat(asset.current_value || asset.amount);
+    
+    // Convert to main currency
+    if (asset.currency === userCurrency) {
+      typeTotals[categoryType] = (typeTotals[categoryType] || 0) + assetValue;
+    } else {
+      const rate = exchangeRates.find(r => r.from_currency === asset.currency && r.to_currency === userCurrency);
+      if (rate) {
+        typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (assetValue * rate.rate);
+      }
+    }
+  }
+
+  const allocationByType = Object.entries(typeTotals).map(([type, totalValue]) => ({
+    type,
+    total_value: totalValue,
+    percentage: totalValueInMainCurrency > 0 ? (totalValue / totalValueInMainCurrency) * 100 : 0
+  })).sort((a, b) => b.total_value - a.total_value);
+
   res.json({
     summary: {
       total_assets: assetsResult.rows.length,
@@ -267,6 +300,8 @@ router.get('/summary', asyncHandler(async (req, res) => {
     },
     category_totals: categoryTotals,
     currency_totals: currencyTotals,
+    allocation_by_category: allocationByCategory,
+    allocation_by_type: allocationByType,
     assets: assetsResult.rows
   });
 }));
