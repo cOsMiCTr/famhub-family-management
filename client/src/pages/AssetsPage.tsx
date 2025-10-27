@@ -838,7 +838,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Ownership Type Column */}
-                      <div className="col-span-1 flex justify-center">
+                      <div className="col-span-1 text-center">
                         <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium ${getOwnershipColor(asset.ownership_type)}`}>
                           {t(`assets.${asset.ownership_type}`)}
                         </span>
