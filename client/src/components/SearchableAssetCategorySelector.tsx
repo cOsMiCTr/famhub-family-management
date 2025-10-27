@@ -155,7 +155,7 @@ const SearchableAssetCategorySelector: React.FC<SearchableAssetCategorySelectorP
           </div>
 
           {/* Categories List */}
-          <div className="overflow-y-auto" style={{ maxHeight: '180px' }}>
+          <div className="overflow-y-auto" style={{ maxHeight: '135px' }}>
             {filteredCategories.length > 0 ? (
               filteredCategories.map((category) => {
                 const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
