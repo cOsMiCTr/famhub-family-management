@@ -51,16 +51,37 @@ export interface AssetCategory {
 
 // Currency formatting
 export const formatCurrency = (amount: number, currency: string): string => {
+  // Get currency symbol
   const symbols: { [key: string]: string } = {
     'USD': '$',
     'EUR': '€',
     'GBP': '£',
     'TRY': '₺',
-    'GOLD': 'Au'
+    'GOLD': 'Au',
+    'BTC': '₿',
+    'ETH': 'Ξ',
+    'BNB': 'BNB',
+    'XRP': 'XRP',
+    'ADA': 'ADA',
+    'SOL': 'SOL',
+    'DOT': 'DOT',
+    'DOGE': 'DOGE',
+    'LTC': 'Ł',
+    'USDT': 'USDT',
+    'SILVER': 'Ag',
+    'PLATINUM': 'Pt',
+    'PALLADIUM': 'Pd'
   };
   
   const symbol = symbols[currency] || currency;
-  return `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${symbol}`;
+  
+  // Format number with thousand separators
+  const formattedAmount = amount.toLocaleString('en-US', { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  });
+  
+  return `${symbol} ${formattedAmount}`;
 };
 
 // Calculate ROI (Return on Investment)

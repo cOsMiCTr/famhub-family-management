@@ -578,37 +578,37 @@ const AssetsPage: React.FC = () => {
                             setSelectedAsset(asset);
                             setShowValuationModal(true);
                           }}
-                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
                           title={t('assets.addValuationTooltip')}
                         >
-                          <ChartBarIcon className="h-4 w-4" />
+                          <ChartBarIcon className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
                             setShowPhotoModal(true);
                           }}
-                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="p-2 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 dark:hover:text-purple-400 transition-colors"
                           title={t('assets.uploadPhotoTooltip')}
                         >
-                          <PhotoIcon className="h-4 w-4" />
+                          <PhotoIcon className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
                             setShowEditModal(true);
                           }}
-                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                          className="p-2 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
                           title={t('assets.editAssetTooltip')}
                         >
-                          <PencilIcon className="h-4 w-4" />
+                          <PencilIcon className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => handleDeleteAsset(asset)}
-                          className="text-gray-400 hover:text-red-600"
+                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
                           title={t('assets.deleteAssetTooltip')}
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          <TrashIcon className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
