@@ -425,27 +425,32 @@ router.get('/', asyncHandler(async (req, res) => {
   let sharedOwnershipMap: { [key: number]: any[] } = {};
   
   if (assetIds.length > 0) {
-    const sharedOwnershipResult = await query(
-      `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
-       FROM shared_ownership_distribution sod
-       JOIN household_members hm ON sod.household_member_id = hm.id
-       WHERE sod.asset_id = ANY($1)`,
-      [assetIds]
-    );
+    try {
+      const sharedOwnershipResult = await query(
+        `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
+         FROM shared_ownership_distribution sod
+         JOIN household_members hm ON sod.household_member_id = hm.id
+         WHERE sod.asset_id = ANY($1::int[])`,
+        [assetIds]
+      );
 
-    // Group by asset_id
-    sharedOwnershipResult.rows.forEach(row => {
-      if (!sharedOwnershipMap[row.asset_id]) {
-        sharedOwnershipMap[row.asset_id] = [];
-      }
-      sharedOwnershipMap[row.asset_id].push({
-        household_member_id: row.household_member_id,
-        ownership_percentage: parseFloat(row.ownership_percentage),
-        member_name: row.member_name,
-        relationship: row.relationship,
-        role: row.role
+      // Group by asset_id
+      sharedOwnershipResult.rows.forEach(row => {
+        if (!sharedOwnershipMap[row.asset_id]) {
+          sharedOwnershipMap[row.asset_id] = [];
+        }
+        sharedOwnershipMap[row.asset_id].push({
+          household_member_id: row.household_member_id,
+          ownership_percentage: parseFloat(row.ownership_percentage),
+          member_name: row.member_name,
+          relationship: row.relationship,
+          role: row.role
+        });
       });
-    });
+    } catch (error) {
+      console.error('Error fetching shared ownership:', error);
+      // Continue without shared ownership data if there's an error
+    }
   }
 
   // Attach shared ownership to each asset
