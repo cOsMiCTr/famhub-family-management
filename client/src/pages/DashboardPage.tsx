@@ -525,32 +525,15 @@ const DashboardPage: React.FC = () => {
                 selectedExchangeRates.length === 6 ? 'grid-cols-3' :
                 'grid-cols-2'
               }`}>
-                {(() => {
-                  const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
-                  console.log('🔍 Debug exchange rates:', {
-                    totalRates: exchangeRates.length,
-                    mainCurrency: userMainCurrency,
-                    selectedCurrencies: selectedExchangeRates,
-                    allRatesFromMain: exchangeRates.filter(rate => rate.from_currency === userMainCurrency),
-                    filteredRates: exchangeRates.filter(rate => {
-                      const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
-                      const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                      const matchesMain = rate.from_currency === userMainCurrency;
-                      return isActive && isSelected && matchesMain;
-                    })
-                  });
-                  
-                  return exchangeRates
-                    .filter(rate => {
-                      const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
-                      // Show rates where to_currency is active and selected
-                      const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
-                      const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                      const matchesMain = rate.from_currency === userMainCurrency;
-                      console.log(`Rate ${rate.to_currency}: active=${isActive}, selected=${isSelected}, matchesMain=${matchesMain}`);
-                      return isActive && isSelected && matchesMain;
-                    });
-                })().map((rate, index) => {
+                {exchangeRates
+                  .filter(rate => {
+                    const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+                    const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                    const isSelected = selectedExchangeRates.includes(rate.to_currency);
+                    const matchesMain = rate.from_currency === userMainCurrency;
+                    return isActive && isSelected && matchesMain;
+                  })
+                  .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
                     // Fiat
                     'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
@@ -590,14 +573,21 @@ const DashboardPage: React.FC = () => {
                   return (
                     <div key={index} className={`border-2 ${toCurrency.color} rounded-xl p-4 transition-all hover:scale-105`}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl">{toCurrency.flag}</span>
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
-                          {rate.to_currency}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{toCurrency.flag}</span>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {toCurrency.name}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 uppercase">
+                              {rate.to_currency}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-center">
+                      <div className="text-center mt-3">
                         <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                          {toCurrency.symbol} {rate.rate.toFixed(2)}
+                          {rate.rate.toFixed(4)} {toCurrency.symbol}
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
