@@ -344,8 +344,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         return formData.name && formData.category_id;
       case 2: // Who owns it?
         return formData.ownership_type === 'single' ? formData.household_member_id : 
-               (formData.ownership_type === 'shared' || formData.ownership_type === 'household') 
-                 ? Object.keys(sharedOwnershipPercentages).length > 0 :
+               formData.ownership_type === 'shared' ? Object.keys(sharedOwnershipPercentages).length > 0 :
                true;
       case 3: // What's it worth?
         return formData.amount && formData.currency;
@@ -378,7 +377,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         household_member_id: formData.household_member_id ? parseInt(formData.household_member_id) : null,
         purchase_price: formData.purchase_price ? parseFloat(formData.purchase_price) : null,
         current_value: formData.current_value ? parseFloat(formData.current_value) : null,
-        ownership_percentage: (formData.ownership_type === 'shared' || formData.ownership_type === 'household') 
+        ownership_percentage: formData.ownership_type === 'shared' 
           ? Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0)
           : formData.ownership_percentage ? parseFloat(formData.ownership_percentage) : null,
         purchase_date: formData.purchase_date || null,
@@ -386,7 +385,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         location: formData.location || null,
         notes: formData.notes || null,
         // Add shared ownership data if applicable
-        ...((formData.ownership_type === 'shared' || formData.ownership_type === 'household') && {
+        ...(formData.ownership_type === 'shared' && {
           shared_ownership_percentages: sharedOwnershipPercentages
         })
       };
@@ -555,21 +554,6 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                             <div className="text-sm text-gray-500 dark:text-gray-400">Multiple people own this asset</div>
                           </div>
                         </label>
-
-                        <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <input
-                            type="radio"
-                            name="ownership_type"
-                            value="household"
-                            checked={formData.ownership_type === 'household'}
-                            onChange={handleInputChange}
-                            className="mr-3"
-                          />
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">Household Shared</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">All household members share equally</div>
-                          </div>
-                        </label>
                       </div>
                     </div>
 
@@ -596,11 +580,32 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                     )}
 
                     {/* Shared Ownership Distribution */}
-                    {(formData.ownership_type === 'shared' || formData.ownership_type === 'household') && (
+                    {formData.ownership_type === 'shared' && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                          Ownership Distribution
-                        </label>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Ownership Distribution
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (members && members.length > 0) {
+                                const percentagePerMember = Math.floor(100 / members.length);
+                                const remainder = 100 % members.length;
+                                const newPercentages: { [key: number]: number } = {};
+                                
+                                members.forEach((member, index) => {
+                                  newPercentages[member.id] = percentagePerMember + (index === 0 ? remainder : 0);
+                                });
+                                
+                                setSharedOwnershipPercentages(newPercentages);
+                              }
+                            }}
+                            className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                          >
+                            ⚡ Equal Distribution
+                          </button>
+                        </div>
                         <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 max-h-96 overflow-y-auto">
                           <div className="space-y-2">
                             {members && members.map && members.map(member => (
