@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ExchangeRateConfigModal from '../components/ExchangeRateConfigModal';
@@ -38,6 +39,7 @@ interface ExchangeRate {
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const activeCurrencies = useCurrencies();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -147,12 +149,21 @@ const DashboardPage: React.FC = () => {
     return formatCurrency(convertedAmount, toCurrency);
   };
   
-  // Helper function to get available currencies from exchange rates
+  // Helper function to get available currencies from exchange rates (only active fiat currencies)
   const getAvailableCurrencies = (): string[] => {
-    const currencies = new Set<string>();
+    // Get only active fiat currencies (category_type = 'fiat')
+    const activeFiatCurrencies = activeCurrencies
+      .filter(c => c.is_active && c.category_type === 'fiat')
+      .map(c => c.code);
+    
+    // Also include currencies from exchange rates for additional coverage
+    const currencies = new Set<string>(activeFiatCurrencies);
     exchangeRates.forEach(rate => {
-      currencies.add(rate.to_currency);
+      if (rate.to_currency && activeFiatCurrencies.includes(rate.to_currency)) {
+        currencies.add(rate.to_currency);
+      }
     });
+    
     return Array.from(currencies).sort();
   };
   
@@ -425,7 +436,11 @@ const DashboardPage: React.FC = () => {
                 'grid-cols-2'
               }`}>
                 {exchangeRates
-                  .filter(rate => selectedExchangeRates.includes(rate.to_currency))
+                  .filter(rate => {
+                    // Only show rates for active currencies
+                    const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                    return isActive && selectedExchangeRates.includes(rate.to_currency);
+                  })
                   .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
                     'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
