@@ -59,6 +59,12 @@ class ExchangeRateService {
       // Update gold rates
       await this.updateGoldRates();
 
+      // Update cryptocurrency rates
+      await this.updateCryptocurrencyRates();
+
+      // Update metal rates
+      await this.updateMetalRates();
+
       console.log('✅ Exchange rates updated successfully');
     } catch (error) {
       console.error('❌ Failed to update exchange rates:', error);
@@ -171,6 +177,114 @@ class ExchangeRateService {
     } catch (error) {
       console.error('Failed to fetch gold rates:', error);
       await this.setFallbackGoldRates();
+    }
+  }
+
+  // Update cryptocurrency rates
+  private async updateCryptocurrencyRates(): Promise<void> {
+    try {
+      console.log('💰 Fetching cryptocurrency rates...');
+      
+      // Use CoinGecko API (free, no API key required)
+      const response = await axios.get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd',
+        { timeout: 10000 }
+      );
+
+      const cryptoData: { [key: string]: { usd: number } } = response.data;
+      const cryptoPairs: { [key: string]: string } = {
+        'BTC': 'bitcoin',
+        'ETH': 'ethereum',
+        'BNB': 'binancecoin',
+        'ADA': 'cardano',
+        'SOL': 'solana',
+        'DOT': 'polkadot',
+        'MATIC': 'polygon',
+        'AVAX': 'avalanche-2',
+        'LINK': 'chainlink',
+        'UNI': 'uniswap'
+      };
+
+      const cryptoRates: ExchangeRateData[] = [];
+      const fiatCurrencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF'];
+
+      for (const [cryptoCode, coinGeckoId] of Object.entries(cryptoPairs)) {
+        if (cryptoData[coinGeckoId]) {
+          const priceInUSD = cryptoData[coinGeckoId].usd;
+          
+          // Add conversion to USD
+          cryptoRates.push({
+            from_currency: cryptoCode,
+            to_currency: 'USD',
+            rate: 1 / priceInUSD // Amount of crypto per USD
+          });
+          
+          // Add conversion from USD to crypto
+          cryptoRates.push({
+            from_currency: 'USD',
+            to_currency: cryptoCode,
+            rate: priceInUSD
+          });
+
+          // TODO: Add conversions to other fiat currencies
+          // This would require getting rates for each fiat pair
+        }
+      }
+
+      await this.storeExchangeRates(cryptoRates);
+      console.log(`✅ Fetched ${cryptoRates.length} cryptocurrency rates`);
+
+    } catch (error) {
+      console.error('Failed to fetch cryptocurrency rates:', error);
+    }
+  }
+
+  // Update metal rates
+  private async updateMetalRates(): Promise<void> {
+    try {
+      console.log('🥇 Fetching metal rates...');
+      
+      // Use Metals-API for metals (silver, platinum, palladium)
+      if (!this.goldApiKey) {
+        console.log('⚠️ Metals API key not configured, skipping metal rates');
+        return;
+      }
+
+      const response = await axios.get(
+        `https://metals-api.com/api/latest?access_key=${this.goldApiKey}&base=USD&symbols=XAG,XPT,XPD`,
+        { timeout: 10000 }
+      );
+
+      const metalPrices = response.data.rates;
+      const metals: { [key: string]: number } = {
+        'SILVER': metalPrices.XAG,
+        'PLATINUM': metalPrices.XPT,
+        'PALLADIUM': metalPrices.XPD
+      };
+
+      const metalRates: ExchangeRateData[] = [];
+
+      for (const [metalCode, pricePerOz] of Object.entries(metals)) {
+        // Add conversion from metal to USD
+        metalRates.push({
+          from_currency: metalCode,
+          to_currency: 'USD',
+          rate: pricePerOz
+        });
+        
+        // Add conversion from USD to metal
+        metalRates.push({
+          from_currency: 'USD',
+          to_currency: metalCode,
+          rate: 1 / pricePerOz
+        });
+      }
+
+      await this.storeExchangeRates(metalRates);
+      console.log(`✅ Fetched ${metalRates.length} metal rates`);
+
+    } catch (error) {
+      console.error('Failed to fetch metal rates:', error);
     }
   }
 
