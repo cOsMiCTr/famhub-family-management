@@ -310,24 +310,100 @@ class ExchangeRateService {
     async scrapeAllRates() {
         const allRates = [];
         try {
-            const [ecbRates, cbrtRates, boeRates, fedRates] = await Promise.allSettled([
-                this.scrapeECBRates(),
-                this.scrapeCBRTRates(),
-                this.scrapeBOERates(),
-                this.scrapeFedRates()
-            ]);
-            if (ecbRates.status === 'fulfilled')
-                allRates.push(...ecbRates.value);
-            if (cbrtRates.status === 'fulfilled')
-                allRates.push(...cbrtRates.value);
-            if (boeRates.status === 'fulfilled')
-                allRates.push(...boeRates.value);
-            if (fedRates.status === 'fulfilled')
-                allRates.push(...fedRates.value);
-            console.log(`📊 Scraped ${allRates.length} rates from ${[ecbRates, cbrtRates, boeRates, fedRates].filter(r => r.status === 'fulfilled').length} sources`);
+            console.log('🌐 Scraping exchange rates from Google Finance...');
+            const fiatPairs = [
+                'EURUSD', 'EURGBP', 'EURTRY', 'EURSGD', 'EURCAD',
+                'USDGBP', 'USDTRY', 'USDCNY', 'USDJPY', 'USDCAD', 'USDAUD', 'USDCHF'
+            ];
+            for (const pair of fiatPairs) {
+                try {
+                    const fromCurrency = pair.substring(0, 3);
+                    const toCurrency = pair.substring(3);
+                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${fromCurrency}-${toCurrency}`, {
+                        timeout: 8000,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                    });
+                    const $ = cheerio.load(response.data);
+                    const priceText = $('.AHmHk').text().trim() ||
+                        $('[data-last-price]').attr('data-last-price') ||
+                        $('.YMlKec').text().trim();
+                    const rate = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                    if (!isNaN(rate) && rate > 0) {
+                        allRates.push({
+                            from_currency: fromCurrency,
+                            to_currency: toCurrency,
+                            rate: rate
+                        });
+                        allRates.push({
+                            from_currency: toCurrency,
+                            to_currency: fromCurrency,
+                            rate: 1 / rate
+                        });
+                    }
+                }
+                catch (error) {
+                    console.warn(`Failed to scrape ${pair}:`, error);
+                }
+            }
+            console.log(`✅ Scraped ${allRates.length} fiat rates from Google Finance`);
         }
         catch (error) {
-            console.error('Error in scrapeAllRates:', error);
+            console.error('Error scraping from Google Finance:', error);
+        }
+        try {
+            const cryptoList = ['BTC-USD', 'ETH-USD', 'XRP-USD'];
+            for (const crypto of cryptoList) {
+                try {
+                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${crypto}`, {
+                        timeout: 8000,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                    });
+                    const $ = cheerio.load(response.data);
+                    const priceText = $('.AHmHk').text().trim() ||
+                        $('[data-last-price]').attr('data-last-price') ||
+                        $('.YMlKec').text().trim();
+                    const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                    if (!isNaN(price) && price > 0) {
+                        const cryptoCode = crypto.split('-')[0];
+                        allRates.push({ from_currency: cryptoCode, to_currency: 'USD', rate: price });
+                        allRates.push({ from_currency: 'USD', to_currency: cryptoCode, rate: 1 / price });
+                    }
+                }
+                catch (error) {
+                    console.warn(`Failed to scrape ${crypto}`);
+                }
+            }
+            console.log(`✅ Added crypto rates from Google Finance`);
+        }
+        catch (error) {
+            console.error('Error scraping crypto from Google Finance:', error);
+        }
+        try {
+            const metals = ['GOLD', 'SILVER'];
+            for (const metal of metals) {
+                try {
+                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${metal}:COMEX`, {
+                        timeout: 8000,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                    });
+                    const $ = cheerio.load(response.data);
+                    const priceText = $('.AHmHk').text().trim() ||
+                        $('[data-last-price]').attr('data-last-price') ||
+                        $('.YMlKec').text().trim();
+                    const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                    if (!isNaN(price) && price > 0) {
+                        allRates.push({ from_currency: metal, to_currency: 'USD', rate: price });
+                        allRates.push({ from_currency: 'USD', to_currency: metal, rate: 1 / price });
+                    }
+                }
+                catch (error) {
+                    console.warn(`Failed to scrape ${metal}`);
+                }
+            }
+            console.log(`✅ Added precious metal rates from Google Finance`);
+        }
+        catch (error) {
+            console.error('Error scraping metals from Google Finance:', error);
         }
         return allRates;
     }
