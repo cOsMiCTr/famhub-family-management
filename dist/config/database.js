@@ -92,7 +92,8 @@ async function initializeDatabase() {
         const assetCategoryClient = await exports.pool.connect();
         try {
             const assetCategoryCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories');
-            if (parseInt(assetCategoryCount.rows[0].count) === 0) {
+            const wrongTypeCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories WHERE type = \'income\'');
+            if (parseInt(assetCategoryCount.rows[0].count) === 0 || parseInt(wrongTypeCount.rows[0].count) > 0) {
                 console.log('🌱 Seeding asset categories...');
                 const { default: seedAssetCategories } = await Promise.resolve().then(() => __importStar(require('../migrations/seedAssetCategories')));
                 await seedAssetCategories();
@@ -104,6 +105,22 @@ async function initializeDatabase() {
         }
         finally {
             assetCategoryClient.release();
+        }
+        const currencyClient = await exports.pool.connect();
+        try {
+            const currencyCount = await currencyClient.query('SELECT COUNT(*) as count FROM currencies');
+            if (parseInt(currencyCount.rows[0].count) === 0) {
+                console.log('🌱 Seeding currencies...');
+                const { default: seedCurrencies } = await Promise.resolve().then(() => __importStar(require('../migrations/seedCurrencies')));
+                await seedCurrencies();
+                console.log('✅ Currencies seeded successfully');
+            }
+            else {
+                console.log('✅ Currencies are intact');
+            }
+        }
+        finally {
+            currencyClient.release();
         }
     }
     catch (error) {
@@ -158,17 +175,32 @@ async function runMigrations() {
       )
     `);
         await client.query(`
+      CREATE TABLE IF NOT EXISTS household_members (
+        id SERIAL PRIMARY KEY,
+        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        relationship VARCHAR(100),
+        date_of_birth DATE,
+        notes TEXT,
+        is_shared BOOLEAN DEFAULT false,
+        created_by_user_id INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
       CREATE TABLE IF NOT EXISTS asset_categories (
         id SERIAL PRIMARY KEY,
         name_de VARCHAR(255) NOT NULL,
         name_en VARCHAR(255) NOT NULL,
         name_tr VARCHAR(255) NOT NULL,
-        type VARCHAR(20) DEFAULT 'income' CHECK (type IN ('income', 'expense')),
+        type VARCHAR(20) DEFAULT 'income' CHECK (type IN ('income', 'expense', 'asset')),
         category_type VARCHAR(50) DEFAULT 'other' CHECK (category_type IN ('real_estate', 'stocks', 'etf', 'bonds', 'crypto', 'gold', 'vehicles', 'collectibles', 'cash', 'other')),
         icon VARCHAR(50),
         requires_ticker BOOLEAN DEFAULT false,
         depreciation_enabled BOOLEAN DEFAULT false,
         is_default BOOLEAN DEFAULT false,
+        allowed_currency_types JSONB DEFAULT '["fiat"]'::jsonb,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -213,6 +245,17 @@ async function runMigrations() {
         notes TEXT,
         created_by INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS shared_ownership_distribution (
+        id SERIAL PRIMARY KEY,
+        asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
+        household_member_id INTEGER REFERENCES household_members(id) ON DELETE CASCADE,
+        ownership_percentage DECIMAL(5,2) NOT NULL CHECK (ownership_percentage >= 0 AND ownership_percentage <= 100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(asset_id, household_member_id)
       )
     `);
         await client.query(`
@@ -263,6 +306,21 @@ async function runMigrations() {
       )
     `);
         await client.query(`
+      CREATE TABLE IF NOT EXISTS currencies (
+        id SERIAL PRIMARY KEY,
+        code VARCHAR(10) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        name_de VARCHAR(100),
+        name_tr VARCHAR(100),
+        symbol VARCHAR(10) NOT NULL,
+        currency_type VARCHAR(20) NOT NULL CHECK (currency_type IN ('fiat', 'cryptocurrency', 'precious_metal')),
+        is_active BOOLEAN DEFAULT true,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        await client.query(`
       CREATE TABLE IF NOT EXISTS invitation_tokens (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
@@ -305,20 +363,6 @@ async function runMigrations() {
         en TEXT NOT NULL,
         de TEXT,
         tr TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-        await client.query(`
-      CREATE TABLE IF NOT EXISTS household_members (
-        id SERIAL PRIMARY KEY,
-        household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
-        name VARCHAR(255) NOT NULL,
-        relationship VARCHAR(100),
-        date_of_birth DATE,
-        notes TEXT,
-        is_shared BOOLEAN DEFAULT false,
-        created_by_user_id INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -402,6 +446,8 @@ async function runMigrations() {
         };
         await addColumnToTable('assets', 'household_member_id', 'INTEGER REFERENCES household_members(id) ON DELETE SET NULL');
         await addColumnToTable('contracts', 'assigned_member_ids', 'INTEGER[] DEFAULT ARRAY[]::INTEGER[]');
+        await addColumnToTable('household_members', 'user_id', 'INTEGER REFERENCES users(id) ON DELETE SET NULL');
+        await addColumnToTable('asset_categories', 'allowed_currency_types', "JSONB DEFAULT '[\"fiat\"]'::jsonb");
         try {
             await client.query(`
         ALTER TABLE users 
@@ -473,7 +519,9 @@ async function runMigrations() {
             await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS icon VARCHAR(50)`);
             await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS requires_ticker BOOLEAN DEFAULT false`);
             await client.query(`ALTER TABLE asset_categories ADD COLUMN IF NOT EXISTS depreciation_enabled BOOLEAN DEFAULT false`);
-            console.log('✅ Updated asset_categories table with new columns');
+            await client.query(`ALTER TABLE asset_categories DROP CONSTRAINT IF EXISTS asset_categories_type_check`);
+            await client.query(`ALTER TABLE asset_categories ADD CONSTRAINT asset_categories_type_check CHECK (type IN ('income', 'expense', 'asset'))`);
+            console.log('✅ Updated asset_categories table with new columns and constraint');
         }
         catch (error) {
             console.log('ℹ️ Asset_categories table columns already updated or table does not exist');
@@ -494,6 +542,9 @@ async function runMigrations() {
         await client.query(`CREATE INDEX IF NOT EXISTS idx_contracts_status ON contracts(status)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_exchange_rates_currencies ON exchange_rates(from_currency, to_currency)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_type ON currencies(currency_type)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_active ON currencies(is_active)`);
+        await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_display_order ON currencies(display_order)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_token ON invitation_tokens(token)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_email ON invitation_tokens(email)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email)`);

@@ -123,7 +123,7 @@ const DashboardPage: React.FC = () => {
       setStats({
         totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
         totalIncome: dashboardData.summary?.total_income_main_currency || 0,
-        monthlyIncome: dashboardData.summary?.quick_stats?.income_entries || 0,
+        monthlyIncome: dashboardData.summary?.quick_stats?.monthly_income || 0,
         activeContracts: dashboardData.summary?.quick_stats?.active_contracts || 0,
         totalMembers: dashboardData.summary?.member_count || 0,
         currency: dashboardData.summary?.main_currency || 'USD'

@@ -39,7 +39,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
 }));
 router.put('/', [
     (0, express_validator_1.body)('preferred_language').optional().isIn(['en', 'de', 'tr']).withMessage('Invalid language'),
-    (0, express_validator_1.body)('main_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency')
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {

@@ -9,6 +9,7 @@ const database_1 = require("../config/database");
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
+const currencyHelpers_1 = require("../utils/currencyHelpers");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
@@ -49,18 +50,16 @@ router.get('/categories', (0, errorHandler_1.asyncHandler)(async (req, res) => {
 router.post('/', [
     (0, express_validator_1.body)('name').trim().notEmpty().withMessage('Asset name is required'),
     (0, express_validator_1.body)('amount').isFloat({ min: 0 }).withMessage('Valid amount required'),
-    (0, express_validator_1.body)('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
     (0, express_validator_1.body)('category_id').isInt({ min: 1 }).withMessage('Valid category ID required'),
     (0, express_validator_1.body)('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
     (0, express_validator_1.body)('date').isISO8601().withMessage('Valid date required'),
-    (0, express_validator_1.body)('household_member_id').optional().isInt({ min: 1 }).withMessage('Valid household member ID required'),
-    (0, express_validator_1.body)('purchase_date').optional().isISO8601().withMessage('Valid purchase date required'),
-    (0, express_validator_1.body)('purchase_price').optional().isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-    (0, express_validator_1.body)('purchase_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
-    (0, express_validator_1.body)('current_value').optional().isFloat({ min: 0 }).withMessage('Valid current value required'),
-    (0, express_validator_1.body)('valuation_method').optional().isLength({ max: 50 }).withMessage('Valuation method too long'),
-    (0, express_validator_1.body)('ownership_type').optional().isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
-    (0, express_validator_1.body)('ownership_percentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
+    (0, express_validator_1.body)('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
+    (0, express_validator_1.body)('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
+    (0, express_validator_1.body)('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
+    (0, express_validator_1.body)('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
+    (0, express_validator_1.body)('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
+    (0, express_validator_1.body)('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared']).withMessage('Invalid ownership type'),
+    (0, express_validator_1.body)('ownership_percentage').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
     (0, express_validator_1.body)('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
     (0, express_validator_1.body)('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
     (0, express_validator_1.body)('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
@@ -76,6 +75,13 @@ router.post('/', [
     const householdId = req.user.household_id;
     if (!householdId) {
         throw (0, errorHandler_1.createValidationError)('User must be assigned to a household');
+    }
+    const validCurrencyCodes = await (0, currencyHelpers_1.getActiveCurrencyCodes)();
+    if (!validCurrencyCodes.includes(currency)) {
+        throw (0, errorHandler_1.createValidationError)(`Invalid currency: ${currency}`);
+    }
+    if (purchase_currency && !validCurrencyCodes.includes(purchase_currency)) {
+        throw (0, errorHandler_1.createValidationError)(`Invalid purchase currency: ${purchase_currency}`);
     }
     const categoryResult = await (0, database_1.query)('SELECT id FROM asset_categories WHERE id = $1', [category_id]);
     if (categoryResult.rows.length === 0) {
@@ -100,10 +106,19 @@ router.post('/', [
         ownership_type || 'single', ownership_percentage || 100.00, status || 'active', location || null, notes || null
     ]);
     const asset = assetResult.rows[0];
-    if (current_value) {
-        await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, new Date().toISOString().split('T')[0], current_value, currency, valuation_method || 'Manual', req.user.id]);
+    if (ownership_type === 'shared' && req.body.shared_ownership_percentages) {
+        const sharedPercentages = req.body.shared_ownership_percentages;
+        for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
+            const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage);
+            if (percentageValue > 0) {
+                await (0, database_1.query)(`INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+           VALUES ($1, $2, $3)`, [asset.id, parseInt(memberId), percentageValue]);
+            }
+        }
     }
+    const initialValue = current_value || amount;
+    await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, date, initialValue, currency, valuation_method || 'Manual', req.user.id]);
     const [categoryNameResult, memberNameResult] = await Promise.all([
         (0, database_1.query)('SELECT name_en, name_de, name_tr FROM asset_categories WHERE id = $1', [category_id]),
         household_member_id ? (0, database_1.query)('SELECT name FROM household_members WHERE id = $1', [household_member_id]) : Promise.resolve({ rows: [] })
@@ -115,6 +130,131 @@ router.post('/', [
             category_name: categoryNameResult.rows[0],
             member_name: memberNameResult.rows[0]?.name || null
         }
+    });
+}));
+router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        throw new Error('User not authenticated');
+    }
+    const { start_date, end_date, category_id, status = 'active', household_view = false } = req.query;
+    const conditions = ['a.status = $1'];
+    const params = [status];
+    let paramCount = 2;
+    if (household_view === 'true' && req.user.household_id) {
+        conditions.push(`a.household_id = $${paramCount++}`);
+        params.push(req.user.household_id);
+    }
+    else {
+        const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
+        if (userMemberResult.rows.length > 0) {
+            const userMemberId = userMemberResult.rows[0].id;
+            conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id AND household_member_id = $${paramCount}
+      ))`);
+            params.push(req.user.id);
+            params.push(userMemberId);
+        }
+        else {
+            conditions.push(`a.user_id = $${paramCount++}`);
+            params.push(req.user.id);
+        }
+    }
+    if (start_date) {
+        conditions.push(`a.date >= $${paramCount++}`);
+        params.push(start_date);
+    }
+    if (end_date) {
+        conditions.push(`a.date <= $${paramCount++}`);
+        params.push(end_date);
+    }
+    if (category_id) {
+        conditions.push(`a.category_id = $${paramCount++}`);
+        params.push(category_id);
+    }
+    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+    const assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.category_type, ac.icon
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     ${whereClause}
+     ORDER BY a.current_value DESC`, params);
+    const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
+    const userCurrency = req.user.main_currency || 'USD';
+    const categoryTotals = {};
+    const currencyTotals = {};
+    let totalValueInMainCurrency = 0;
+    for (const asset of assetsResult.rows) {
+        const categoryName = asset.category_name_en;
+        const assetCurrency = asset.currency;
+        const assetValue = parseFloat(asset.current_value || asset.amount);
+        if (!categoryTotals[categoryName]) {
+            categoryTotals[categoryName] = {};
+        }
+        if (!categoryTotals[categoryName][assetCurrency]) {
+            categoryTotals[categoryName][assetCurrency] = 0;
+        }
+        categoryTotals[categoryName][assetCurrency] += assetValue;
+        if (!currencyTotals[assetCurrency]) {
+            currencyTotals[assetCurrency] = 0;
+        }
+        currencyTotals[assetCurrency] += assetValue;
+        if (assetCurrency === userCurrency) {
+            totalValueInMainCurrency += assetValue;
+        }
+        else {
+            const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
+            if (rate) {
+                totalValueInMainCurrency += assetValue * rate.rate;
+            }
+        }
+    }
+    const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
+    const totalROI = assetsWithROI.reduce((sum, asset) => {
+        const purchasePrice = parseFloat(asset.purchase_price);
+        const currentValue = parseFloat(asset.current_value || asset.amount);
+        return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
+    }, 0);
+    const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
+    const allocationByCategory = Object.entries(categoryTotals).map(([categoryName, currencies]) => {
+        const categoryTotal = Object.values(currencies).reduce((sum, val) => sum + val, 0);
+        return {
+            category_name: categoryName,
+            total_value: categoryTotal,
+            percentage: totalValueInMainCurrency > 0 ? (categoryTotal / totalValueInMainCurrency) * 100 : 0
+        };
+    }).sort((a, b) => b.total_value - a.total_value);
+    const typeTotals = {};
+    for (const asset of assetsResult.rows) {
+        const categoryType = asset.category_type || 'other';
+        const assetValue = parseFloat(asset.current_value || asset.amount);
+        if (asset.currency === userCurrency) {
+            typeTotals[categoryType] = (typeTotals[categoryType] || 0) + assetValue;
+        }
+        else {
+            const rate = exchangeRates.find(r => r.from_currency === asset.currency && r.to_currency === userCurrency);
+            if (rate) {
+                typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (assetValue * rate.rate);
+            }
+        }
+    }
+    const allocationByType = Object.entries(typeTotals).map(([type, totalValue]) => ({
+        type,
+        total_value: totalValue,
+        percentage: totalValueInMainCurrency > 0 ? (totalValue / totalValueInMainCurrency) * 100 : 0
+    })).sort((a, b) => b.total_value - a.total_value);
+    res.json({
+        summary: {
+            total_assets: assetsResult.rows.length,
+            total_value_main_currency: totalValueInMainCurrency,
+            main_currency: userCurrency,
+            average_roi: averageROI,
+            assets_with_roi: assetsWithROI.length
+        },
+        category_totals: categoryTotals,
+        currency_totals: currencyTotals,
+        allocation_by_category: allocationByCategory,
+        allocation_by_type: allocationByType,
+        assets: assetsResult.rows
     });
 }));
 router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
@@ -131,8 +271,20 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         params.push(req.user.household_id);
     }
     else {
-        conditions.push(`a.user_id = $${paramCount++}`);
-        params.push(req.user.id);
+        const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
+        if (userMemberResult.rows.length > 0) {
+            const userMemberId = userMemberResult.rows[0].id;
+            conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id AND household_member_id = $${paramCount}
+      ))`);
+            params.push(req.user.id);
+            params.push(userMemberId);
+        }
+        else {
+            conditions.push(`a.user_id = $${paramCount++}`);
+            params.push(req.user.id);
+        }
     }
     if (category_id) {
         conditions.push(`a.category_id = $${paramCount++}`);
@@ -172,8 +324,63 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      FROM assets a
      ${whereClause}`, params);
     const total = parseInt(countResult.rows[0].total);
+    const assetIds = assetsResult.rows.map(a => a.id);
+    let sharedOwnershipMap = {};
+    if (assetIds.length > 0) {
+        try {
+            const sharedOwnershipResult = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
+         FROM shared_ownership_distribution sod
+         JOIN household_members hm ON sod.household_member_id = hm.id
+         WHERE sod.asset_id = ANY($1::int[])`, [assetIds]);
+            sharedOwnershipResult.rows.forEach(row => {
+                if (!sharedOwnershipMap[row.asset_id]) {
+                    sharedOwnershipMap[row.asset_id] = [];
+                }
+                sharedOwnershipMap[row.asset_id].push({
+                    household_member_id: row.household_member_id,
+                    ownership_percentage: parseFloat(row.ownership_percentage),
+                    member_name: row.member_name,
+                    relationship: row.relationship
+                });
+            });
+        }
+        catch (error) {
+            console.error('Error fetching shared ownership:', error);
+        }
+    }
+    let assetsWithOwnership = assetsResult.rows.map(asset => ({
+        ...asset,
+        shared_ownership: sharedOwnershipMap[asset.id] || []
+    }));
+    for (const asset of assetsWithOwnership) {
+        if (asset.ownership_type === 'shared' &&
+            (!asset.shared_ownership || asset.shared_ownership.length === 0)) {
+            try {
+                const membersResult = await (0, database_1.query)(`SELECT id, name, relationship FROM household_members 
+           WHERE household_id = $1 ORDER BY name`, [asset.household_id]);
+                if (membersResult.rows.length > 0) {
+                    const percentagePerMember = Math.floor(100 / membersResult.rows.length);
+                    const remainder = 100 % membersResult.rows.length;
+                    asset.shared_ownership = membersResult.rows.map((member, index) => ({
+                        household_member_id: member.id,
+                        ownership_percentage: percentagePerMember + (index === 0 ? remainder : 0),
+                        member_name: member.name,
+                        relationship: member.relationship
+                    }));
+                    for (const owner of asset.shared_ownership) {
+                        await (0, database_1.query)(`INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+               VALUES ($1, $2, $3)
+               ON CONFLICT (asset_id, household_member_id) DO NOTHING`, [asset.id, owner.household_member_id, owner.ownership_percentage]);
+                    }
+                }
+            }
+            catch (error) {
+                console.error('Error creating default distribution for asset:', asset.id, error);
+            }
+        }
+    }
     res.json({
-        assets: assetsResult.rows,
+        assets: assetsWithOwnership,
         pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -201,26 +408,37 @@ router.get('/:id', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (req.user.role !== 'admin' && asset.user_id !== req.user.id) {
         throw new Error('Access denied to this asset');
     }
+    const sharedOwnershipResult = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
+     FROM shared_ownership_distribution sod
+     JOIN household_members hm ON sod.household_member_id = hm.id
+     WHERE sod.asset_id = $1`, [id]);
+    const assetWithOwnership = {
+        ...asset,
+        shared_ownership: sharedOwnershipResult.rows.map(row => ({
+            household_member_id: row.household_member_id,
+            ownership_percentage: parseFloat(row.ownership_percentage),
+            member_name: row.member_name,
+            relationship: row.relationship
+        }))
+    };
     res.json({
-        asset
+        asset: assetWithOwnership
     });
 }));
 router.put('/:id', [
     (0, express_validator_1.body)('name').optional().trim().notEmpty().withMessage('Asset name cannot be empty'),
     (0, express_validator_1.body)('amount').optional().isFloat({ min: 0 }).withMessage('Valid amount required'),
-    (0, express_validator_1.body)('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
     (0, express_validator_1.body)('category_id').optional().isInt({ min: 1 }).withMessage('Valid category ID required'),
-    (0, express_validator_1.body)('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
-    (0, express_validator_1.body)('date').optional().isISO8601().withMessage('Valid date required'),
-    (0, express_validator_1.body)('household_member_id').optional().isInt({ min: 1 }).withMessage('Valid household member ID required'),
-    (0, express_validator_1.body)('purchase_date').optional().isISO8601().withMessage('Valid purchase date required'),
-    (0, express_validator_1.body)('purchase_price').optional().isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-    (0, express_validator_1.body)('purchase_currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
-    (0, express_validator_1.body)('current_value').optional().isFloat({ min: 0 }).withMessage('Valid current value required'),
-    (0, express_validator_1.body)('valuation_method').optional().isLength({ max: 50 }).withMessage('Valuation method too long'),
-    (0, express_validator_1.body)('ownership_type').optional().isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
-    (0, express_validator_1.body)('ownership_percentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
-    (0, express_validator_1.body)('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
+    (0, express_validator_1.body)('description').optional({ nullable: true, checkFalsy: true }).isLength({ max: 500 }).withMessage('Description too long'),
+    (0, express_validator_1.body)('date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid date required'),
+    (0, express_validator_1.body)('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
+    (0, express_validator_1.body)('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
+    (0, express_validator_1.body)('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
+    (0, express_validator_1.body)('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
+    (0, express_validator_1.body)('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
+    (0, express_validator_1.body)('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared']).withMessage('Invalid ownership type'),
+    (0, express_validator_1.body)('ownership_percentage').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
+    (0, express_validator_1.body)('status').optional({ nullable: true, checkFalsy: true }).isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
     (0, express_validator_1.body)('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
     (0, express_validator_1.body)('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
@@ -240,6 +458,15 @@ router.put('/:id', [
     const existingAsset = existingAssetResult.rows[0];
     if (req.user.role !== 'admin' && existingAsset.user_id !== req.user.id) {
         throw new Error('Access denied to this asset');
+    }
+    if (updateData.currency || updateData.purchase_currency) {
+        const validCurrencyCodes = await (0, currencyHelpers_1.getActiveCurrencyCodes)();
+        if (updateData.currency && !validCurrencyCodes.includes(updateData.currency)) {
+            throw (0, errorHandler_1.createValidationError)(`Invalid currency: ${updateData.currency}`);
+        }
+        if (updateData.purchase_currency && !validCurrencyCodes.includes(updateData.purchase_currency)) {
+            throw (0, errorHandler_1.createValidationError)(`Invalid purchase currency: ${updateData.purchase_currency}`);
+        }
     }
     const updateFields = [];
     const updateValues = [];
@@ -265,6 +492,20 @@ router.put('/:id', [
     }
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
     const result = await (0, database_1.query)(`UPDATE assets SET ${updateFields.join(', ')} WHERE id = $${paramCount++} RETURNING *`, [...updateValues, id]);
+    if (updateData.ownership_type === 'shared' && updateData.shared_ownership_percentages) {
+        await (0, database_1.query)('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
+        const sharedPercentages = updateData.shared_ownership_percentages;
+        for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
+            const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage);
+            if (percentageValue > 0) {
+                await (0, database_1.query)(`INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+           VALUES ($1, $2, $3)`, [id, parseInt(memberId), percentageValue]);
+            }
+        }
+    }
+    else if (updateData.ownership_type && updateData.ownership_type !== 'shared') {
+        await (0, database_1.query)('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
+    }
     if (updateData.current_value !== undefined) {
         await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
        VALUES ($1, $2, $3, $4, $5, $6)`, [
@@ -316,7 +557,7 @@ router.get('/:id/history', (0, errorHandler_1.asyncHandler)(async (req, res) => 
      FROM asset_valuation_history avh
      LEFT JOIN users u ON avh.created_by = u.id
      WHERE avh.asset_id = $1
-     ORDER BY avh.valuation_date DESC`, [id]);
+     ORDER BY avh.valuation_date DESC, avh.created_at DESC`, [id]);
     res.json({
         asset_id: id,
         history: historyResult.rows
@@ -383,82 +624,6 @@ router.post('/:id/photo', upload.single('photo'), (0, errorHandler_1.asyncHandle
     res.json({
         message: 'Photo uploaded successfully',
         photo_url: photoUrl
-    });
-}));
-router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    if (!req.user) {
-        throw new Error('User not authenticated');
-    }
-    const { start_date, end_date, category_id, status = 'active' } = req.query;
-    const conditions = ['a.user_id = $1', 'a.status = $2'];
-    const params = [req.user.id, status];
-    let paramCount = 3;
-    if (start_date) {
-        conditions.push(`a.date >= $${paramCount++}`);
-        params.push(start_date);
-    }
-    if (end_date) {
-        conditions.push(`a.date <= $${paramCount++}`);
-        params.push(end_date);
-    }
-    if (category_id) {
-        conditions.push(`a.category_id = $${paramCount++}`);
-        params.push(category_id);
-    }
-    const whereClause = `WHERE ${conditions.join(' AND ')}`;
-    const assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.category_type, ac.icon
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     ${whereClause}
-     ORDER BY a.current_value DESC`, params);
-    const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
-    const userCurrency = req.user.main_currency || 'USD';
-    const categoryTotals = {};
-    const currencyTotals = {};
-    let totalValueInMainCurrency = 0;
-    for (const asset of assetsResult.rows) {
-        const categoryName = asset.category_name_en;
-        const assetCurrency = asset.currency;
-        const assetValue = parseFloat(asset.current_value || asset.amount);
-        if (!categoryTotals[categoryName]) {
-            categoryTotals[categoryName] = {};
-        }
-        if (!categoryTotals[categoryName][assetCurrency]) {
-            categoryTotals[categoryName][assetCurrency] = 0;
-        }
-        categoryTotals[categoryName][assetCurrency] += assetValue;
-        if (!currencyTotals[assetCurrency]) {
-            currencyTotals[assetCurrency] = 0;
-        }
-        currencyTotals[assetCurrency] += assetValue;
-        if (assetCurrency === userCurrency) {
-            totalValueInMainCurrency += assetValue;
-        }
-        else {
-            const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
-            if (rate) {
-                totalValueInMainCurrency += assetValue * rate.rate;
-            }
-        }
-    }
-    const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
-    const totalROI = assetsWithROI.reduce((sum, asset) => {
-        const purchasePrice = parseFloat(asset.purchase_price);
-        const currentValue = parseFloat(asset.current_value || asset.amount);
-        return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
-    }, 0);
-    const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
-    res.json({
-        summary: {
-            total_assets: assetsResult.rows.length,
-            total_value_main_currency: totalValueInMainCurrency,
-            main_currency: userCurrency,
-            average_roi: averageROI,
-            assets_with_roi: assetsWithROI.length
-        },
-        category_totals: categoryTotals,
-        currency_totals: currencyTotals,
-        assets: assetsResult.rows
     });
 }));
 exports.default = router;

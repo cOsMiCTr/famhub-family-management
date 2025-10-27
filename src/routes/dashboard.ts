@@ -199,6 +199,30 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [req.user.household_id]
   );
 
+  // Get current month income and convert to main currency
+  const monthlyIncomeResult_RAW = await query(
+    `SELECT SUM(i.amount) as total_amount, i.currency
+     FROM income i
+     JOIN users u ON i.household_id = u.household_id
+     WHERE u.id = $1 AND DATE_TRUNC('month', i.start_date) = DATE_TRUNC('month', CURRENT_DATE)
+     GROUP BY i.currency`,
+    [userId]
+  );
+
+  let monthlyIncomeInMainCurrency = 0;
+  for (const income of monthlyIncomeResult_RAW.rows) {
+    try {
+      const convertedAmount = await exchangeRateService.convertCurrency(
+        parseFloat(income.total_amount),
+        income.currency,
+        mainCurrency
+      );
+      monthlyIncomeInMainCurrency += convertedAmount;
+    } catch (error) {
+      console.error(`Error converting monthly income ${income.currency} to ${mainCurrency}:`, error);
+    }
+  }
+
   const quickStats = quickStatsResult.rows[0];
 
   // Get exchange rates for user's main currency
@@ -228,7 +252,8 @@ router.get('/summary', asyncHandler(async (req, res) => {
       quick_stats: {
         income_entries: parseInt(quickStats.income_entries) || 0,
         expense_entries: parseInt(quickStats.expense_entries) || 0,
-        active_contracts: parseInt(quickStats.active_contracts) || 0
+        active_contracts: parseInt(quickStats.active_contracts) || 0,
+        monthly_income: monthlyIncomeInMainCurrency
       }
     },
     exchange_rates: relevantRates,

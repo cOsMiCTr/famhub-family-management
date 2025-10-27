@@ -12,6 +12,8 @@ declare class ExchangeRateService {
     updateExchangeRates(): Promise<void>;
     private updateFiatRates;
     private updateGoldRates;
+    private updateCryptocurrencyRates;
+    private updateMetalRates;
     private setFallbackRates;
     private setFallbackGoldRates;
     private storeExchangeRates;
