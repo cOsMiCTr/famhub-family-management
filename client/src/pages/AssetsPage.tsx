@@ -10,8 +10,13 @@ import {
   TrashIcon,
   PhotoIcon,
   ChartBarIcon,
+  ChartPieIcon,
   CurrencyDollarIcon,
+  BanknotesIcon,
+  TruckIcon,
+  SparklesIcon,
   CalendarIcon,
+  MapIcon,
   MapPinIcon,
   UserIcon,
   TagIcon,
@@ -40,12 +45,49 @@ const AssetsPage: React.FC = () => {
   
   // Helper to get icon component from icon name
   const getCategoryIcon = (iconName: string | undefined) => {
-    // Simple mapping for common icons
+    // Comprehensive mapping for all icons
     const iconMap: {[key: string]: React.ComponentType<any>} = {
       'HomeIcon': HomeIcon,
       'CubeTransparentIcon': CubeTransparentIcon,
       'TagIcon': TagIcon,
       'DocumentTextIcon': DocumentTextIcon,
+      'CurrencyDollarIcon': CurrencyDollarIcon,
+      'BanknotesIcon': BanknotesIcon,
+      'ChartBarIcon': ChartBarIcon,
+      'ChartPieIcon': ChartPieIcon,
+      'TruckIcon': TruckIcon,
+      'SparklesIcon': SparklesIcon,
+      'BuildingOfficeIcon': HomeIcon, // Using HomeIcon as fallback
+      'BuildingOffice2Icon': HomeIcon, // Using HomeIcon as fallback
+      'BriefcaseIcon': HomeIcon, // Using HomeIcon as fallback
+      'ComputerDesktopIcon': HomeIcon, // Using HomeIcon as fallback
+      'DevicePhoneMobileIcon': HomeIcon, // Using HomeIcon as fallback
+      'CameraIcon': HomeIcon, // Using HomeIcon as fallback
+      'MusicalNoteIcon': HomeIcon, // Using HomeIcon as fallback
+      'BookOpenIcon': HomeIcon, // Using HomeIcon as fallback
+      'AcademicCapIcon': HomeIcon, // Using HomeIcon as fallback
+      'HeartIcon': HomeIcon, // Using HomeIcon as fallback
+      'GiftIcon': HomeIcon, // Using HomeIcon as fallback
+      'StarIcon': HomeIcon, // Using HomeIcon as fallback
+      'FireIcon': HomeIcon, // Using HomeIcon as fallback
+      'BoltIcon': HomeIcon, // Using HomeIcon as fallback
+      'SunIcon': HomeIcon, // Using HomeIcon as fallback
+      'MoonIcon': HomeIcon, // Using HomeIcon as fallback
+      'GlobeAltIcon': HomeIcon, // Using HomeIcon as fallback
+      'MapIcon': MapIcon,
+      'ClockIcon': HomeIcon, // Using HomeIcon as fallback
+      'CalendarIcon': CalendarIcon,
+      'UserIcon': UserIcon,
+      'UsersIcon': UserIcon, // Using UserIcon as fallback
+      'ShieldCheckIcon': HomeIcon, // Using HomeIcon as fallback
+      'PaintBrushIcon': HomeIcon, // Using HomeIcon as fallback
+      'CreditCardIcon': HomeIcon, // Using HomeIcon as fallback
+      'ReceiptPercentIcon': HomeIcon, // Using HomeIcon as fallback
+      'CalculatorIcon': HomeIcon, // Using HomeIcon as fallback
+      'PlusIcon': HomeIcon, // Using HomeIcon as fallback
+      'MinusIcon': HomeIcon, // Using HomeIcon as fallback
+      'CheckIcon': HomeIcon, // Using HomeIcon as fallback
+      'XCircleIcon': HomeIcon, // Using HomeIcon as fallback
       'home': HomeIcon,
       'home-modern': HomeIcon,
     };
@@ -597,7 +639,7 @@ const AssetsPage: React.FC = () => {
                               <span className="mx-2">•</span>
                               <span className="flex items-center flex-wrap gap-1">
                                 {asset.shared_ownership.map((owner) => (
-                                  <span key={owner.household_member_id} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
+                                  <span key={owner.household_member_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
                                     {owner.member_name}: {owner.ownership_percentage}%
                                   </span>
                                 ))}

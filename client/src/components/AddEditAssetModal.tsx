@@ -600,21 +600,21 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                           Ownership Distribution
                         </label>
-                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-96 overflow-y-auto">
-                          <div className="space-y-4">
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 max-h-96 overflow-y-auto">
+                          <div className="space-y-2">
                             {members && members.map && members.map(member => (
                               <div key={member.id}>
-                                <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center justify-between mb-1">
                                   <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">
+                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
                                       {member.name}
                                     </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
                                       {member.relationship}
                                     </div>
                                   </div>
                                   <div className="w-20 text-right">
-                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                    <span className="text-xs font-medium text-gray-900 dark:text-white">
                                       {sharedOwnershipPercentages[member.id] || 0}%
                                     </span>
                                   </div>
@@ -627,11 +627,42 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                                   step="0.5"
                                   value={sharedOwnershipPercentages[member.id] || 0}
                                   onChange={(e) => {
-                                    const value = parseFloat(e.target.value) || 0;
-                                    setSharedOwnershipPercentages(prev => ({
-                                      ...prev,
-                                      [member.id]: value
-                                    }));
+                                    const newValue = parseFloat(e.target.value) || 0;
+                                    const currentTotal = Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0);
+                                    const currentValue = sharedOwnershipPercentages[member.id] || 0;
+                                    
+                                    // Calculate the difference
+                                    const difference = newValue - currentValue;
+                                    
+                                    // Calculate sum of OTHER members (excluding current member)
+                                    const otherMembersSum = currentTotal - currentValue;
+                                    
+                                    // If there's no other members or we're increasing to 100%, just set this value
+                                    if (otherMembersSum <= 0 || newValue >= 100) {
+                                      setSharedOwnershipPercentages(prev => ({
+                                        ...prev,
+                                        [member.id]: newValue
+                                      }));
+                                    } else {
+                                      // Proportionally adjust other members
+                                      const remaining = 100 - newValue;
+                                      const newPercentages: { [key: number]: number } = {
+                                        [member.id]: newValue
+                                      };
+                                      
+                                      // Redistribute proportionally among other members
+                                      Object.keys(sharedOwnershipPercentages).forEach(otherMemberId => {
+                                        const otherId = parseInt(otherMemberId);
+                                        if (otherId !== member.id) {
+                                          const oldPercentage = sharedOwnershipPercentages[otherId] || 0;
+                                          // Calculate proportional reduction
+                                          const proportion = oldPercentage / otherMembersSum;
+                                          newPercentages[otherId] = remaining * proportion;
+                                        }
+                                      });
+                                      
+                                      setSharedOwnershipPercentages(newPercentages);
+                                    }
                                   }}
                                   className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                 />

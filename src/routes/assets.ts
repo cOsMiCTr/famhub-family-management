@@ -360,8 +360,30 @@ router.get('/', asyncHandler(async (req, res) => {
     conditions.push(`a.household_id = $${paramCount++}`);
     params.push(req.user.household_id);
   } else {
-    conditions.push(`a.user_id = $${paramCount++}`);
-    params.push(req.user.id);
+    // Personal view: show assets where user is owner OR user is in shared ownership
+    // Get user's household member ID
+    const userMemberResult = await query(
+      'SELECT id FROM household_members WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    if (userMemberResult.rows.length > 0) {
+      const userMemberId = userMemberResult.rows[0].id;
+      // Include assets where user is the primary owner OR where user has shared ownership
+      conditions.push(`(
+        a.user_id = $${paramCount} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution 
+          WHERE asset_id = a.id AND household_member_id = $${paramCount + 1}
+        )
+      )`);
+      params.push(req.user.id, userMemberId);
+      paramCount += 2;
+    } else {
+      // Fallback if no household member record
+      conditions.push(`a.user_id = $${paramCount++}`);
+      params.push(req.user.id);
+    }
   }
 
   if (category_id) {
