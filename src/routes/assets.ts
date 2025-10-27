@@ -74,16 +74,8 @@ router.post('/', [
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
   body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
-  console.log('🔍 POST /api/assets - Request received');
-  console.log('🔍 Full request body:', JSON.stringify(req.body, null, 2));
-  console.log('🔍 ownership_type:', req.body.ownership_type);
-  console.log('🔍 shared_ownership_percentages:', req.body.shared_ownership_percentages);
-  console.log('🔍 Type of shared_ownership_percentages:', typeof req.body.shared_ownership_percentages);
-  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.error('🔴 Validation errors:', JSON.stringify(errors.array(), null, 2));
-    console.error('🔴 Request body:', JSON.stringify(req.body, null, 2));
     throw createValidationError('Invalid input data');
   }
 
@@ -154,47 +146,20 @@ router.post('/', [
   const asset = assetResult.rows[0];
 
   // Handle shared ownership distribution if applicable
-  console.log('🔍 Creating asset - ownership_type:', ownership_type);
-  console.log('🔍 req.body.shared_ownership_percentages:', req.body.shared_ownership_percentages);
-  console.log('🔍 typeof req.body.shared_ownership_percentages:', typeof req.body.shared_ownership_percentages);
-  console.log('🔍 Boolean check:', !!req.body.shared_ownership_percentages);
-  
-  const isShared = ownership_type === 'shared' || ownership_type === 'household';
-  const hasPercentages = !!req.body.shared_ownership_percentages;
-  console.log('🔍 isShared:', isShared);
-  console.log('🔍 hasPercentages:', hasPercentages);
-  console.log('🔍 Combined condition:', isShared && hasPercentages);
-  
   if ((ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages) {
     const sharedPercentages = req.body.shared_ownership_percentages;
     
-    console.log('✅ Processing shared ownership distribution:', JSON.stringify(sharedPercentages));
-    console.log('✅ Number of entries:', Object.keys(sharedPercentages).length);
-    
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
       const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage as string);
-      console.log(`📝 Inserting: asset_id=${asset.id}, household_member_id=${memberId}, percentage=${percentageValue}`);
       
       if (percentageValue > 0) {
-        try {
-          await query(
-            `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
-             VALUES ($1, $2, $3)`,
-            [asset.id, parseInt(memberId), percentageValue]
-          );
-          console.log('✅ Successfully inserted shared ownership entry');
-        } catch (insertError) {
-          console.error('❌ Error inserting shared ownership:', insertError);
-        }
-      } else {
-        console.log(`⚠️ Skipping ${memberId} because percentage is 0 or negative`);
+        await query(
+          `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+           VALUES ($1, $2, $3)`,
+          [asset.id, parseInt(memberId), percentageValue]
+        );
       }
     }
-  } else {
-    console.log('⚠️ Skipping shared ownership distribution');
-    console.log('- ownership_type:', ownership_type);
-    console.log('- has shared_ownership_percentages:', hasPercentages);
-    console.log('- condition result:', (ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages);
   }
 
   // Create initial valuation history entry
@@ -635,10 +600,8 @@ router.put('/:id', [
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
   body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
-  console.log('🔍 PUT /api/assets/:id - Request body:', JSON.stringify(req.body, null, 2));
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.error('❌ Validation errors:', JSON.stringify(errors.array(), null, 2));
     throw createValidationError('Invalid input data');
   }
 
