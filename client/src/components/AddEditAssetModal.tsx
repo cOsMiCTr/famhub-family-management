@@ -308,8 +308,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (canProceedToNext() && currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+      setErrors([]); // Clear errors when moving to next step
     }
   };
 
@@ -320,6 +321,16 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   };
 
   const canProceedToNext = () => {
+    // Validate current step
+    const validation = validateAssetForm(formData, currentStep);
+    
+    // Set errors for the current step
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+    } else {
+      setErrors([]);
+    }
+
     switch (currentStep) {
       case 1: // What is it?
         return formData.name && formData.category_id;
@@ -470,16 +481,20 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="e.g., My Car, Investment Portfolio, House"
-                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
-                        required
+                        className={`w-full border rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg ${
+                          errors.includes('Asset name is required') ? 'border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
+                      {errors.includes('Asset name is required') && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.nameRequired')}</p>
+                      )}
                     </div>
 
                     <SearchableAssetCategorySelector
                       categories={categories as any}
                       selectedCategoryId={formData.category_id}
                       onCategoryChange={(categoryId) => setFormData(prev => ({ ...prev, category_id: categoryId }))}
-                      error={errors.includes('Category is required') ? 'Category is required' : undefined}
+                      error={errors.includes('Category is required') ? t('common.categoryRequired') : undefined}
                       placeholder="Select a category"
                       getCategoryIcon={getCategoryIcon}
                     />
@@ -651,11 +666,15 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           name="amount"
                           value={formData.amount}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg"
+                          className={`w-full border rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg ${
+                            errors.includes('Valid amount is required') ? 'border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
+                          }`}
                           placeholder="0.00"
-                          required
                         />
                       </div>
+                      {errors.includes('Valid amount is required') && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.amountRequired')}</p>
+                      )}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Currency *
@@ -664,13 +683,17 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           name="currency"
                           value={formData.currency}
                           onChange={handleInputChange}
-                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                          required
+                          className={`w-full border rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
+                            errors.includes('Currency is required') ? 'border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
+                          }`}
                         >
                           {currencyOptions.map(option => (
                             <option key={option.value} value={option.value}>{option.label}</option>
                           ))}
                         </select>
+                        {errors.includes('Currency is required') && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.currencyRequired')}</p>
+                        )}
                       </div>
                     </div>
 
