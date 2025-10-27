@@ -560,8 +560,10 @@ router.put('/:id', [
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
   body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
+  console.log('🔍 PUT /api/assets/:id - Request body:', JSON.stringify(req.body, null, 2));
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error('❌ Validation errors:', JSON.stringify(errors.array(), null, 2));
     throw createValidationError('Invalid input data');
   }
 
