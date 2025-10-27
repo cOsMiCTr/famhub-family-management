@@ -469,10 +469,54 @@ router.get('/', asyncHandler(async (req, res) => {
   }
 
   // Attach shared ownership to each asset
-  const assetsWithOwnership = assetsResult.rows.map(asset => ({
+  let assetsWithOwnership = assetsResult.rows.map(asset => ({
     ...asset,
     shared_ownership: sharedOwnershipMap[asset.id] || []
   }));
+
+  // For assets with shared/household ownership but no distribution entries yet, 
+  // get all household members and create default distribution
+  for (const asset of assetsWithOwnership) {
+    if ((asset.ownership_type === 'shared' || asset.ownership_type === 'household') && 
+        (!asset.shared_ownership || asset.shared_ownership.length === 0)) {
+      
+      try {
+        // Get all household members
+        const membersResult = await query(
+          `SELECT id, name, relationship, role FROM household_members 
+           WHERE household_id = $1 ORDER BY name`,
+          [asset.household_id]
+        );
+
+        if (membersResult.rows.length > 0) {
+          // Calculate equal distribution
+          const percentagePerMember = Math.floor(100 / membersResult.rows.length);
+          const remainder = 100 % membersResult.rows.length;
+
+          asset.shared_ownership = membersResult.rows.map((member: any, index: number) => ({
+            household_member_id: member.id,
+            ownership_percentage: percentagePerMember + (index === 0 ? remainder : 0),
+            member_name: member.name,
+            relationship: member.relationship,
+            role: member.role
+          }));
+
+          // Insert into database
+          for (const owner of asset.shared_ownership) {
+            await query(
+              `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+               VALUES ($1, $2, $3)
+               ON CONFLICT (asset_id, household_member_id) DO NOTHING`,
+              [asset.id, owner.household_member_id, owner.ownership_percentage]
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error creating default distribution for asset:', asset.id, error);
+        // Continue without default distribution
+      }
+    }
+  }
 
   res.json({
     assets: assetsWithOwnership,
