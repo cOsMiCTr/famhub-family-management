@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { 
   HomeIcon, 
@@ -99,6 +100,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   members
 }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
@@ -107,14 +109,14 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     amount: '',
-    currency: 'USD',
+    currency: user?.main_currency || 'USD',
     category_id: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
     household_member_id: '',
     purchase_date: '',
     purchase_price: '',
-    purchase_currency: 'USD',
+    purchase_currency: user?.main_currency || 'USD',
     current_value: '',
     valuation_method: 'manual',
     ownership_type: 'single',
@@ -270,14 +272,14 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         setFormData({
           name: '',
           amount: '',
-          currency: 'USD',
+          currency: user?.main_currency || 'USD',
           category_id: '',
           description: '',
           date: new Date().toISOString().split('T')[0],
           household_member_id: '',
           purchase_date: '',
           purchase_price: '',
-          purchase_currency: 'USD',
+          purchase_currency: user?.main_currency || 'USD',
           current_value: '',
           valuation_method: 'manual',
           ownership_type: 'single',
@@ -683,15 +685,15 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           name="amount"
                           value={formData.amount}
                           onChange={handleInputChange}
-                          className={`w-full border rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-lg ${
+                          className={`w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
                             errors.includes('Valid amount is required') ? 'border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                           }`}
                           placeholder="0.00"
                         />
+                        {errors.includes('Valid amount is required') && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.amountRequired')}</p>
+                        )}
                       </div>
-                      {errors.includes('Valid amount is required') && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.amountRequired')}</p>
-                      )}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Currency *
@@ -700,7 +702,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           name="currency"
                           value={formData.currency}
                           onChange={handleInputChange}
-                          className={`w-full border rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
+                          className={`w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
                             errors.includes('Currency is required') ? 'border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600'
                           }`}
                         >
