@@ -14,7 +14,7 @@ interface AssetCardProps {
 }
 
 const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, className = '' }) => {
-  const roi = calculateROI(asset.purchase_price || 0, asset.current_value || asset.amount);
+  const roi = calculateROI(asset) || 0;
   const hasPositiveROI = roi > 0;
   
   // Determine status color
