@@ -68,7 +68,16 @@ const DashboardPage: React.FC = () => {
     if (savedExchangeRates) {
       const parsed = JSON.parse(savedExchangeRates);
       console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
-      setSelectedExchangeRates(parsed);
+      
+      // Filter out the user's main currency from saved selection
+      const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+      const filtered = parsed.filter((c: string) => c !== userMainCurrency);
+      
+      if (filtered.length !== parsed.length) {
+        console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
+      }
+      
+      setSelectedExchangeRates(filtered);
     } else {
       console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
     }
@@ -210,9 +219,15 @@ const DashboardPage: React.FC = () => {
   
   // Handle exchange rate configuration
   const handleExchangeRateConfig = (selectedCurrencies: string[]) => {
-    console.log('💾 Saving exchange rates to localStorage:', selectedCurrencies);
-    setSelectedExchangeRates(selectedCurrencies);
-    localStorage.setItem('dashboard_exchange_rates', JSON.stringify(selectedCurrencies));
+    // Filter out user's main currency before saving
+    const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+    const filtered = selectedCurrencies.filter(c => c !== userMainCurrency);
+    
+    console.log('💾 Saving exchange rates to localStorage:', filtered);
+    console.log(`💾 Filtered out main currency ${userMainCurrency}`);
+    
+    setSelectedExchangeRates(filtered);
+    localStorage.setItem('dashboard_exchange_rates', JSON.stringify(filtered));
   };
   
   // Handle conversion toggle
@@ -490,7 +505,6 @@ const DashboardPage: React.FC = () => {
                     // Show rates where to_currency is active and selected
                     const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
                     const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                    console.log(`🔍 Checking rate: from=${rate.from_currency}, to=${rate.to_currency}, isActive=${isActive}, isSelected=${isSelected}`);
                     return isActive && isSelected;
                   })
                   .map((rate, index) => {
