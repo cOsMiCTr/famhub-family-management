@@ -74,6 +74,12 @@ router.post('/', [
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
   body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
 ], asyncHandler(async (req, res) => {
+  console.log('🔍 POST /api/assets - Request received');
+  console.log('🔍 Full request body:', JSON.stringify(req.body, null, 2));
+  console.log('🔍 ownership_type:', req.body.ownership_type);
+  console.log('🔍 shared_ownership_percentages:', req.body.shared_ownership_percentages);
+  console.log('🔍 Type of shared_ownership_percentages:', typeof req.body.shared_ownership_percentages);
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.error('🔴 Validation errors:', JSON.stringify(errors.array(), null, 2));
