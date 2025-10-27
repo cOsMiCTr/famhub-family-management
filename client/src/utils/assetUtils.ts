@@ -56,6 +56,7 @@ export interface AssetCategory {
   depreciation_enabled: boolean;
   is_default: boolean;
   asset_count: number;
+  allowed_currency_types?: string[];
 }
 
 // Currency formatting

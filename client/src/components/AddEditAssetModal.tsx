@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { useAllCurrencies } from '../contexts/CurrencyContext';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { 
   HomeIcon, 
@@ -134,35 +135,23 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
   // Get selected category details
   const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
-
-  // Determine if this is a cryptocurrency asset
-  const isCryptoAsset = selectedCategory?.category_type === 'crypto';
-
-  // Define currency options based on asset type
-  const cryptoCurrencyOptions = [
-    { value: 'BTC', label: 'Bitcoin (BTC)' },
-    { value: 'ETH', label: 'Ethereum (ETH)' },
-    { value: 'USDT', label: 'Tether (USDT)' },
-    { value: 'BNB', label: 'BNB (BNB)' },
-    { value: 'SOL', label: 'Solana (SOL)' },
-    { value: 'XRP', label: 'XRP (XRP)' },
-    { value: 'ADA', label: 'Cardano (ADA)' },
-    { value: 'DOT', label: 'Polkadot (DOT)' },
-    { value: 'DOGE', label: 'Dogecoin (DOGE)' },
-    { value: 'AVAX', label: 'Avalanche (AVAX)' },
-    { value: 'MATIC', label: 'Polygon (MATIC)' },
-    { value: 'OTHER', label: 'Other Crypto' }
-  ];
-
-  const fiatCurrencyOptions = [
-    { value: 'USD', label: 'US Dollar (USD)' },
-    { value: 'EUR', label: 'Euro (EUR)' },
-    { value: 'GBP', label: 'British Pound (GBP)' },
-    { value: 'TRY', label: 'Turkish Lira (TRY)' },
-    { value: 'GOLD', label: 'Gold (GOLD)' }
-  ];
-
-  const currencyOptions = isCryptoAsset ? cryptoCurrencyOptions : fiatCurrencyOptions;
+  
+  // Get all currencies from context
+  const { currencies, loading: currenciesLoading } = useAllCurrencies();
+  
+  // Filter currencies based on category's allowed_currency_types and active status
+  const currencyOptions = useMemo(() => {
+    if (!selectedCategory?.allowed_currency_types || !currencies.length) {
+      return currencies
+        .filter(c => c.is_active)
+        .map(c => ({ value: c.code, label: `${c.name} (${c.symbol})` }));
+    }
+    
+    // Filter currencies by allowed types and active status
+    return currencies
+      .filter(c => c.is_active && selectedCategory.allowed_currency_types.includes(c.currency_type))
+      .map(c => ({ value: c.code, label: `${c.name} (${c.symbol})` }));
+  }, [selectedCategory, currencies]);
 
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
