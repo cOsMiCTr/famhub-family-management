@@ -75,13 +75,13 @@ export const formatCurrency = (amount: number, currency: string): string => {
   
   const symbol = symbols[currency] || currency;
   
-  // Format number with thousand separators
-  const formattedAmount = amount.toLocaleString('en-US', { 
+  // Format number with thousand separators using German standards (1.000,00)
+  const formattedAmount = amount.toLocaleString('de-DE', { 
     minimumFractionDigits: 2, 
     maximumFractionDigits: 2 
   });
   
-  return `${symbol} ${formattedAmount}`;
+  return `${formattedAmount} ${symbol}`;
 };
 
 // Calculate ROI (Return on Investment)
@@ -151,13 +151,13 @@ export const getROIColor = (roi: number): string => {
   return 'text-gray-600 dark:text-gray-400';
 };
 
-// Format date for display
+// Format date for display using German standards (DD.MM.YYYY)
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('de-DE', {
     year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+    month: '2-digit',
+    day: '2-digit'
   });
 };
 
