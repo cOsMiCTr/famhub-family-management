@@ -181,6 +181,11 @@ const DashboardPage: React.FC = () => {
     const newValue = !showConversions;
     setShowConversions(newValue);
     localStorage.setItem('dashboard_show_conversions', JSON.stringify(newValue));
+    
+    // Clear conversions when hiding
+    if (!newValue) {
+      setTempConversionCurrency(null);
+    }
   };
   
   
@@ -254,23 +259,6 @@ const DashboardPage: React.FC = () => {
           
           {/* Currency Conversion Controls */}
           <div className="flex items-center space-x-4">
-            {/* Temporary Currency Conversion Dropdown */}
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('dashboard.viewIn')}:
-              </label>
-              <select
-                value={tempConversionCurrency || ''}
-                onChange={(e) => setTempConversionCurrency(e.target.value || null)}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">{t('dashboard.convertTo')}</option>
-                {getAvailableCurrencies().map(currency => (
-                  <option key={currency} value={currency}>{currency}</option>
-                ))}
-              </select>
-            </div>
-            
             {/* Show/Hide Conversions Toggle */}
             <button
               onClick={toggleConversions}
@@ -292,6 +280,25 @@ const DashboardPage: React.FC = () => {
                 </>
               )}
             </button>
+            
+            {/* Temporary Currency Conversion Dropdown - Only show when conversions are active */}
+            {showConversions && (
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('dashboard.viewIn')}:
+                </label>
+                <select
+                  value={tempConversionCurrency || ''}
+                  onChange={(e) => setTempConversionCurrency(e.target.value || null)}
+                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">{t('dashboard.convertTo')}</option>
+                  {getAvailableCurrencies().map(currency => (
+                    <option key={currency} value={currency}>{currency}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
       </div>
