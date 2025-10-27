@@ -769,7 +769,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
             {/* Footer with Navigation */}
             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               {/* Debug info */}
-              {console.log(`🔍 DEBUG: currentStep=${currentStep}, totalSteps=${totalSteps}, showSubmit=${currentStep === totalSteps}`)}
+              {(() => {
+                console.log(`🔍 DEBUG: currentStep=${currentStep}, totalSteps=${totalSteps}, showSubmit=${currentStep === totalSteps}`);
+                return null;
+              })()}
               
               {currentStep >= totalSteps ? (
                 <button
