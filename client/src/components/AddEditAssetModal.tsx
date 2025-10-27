@@ -360,7 +360,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         current_value: formData.current_value ? parseFloat(formData.current_value) : null,
         ownership_percentage: formData.ownership_type === 'shared' 
           ? Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0)
-          : parseFloat(formData.ownership_percentage),
+          : formData.ownership_percentage ? parseFloat(formData.ownership_percentage) : null,
         purchase_date: formData.purchase_date || null,
         description: formData.description || null,
         location: formData.location || null,
