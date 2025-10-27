@@ -531,6 +531,7 @@ const DashboardPage: React.FC = () => {
                     totalRates: exchangeRates.length,
                     mainCurrency: userMainCurrency,
                     selectedCurrencies: selectedExchangeRates,
+                    allRatesFromMain: exchangeRates.filter(rate => rate.from_currency === userMainCurrency),
                     filteredRates: exchangeRates.filter(rate => {
                       const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
                       const isSelected = selectedExchangeRates.includes(rate.to_currency);
