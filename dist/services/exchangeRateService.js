@@ -504,21 +504,36 @@ class ExchangeRateService {
     async scrapeGoldRates() {
         const rates = [];
         try {
-            const response = await axios_1.default.get('https://goldprice.org/', {
+            const response = await axios_1.default.get('https://www.gold.de/preise/', {
                 timeout: 10000,
                 headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
             });
             const $ = cheerio.load(response.data);
-            const goldPriceText = $('#sp-gold-price').text().trim() || $('.gold-price').text().trim();
-            const goldPrice = parseFloat(goldPriceText.replace(/[^0-9.]/g, ''));
-            if (!isNaN(goldPrice) && goldPrice > 0) {
-                rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: goldPrice });
-                rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / goldPrice });
-                console.log(`✅ Scraped gold price: ${goldPrice} USD/oz`);
+            $('table tr').each((_, row) => {
+                const cells = $(row).find('td');
+                if (cells.length >= 2) {
+                    const metalName = $(cells[0]).text().trim().toLowerCase();
+                    const priceText = $(cells[1]).text().trim().replace(/[^0-9.,]/g, '');
+                    const price = parseFloat(priceText.replace(',', '.'));
+                    if ((metalName.includes('gold') || metalName.includes('goldmünze')) && !isNaN(price) && price > 0) {
+                        rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: price });
+                        rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / price });
+                        console.log(`✅ Scraped gold price from gold.de: ${price} USD/oz`);
+                    }
+                }
+            });
+            if (rates.length === 0) {
+                const fallbackGold = 2000;
+                rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: fallbackGold });
+                rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / fallbackGold });
+                console.log(`⚠️ Using fallback gold price: ${fallbackGold} USD/oz`);
             }
         }
         catch (error) {
             console.error('Gold scraping failed:', error);
+            const fallbackGold = 2000;
+            rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: fallbackGold });
+            rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / fallbackGold });
         }
         return rates;
     }
@@ -574,35 +589,64 @@ class ExchangeRateService {
             let platinumFound = false;
             let palladiumFound = false;
             try {
-                const response = await axios_1.default.get('https://www.kitco.com/market/', {
+                const response = await axios_1.default.get('https://www.gold.de/preise/', {
                     timeout: 10000,
                     headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
                 });
                 const $ = cheerio.load(response.data);
-                const silverPrice = parseFloat($('.silver-price').text().trim().replace(/[^0-9.]/g, ''));
-                const platinumPrice = parseFloat($('.platinum-price').text().trim().replace(/[^0-9.]/g, ''));
-                const palladiumPrice = parseFloat($('.palladium-price').text().trim().replace(/[^0-9.]/g, ''));
-                if (!isNaN(silverPrice) && silverPrice > 0) {
-                    rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: silverPrice });
-                    rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / silverPrice });
-                    console.log(`✅ Scraped silver price: ${silverPrice} USD/oz`);
-                    silverFound = true;
-                }
-                if (!isNaN(platinumPrice) && platinumPrice > 0) {
-                    rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: platinumPrice });
-                    rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / platinumPrice });
-                    console.log(`✅ Scraped platinum price: ${platinumPrice} USD/oz`);
-                    platinumFound = true;
-                }
-                if (!isNaN(palladiumPrice) && palladiumPrice > 0) {
-                    rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: palladiumPrice });
-                    rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / palladiumPrice });
-                    console.log(`✅ Scraped palladium price: ${palladiumPrice} USD/oz`);
-                    palladiumFound = true;
-                }
+                $('table tr').each((_, row) => {
+                    const cells = $(row).find('td');
+                    if (cells.length >= 2) {
+                        const metalName = $(cells[0]).text().trim().toLowerCase();
+                        const priceText = $(cells[1]).text().trim().replace(/[^0-9.,]/g, '');
+                        const price = parseFloat(priceText.replace(',', '.'));
+                        if (!isNaN(price) && price > 0) {
+                            if (metalName.includes('silber') && !silverFound) {
+                                rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: price });
+                                rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / price });
+                                console.log(`✅ Scraped silver price from gold.de: ${price} USD/oz`);
+                                silverFound = true;
+                            }
+                            else if (metalName.includes('platin') && !platinumFound) {
+                                rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: price });
+                                rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / price });
+                                console.log(`✅ Scraped platinum price from gold.de: ${price} USD/oz`);
+                                platinumFound = true;
+                            }
+                            else if (metalName.includes('palladium') && !palladiumFound) {
+                                rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: price });
+                                rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / price });
+                                console.log(`✅ Scraped palladium price from gold.de: ${price} USD/oz`);
+                                palladiumFound = true;
+                            }
+                        }
+                    }
+                });
             }
             catch (error) {
-                console.warn('Kitco scraping failed, using fallback prices');
+                console.warn('gold.de scraping failed:', error);
+            }
+            if (!silverFound || !platinumFound || !palladiumFound) {
+                try {
+                    const response = await axios_1.default.get('https://goldprice.org/', {
+                        timeout: 10000,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                    });
+                    const $ = cheerio.load(response.data);
+                    const silverPriceText = $('[data-metal="silver"]').text().trim() ||
+                        $('.silver-price').text().trim() ||
+                        $('*:contains("Silver")').first().next().text().trim();
+                    const silverPrice = parseFloat(silverPriceText.replace(/[^0-9.]/g, ''));
+                    if (!isNaN(silverPrice) && silverPrice > 0 && !silverFound) {
+                        rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: silverPrice });
+                        rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / silverPrice });
+                        console.log(`✅ Scraped silver price from goldprice.org: ${silverPrice} USD/oz`);
+                        silverFound = true;
+                    }
+                }
+                catch (error) {
+                    console.warn('goldprice.org scraping failed');
+                }
             }
             if (!silverFound) {
                 rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: fallbackSilver });
