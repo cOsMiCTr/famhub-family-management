@@ -35,6 +35,7 @@ const seedTranslations = async () => {
       { key: 'common.success', category: 'common', en: 'Success', de: 'Erfolg', tr: 'Başarılı' },
       { key: 'common.warning', category: 'common', en: 'Warning', de: 'Warnung', tr: 'Uyarı' },
       { key: 'common.info', category: 'common', en: 'Info', de: 'Info', tr: 'Bilgi' },
+      { key: 'common.actions', category: 'common', en: 'Actions', de: 'Aktionen', tr: 'İşlemler' },
 
       // Status
       { key: 'status.active', category: 'status', en: 'Active', de: 'Aktiv', tr: 'Aktif' },
