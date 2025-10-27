@@ -344,8 +344,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         return formData.name && formData.category_id;
       case 2: // Who owns it?
         return formData.ownership_type === 'single' ? formData.household_member_id : 
-               formData.ownership_type === 'shared' ? Object.keys(sharedOwnershipPercentages).length > 0 :
-               true; // household shared
+               (formData.ownership_type === 'shared' || formData.ownership_type === 'household') 
+                 ? Object.keys(sharedOwnershipPercentages).length > 0 :
+               true;
       case 3: // What's it worth?
         return formData.amount && formData.currency;
       case 4: // Optional details
@@ -377,7 +378,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         household_member_id: formData.household_member_id ? parseInt(formData.household_member_id) : null,
         purchase_price: formData.purchase_price ? parseFloat(formData.purchase_price) : null,
         current_value: formData.current_value ? parseFloat(formData.current_value) : null,
-        ownership_percentage: formData.ownership_type === 'shared' 
+        ownership_percentage: (formData.ownership_type === 'shared' || formData.ownership_type === 'household') 
           ? Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0)
           : formData.ownership_percentage ? parseFloat(formData.ownership_percentage) : null,
         purchase_date: formData.purchase_date || null,
@@ -385,7 +386,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         location: formData.location || null,
         notes: formData.notes || null,
         // Add shared ownership data if applicable
-        ...(formData.ownership_type === 'shared' && {
+        ...((formData.ownership_type === 'shared' || formData.ownership_type === 'household') && {
           shared_ownership_percentages: sharedOwnershipPercentages
         })
       };
@@ -595,7 +596,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                     )}
 
                     {/* Shared Ownership Distribution */}
-                    {formData.ownership_type === 'shared' && (
+                    {(formData.ownership_type === 'shared' || formData.ownership_type === 'household') && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                           Ownership Distribution
