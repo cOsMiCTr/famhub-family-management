@@ -18,11 +18,11 @@ router.get('/summary', asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const mainCurrency = req.user.main_currency || 'USD';
 
-  // Get total assets by currency
+  // Get total assets by currency (use current_value if available, otherwise amount)
   const assetsResult = await query(
-    `SELECT currency, SUM(amount) as total_amount, COUNT(*) as count
+    `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
      FROM assets
-     WHERE user_id = $1
+     WHERE user_id = $1 AND status = 'active'
      GROUP BY currency`,
     [userId]
   );
