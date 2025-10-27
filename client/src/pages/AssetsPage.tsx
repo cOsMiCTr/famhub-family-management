@@ -15,7 +15,9 @@ import {
   MapPinIcon,
   UserIcon,
   TagIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  CubeTransparentIcon,
+  HomeIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
@@ -23,6 +25,7 @@ import { formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwner
 import AddEditAssetModal from '../components/AddEditAssetModal';
 import ValuationHistoryModal from '../components/ValuationHistoryModal';
 import PhotoUploadModal from '../components/PhotoUploadModal';
+import AddEditCategoryModal from '../components/AddEditCategoryModal';
 
 interface AssetSummary {
   total_assets: number;
@@ -34,6 +37,22 @@ interface AssetSummary {
 
 const AssetsPage: React.FC = () => {
   const { t } = useTranslation();
+  
+  // Helper to get icon component from icon name
+  const getCategoryIcon = (iconName: string | undefined) => {
+    // Simple mapping for common icons
+    const iconMap: {[key: string]: React.ComponentType<any>} = {
+      'HomeIcon': HomeIcon,
+      'CubeTransparentIcon': CubeTransparentIcon,
+      'TagIcon': TagIcon,
+      'DocumentTextIcon': DocumentTextIcon,
+      'home': HomeIcon,
+      'home-modern': HomeIcon,
+    };
+    
+    if (!iconName) return TagIcon;
+    return iconMap[iconName] || TagIcon;
+  };
   const [assets, setAssets] = useState<Asset[]>([]);
   const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
@@ -539,7 +558,14 @@ const AssetsPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                          <TagIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                          {category && category.icon ? (
+                            (() => {
+                              const IconComponent = getCategoryIcon(category.icon);
+                              return <IconComponent className="flex-shrink-0 mr-1.5 h-4 w-4" />;
+                            })()
+                          ) : (
+                            <TagIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                          )}
                           {category ? getCategoryName(category) : t('assets.unknownCategory')}
                           {asset.member_name && (
                             <>

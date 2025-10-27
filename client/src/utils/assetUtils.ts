@@ -122,6 +122,12 @@ export const calculateAnnualizedReturn = (asset: Asset): number | null => {
   return annualizedReturn * 100;
 };
 
+// Helper function to get the icon component for a category
+export const getCategoryIconComponent = (iconName: string | undefined, iconMap: any): any => {
+  if (!iconName) return null;
+  return iconMap[iconName] || iconMap['CubeTransparentIcon'];
+};
+
 // Get category name based on language
 export const getCategoryName = (category: AssetCategory, language: string = 'en'): string => {
   switch (language) {
