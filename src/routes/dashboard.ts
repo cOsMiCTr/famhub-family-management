@@ -203,9 +203,18 @@ router.get('/summary', asyncHandler(async (req, res) => {
 
   // Get exchange rates for user's main currency
   const exchangeRates = await exchangeRateService.getAllExchangeRates();
+  
+  // Get active currencies from database
+  const activeCurrenciesResult = await query(
+    'SELECT code FROM currencies WHERE is_active = true'
+  );
+  const activeCurrencyCodes = activeCurrenciesResult.rows.map(row => row.code);
+  
+  // Filter rates to only include active currencies (excluding user's main currency)
   const relevantRates = exchangeRates.filter(rate => 
     rate.from_currency === mainCurrency && 
-    ['EUR', 'USD', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD'].includes(rate.to_currency)
+    activeCurrencyCodes.includes(rate.to_currency) &&
+    rate.to_currency !== mainCurrency
   );
 
   res.json({
