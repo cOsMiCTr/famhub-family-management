@@ -580,16 +580,16 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-1 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ownership</span>
               </div>
-              <div className="col-span-2 text-center">
+              <div className="col-span-1 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shares</span>
               </div>
-              <div className="col-span-1 text-right">
+              <div className="col-span-1.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</span>
               </div>
-              <div className="col-span-1 text-right">
+              <div className="col-span-0.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-1 text-right">
+              <div className="col-span-2 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>
@@ -662,7 +662,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Shares Column */}
-                      <div className="col-span-2">
+                      <div className="col-span-1">
                         {(asset.ownership_type === 'shared' || asset.ownership_type === 'household') && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
                           <div className="flex flex-col gap-1">
                             {asset.shared_ownership.map((owner, index) => {
@@ -694,14 +694,14 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Value Column */}
-                      <div className="col-span-1 text-right">
+                      <div className="col-span-1.5 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
                       </div>
 
                       {/* ROI Column */}
-                      <div className="col-span-1 text-right">
+                      <div className="col-span-0.5 text-right">
                         {roi !== null ? (
                           <p className={`text-sm font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {roi.toFixed(1)}%
@@ -712,7 +712,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Actions Column */}
-                      <div className="col-span-1 flex justify-end space-x-2">
+                      <div className="col-span-2 flex justify-end space-x-2">
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
