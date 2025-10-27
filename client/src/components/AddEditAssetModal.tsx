@@ -288,7 +288,20 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         });
       }
       setErrors([]);
-      setSharedOwnershipPercentages({});
+      
+      // Load shared ownership percentages if asset has them
+      if (asset && asset.shared_ownership && Array.isArray(asset.shared_ownership)) {
+        const percentages: { [key: number]: number } = {};
+        asset.shared_ownership.forEach(entry => {
+          if (entry.household_member_id) {
+            percentages[entry.household_member_id] = entry.ownership_percentage;
+          }
+        });
+        setSharedOwnershipPercentages(percentages);
+      } else {
+        setSharedOwnershipPercentages({});
+      }
+      
       setCurrentStep(1);
     }
   }, [isOpen, asset]);

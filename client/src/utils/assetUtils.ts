@@ -6,6 +6,14 @@ export interface HouseholdMember {
 
 // Asset utility functions for formatting, calculations, and display
 
+export interface SharedOwnership {
+  household_member_id: number;
+  ownership_percentage: number;
+  member_name?: string;
+  relationship?: string;
+  role?: string;
+}
+
 export interface Asset {
   id: number;
   name: string;
@@ -34,6 +42,7 @@ export interface Asset {
   icon?: string;
   member_name?: string;
   user_email: string;
+  shared_ownership?: SharedOwnership[];
 }
 
 export interface AssetCategory {
