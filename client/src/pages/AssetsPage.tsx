@@ -567,14 +567,14 @@ const AssetsPage: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             {/* Table Header */}
-            <div className="grid grid-cols-10 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+            <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
               <div className="col-span-0.5 flex justify-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
               </div>
-              <div className="col-span-2.5">
+              <div className="col-span-3">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
-              <div className="col-span-1 text-center">
+              <div className="col-span-0.5 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</span>
               </div>
               <div className="col-span-1 text-center">
@@ -583,13 +583,13 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-1 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shares</span>
               </div>
-              <div className="col-span-1.5 text-right">
+              <div className="col-span-1 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</span>
               </div>
-              <div className="col-span-0.5 text-right">
+              <div className="col-span-1 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-2.5 text-right">
+              <div className="col-span-4 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>
@@ -602,7 +602,7 @@ const AssetsPage: React.FC = () => {
                 
                 return (
                   <li key={asset.id} className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-10 gap-4 items-center">
+                    <div className="grid grid-cols-12 gap-4 items-center">
                       {/* Icon Column */}
                       <div className="col-span-0.5 flex justify-center">
                         {category && category.icon ? (
@@ -622,7 +622,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Asset Name and Details Column */}
-                      <div className="col-span-2.5">
+                      <div className="col-span-3">
                         <div className="flex items-center">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {asset.name}
@@ -648,7 +648,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Status Column */}
-                      <div className="col-span-1 flex justify-center">
+                      <div className="col-span-0.5 flex justify-center">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
                           {t(`assets.${asset.status}`)}
                         </span>
@@ -694,14 +694,14 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Value Column */}
-                      <div className="col-span-1.5 text-right">
+                      <div className="col-span-1 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
                       </div>
 
                       {/* ROI Column */}
-                      <div className="col-span-0.5 text-right">
+                      <div className="col-span-1 text-right">
                         {roi !== null ? (
                           <p className={`text-sm font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {roi.toFixed(1)}%
@@ -712,7 +712,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Actions Column */}
-                      <div className="col-span-2.5 flex justify-end space-x-2">
+                      <div className="col-span-4 flex justify-end space-x-2">
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
