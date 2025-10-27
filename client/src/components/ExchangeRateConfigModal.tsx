@@ -30,7 +30,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
     setSelectedCurrencies(prev => {
       if (prev.includes(currency)) {
         return prev.filter(c => c !== currency);
-      } else if (prev.length < 5) {
+      } else if (prev.length < 6) {
         return [...prev, currency];
       }
       return prev;
@@ -90,7 +90,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
 
         <div className="p-6">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            {t('dashboard.selectCurrencies')} (max 5)
+            {t('dashboard.selectCurrencies')} (max 6)
           </p>
 
           <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -103,7 +103,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
                   type="checkbox"
                   checked={selectedCurrencies.includes(currency)}
                   onChange={() => handleCurrencyToggle(currency)}
-                  disabled={!selectedCurrencies.includes(currency) && selectedCurrencies.length >= 5}
+                  disabled={!selectedCurrencies.includes(currency) && selectedCurrencies.length >= 6}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                 />
                 <span className="text-sm font-medium text-gray-900 dark:text-white">

@@ -451,6 +451,7 @@ const DashboardPage: React.FC = () => {
                 selectedExchangeRates.length === 3 ? 'grid-cols-3' :
                 selectedExchangeRates.length === 4 ? 'grid-cols-2' :
                 selectedExchangeRates.length === 5 ? 'grid-cols-3' :
+                selectedExchangeRates.length === 6 ? 'grid-cols-3' :
                 'grid-cols-2'
               }`}>
                 {exchangeRates
