@@ -300,9 +300,6 @@ const AssetsPage: React.FC = () => {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('assets.title')}</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {summary ? `${summary.total_assets} ${t('assets.title').toLowerCase()}, ${formatCurrency(summary.total_value_main_currency, summary.main_currency)} total value` : 'Manage your family assets'}
-          </p>
         </div>
         <div className="flex space-x-3">
           <button
