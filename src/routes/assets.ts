@@ -148,19 +148,32 @@ router.post('/', [
   const asset = assetResult.rows[0];
 
   // Handle shared ownership distribution if applicable
+  console.log('🔍 Creating asset - ownership_type:', ownership_type);
+  console.log('🔍 req.body.shared_ownership_percentages:', req.body.shared_ownership_percentages);
+  
   if ((ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages) {
     const sharedPercentages = req.body.shared_ownership_percentages;
     
+    console.log('✅ Processing shared ownership distribution:', sharedPercentages);
+    
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
       const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage as string);
+      console.log(`📝 Inserting: asset_id=${asset.id}, household_member_id=${memberId}, percentage=${percentageValue}`);
+      
       if (percentageValue > 0) {
         await query(
           `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
            VALUES ($1, $2, $3)`,
           [asset.id, parseInt(memberId), percentageValue]
         );
+        console.log('✅ Successfully inserted shared ownership entry');
       }
     }
+  } else {
+    console.log('⚠️ Skipping shared ownership distribution');
+    console.log('- ownership_type:', ownership_type);
+    console.log('- has shared_ownership_percentages:', !!req.body.shared_ownership_percentages);
+    console.log('- condition result:', (ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages);
   }
 
   // Create initial valuation history entry
