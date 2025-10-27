@@ -662,9 +662,9 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Shares Column */}
-                      <div className="col-span-2 text-center">
+                      <div className="col-span-2">
                         {(asset.ownership_type === 'shared' || asset.ownership_type === 'household') && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-0.5 items-start">
                             {asset.shared_ownership.map((owner, index) => {
                               const colors = [
                                 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300',
@@ -677,14 +677,16 @@ const AssetsPage: React.FC = () => {
                               ];
                               const colorClass = colors[index % colors.length];
                               return (
-                                <span key={owner.household_member_id} className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${colorClass}`}>
-                                  {owner.member_name}: {owner.ownership_percentage}%
-                                </span>
+                                <div key={owner.household_member_id} className="w-full">
+                                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${colorClass}`}>
+                                    {owner.member_name}: {owner.ownership_percentage}%
+                                  </span>
+                                </div>
                               );
                             })}
                           </div>
                         ) : asset.ownership_type === 'single' && asset.member_name ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {asset.member_name}: 100%
                           </span>
                         ) : (
