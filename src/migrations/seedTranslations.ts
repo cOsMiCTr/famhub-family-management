@@ -371,6 +371,7 @@ const seedTranslations = async () => {
       { key: 'assetCategories.deleteCategory', category: 'assetCategories', en: 'Delete Category', de: 'Kategorie löschen', tr: 'Kategori Sil' },
       { key: 'assetCategories.cannotDeleteDefaultTooltip', category: 'assetCategories', en: 'Cannot delete default category', de: 'Standardkategorie kann nicht gelöscht werden', tr: 'Varsayılan kategori silinemez' },
       { key: 'assetCategories.cannotDeleteWithAssetsTooltip', category: 'assetCategories', en: 'Cannot delete category with assets', de: 'Kategorie mit Vermögenswerten kann nicht gelöscht werden', tr: 'Varlığı olan kategori silinemez' },
+      { key: 'assetCategories.allowedCurrencyTypes', category: 'assetCategories', en: 'Allowed Currency Types', de: 'Erlaubte Währungstypen', tr: 'İzin Verilen Para Birimi Türleri' },
 
       // Asset Categories Form Labels
       { key: 'assetCategories.typeLabel', category: 'assetCategories', en: 'Type', de: 'Typ', tr: 'Tür' },

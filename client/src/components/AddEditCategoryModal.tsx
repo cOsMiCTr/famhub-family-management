@@ -89,6 +89,7 @@ interface AssetCategory {
   requires_ticker: boolean;
   depreciation_enabled: boolean;
   is_default: boolean;
+  allowed_currency_types?: string[];
 }
 
 interface AddEditCategoryModalProps {
@@ -375,7 +376,8 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     icon: '',
     requires_ticker: false,
     depreciation_enabled: false,
-    is_default: false
+    is_default: false,
+    allowed_currency_types: ['fiat'] as string[]
   });
   
   const [showIconDropdown, setShowIconDropdown] = useState(false);
@@ -391,7 +393,8 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
         icon: category.icon || '',
         requires_ticker: category.requires_ticker,
         depreciation_enabled: category.depreciation_enabled,
-        is_default: category.is_default
+        is_default: category.is_default,
+        allowed_currency_types: category.allowed_currency_types || ['fiat']
       });
     }
   }, [category, mode]);
@@ -664,6 +667,40 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                   <div><strong>Depreciation:</strong> Enables automatic value reduction over time</div>
                   <div><strong>Default:</strong> Pre-selected when creating new assets</div>
                 </div>
+              </div>
+            </div>
+            
+            {/* Allowed Currency Types */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('assetCategories.allowedCurrencyTypes')}
+              </label>
+              <div className="space-y-2">
+                {['fiat', 'cryptocurrency', 'precious_metal'].map((type) => (
+                  <label key={type} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.allowed_currency_types.includes(type)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData({
+                            ...formData,
+                            allowed_currency_types: [...formData.allowed_currency_types, type]
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            allowed_currency_types: formData.allowed_currency_types.filter(t => t !== type)
+                          });
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                      {type === 'fiat' ? 'Fiat Currency' : type === 'cryptocurrency' ? 'Cryptocurrency' : 'Precious Metal'}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 

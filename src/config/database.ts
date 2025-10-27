@@ -184,6 +184,7 @@ async function runMigrations(): Promise<void> {
         requires_ticker BOOLEAN DEFAULT false,
         depreciation_enabled BOOLEAN DEFAULT false,
         is_default BOOLEAN DEFAULT false,
+        allowed_currency_types JSONB DEFAULT '["fiat"]'::jsonb,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -462,6 +463,9 @@ async function runMigrations(): Promise<void> {
 
     await addColumnToTable('assets', 'household_member_id', 'INTEGER REFERENCES household_members(id) ON DELETE SET NULL');
     await addColumnToTable('contracts', 'assigned_member_ids', 'INTEGER[] DEFAULT ARRAY[]::INTEGER[]');
+    
+    // Add allowed_currency_types to asset_categories if it doesn't exist
+    await addColumnToTable('asset_categories', 'allowed_currency_types', "JSONB DEFAULT '[\"fiat\"]'::jsonb");
 
     // Add foreign key constraint for users.household_id (if not exists)
     try {

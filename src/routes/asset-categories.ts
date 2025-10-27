@@ -48,7 +48,8 @@ router.post('/', requireAdmin, [
     icon, 
     requires_ticker, 
     depreciation_enabled, 
-    is_default 
+    is_default,
+    allowed_currency_types
   } = req.body;
 
   // Check if category with same name already exists
@@ -61,9 +62,19 @@ router.post('/', requireAdmin, [
     throw createValidationError('Category with this name already exists');
   }
 
+  // Parse allowed_currency_types if it's a string
+  let currencyTypes = allowed_currency_types || ['fiat'];
+  if (typeof currencyTypes === 'string') {
+    try {
+      currencyTypes = JSON.parse(currencyTypes);
+    } catch (e) {
+      currencyTypes = ['fiat'];
+    }
+  }
+
   const result = await query(
-    `INSERT INTO asset_categories (name_en, name_de, name_tr, type, category_type, icon, requires_ticker, depreciation_enabled, is_default)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO asset_categories (name_en, name_de, name_tr, type, category_type, icon, requires_ticker, depreciation_enabled, is_default, allowed_currency_types)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
     [
       name_en, 
@@ -74,7 +85,8 @@ router.post('/', requireAdmin, [
       icon || null, 
       requires_ticker || false, 
       depreciation_enabled || false, 
-      is_default || false
+      is_default || false,
+      JSON.stringify(currencyTypes)
     ]
   );
 
@@ -162,13 +174,22 @@ router.put('/:id', requireAdmin, [
 
   const allowedFields = [
     'name_en', 'name_de', 'name_tr', 'type', 'category_type', 
-    'icon', 'requires_ticker', 'depreciation_enabled', 'is_default'
+    'icon', 'requires_ticker', 'depreciation_enabled', 'is_default', 'allowed_currency_types'
   ];
 
   for (const field of allowedFields) {
     if (updateData[field] !== undefined) {
-      updateFields.push(`${field} = $${paramCount++}`);
-      updateValues.push(updateData[field]);
+      if (field === 'allowed_currency_types') {
+        // Handle JSON array
+        updateFields.push(`${field} = $${paramCount++}`);
+        const currencyTypes = typeof updateData[field] === 'string' 
+          ? JSON.parse(updateData[field]) 
+          : updateData[field];
+        updateValues.push(JSON.stringify(currencyTypes));
+      } else {
+        updateFields.push(`${field} = $${paramCount++}`);
+        updateValues.push(updateData[field]);
+      }
     }
   }
 
