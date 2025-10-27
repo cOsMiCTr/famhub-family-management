@@ -45,7 +45,13 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/assets/${assetId}/history`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/assets/${assetId}/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) throw new Error('Failed to fetch valuation history');
       
       const data = await response.json();

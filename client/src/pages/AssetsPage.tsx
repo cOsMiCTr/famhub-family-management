@@ -239,9 +239,11 @@ const AssetsPage: React.FC = () => {
   // Handle valuation addition
   const handleAddValuation = async (valuationData: any) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/assets/${selectedAsset?.id}/valuation`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(valuationData),
