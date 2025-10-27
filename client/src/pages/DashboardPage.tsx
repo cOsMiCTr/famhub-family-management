@@ -253,7 +253,9 @@ const DashboardPage: React.FC = () => {
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
       textColor: 'text-blue-600 dark:text-blue-400',
-      isFinancial: true
+      isFinancial: true,
+      linkTo: '/assets',
+      showArrow: true
     },
     {
       title: t('dashboard.netIncome'),
@@ -275,7 +277,9 @@ const DashboardPage: React.FC = () => {
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
       textColor: 'text-purple-600 dark:text-purple-400',
-      isFinancial: true
+      isFinancial: true,
+      linkTo: '/income',
+      showArrow: true
     },
     {
       title: t('dashboard.activeContracts'),
@@ -284,7 +288,9 @@ const DashboardPage: React.FC = () => {
       color: 'bg-yellow-500',
       bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
       textColor: 'text-yellow-600 dark:text-yellow-400',
-      isFinancial: false
+      isFinancial: false,
+      linkTo: '/contracts',
+      showArrow: true
     },
     {
       title: t('dashboard.familyMembers'),
@@ -293,7 +299,20 @@ const DashboardPage: React.FC = () => {
       color: 'bg-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
       textColor: 'text-purple-600 dark:text-purple-400',
-      isFinancial: false
+      isFinancial: false,
+      linkTo: '/family-members',
+      showArrow: true
+    },
+    {
+      title: 'Active Assets',
+      value: activeAssets.length.toString(),
+      icon: Squares2X2Icon,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+      textColor: 'text-indigo-600 dark:text-indigo-400',
+      isFinancial: false,
+      linkTo: '/assets',
+      showArrow: true
     }
   ];
 
@@ -365,11 +384,12 @@ const DashboardPage: React.FC = () => {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         {statsCards.map((card, index) => (
-          <div 
+          <Link
             key={index}
-            className={`card hover-lift animate-fadeIn ${card.bgColor}`}
+            to={card.linkTo || '#'}
+            className={`card hover-lift animate-fadeIn ${card.bgColor} ${!card.linkTo ? 'cursor-default' : ''}`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div className="card-body">
@@ -380,9 +400,14 @@ const DashboardPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-4 flex-1">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                    {card.title}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                      {card.title}
+                    </p>
+                    {card.showArrow && card.linkTo && (
+                      <ArrowRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    )}
+                  </div>
                   <div className="flex items-center mt-1">
                     {isLoading ? (
                       <LoadingSpinner size="sm" />
@@ -409,7 +434,7 @@ const DashboardPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -570,52 +595,6 @@ const DashboardPage: React.FC = () => {
               </p>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Active Assets */}
-      <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.6s' }}>
-        <div className="card-header flex items-center justify-between">
-          <div className="flex items-center">
-            <Squares2X2Icon className="h-5 w-5 mr-2 text-purple-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Active Assets
-            </h3>
-          </div>
-          <Link 
-            to="/assets" 
-            className="flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-          >
-            View All
-            <ArrowRightIcon className="h-4 w-4 ml-1" />
-          </Link>
-        </div>
-        <div className="card-body">
-          {activeAssets.length > 0 ? (
-            <div className="space-y-3">
-              {activeAssets.map((asset: any, index: number) => (
-                <div key={asset.id || index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {asset.name}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {asset.category_name_en || 'Asset'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">
-                      {formatCurrency(asset.current_value || asset.amount, asset.currency)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-              No active assets found
-            </p>
-          )}
         </div>
       </div>
 
