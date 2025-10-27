@@ -815,7 +815,7 @@ router.get('/:id/history', asyncHandler(async (req, res) => {
      FROM asset_valuation_history avh
      LEFT JOIN users u ON avh.created_by = u.id
      WHERE avh.asset_id = $1
-     ORDER BY avh.valuation_date DESC`,
+     ORDER BY avh.valuation_date DESC, avh.created_at DESC`,
     [id]
   );
 

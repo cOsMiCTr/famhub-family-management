@@ -11,6 +11,7 @@ interface ValuationEntry {
   valuation_method: string;
   notes?: string;
   created_by_email?: string;
+  created_at?: string;
 }
 
 interface ValuationHistoryModalProps {
@@ -321,6 +322,9 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
                         Method
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Added At
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Notes
                       </th>
                     </tr>
@@ -355,6 +359,17 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {entry.valuation_method}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {entry.created_at 
+                              ? new Date(entry.created_at).toLocaleString('de-DE', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                              : '-'}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {entry.notes || '-'}
