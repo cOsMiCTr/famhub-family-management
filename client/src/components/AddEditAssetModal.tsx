@@ -130,6 +130,38 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Get selected category details
+  const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
+
+  // Determine if this is a cryptocurrency asset
+  const isCryptoAsset = selectedCategory?.category_type === 'crypto';
+
+  // Define currency options based on asset type
+  const cryptoCurrencyOptions = [
+    { value: 'BTC', label: 'Bitcoin (BTC)' },
+    { value: 'ETH', label: 'Ethereum (ETH)' },
+    { value: 'USDT', label: 'Tether (USDT)' },
+    { value: 'BNB', label: 'BNB (BNB)' },
+    { value: 'SOL', label: 'Solana (SOL)' },
+    { value: 'XRP', label: 'XRP (XRP)' },
+    { value: 'ADA', label: 'Cardano (ADA)' },
+    { value: 'DOT', label: 'Polkadot (DOT)' },
+    { value: 'DOGE', label: 'Dogecoin (DOGE)' },
+    { value: 'AVAX', label: 'Avalanche (AVAX)' },
+    { value: 'MATIC', label: 'Polygon (MATIC)' },
+    { value: 'OTHER', label: 'Other Crypto' }
+  ];
+
+  const fiatCurrencyOptions = [
+    { value: 'USD', label: 'US Dollar (USD)' },
+    { value: 'EUR', label: 'Euro (EUR)' },
+    { value: 'GBP', label: 'British Pound (GBP)' },
+    { value: 'TRY', label: 'Turkish Lira (TRY)' },
+    { value: 'GOLD', label: 'Gold (GOLD)' }
+  ];
+
+  const currencyOptions = isCryptoAsset ? cryptoCurrencyOptions : fiatCurrencyOptions;
+
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
     const iconMap: {[key: string]: React.ComponentType<any>} = {
@@ -297,8 +329,8 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                true; // household shared
       case 3: // What's it worth?
         return formData.amount && formData.currency;
-      case 4: // Optional details
-        return true;
+      case 4: // Optional details - always allow, this is the submit step
+        return currentStep === 4;
       default:
         return false;
     }
@@ -633,11 +665,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-3 px-4 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                           required
                         >
-                          <option value="USD">USD</option>
-                          <option value="EUR">EUR</option>
-                          <option value="GBP">GBP</option>
-                          <option value="TRY">TRY</option>
-                          <option value="GOLD">GOLD</option>
+                          {currencyOptions.map(option => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
