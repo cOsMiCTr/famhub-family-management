@@ -368,9 +368,12 @@ router.get('/', asyncHandler(async (req, res) => {
     
     if (userMemberResult.rows.length > 0) {
       const userMemberId = userMemberResult.rows[0].id;
-      // Include assets where user is the primary owner OR user is part of shared ownership
-      conditions.push(`(a.user_id = $${paramCount++} OR a.id IN (
-        SELECT asset_id FROM shared_ownership_distribution WHERE household_member_id = $${paramCount}
+      // Include assets where:
+      // 1. User is the primary owner, OR
+      // 2. User is part of shared ownership distribution
+      conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id AND household_member_id = $${paramCount}
       ))`);
       params.push(req.user.id);
       params.push(userMemberId);
