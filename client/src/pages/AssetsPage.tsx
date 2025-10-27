@@ -146,10 +146,13 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
-      setAssets(data.assets);
-      setTotalPages(data.pagination.pages);
-      setTotalAssets(data.pagination.total);
+      console.log('🔍 Assets API Response:', data);
+      console.log('🔍 Assets Count:', data.assets?.length || 0);
+      setAssets(data.assets || []);
+      setTotalPages(data.pagination?.pages || 1);
+      setTotalAssets(data.pagination?.total || 0);
     } catch (err) {
+      console.error('❌ Error fetching assets:', err);
       setError(err instanceof Error ? err.message : t('assets.failedToFetch'));
     } finally {
       setLoading(false);
