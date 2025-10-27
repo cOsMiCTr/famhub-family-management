@@ -329,8 +329,8 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                true; // household shared
       case 3: // What's it worth?
         return formData.amount && formData.currency;
-      case 4: // Optional details - always allow, this is the submit step
-        return currentStep === 4;
+      case 4: // Optional details - always allow to proceed to submit
+        return true;
       default:
         return false;
     }
@@ -779,11 +779,21 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
               ) : (
                 <button
                   type="button"
-                  onClick={nextStep}
+                  onClick={() => {
+                    if (currentStep === totalSteps - 1) {
+                      // On last editable step, trigger submit on next click
+                      const form = document.querySelector('form');
+                      if (form) {
+                        form.requestSubmit();
+                      }
+                    } else {
+                      nextStep();
+                    }
+                  }}
                   disabled={!canProceedToNext()}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Next
+                  {currentStep === totalSteps - 1 ? (asset ? t('assets.updateAsset') : t('assets.addAsset')) : 'Next'}
                 </button>
               )}
               
