@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
@@ -17,7 +18,9 @@ import {
   ArrowPathIcon,
   Cog6ToothIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  ArrowRightIcon,
+  Squares2X2Icon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
@@ -46,6 +49,7 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [activeAssets, setActiveAssets] = useState<any[]>([]);
   
   // New state for currency conversion features
   const [showConversions, setShowConversions] = useState(false);
@@ -74,6 +78,25 @@ const DashboardPage: React.FC = () => {
     }
   }, []);
 
+  const fetchActiveAssets = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/assets?limit=5&status=active', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setActiveAssets(data.assets || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch active assets:', err);
+    }
+  };
+
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
@@ -100,6 +123,9 @@ const DashboardPage: React.FC = () => {
       setExchangeRates(dashboardData.exchange_rates || []);
       setLastUpdated(dashboardData.timestamp || new Date().toISOString());
       console.log('✅ Updated exchange rates:', dashboardData.exchange_rates?.length || 0);
+      
+      // Fetch active assets
+      await fetchActiveAssets();
     } catch (err: any) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
@@ -535,8 +561,54 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Coming Soon Features */}
+      {/* Active Assets */}
       <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+        <div className="card-header flex items-center justify-between">
+          <div className="flex items-center">
+            <Squares2X2Icon className="h-5 w-5 mr-2 text-purple-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Active Assets
+            </h3>
+          </div>
+          <Link 
+            to="/assets" 
+            className="flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+          >
+            View All
+            <ArrowRightIcon className="h-4 w-4 ml-1" />
+          </Link>
+        </div>
+        <div className="card-body">
+          {activeAssets.length > 0 ? (
+            <div className="space-y-3">
+              {activeAssets.map((asset: any, index: number) => (
+                <div key={asset.id || index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {asset.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {asset.category_name_en || 'Asset'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(asset.current_value || asset.amount, asset.currency)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              No active assets found
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Coming Soon Features */}
+      <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.7s' }}>
         <div className="card-header">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Upcoming Features
