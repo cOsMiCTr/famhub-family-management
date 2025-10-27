@@ -28,7 +28,6 @@ export const formatCurrency = (amount: number, currency: string): string => {
     'GOLD': 'Au',
     'BTC': '₿',
     'ETH': 'Ξ',
-    'BNB': 'BNB',
     'XRP': 'XRP',
     'ADA': 'ADA',
     'SOL': 'SOL',
