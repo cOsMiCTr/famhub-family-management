@@ -102,7 +102,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5; // Increased to 5 to allow step 4 to be optional details and step 5 to be confirmation/submit
   
   const [formData, setFormData] = useState({
     name: '',
@@ -329,7 +329,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                true; // household shared
       case 3: // What's it worth?
         return formData.amount && formData.currency;
-      case 4: // Optional details - always allow to proceed to submit
+      case 4: // Optional details
+        return true;
+      case 5: // Confirmation - always allow to submit
         return true;
       default:
         return false;
@@ -760,6 +762,42 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                         placeholder="Any additional notes..."
                       />
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 5 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                        Review & Confirm
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Review your asset details and click "Add Asset" to save.
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
+                      <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Name:</span>
+                        <span className="text-gray-900 dark:text-white">{formData.name}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Value:</span>
+                        <span className="text-gray-900 dark:text-white">{formData.currency} {formData.amount}</span>
+                      </div>
+                      {formData.purchase_price && (
+                        <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Purchase Price:</span>
+                          <span className="text-gray-900 dark:text-white">{formData.purchase_currency || formData.currency} {formData.purchase_price}</span>
+                        </div>
+                      )}
+                      {formData.description && (
+                        <div className="flex justify-between py-2">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+                          <span className="text-gray-900 dark:text-white text-right">{formData.description}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
