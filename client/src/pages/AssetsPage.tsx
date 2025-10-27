@@ -22,7 +22,9 @@ import {
   TagIcon,
   DocumentTextIcon,
   CubeTransparentIcon,
-  HomeIcon
+  HomeIcon,
+  CheckCircleIcon,
+  XCircleIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
@@ -297,6 +299,34 @@ const AssetsPage: React.FC = () => {
       await fetchSummary();
     } catch (error) {
       alert(error instanceof Error ? error.message : t('assets.failedToDelete'));
+    }
+  };
+
+  // Handle status toggle
+  const handleToggleStatus = async (asset: Asset) => {
+    try {
+      const token = localStorage.getItem('token');
+      const newStatus = asset.status === 'active' ? 'inactive' : 'active';
+      
+      const response = await fetch(`/api/assets/${asset.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || t('assets.failedToUpdate'));
+      }
+
+      // Refresh assets list and summary
+      await fetchAssets();
+      await fetchSummary();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : t('assets.failedToUpdate'));
     }
   };
 
@@ -685,7 +715,7 @@ const AssetsPage: React.FC = () => {
                             })}
                           </div>
                         ) : asset.ownership_type === 'single' && asset.member_name ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium truncate bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {asset.member_name.length > 10 ? asset.member_name.substring(0, 10) + '.' : asset.member_name}: 100%
                           </span>
                         ) : (
@@ -713,6 +743,21 @@ const AssetsPage: React.FC = () => {
 
                       {/* Actions Column */}
                       <div className="col-span-4 flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleToggleStatus(asset)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            asset.status === 'active' 
+                              ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20' 
+                              : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
+                          title={asset.status === 'active' ? t('assets.setInactiveTooltip') : t('assets.setActiveTooltip')}
+                        >
+                          {asset.status === 'active' ? (
+                            <CheckCircleIcon className="h-5 w-5" />
+                          ) : (
+                            <XCircleIcon className="h-5 w-5" />
+                          )}
+                        </button>
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
