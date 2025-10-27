@@ -267,9 +267,6 @@ const handleDelete = async (category: AssetCategory) => {
                     {t('assetCategories.type')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    {t('assetCategories.icon')}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     {t('assetCategories.settings')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -287,7 +284,14 @@ const handleDelete = async (category: AssetCategory) => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                            <TagIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            {category.icon ? (
+                              (() => {
+                                const IconComponent = getCategoryIcon(category.icon);
+                                return <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400" />;
+                              })()
+                            ) : (
+                              <TagIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            )}
                           </div>
                         </div>
                         <div className="ml-4">
@@ -309,21 +313,6 @@ const handleDelete = async (category: AssetCategory) => {
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                         {getCategoryTypeName(category.category_type)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <div className="flex items-center">
-                        {(() => {
-                          const IconComponent = getCategoryIcon(category.icon || 'CubeTransparentIcon');
-                          return (
-                            <>
-                              <IconComponent className="h-5 w-5 text-gray-500 dark:text-gray-400 mr-2" />
-                              <span className="text-xs text-gray-400 dark:text-gray-500">
-                                {category.icon || 'CubeTransparentIcon'}
-                              </span>
-                            </>
-                          );
-                        })()}
-                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">
