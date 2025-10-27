@@ -476,7 +476,7 @@ router.get('/', asyncHandler(async (req, res) => {
   if (assetIds.length > 0) {
     try {
       const sharedOwnershipResult = await query(
-        `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
+        `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
          FROM shared_ownership_distribution sod
          JOIN household_members hm ON sod.household_member_id = hm.id
          WHERE sod.asset_id = ANY($1::int[])`,
@@ -492,8 +492,7 @@ router.get('/', asyncHandler(async (req, res) => {
           household_member_id: row.household_member_id,
           ownership_percentage: parseFloat(row.ownership_percentage),
           member_name: row.member_name,
-          relationship: row.relationship,
-          role: row.role
+          relationship: row.relationship
         });
       });
     } catch (error) {
@@ -517,7 +516,7 @@ router.get('/', asyncHandler(async (req, res) => {
       try {
         // Get all household members
         const membersResult = await query(
-          `SELECT id, name, relationship, role FROM household_members 
+          `SELECT id, name, relationship FROM household_members 
            WHERE household_id = $1 ORDER BY name`,
           [asset.household_id]
         );
@@ -531,8 +530,7 @@ router.get('/', asyncHandler(async (req, res) => {
             household_member_id: member.id,
             ownership_percentage: percentagePerMember + (index === 0 ? remainder : 0),
             member_name: member.name,
-            relationship: member.relationship,
-            role: member.role
+            relationship: member.relationship
           }));
 
           // Insert into database
@@ -595,7 +593,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
   // Get shared ownership distribution
   const sharedOwnershipResult = await query(
-    `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship, hm.role
+    `SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
      FROM shared_ownership_distribution sod
      JOIN household_members hm ON sod.household_member_id = hm.id
      WHERE sod.asset_id = $1`,
@@ -608,8 +606,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
       household_member_id: row.household_member_id,
       ownership_percentage: parseFloat(row.ownership_percentage),
       member_name: row.member_name,
-      relationship: row.relationship,
-      role: row.role
+      relationship: row.relationship
     }))
   };
 
