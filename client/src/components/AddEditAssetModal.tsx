@@ -395,9 +395,13 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
         })
       };
 
+      console.log('🔍 Submitting asset data:', submitData);
+      console.log('🔍 shared_ownership_percentages:', submitData.shared_ownership_percentages);
+      
       await onSave(submitData);
       onClose();
     } catch (error) {
+      console.error('❌ Error saving asset:', error);
       setErrors([error instanceof Error ? error.message : t('assets.failedToSave')]);
     } finally {
       setLoading(false);
