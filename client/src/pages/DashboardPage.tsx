@@ -62,7 +62,11 @@ const DashboardPage: React.FC = () => {
     const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
     
     if (savedExchangeRates) {
-      setSelectedExchangeRates(JSON.parse(savedExchangeRates));
+      const parsed = JSON.parse(savedExchangeRates);
+      console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
+      setSelectedExchangeRates(parsed);
+    } else {
+      console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
     }
     
     if (savedShowConversions) {
@@ -180,6 +184,7 @@ const DashboardPage: React.FC = () => {
   
   // Handle exchange rate configuration
   const handleExchangeRateConfig = (selectedCurrencies: string[]) => {
+    console.log('💾 Saving exchange rates to localStorage:', selectedCurrencies);
     setSelectedExchangeRates(selectedCurrencies);
     localStorage.setItem('dashboard_exchange_rates', JSON.stringify(selectedCurrencies));
   };
@@ -458,7 +463,11 @@ const DashboardPage: React.FC = () => {
                   .filter(rate => {
                     // Only show rates for active currencies
                     const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
-                    return isActive && selectedExchangeRates.includes(rate.to_currency);
+                    const isSelected = selectedExchangeRates.includes(rate.to_currency);
+                    if (!isActive || !isSelected) {
+                      console.log(`🚫 Filtering out rate: ${rate.to_currency} - isActive: ${isActive}, isSelected: ${isSelected}`);
+                    }
+                    return isActive && isSelected;
                   })
                   .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
