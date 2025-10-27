@@ -26,6 +26,9 @@ declare class ExchangeRateService {
     private scrapeBOERates;
     private scrapeFedRates;
     forceUpdate(): Promise<void>;
+    private scrapeGoldRates;
+    private scrapeCryptocurrencyRates;
+    private scrapeMetalRates;
 }
 export declare const exchangeRateService: ExchangeRateService;
 export {};
