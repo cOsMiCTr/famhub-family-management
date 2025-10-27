@@ -653,16 +653,19 @@ class ExchangeRateService {
                 rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: fallbackSilver });
                 rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / fallbackSilver });
                 console.log(`⚠️ Using fallback silver price: ${fallbackSilver} USD/oz`);
+                silverFound = true;
             }
             if (!platinumFound) {
                 rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: fallbackPlatinum });
                 rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / fallbackPlatinum });
                 console.log(`⚠️ Using fallback platinum price: ${fallbackPlatinum} USD/oz`);
+                platinumFound = true;
             }
             if (!palladiumFound) {
                 rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: fallbackPalladium });
                 rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / fallbackPalladium });
                 console.log(`⚠️ Using fallback palladium price: ${fallbackPalladium} USD/oz`);
+                palladiumFound = true;
             }
         }
         catch (error) {
