@@ -43,6 +43,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
   };
 
   const currencyNames: { [key: string]: string } = {
+    // Fiat
     'USD': 'US Dollar',
     'EUR': 'Euro',
     'GBP': 'British Pound',
@@ -52,7 +53,22 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
     'CAD': 'Canadian Dollar',
     'AUD': 'Australian Dollar',
     'CHF': 'Swiss Franc',
-    'GOLD': 'Gold'
+    // Metals
+    'GOLD': 'Gold',
+    'SILVER': 'Silver',
+    'PLATINUM': 'Platinum',
+    'PALLADIUM': 'Palladium',
+    // Cryptocurrencies
+    'BTC': 'Bitcoin',
+    'ETH': 'Ethereum',
+    'BNB': 'Binance Coin',
+    'ADA': 'Cardano',
+    'SOL': 'Solana',
+    'DOT': 'Polkadot',
+    'MATIC': 'Polygon',
+    'AVAX': 'Avalanche',
+    'LINK': 'Chainlink',
+    'UNI': 'Uniswap'
   };
 
   if (!isOpen) return null;

@@ -157,20 +157,20 @@ const DashboardPage: React.FC = () => {
     return formatCurrency(convertedAmount, toCurrency);
   };
   
-  // Helper function to get available currencies from exchange rates (only active fiat currencies)
+  // Helper function to get available currencies from exchange rates (all active currencies)
   const getAvailableCurrencies = (): string[] => {
     // Get user's main currency
     const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
     
-    // Get only active fiat currencies (currency_type = 'fiat') excluding user's main currency
-    const activeFiatCurrencies = activeCurrencies
-      .filter(c => c.is_active && c.currency_type === 'fiat' && c.code !== userMainCurrency)
+    // Get all active currencies (including fiat, metal, and crypto) excluding user's main currency
+    const activeCurrencyCodes = activeCurrencies
+      .filter(c => c.is_active && c.code !== userMainCurrency)
       .map(c => c.code);
     
     // Also include currencies from exchange rates for additional coverage
-    const currencies = new Set<string>(activeFiatCurrencies);
+    const currencies = new Set<string>(activeCurrencyCodes);
     exchangeRates.forEach(rate => {
-      if (rate.to_currency && activeFiatCurrencies.includes(rate.to_currency)) {
+      if (rate.to_currency && activeCurrencyCodes.includes(rate.to_currency)) {
         currencies.add(rate.to_currency);
       }
     });
