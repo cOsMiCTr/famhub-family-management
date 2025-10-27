@@ -532,16 +532,16 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-4">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
-              <div className="col-span-2 text-center">
+              <div className="col-span-2 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Value</span>
               </div>
-              <div className="col-span-2 text-center">
+              <div className="col-span-2 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost</span>
               </div>
-              <div className="col-span-1 text-center">
+              <div className="col-span-1 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-2 text-center">
+              <div className="col-span-2 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>

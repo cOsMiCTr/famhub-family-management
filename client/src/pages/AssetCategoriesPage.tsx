@@ -18,6 +18,7 @@ import {
   CubeTransparentIcon 
 } from '@heroicons/react/24/outline';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
+import { getCurrencyTypeColor, getCurrencyTypeLabel } from '../utils/currencyTypeColors';
 
 interface AssetCategory {
   id: number;
@@ -334,11 +335,14 @@ const handleDelete = async (category: AssetCategory) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-wrap gap-1">
-                        {(category.allowed_currency_types || ['fiat']).map((type: string) => (
-                          <span key={type} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 capitalize">
-                            {type === 'fiat' ? 'Fiat' : type === 'cryptocurrency' ? 'Crypto' : 'Metal'}
-                          </span>
-                        ))}
+                        {(category.allowed_currency_types || ['fiat']).map((type: string) => {
+                          const colors = getCurrencyTypeColor(type);
+                          return (
+                            <span key={type} className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text} capitalize`}>
+                              {getCurrencyTypeLabel(type)}
+                            </span>
+                          );
+                        })}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
