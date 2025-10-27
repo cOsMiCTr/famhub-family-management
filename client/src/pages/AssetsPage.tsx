@@ -595,10 +595,10 @@ const AssetsPage: React.FC = () => {
                           {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 && (
                             <>
                               <span className="mx-2">•</span>
-                              <span className="flex items-center text-xs">
-                                {asset.shared_ownership.map((owner, idx) => (
-                                  <span key={owner.household_member_id} className={idx > 0 ? 'ml-2' : ''}>
-                                    {owner.member_name} ({owner.ownership_percentage}%)
+                              <span className="flex items-center flex-wrap gap-1">
+                                {asset.shared_ownership.map((owner) => (
+                                  <span key={owner.household_member_id} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
+                                    {owner.member_name}: {owner.ownership_percentage}%
                                   </span>
                                 ))}
                               </span>

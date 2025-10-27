@@ -600,36 +600,41 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                           Ownership Distribution
                         </label>
-                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-64 overflow-y-auto">
-                          <div className="space-y-3">
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-96 overflow-y-auto">
+                          <div className="space-y-4">
                             {members && members.map && members.map(member => (
-                              <div key={member.id} className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-900 dark:text-white">
-                                    {member.name}
+                              <div key={member.id}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                      {member.name}
+                                    </div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                      {member.relationship}
+                                    </div>
                                   </div>
-                                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                                    {member.relationship}
+                                  <div className="w-20 text-right">
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                      {sharedOwnershipPercentages[member.id] || 0}%
+                                    </span>
                                   </div>
                                 </div>
-                                <div className="w-24">
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    value={sharedOwnershipPercentages[member.id] || 0}
-                                    onChange={(e) => {
-                                      const value = parseFloat(e.target.value) || 0;
-                                      setSharedOwnershipPercentages(prev => ({
-                                        ...prev,
-                                        [member.id]: value
-                                      }));
-                                    }}
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                                    placeholder="0%"
-                                  />
-                                </div>
+                                {/* Slider */}
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  step="0.5"
+                                  value={sharedOwnershipPercentages[member.id] || 0}
+                                  onChange={(e) => {
+                                    const value = parseFloat(e.target.value) || 0;
+                                    setSharedOwnershipPercentages(prev => ({
+                                      ...prev,
+                                      [member.id]: value
+                                    }));
+                                  }}
+                                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                />
                               </div>
                             ))}
                           </div>
