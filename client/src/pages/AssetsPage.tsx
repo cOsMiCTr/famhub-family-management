@@ -571,13 +571,16 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-1 flex justify-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
               </div>
-              <div className="col-span-4">
+              <div className="col-span-3">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
               <div className="col-span-2 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shares</span>
+              </div>
+              <div className="col-span-1.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Value</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-1.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost</span>
               </div>
               <div className="col-span-1 text-right">
@@ -616,7 +619,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Asset Name and Details Column */}
-                      <div className="col-span-4">
+                      <div className="col-span-3">
                         <div className="flex items-center">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {asset.name}
@@ -637,18 +640,6 @@ const AssetsPage: React.FC = () => {
                               {asset.member_name}
                             </>
                           )}
-                          {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 && (
-                            <>
-                              <span className="mx-2">•</span>
-                              <span className="flex items-center flex-wrap gap-1">
-                                {asset.shared_ownership.map((owner) => (
-                                  <span key={owner.household_member_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
-                                    {owner.member_name}: {owner.ownership_percentage}%
-                                  </span>
-                                ))}
-                              </span>
-                            </>
-                          )}
                           {asset.location && (
                             <>
                               <span className="mx-2">•</span>
@@ -659,15 +650,34 @@ const AssetsPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Price Column */}
+                      {/* Shares Column */}
                       <div className="col-span-2 text-right">
+                        {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 justify-end">
+                            {asset.shared_ownership.map((owner) => (
+                              <span key={owner.household_member_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
+                                {owner.member_name}: {owner.ownership_percentage}%
+                              </span>
+                            ))}
+                          </div>
+                        ) : asset.ownership_type === 'single' && asset.member_name ? (
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                            {asset.member_name}: 100%
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </div>
+
+                      {/* Price Column */}
+                      <div className="col-span-1.5 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
                       </div>
 
                       {/* Cost Column */}
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-1.5 text-right">
                         {asset.purchase_price ? (
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {formatCurrency(asset.purchase_price, asset.currency)}

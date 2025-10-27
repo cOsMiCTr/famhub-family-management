@@ -410,7 +410,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-4 sm:align-middle sm:max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               {/* Header */}
@@ -628,56 +628,50 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                                   value={sharedOwnershipPercentages[member.id] || 0}
                                   onChange={(e) => {
                                     const newValue = Math.round(parseFloat(e.target.value) || 0);
-                                    const currentTotal = Object.values(sharedOwnershipPercentages).reduce((sum, val) => sum + val, 0);
                                     const currentValue = sharedOwnershipPercentages[member.id] || 0;
                                     
-                                    // Calculate the difference
+                                    // Calculate difference and remaining percentage
                                     const difference = newValue - currentValue;
+                                    const remaining = 100 - newValue;
                                     
-                                    // Calculate sum of OTHER members (excluding current member)
-                                    const otherMembersSum = currentTotal - currentValue;
+                                    // Get other members (excluding current)
+                                    const otherMemberIds = Object.keys(sharedOwnershipPercentages)
+                                      .map(id => parseInt(id))
+                                      .filter(id => id !== member.id);
                                     
-                                    // If there's no other members or we're increasing to 100%, just set this value
-                                    if (otherMembersSum <= 0 || newValue >= 100) {
-                                      setSharedOwnershipPercentages(prev => ({
-                                        ...prev,
-                                        [member.id]: newValue
-                                      }));
-                                    } else {
-                                      // Proportionally adjust other members
-                                      const remaining = 100 - newValue;
-                                      const newPercentages: { [key: number]: number } = {
-                                        [member.id]: newValue
-                                      };
-                                      
-                                      // Redistribute proportionally among other members
+                                    // Calculate sum of other members' current percentages
+                                    const otherMembersSum = otherMemberIds.reduce((sum, id) => sum + (sharedOwnershipPercentages[id] || 0), 0);
+                                    
+                                    // Calculate new percentages for other members
+                                    const newPercentages: { [key: number]: number } = { [member.id]: newValue };
+                                    
+                                    if (otherMembersSum > 0 && remaining >= 0) {
+                                      // Distribute remaining proportionally among other members
                                       let totalDistributed = 0;
-                                      const memberIds = Object.keys(sharedOwnershipPercentages).map(id => parseInt(id));
                                       
-                                      memberIds.forEach(otherMemberId => {
-                                        if (otherMemberId !== member.id) {
-                                          const oldPercentage = sharedOwnershipPercentages[otherMemberId] || 0;
-                                          if (otherMembersSum > 0) {
-                                            // Calculate proportional reduction
-                                            const proportion = oldPercentage / otherMembersSum;
-                                            const roundedValue = Math.round(remaining * proportion);
-                                            newPercentages[otherMemberId] = roundedValue;
-                                            totalDistributed += roundedValue;
-                                          }
+                                      otherMemberIds.forEach(otherId => {
+                                        const oldPercentage = sharedOwnershipPercentages[otherId] || 0;
+                                        if (otherMembersSum > 0) {
+                                          const proportion = oldPercentage / otherMembersSum;
+                                          const newPercentage = Math.round(remaining * proportion);
+                                          newPercentages[otherId] = newPercentage;
+                                          totalDistributed += newPercentage;
                                         }
                                       });
                                       
-                                      // Ensure total equals 100% by adjusting the last member
-                                      const finalRemaining = 100 - newValue - totalDistributed;
-                                      if (finalRemaining !== 0 && memberIds.length > 1) {
-                                        const lastMemberId = memberIds.find(id => id !== member.id);
-                                        if (lastMemberId) {
-                                          newPercentages[lastMemberId] = (newPercentages[lastMemberId] || 0) + finalRemaining;
-                                        }
+                                      // Fix rounding errors by adjusting the first other member
+                                      const finalRemaining = remaining - totalDistributed;
+                                      if (finalRemaining !== 0 && otherMemberIds.length > 0) {
+                                        newPercentages[otherMemberIds[0]] = (newPercentages[otherMemberIds[0]] || 0) + finalRemaining;
                                       }
-                                      
-                                      setSharedOwnershipPercentages(newPercentages);
+                                    } else {
+                                      // If no other members have shares, just keep them at 0
+                                      otherMemberIds.forEach(otherId => {
+                                        newPercentages[otherId] = 0;
+                                      });
                                     }
+                                    
+                                    setSharedOwnershipPercentages(newPercentages);
                                   }}
                                   className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                 />
