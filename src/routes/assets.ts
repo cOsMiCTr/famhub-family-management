@@ -148,7 +148,7 @@ router.post('/', [
   const asset = assetResult.rows[0];
 
   // Handle shared ownership distribution if applicable
-  if (ownership_type === 'shared' && req.body.shared_ownership_percentages) {
+  if ((ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages) {
     const sharedPercentages = req.body.shared_ownership_percentages;
     
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
@@ -639,7 +639,7 @@ router.put('/:id', [
   );
 
   // Handle shared ownership distribution if being updated
-  if (updateData.ownership_type === 'shared' && updateData.shared_ownership_percentages) {
+  if ((updateData.ownership_type === 'shared' || updateData.ownership_type === 'household') && updateData.shared_ownership_percentages) {
     // Delete existing shared ownership entries
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
     
@@ -654,8 +654,8 @@ router.put('/:id', [
         );
       }
     }
-  } else if (updateData.ownership_type && updateData.ownership_type !== 'shared') {
-    // If ownership type is changing away from shared, delete all shared ownership entries
+  } else if (updateData.ownership_type && updateData.ownership_type !== 'shared' && updateData.ownership_type !== 'household') {
+    // If ownership type is changing away from shared/household, delete all shared ownership entries
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
   }
 
