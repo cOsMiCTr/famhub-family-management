@@ -68,7 +68,7 @@ router.post('/', [
   // purchase_currency will be validated in handler
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
-  body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
+  body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared']).withMessage('Invalid ownership type'),
   body('ownership_percentage').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
   body('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
@@ -146,7 +146,7 @@ router.post('/', [
   const asset = assetResult.rows[0];
 
   // Handle shared ownership distribution if applicable
-  if ((ownership_type === 'shared' || ownership_type === 'household') && req.body.shared_ownership_percentages) {
+  if (ownership_type === 'shared' && req.body.shared_ownership_percentages) {
     const sharedPercentages = req.body.shared_ownership_percentages;
     
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
@@ -472,10 +472,10 @@ router.get('/', asyncHandler(async (req, res) => {
     shared_ownership: sharedOwnershipMap[asset.id] || []
   }));
 
-  // For assets with shared/household ownership but no distribution entries yet, 
+  // For assets with shared ownership but no distribution entries yet, 
   // get all household members and create default distribution
   for (const asset of assetsWithOwnership) {
-    if ((asset.ownership_type === 'shared' || asset.ownership_type === 'household') && 
+    if (asset.ownership_type === 'shared' && 
         (!asset.shared_ownership || asset.shared_ownership.length === 0)) {
       
       try {
@@ -594,7 +594,7 @@ router.put('/:id', [
   // purchase_currency will be validated in handler
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
-  body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
+  body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared']).withMessage('Invalid ownership type'),
   body('ownership_percentage').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
   body('status').optional({ nullable: true, checkFalsy: true }).isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
@@ -677,7 +677,7 @@ router.put('/:id', [
   );
 
   // Handle shared ownership distribution if being updated
-  if ((updateData.ownership_type === 'shared' || updateData.ownership_type === 'household') && updateData.shared_ownership_percentages) {
+  if (updateData.ownership_type === 'shared' && updateData.shared_ownership_percentages) {
     // Delete existing shared ownership entries
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
     
@@ -692,8 +692,8 @@ router.put('/:id', [
         );
       }
     }
-  } else if (updateData.ownership_type && updateData.ownership_type !== 'shared' && updateData.ownership_type !== 'household') {
-    // If ownership type is changing away from shared/household, delete all shared ownership entries
+  } else if (updateData.ownership_type && updateData.ownership_type !== 'shared') {
+    // If ownership type is changing away from shared, delete all shared ownership entries
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
   }
 

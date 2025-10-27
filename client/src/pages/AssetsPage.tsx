@@ -148,8 +148,6 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
-      console.log('🔍 Assets API Response:', data);
-      console.log('🔍 Assets Count:', data.assets?.length || 0);
       setAssets(data.assets || []);
       setTotalPages(data.pagination?.pages || 1);
       setTotalAssets(data.pagination?.total || 0);
@@ -697,7 +695,7 @@ const AssetsPage: React.FC = () => {
 
                       {/* Shares Column */}
                       <div className="col-span-1">
-                        {(asset.ownership_type === 'shared' || asset.ownership_type === 'household') && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
+                        {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
                           <div className="flex flex-col gap-1">
                             {asset.shared_ownership.map((owner, index) => {
                               const colors = [
