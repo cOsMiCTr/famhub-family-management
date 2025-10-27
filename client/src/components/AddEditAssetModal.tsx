@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { useAllCurrencies } from '../contexts/CurrencyContext';
+import { useCurrencyContext } from '../contexts/CurrencyContext';
 import { XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { 
   HomeIcon, 
@@ -137,21 +137,21 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
   
   // Get all currencies from context
-  const { currencies, loading: currenciesLoading } = useAllCurrencies();
+  const { allCurrencies } = useCurrencyContext();
   
   // Filter currencies based on category's allowed_currency_types and active status
   const currencyOptions = useMemo(() => {
-    if (!selectedCategory?.allowed_currency_types || !currencies.length) {
-      return currencies
+    if (!selectedCategory?.allowed_currency_types || !allCurrencies.length) {
+      return allCurrencies
         .filter(c => c.is_active)
         .map(c => ({ value: c.code, label: `${c.name} (${c.symbol})` }));
     }
     
     // Filter currencies by allowed types and active status
-    return currencies
+    return allCurrencies
       .filter(c => c.is_active && selectedCategory.allowed_currency_types.includes(c.currency_type))
       .map(c => ({ value: c.code, label: `${c.name} (${c.symbol})` }));
-  }, [selectedCategory, currencies]);
+  }, [selectedCategory, allCurrencies]);
 
   // Icon mapping for categories
   const getCategoryIcon = (iconName: string) => {
