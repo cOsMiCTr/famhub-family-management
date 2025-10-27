@@ -768,10 +768,16 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
             {/* Footer with Navigation */}
             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              {currentStep === totalSteps ? (
+              {/* Debug info */}
+              {console.log(`🔍 DEBUG: currentStep=${currentStep}, totalSteps=${totalSteps}, showSubmit=${currentStep === totalSteps}`)}
+              
+              {currentStep >= totalSteps ? (
                 <button
                   type="submit"
                   disabled={loading}
+                  onClick={(e) => {
+                    console.log('🔍 DEBUG: Submit button clicked', { currentStep, totalSteps });
+                  }}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
                 >
                   {loading ? t('assets.saving') : (asset ? t('assets.updateAsset') : t('assets.addAsset'))}
@@ -779,7 +785,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
               ) : (
                 <button
                   type="button"
-                  onClick={nextStep}
+                  onClick={() => {
+                    console.log('🔍 DEBUG: Next button clicked', { currentStep, totalSteps });
+                    nextStep();
+                  }}
                   disabled={!canProceedToNext()}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
