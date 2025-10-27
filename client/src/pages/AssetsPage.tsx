@@ -571,22 +571,25 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-1 flex justify-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
               </div>
-              <div className="col-span-3">
+              <div className="col-span-2.5">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-1.5 text-center">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</span>
+              </div>
+              <div className="col-span-1.5 text-center">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ownership</span>
+              </div>
+              <div className="col-span-2 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shares</span>
               </div>
-              <div className="col-span-1.5 text-right">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Value</span>
-              </div>
-              <div className="col-span-1.5 text-right">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost</span>
+              <div className="col-span-1 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</span>
               </div>
               <div className="col-span-1 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-1.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>
@@ -619,21 +622,15 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Asset Name and Details Column */}
-                      <div className="col-span-3">
+                      <div className="col-span-2.5">
                         <div className="flex items-center">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {asset.name}
                           </p>
-                          <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
-                            {t(`assets.${asset.status}`)}
-                          </span>
-                          <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOwnershipColor(asset.ownership_type)}`}>
-                            {t(`assets.${asset.ownership_type}`)}
-                          </span>
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
                           {category ? getCategoryName(category) : t('assets.unknownCategory')}
-                          {asset.member_name && (
+                          {asset.member_name && asset.ownership_type === 'single' && (
                             <>
                               <span className="mx-2">•</span>
                               <UserIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
@@ -650,18 +647,44 @@ const AssetsPage: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Status Column */}
+                      <div className="col-span-1.5 flex justify-center">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
+                          {t(`assets.${asset.status}`)}
+                        </span>
+                      </div>
+
+                      {/* Ownership Type Column */}
+                      <div className="col-span-1.5 flex justify-center">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getOwnershipColor(asset.ownership_type)}`}>
+                          {t(`assets.${asset.ownership_type}`)}
+                        </span>
+                      </div>
+
                       {/* Shares Column */}
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         {(asset.ownership_type === 'shared' || asset.ownership_type === 'household') && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 justify-end">
-                            {asset.shared_ownership.map((owner) => (
-                              <span key={owner.household_member_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
-                                {owner.member_name}: {owner.ownership_percentage}%
-                              </span>
-                            ))}
+                          <div className="flex flex-col gap-1">
+                            {asset.shared_ownership.map((owner, index) => {
+                              const colors = [
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300',
+                                'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
+                                'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300',
+                                'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-300',
+                                'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300',
+                                'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-300',
+                                'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300'
+                              ];
+                              const colorClass = colors[index % colors.length];
+                              return (
+                                <span key={owner.household_member_id} className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${colorClass}`}>
+                                  {owner.member_name}: {owner.ownership_percentage}%
+                                </span>
+                              );
+                            })}
                           </div>
                         ) : asset.ownership_type === 'single' && asset.member_name ? (
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {asset.member_name}: 100%
                           </span>
                         ) : (
@@ -669,22 +692,11 @@ const AssetsPage: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Price Column */}
-                      <div className="col-span-1.5 text-right">
+                      {/* Value Column */}
+                      <div className="col-span-1 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
-                      </div>
-
-                      {/* Cost Column */}
-                      <div className="col-span-1.5 text-right">
-                        {asset.purchase_price ? (
-                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {formatCurrency(asset.purchase_price, asset.currency)}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-gray-400">-</p>
-                        )}
                       </div>
 
                       {/* ROI Column */}
@@ -699,7 +711,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Actions Column */}
-                      <div className="col-span-2 flex justify-end space-x-2">
+                      <div className="col-span-1.5 flex justify-end space-x-2">
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
