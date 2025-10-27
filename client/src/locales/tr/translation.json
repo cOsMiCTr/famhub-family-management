@@ -92,6 +92,7 @@
     "nameTr": "Adı (Türkçe)",
     "noCurrencies": "Para birimi bulunamadı",
     "preciousMetal": "Değerli Maden",
+    "searchLabel": "Ara",
     "searchPlaceholder": "Kod veya isme göre ara",
     "status": "Durum",
     "symbol": "Sembol",
