@@ -1,9 +1,10 @@
 import express from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param, validationResult, custom } from 'express-validator';
 import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError, createNotFoundError } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
+import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -57,14 +58,28 @@ router.get('/categories', asyncHandler(async (req, res) => {
 router.post('/', [
   body('name').trim().notEmpty().withMessage('Asset name is required'),
   body('amount').isFloat({ min: 0 }).withMessage('Valid amount required'),
-  body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
+  body('currency').custom(async (value) => {
+    const validCodes = await getActiveCurrencyCodes();
+    if (!validCodes.includes(value)) {
+      throw new Error('Invalid currency');
+    }
+    return true;
+  }),
   body('category_id').isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
   body('date').isISO8601().withMessage('Valid date required'),
   body('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
   body('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
   body('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
+  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).custom(async (value) => {
+    if (value) {
+      const validCodes = await getActiveCurrencyCodes();
+      if (!validCodes.includes(value)) {
+        throw new Error('Invalid purchase currency');
+      }
+    }
+    return true;
+  }),
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
   body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
@@ -444,14 +459,30 @@ router.get('/:id', asyncHandler(async (req, res) => {
 router.put('/:id', [
   body('name').optional().trim().notEmpty().withMessage('Asset name cannot be empty'),
   body('amount').optional().isFloat({ min: 0 }).withMessage('Valid amount required'),
-  body('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
+  body('currency').optional().custom(async (value) => {
+    if (value) {
+      const validCodes = await getActiveCurrencyCodes();
+      if (!validCodes.includes(value)) {
+        throw new Error('Invalid currency');
+      }
+    }
+    return true;
+  }),
   body('category_id').optional().isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional({ nullable: true, checkFalsy: true }).isLength({ max: 500 }).withMessage('Description too long'),
   body('date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid date required'),
   body('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
   body('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
   body('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid purchase currency'),
+  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).custom(async (value) => {
+    if (value) {
+      const validCodes = await getActiveCurrencyCodes();
+      if (!validCodes.includes(value)) {
+        throw new Error('Invalid purchase currency');
+      }
+    }
+    return true;
+  }),
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
   body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),

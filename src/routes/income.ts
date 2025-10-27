@@ -1,8 +1,9 @@
 import express from 'express';
-import { body, param, query as expressQuery, validationResult } from 'express-validator';
+import { body, param, query as expressQuery, validationResult, custom } from 'express-validator';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
 import { exchangeRateService } from '../services/exchangeRateService';
+import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 
 const router = express.Router();
 
@@ -311,7 +312,13 @@ router.post('/',
     body('household_member_id').isInt().withMessage('Member ID is required'),
     body('category_id').isInt().withMessage('Category ID is required'),
     body('amount').isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
-    body('currency').isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']).withMessage('Invalid currency'),
+    body('currency').custom(async (value) => {
+      const validCodes = await getActiveCurrencyCodes();
+      if (!validCodes.includes(value)) {
+        throw new Error('Invalid currency');
+      }
+      return true;
+    }),
     body('description').optional().trim(),
     body('start_date').isISO8601().withMessage('Invalid start date'),
     body('end_date').optional({ nullable: true }).isISO8601().withMessage('Invalid end date'),
@@ -396,7 +403,15 @@ router.put('/:id',
     body('household_member_id').optional().isInt(),
     body('category_id').optional().isInt(),
     body('amount').optional().isFloat({ min: 0 }),
-    body('currency').optional().isIn(['TRY', 'GBP', 'USD', 'EUR', 'GOLD']),
+    body('currency').optional().custom(async (value) => {
+      if (value) {
+        const validCodes = await getActiveCurrencyCodes();
+        if (!validCodes.includes(value)) {
+          throw new Error('Invalid currency');
+        }
+      }
+      return true;
+    }),
     body('description').optional().trim(),
     body('start_date').optional().isISO8601(),
     body('end_date').optional({ nullable: true }).isISO8601(),
