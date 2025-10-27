@@ -487,12 +487,10 @@ const DashboardPage: React.FC = () => {
               }`}>
                 {exchangeRates
                   .filter(rate => {
-                    // Only show rates for active currencies
+                    // Show rates where to_currency is active and selected
                     const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
                     const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                    if (!isActive || !isSelected) {
-                      console.log(`🚫 Filtering out rate: ${rate.to_currency} - isActive: ${isActive}, isSelected: ${isSelected}`);
-                    }
+                    console.log(`🔍 Checking rate: from=${rate.from_currency}, to=${rate.to_currency}, isActive=${isActive}, isSelected=${isSelected}`);
                     return isActive && isSelected;
                   })
                   .map((rate, index) => {
