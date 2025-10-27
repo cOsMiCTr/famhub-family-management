@@ -200,11 +200,20 @@ router.get('/summary', asyncHandler(async (req, res) => {
   );
 
   // Get current month income and convert to main currency
+  // Calculate monthly income from all recurring income entries
   const monthlyIncomeResult_RAW = await query(
-    `SELECT SUM(i.amount) as total_amount, i.currency
+    `SELECT 
+       SUM(CASE 
+         WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
+         WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
+         WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
+         ELSE 0 
+       END) as monthly_amount,
+       i.currency
      FROM income i
      JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1 AND DATE_TRUNC('month', i.start_date) = DATE_TRUNC('month', CURRENT_DATE)
+     WHERE u.id = $1 AND i.is_recurring = true
+       AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
      GROUP BY i.currency`,
     [userId]
   );
@@ -213,7 +222,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
   for (const income of monthlyIncomeResult_RAW.rows) {
     try {
       const convertedAmount = await exchangeRateService.convertCurrency(
-        parseFloat(income.total_amount),
+        parseFloat(income.monthly_amount || 0),
         income.currency,
         mainCurrency
       );

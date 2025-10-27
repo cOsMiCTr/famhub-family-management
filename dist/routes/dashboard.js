@@ -127,15 +127,23 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const membersResult = await (0, database_1.query)(`SELECT COUNT(*) as member_count
      FROM household_members hm
      WHERE hm.household_id = $1`, [req.user.household_id]);
-    const monthlyIncomeResult_RAW = await (0, database_1.query)(`SELECT SUM(i.amount) as total_amount, i.currency
+    const monthlyIncomeResult_RAW = await (0, database_1.query)(`SELECT 
+       SUM(CASE 
+         WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
+         WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
+         WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
+         ELSE 0 
+       END) as monthly_amount,
+       i.currency
      FROM income i
      JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1 AND DATE_TRUNC('month', i.start_date) = DATE_TRUNC('month', CURRENT_DATE)
+     WHERE u.id = $1 AND i.is_recurring = true
+       AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
      GROUP BY i.currency`, [userId]);
     let monthlyIncomeInMainCurrency = 0;
     for (const income of monthlyIncomeResult_RAW.rows) {
         try {
-            const convertedAmount = await exchangeRateService_1.exchangeRateService.convertCurrency(parseFloat(income.total_amount), income.currency, mainCurrency);
+            const convertedAmount = await exchangeRateService_1.exchangeRateService.convertCurrency(parseFloat(income.monthly_amount || 0), income.currency, mainCurrency);
             monthlyIncomeInMainCurrency += convertedAmount;
         }
         catch (error) {
