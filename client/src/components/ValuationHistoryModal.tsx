@@ -18,6 +18,7 @@ interface ValuationHistoryModalProps {
   onClose: () => void;
   assetId: number;
   assetName: string;
+  assetCurrency: string;
   onAddValuation: (valuationData: any) => Promise<void>;
 }
 
@@ -26,6 +27,7 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
   onClose,
   assetId,
   assetName,
+  assetCurrency,
   onAddValuation
 }) => {
   const { t } = useTranslation();
@@ -34,7 +36,7 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
   const [showAddForm, setShowAddForm] = useState(false);
   const [addFormData, setAddFormData] = useState({
     value: '',
-    currency: 'USD',
+    currency: assetCurrency,
     valuation_date: new Date().toISOString().split('T')[0],
     valuation_method: 'manual',
     notes: ''
@@ -66,8 +68,16 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchHistory();
+      // Reset form with asset currency when modal opens
+      setAddFormData({
+        value: '',
+        currency: assetCurrency,
+        valuation_date: new Date().toISOString().split('T')[0],
+        valuation_method: 'manual',
+        notes: ''
+      });
     }
-  }, [isOpen, assetId]);
+  }, [isOpen, assetId, assetCurrency]);
 
   const handleAddValuation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +105,7 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
       // Reset form and close
       setAddFormData({
         value: '',
-        currency: 'USD',
+        currency: assetCurrency,
         valuation_date: new Date().toISOString().split('T')[0],
         valuation_method: 'manual',
         notes: ''
@@ -206,7 +216,8 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
                       name="currency"
                       value={addFormData.currency}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      disabled
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
                     >
                       <option value="USD">USD</option>
                       <option value="EUR">EUR</option>

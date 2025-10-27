@@ -747,6 +747,7 @@ const AssetsPage: React.FC = () => {
         }}
         assetId={selectedAsset?.id || 0}
         assetName={selectedAsset?.name || ''}
+        assetCurrency={selectedAsset?.currency || 'USD'}
         onAddValuation={handleAddValuation}
       />
 
