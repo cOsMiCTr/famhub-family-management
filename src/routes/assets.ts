@@ -147,6 +147,21 @@ router.post('/', [
 
   const asset = assetResult.rows[0];
 
+  // Handle shared ownership distribution if applicable
+  if (ownership_type === 'shared' && req.body.shared_ownership_percentages) {
+    const sharedPercentages = req.body.shared_ownership_percentages;
+    
+    for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
+      if (percentage > 0) {
+        await query(
+          `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+           VALUES ($1, $2, $3)`,
+          [asset.id, parseInt(memberId), parseFloat(percentage as string)]
+        );
+      }
+    }
+  }
+
   // Create initial valuation history entry if current_value is provided
   if (current_value) {
     await query(
@@ -599,6 +614,26 @@ router.put('/:id', [
     `UPDATE assets SET ${updateFields.join(', ')} WHERE id = $${paramCount++} RETURNING *`,
     [...updateValues, id]
   );
+
+  // Handle shared ownership distribution if being updated
+  if (updateData.ownership_type === 'shared' && updateData.shared_ownership_percentages) {
+    // Delete existing shared ownership entries
+    await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
+    
+    const sharedPercentages = updateData.shared_ownership_percentages;
+    for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
+      if (percentage > 0) {
+        await query(
+          `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
+           VALUES ($1, $2, $3)`,
+          [id, parseInt(memberId), parseFloat(percentage as string)]
+        );
+      }
+    }
+  } else if (updateData.ownership_type && updateData.ownership_type !== 'shared') {
+    // If ownership type is changing away from shared, delete all shared ownership entries
+    await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
+  }
 
   // Create valuation history entry if current_value was updated
   if (updateData.current_value !== undefined) {
