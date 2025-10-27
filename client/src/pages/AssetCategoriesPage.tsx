@@ -270,6 +270,9 @@ const handleDelete = async (category: AssetCategory) => {
                     {t('assetCategories.settings')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Allowed Currencies
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     {t('assetCategories.assets')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -326,6 +329,15 @@ const handleDelete = async (category: AssetCategory) => {
                             {t('assetCategories.depreciationEnabled')}
                           </span>
                         )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-wrap gap-1">
+                        {(category.allowed_currency_types || ['fiat']).map((type: string) => (
+                          <span key={type} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 capitalize">
+                            {type === 'fiat' ? 'Fiat' : type === 'cryptocurrency' ? 'Crypto' : 'Metal'}
+                          </span>
+                        ))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
