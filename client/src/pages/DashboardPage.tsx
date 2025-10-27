@@ -79,6 +79,11 @@ const DashboardPage: React.FC = () => {
       const response = await apiService.get('/dashboard/summary');
       const dashboardData = response.data;
       
+      console.log('📊 Dashboard data received:', {
+        exchangeRatesCount: dashboardData.exchange_rates?.length || 0,
+        rates: dashboardData.exchange_rates?.slice(0, 3)
+      });
+      
       setStats({
         totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
         totalIncome: dashboardData.summary?.total_income_main_currency || 0,
@@ -90,6 +95,7 @@ const DashboardPage: React.FC = () => {
       
       setExchangeRates(dashboardData.exchange_rates || []);
       setLastUpdated(dashboardData.timestamp || new Date().toISOString());
+      console.log('✅ Updated exchange rates:', dashboardData.exchange_rates?.length || 0);
     } catch (err: any) {
       console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
@@ -115,6 +121,7 @@ const DashboardPage: React.FC = () => {
       const response = await apiService.syncExchangeRates();
       
       if (response.success) {
+        console.log('✅ Sync successful, fetching updated rates...');
         // Refresh dashboard data to get updated rates
         await fetchDashboardData();
         setLastUpdated(new Date().toISOString());
@@ -125,6 +132,7 @@ const DashboardPage: React.FC = () => {
           setLastUpdateHighlight(false);
         }, 3000);
       } else {
+        console.error('❌ Sync failed:', response.message);
         setError(response.message || 'Failed to sync exchange rates');
       }
     } catch (err: any) {
