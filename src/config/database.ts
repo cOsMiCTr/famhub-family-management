@@ -75,6 +75,23 @@ export async function initializeDatabase(): Promise<void> {
     } finally {
       assetCategoryClient.release();
     }
+
+    // Seed currencies if table is empty
+    const currencyClient = await pool.connect();
+    try {
+      const currencyCount = await currencyClient.query('SELECT COUNT(*) as count FROM currencies');
+      
+      if (parseInt(currencyCount.rows[0].count) === 0) {
+        console.log('🌱 Seeding currencies...');
+        const { default: seedCurrencies } = await import('../migrations/seedCurrencies');
+        await seedCurrencies();
+        console.log('✅ Currencies seeded successfully');
+      } else {
+        console.log('✅ Currencies are intact');
+      }
+    } finally {
+      currencyClient.release();
+    }
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;
@@ -270,6 +287,23 @@ async function runMigrations(): Promise<void> {
         rate DECIMAL(15,8) NOT NULL,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(from_currency, to_currency)
+      )
+    `);
+
+    // Create currencies table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS currencies (
+        id SERIAL PRIMARY KEY,
+        code VARCHAR(10) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        name_de VARCHAR(100),
+        name_tr VARCHAR(100),
+        symbol VARCHAR(10) NOT NULL,
+        currency_type VARCHAR(20) NOT NULL CHECK (currency_type IN ('fiat', 'cryptocurrency', 'precious_metal')),
+        is_active BOOLEAN DEFAULT true,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -524,6 +558,9 @@ async function runMigrations(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_contracts_status ON contracts(status)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_exchange_rates_currencies ON exchange_rates(from_currency, to_currency)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_type ON currencies(currency_type)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_active ON currencies(is_active)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_currencies_display_order ON currencies(display_order)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_token ON invitation_tokens(token)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_invitation_tokens_email ON invitation_tokens(email)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email)`);

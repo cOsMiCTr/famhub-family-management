@@ -22,6 +22,7 @@ import householdMembersRoutes from './routes/household-members';
 import incomeCategoriesRoutes from './routes/income-categories';
 import incomeRoutes from './routes/income';
 import assetCategoriesRoutes from './routes/asset-categories';
+import currenciesRoutes from './routes/currencies';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -82,6 +83,7 @@ app.use('/api/household-members', householdMembersRoutes);
 app.use('/api/income-categories', incomeCategoriesRoutes);
 app.use('/api/income', incomeRoutes);
 app.use('/api/asset-categories', assetCategoriesRoutes);
+app.use('/api/currencies', currenciesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
