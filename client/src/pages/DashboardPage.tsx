@@ -525,14 +525,31 @@ const DashboardPage: React.FC = () => {
                 selectedExchangeRates.length === 6 ? 'grid-cols-3' :
                 'grid-cols-2'
               }`}>
-                {exchangeRates
-                  .filter(rate => {
-                    // Show rates where to_currency is active and selected
-                    const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
-                    const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                    return isActive && isSelected;
-                  })
-                  .map((rate, index) => {
+                {(() => {
+                  const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+                  console.log('🔍 Debug exchange rates:', {
+                    totalRates: exchangeRates.length,
+                    mainCurrency: userMainCurrency,
+                    selectedCurrencies: selectedExchangeRates,
+                    filteredRates: exchangeRates.filter(rate => {
+                      const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                      const isSelected = selectedExchangeRates.includes(rate.to_currency);
+                      const matchesMain = rate.from_currency === userMainCurrency;
+                      return isActive && isSelected && matchesMain;
+                    })
+                  });
+                  
+                  return exchangeRates
+                    .filter(rate => {
+                      const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+                      // Show rates where to_currency is active and selected
+                      const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                      const isSelected = selectedExchangeRates.includes(rate.to_currency);
+                      const matchesMain = rate.from_currency === userMainCurrency;
+                      console.log(`Rate ${rate.to_currency}: active=${isActive}, selected=${isSelected}, matchesMain=${matchesMain}`);
+                      return isActive && isSelected && matchesMain;
+                    });
+                })().map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
                     // Fiat
                     'USD': { symbol: '$', name: 'US Dollar ($)', flag: '🇺🇸', color: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700' },
