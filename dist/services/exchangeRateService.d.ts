@@ -17,6 +17,7 @@ declare class ExchangeRateService {
     private setFallbackRates;
     private setFallbackGoldRates;
     private storeExchangeRates;
+    private createCrossConversions;
     getExchangeRate(fromCurrency: string, toCurrency: string): Promise<number>;
     convertCurrency(amount: number, fromCurrency: string, toCurrency: string): Promise<number>;
     getAllExchangeRates(): Promise<ExchangeRateData[]>;

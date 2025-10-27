@@ -252,6 +252,38 @@ class ExchangeRateService {
          ON CONFLICT (from_currency, to_currency)
          DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`, [rate.from_currency, rate.to_currency, rate.rate]);
         }
+        await this.createCrossConversions();
+    }
+    async createCrossConversions() {
+        const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH'];
+        try {
+            for (const fromCurrency of currencies) {
+                for (const toCurrency of currencies) {
+                    if (fromCurrency !== toCurrency) {
+                        const existingRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', [fromCurrency, toCurrency]);
+                        if (existingRate.rows.length === 0) {
+                            try {
+                                const toUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', [fromCurrency, 'USD']);
+                                const fromUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', ['USD', toCurrency]);
+                                if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
+                                    const crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                    await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
+                     VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                     ON CONFLICT (from_currency, to_currency)
+                     DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`, [fromCurrency, toCurrency, crossRate]);
+                                }
+                            }
+                            catch (error) {
+                            }
+                        }
+                    }
+                }
+            }
+            console.log('✅ Created cross-currency conversions');
+        }
+        catch (error) {
+            console.error('Error creating cross-conversions:', error);
+        }
     }
     async getExchangeRate(fromCurrency, toCurrency) {
         if (fromCurrency === toCurrency) {

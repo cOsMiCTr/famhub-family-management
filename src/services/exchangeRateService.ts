@@ -296,6 +296,59 @@ class ExchangeRateService {
         [rate.from_currency, rate.to_currency, rate.rate]
       );
     }
+    
+    // After storing rates, create cross-conversions for all currencies
+    await this.createCrossConversions();
+  }
+  
+  // Create cross-conversions between all currencies through common pairs
+  private async createCrossConversions(): Promise<void> {
+    const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH'];
+    
+    try {
+      for (const fromCurrency of currencies) {
+        for (const toCurrency of currencies) {
+          if (fromCurrency !== toCurrency) {
+            // Check if rate already exists
+            const existingRate = await query(
+              'SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2',
+              [fromCurrency, toCurrency]
+            );
+            
+            if (existingRate.rows.length === 0) {
+              // Try to create rate through USD
+              try {
+                // Get from -> USD and USD -> to rates
+                const toUSDRate = await query(
+                  'SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2',
+                  [fromCurrency, 'USD']
+                );
+                const fromUSDRate = await query(
+                  'SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2',
+                  ['USD', toCurrency]
+                );
+                
+                if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
+                  const crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                  await query(
+                    `INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
+                     VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                     ON CONFLICT (from_currency, to_currency)
+                     DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`,
+                    [fromCurrency, toCurrency, crossRate]
+                  );
+                }
+              } catch (error) {
+                // Silently skip if conversion not possible
+              }
+            }
+          }
+        }
+      }
+      console.log('✅ Created cross-currency conversions');
+    } catch (error) {
+      console.error('Error creating cross-conversions:', error);
+    }
   }
 
   // Get exchange rate between two currencies
