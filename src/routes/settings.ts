@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, validationResult, custom } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { asyncHandler, createValidationError, createUnauthorizedError } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
@@ -49,15 +49,7 @@ router.get('/', asyncHandler(async (req, res) => {
 // Update user settings
 router.put('/', [
   body('preferred_language').optional().isIn(['en', 'de', 'tr']).withMessage('Invalid language'),
-  body('main_currency').optional().custom(async (value) => {
-    if (value) {
-      const validCodes = await getActiveCurrencyCodes();
-      if (!validCodes.includes(value)) {
-        throw new Error('Invalid currency');
-      }
-    }
-    return true;
-  })
+  // main_currency will be validated in handler
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

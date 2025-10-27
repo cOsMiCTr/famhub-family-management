@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, param, validationResult, custom } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError, createNotFoundError } from '../middleware/errorHandler';
@@ -58,28 +58,14 @@ router.get('/categories', asyncHandler(async (req, res) => {
 router.post('/', [
   body('name').trim().notEmpty().withMessage('Asset name is required'),
   body('amount').isFloat({ min: 0 }).withMessage('Valid amount required'),
-  body('currency').custom(async (value) => {
-    const validCodes = await getActiveCurrencyCodes();
-    if (!validCodes.includes(value)) {
-      throw new Error('Invalid currency');
-    }
-    return true;
-  }),
+  // Currency validation will be done in the handler
   body('category_id').isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
   body('date').isISO8601().withMessage('Valid date required'),
   body('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
   body('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
   body('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).custom(async (value) => {
-    if (value) {
-      const validCodes = await getActiveCurrencyCodes();
-      if (!validCodes.includes(value)) {
-        throw new Error('Invalid purchase currency');
-      }
-    }
-    return true;
-  }),
+  // purchase_currency will be validated in handler
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
   body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
@@ -109,6 +95,15 @@ router.post('/', [
   const householdId = req.user.household_id;
   if (!householdId) {
     throw createValidationError('User must be assigned to a household');
+  }
+
+  // Validate currency codes
+  const validCurrencyCodes = await getActiveCurrencyCodes();
+  if (!validCurrencyCodes.includes(currency)) {
+    throw createValidationError(`Invalid currency: ${currency}`);
+  }
+  if (purchase_currency && !validCurrencyCodes.includes(purchase_currency)) {
+    throw createValidationError(`Invalid purchase currency: ${purchase_currency}`);
   }
 
   // Verify category exists
@@ -459,30 +454,14 @@ router.get('/:id', asyncHandler(async (req, res) => {
 router.put('/:id', [
   body('name').optional().trim().notEmpty().withMessage('Asset name cannot be empty'),
   body('amount').optional().isFloat({ min: 0 }).withMessage('Valid amount required'),
-  body('currency').optional().custom(async (value) => {
-    if (value) {
-      const validCodes = await getActiveCurrencyCodes();
-      if (!validCodes.includes(value)) {
-        throw new Error('Invalid currency');
-      }
-    }
-    return true;
-  }),
+  // currency will be validated in handler
   body('category_id').optional().isInt({ min: 1 }).withMessage('Valid category ID required'),
   body('description').optional({ nullable: true, checkFalsy: true }).isLength({ max: 500 }).withMessage('Description too long'),
   body('date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid date required'),
   body('household_member_id').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1 }).withMessage('Valid household member ID required'),
   body('purchase_date').optional({ nullable: true, checkFalsy: true }).isISO8601().withMessage('Valid purchase date required'),
   body('purchase_price').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid purchase price required'),
-  body('purchase_currency').optional({ nullable: true, checkFalsy: true }).custom(async (value) => {
-    if (value) {
-      const validCodes = await getActiveCurrencyCodes();
-      if (!validCodes.includes(value)) {
-        throw new Error('Invalid purchase currency');
-      }
-    }
-    return true;
-  }),
+  // purchase_currency will be validated in handler
   body('current_value').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0 }).withMessage('Valid current value required'),
   body('valuation_method').optional({ nullable: true, checkFalsy: true }).isLength({ max: 50 }).withMessage('Valuation method too long'),
   body('ownership_type').optional({ nullable: true, checkFalsy: true }).isIn(['single', 'shared', 'household']).withMessage('Invalid ownership type'),
@@ -518,6 +497,17 @@ router.put('/:id', [
   // Check permissions
   if (req.user.role !== 'admin' && existingAsset.user_id !== req.user.id) {
     throw new Error('Access denied to this asset');
+  }
+
+  // Validate currency codes if provided
+  if (updateData.currency || updateData.purchase_currency) {
+    const validCurrencyCodes = await getActiveCurrencyCodes();
+    if (updateData.currency && !validCurrencyCodes.includes(updateData.currency)) {
+      throw createValidationError(`Invalid currency: ${updateData.currency}`);
+    }
+    if (updateData.purchase_currency && !validCurrencyCodes.includes(updateData.purchase_currency)) {
+      throw createValidationError(`Invalid purchase currency: ${updateData.purchase_currency}`);
+    }
   }
 
   // Build update query

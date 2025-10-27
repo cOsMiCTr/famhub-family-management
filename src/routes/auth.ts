@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { body, validationResult, custom } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { asyncHandler, createValidationError, createUnauthorizedError, CustomError } from '../middleware/errorHandler';
 import { authenticateToken, JWTPayload } from '../middleware/auth';
@@ -334,15 +334,7 @@ router.post('/complete-registration', [
   body('token').isUUID().withMessage('Valid invitation token required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   body('preferred_language').optional().isIn(['en', 'de', 'tr']).withMessage('Invalid language'),
-  body('main_currency').optional().custom(async (value) => {
-    if (value) {
-      const validCodes = await getActiveCurrencyCodes();
-      if (!validCodes.includes(value)) {
-        throw new Error('Invalid currency');
-      }
-    }
-    return true;
-  })
+  // main_currency will be validated in handler
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
