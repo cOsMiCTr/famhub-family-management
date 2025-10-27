@@ -596,10 +596,10 @@ const AssetsPage: React.FC = () => {
           <div className="overflow-x-auto">
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-1 px-2 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <div className="col-span-0.5 flex justify-center">
+              <div className="col-span-1 flex justify-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
               </div>
-              <div className="col-span-2.5">
+              <div className="col-span-3">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
               <div className="col-span-1 text-center">
@@ -617,7 +617,7 @@ const AssetsPage: React.FC = () => {
               <div className="col-span-0.5 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-4 text-right">
+              <div className="col-span-3 text-right">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>
@@ -632,7 +632,7 @@ const AssetsPage: React.FC = () => {
                   <li key={asset.id} className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="grid grid-cols-12 gap-2 items-center">
                       {/* Icon Column */}
-                      <div className="col-span-0.5 flex justify-center">
+                      <div className="col-span-1 flex justify-center">
                         {category && category.icon ? (
                           (() => {
                             const IconComponent = getCategoryIcon(category.icon);
@@ -697,7 +697,7 @@ const AssetsPage: React.FC = () => {
                       <div className="col-span-1">
                         {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
                           <div className="flex flex-col gap-1">
-                            {asset.shared_ownership.map((owner, index) => {
+                            {[...asset.shared_ownership].sort((a, b) => b.ownership_percentage - a.ownership_percentage).map((owner, index) => {
                               const colors = [
                                 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300',
                                 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300',
@@ -726,14 +726,14 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Value Column */}
-                      <div className="col-span-1 text-right">
+                      <div className="col-span-1.5 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
                       </div>
 
                       {/* ROI Column */}
-                      <div className="col-span-1 text-right">
+                      <div className="col-span-0.5 text-right">
                         {roi !== null ? (
                           <p className={`text-sm font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {roi.toFixed(1)}%
@@ -744,7 +744,7 @@ const AssetsPage: React.FC = () => {
                       </div>
 
                       {/* Actions Column */}
-                      <div className="col-span-4 flex justify-end space-x-2">
+                      <div className="col-span-3 flex justify-end space-x-2">
                         <button
                           onClick={() => handleToggleStatus(asset)}
                           className={`p-2 rounded-lg transition-colors ${
