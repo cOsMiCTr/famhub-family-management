@@ -152,11 +152,12 @@ router.post('/', [
     const sharedPercentages = req.body.shared_ownership_percentages;
     
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
-      if (percentage > 0) {
+      const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage as string);
+      if (percentageValue > 0) {
         await query(
           `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
            VALUES ($1, $2, $3)`,
-          [asset.id, parseInt(memberId), parseFloat(percentage as string)]
+          [asset.id, parseInt(memberId), percentageValue]
         );
       }
     }
@@ -622,11 +623,12 @@ router.put('/:id', [
     
     const sharedPercentages = updateData.shared_ownership_percentages;
     for (const [memberId, percentage] of Object.entries(sharedPercentages)) {
-      if (percentage > 0) {
+      const percentageValue = typeof percentage === 'number' ? percentage : parseFloat(percentage as string);
+      if (percentageValue > 0) {
         await query(
           `INSERT INTO shared_ownership_distribution (asset_id, household_member_id, ownership_percentage)
            VALUES ($1, $2, $3)`,
-          [id, parseInt(memberId), parseFloat(percentage as string)]
+          [id, parseInt(memberId), percentageValue]
         );
       }
     }
