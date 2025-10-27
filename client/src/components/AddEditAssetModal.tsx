@@ -305,6 +305,11 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
       [name]: value
     }));
     
+    // If ownership type changed to shared, initialize percentages
+    if (name === 'ownership_type' && value === 'shared') {
+      setSharedOwnershipPercentages({});
+    }
+    
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([]);
@@ -668,8 +673,16 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                                       // Fix rounding errors by adjusting the first other member
                                       const finalRemaining = remaining - totalDistributed;
                                       if (finalRemaining !== 0 && otherMemberIds.length > 0) {
-                                        newPercentages[otherMemberIds[0]] = (newPercentages[otherMemberIds[0]] || 0) + finalRemaining;
+                                        const adjustedValue = Math.max(0, (newPercentages[otherMemberIds[0]] || 0) + finalRemaining);
+                                        newPercentages[otherMemberIds[0]] = adjustedValue;
                                       }
+                                      
+                                      // Ensure all percentages are non-negative
+                                      Object.keys(newPercentages).forEach(key => {
+                                        if (newPercentages[parseInt(key)] < 0) {
+                                          newPercentages[parseInt(key)] = 0;
+                                        }
+                                      });
                                     } else {
                                       // If no other members have shares, just keep them at 0
                                       otherMemberIds.forEach(otherId => {
