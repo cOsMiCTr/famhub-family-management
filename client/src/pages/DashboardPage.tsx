@@ -151,9 +151,9 @@ const DashboardPage: React.FC = () => {
   
   // Helper function to get available currencies from exchange rates (only active fiat currencies)
   const getAvailableCurrencies = (): string[] => {
-    // Get only active fiat currencies (category_type = 'fiat')
+    // Get only active fiat currencies (currency_type = 'fiat')
     const activeFiatCurrencies = activeCurrencies
-      .filter(c => c.is_active && c.category_type === 'fiat')
+      .filter(c => c.is_active && c.currency_type === 'fiat')
       .map(c => c.code);
     
     // Also include currencies from exchange rates for additional coverage
