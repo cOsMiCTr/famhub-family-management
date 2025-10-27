@@ -308,9 +308,23 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   };
 
   const nextStep = () => {
+    // Validate current step before proceeding
+    const validation = validateAssetForm(formData, currentStep);
+    
     if (canProceedToNext() && currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-      setErrors([]); // Clear errors when moving to next step
+      // If validation fails, set errors
+      if (!validation.isValid) {
+        setErrors(validation.errors);
+      } else {
+        // Clear errors and move to next step
+        setErrors([]);
+        setCurrentStep(currentStep + 1);
+      }
+    } else if (!canProceedToNext()) {
+      // If can't proceed, validate and set errors
+      if (!validation.isValid) {
+        setErrors(validation.errors);
+      }
     }
   };
 
@@ -321,16 +335,6 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   };
 
   const canProceedToNext = () => {
-    // Validate current step
-    const validation = validateAssetForm(formData, currentStep);
-    
-    // Set errors for the current step
-    if (!validation.isValid) {
-      setErrors(validation.errors);
-    } else {
-      setErrors([]);
-    }
-
     switch (currentStep) {
       case 1: // What is it?
         return formData.name && formData.category_id;
