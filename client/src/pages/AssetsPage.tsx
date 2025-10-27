@@ -523,29 +523,56 @@ const AssetsPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredAssets.map((asset) => {
-              const roi = calculateROI(asset);
-              const category = categories.find(c => c.id === asset.category_id);
-              
-              return (
-                <li key={asset.id} className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        {asset.photo_url ? (
-                          <img
-                            className="h-10 w-10 rounded-full object-cover"
-                            src={asset.photo_url}
-                            alt={asset.name}
-                          />
+          <div className="overflow-x-auto">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <div className="col-span-1"></div>
+              <div className="col-span-4">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
+              </div>
+              <div className="col-span-2 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Value</span>
+              </div>
+              <div className="col-span-2 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost</span>
+              </div>
+              <div className="col-span-1 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
+              </div>
+              <div className="col-span-2 text-right">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
+              </div>
+            </div>
+
+            {/* Table Body */}
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredAssets.map((asset) => {
+                const roi = calculateROI(asset);
+                const category = categories.find(c => c.id === asset.category_id);
+                
+                return (
+                  <li key={asset.id} className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Icon Column */}
+                      <div className="col-span-1 flex justify-center">
+                        {category && category.icon ? (
+                          (() => {
+                            const IconComponent = getCategoryIcon(category.icon);
+                            return (
+                              <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                                <IconComponent className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                              </div>
+                            );
+                          })()
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
                             <TagIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                           </div>
                         )}
                       </div>
-                      <div className="ml-4">
+
+                      {/* Asset Name and Details Column */}
+                      <div className="col-span-4">
                         <div className="flex items-center">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {asset.name}
@@ -558,14 +585,6 @@ const AssetsPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                          {category && category.icon ? (
-                            (() => {
-                              const IconComponent = getCategoryIcon(category.icon);
-                              return <IconComponent className="flex-shrink-0 mr-1.5 h-4 w-4" />;
-                            })()
-                          ) : (
-                            <TagIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                          )}
                           {category ? getCategoryName(category) : t('assets.unknownCategory')}
                           {asset.member_name && (
                             <>
@@ -595,24 +614,38 @@ const AssetsPage: React.FC = () => {
                           )}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
+
+                      {/* Price Column */}
+                      <div className="col-span-2 text-right">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatCurrency(asset.current_value || asset.amount, asset.currency)}
                         </p>
-                        {roi !== null && (
-                          <p className={`text-xs ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            ROI: {roi.toFixed(1)}%
+                      </div>
+
+                      {/* Cost Column */}
+                      <div className="col-span-2 text-right">
+                        {asset.purchase_price ? (
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {formatCurrency(asset.purchase_price, asset.purchase_currency || asset.currency)}
                           </p>
-                        )}
-                        {asset.purchase_price && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Cost: {formatCurrency(asset.purchase_price, asset.purchase_currency || asset.currency)}
-                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-400">-</p>
                         )}
                       </div>
-                      <div className="flex space-x-2">
+
+                      {/* ROI Column */}
+                      <div className="col-span-1 text-right">
+                        {roi !== null ? (
+                          <p className={`text-sm font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {roi.toFixed(1)}%
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-400">-</p>
+                        )}
+                      </div>
+
+                      {/* Actions Column */}
+                      <div className="col-span-2 flex justify-end space-x-2">
                         <button
                           onClick={() => {
                             setSelectedAsset(asset);
@@ -652,11 +685,11 @@ const AssetsPage: React.FC = () => {
                         </button>
                       </div>
                     </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         )}
 
         {/* Pagination */}
