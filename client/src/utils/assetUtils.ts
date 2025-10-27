@@ -59,7 +59,10 @@ export interface AssetCategory {
 }
 
 // Currency formatting
-export const formatCurrency = (amount: number, currency: string): string => {
+export const formatCurrency = (amount: number | string, currency: string): string => {
+  // Ensure amount is a number
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
   // Get currency symbol
   const symbols: { [key: string]: string } = {
     'USD': '$',
@@ -84,7 +87,7 @@ export const formatCurrency = (amount: number, currency: string): string => {
   const symbol = symbols[currency] || currency;
   
   // Format number with thousand separators using German standards (1.000,00)
-  const formattedAmount = amount.toLocaleString('de-DE', { 
+  const formattedAmount = numericAmount.toLocaleString('de-DE', { 
     minimumFractionDigits: 2, 
     maximumFractionDigits: 2 
   });
