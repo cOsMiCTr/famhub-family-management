@@ -701,39 +701,74 @@ class ExchangeRateService {
     const rates: ExchangeRateData[] = [];
     
     try {
+      // Fallback prices for metals (current approximate market prices per ounce)
+      const fallbackSilver = 24.50; // Approximate silver price per oz
+      const fallbackPlatinum = 1050; // Approximate platinum price per oz
+      const fallbackPalladium = 1050; // Approximate palladium price per oz
+      
+      let silverFound = false;
+      let platinumFound = false;
+      let palladiumFound = false;
+      
       // Try kitco.com for metal prices
-      const response = await axios.get('https://www.kitco.com/market/', {
-        timeout: 10000,
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-      });
-      
-      const $ = cheerio.load(response.data);
-      
-      // Try to extract silver, platinum, and palladium prices
-      const silverPrice = parseFloat($('.silver-price').text().trim().replace(/[^0-9.]/g, ''));
-      const platinumPrice = parseFloat($('.platinum-price').text().trim().replace(/[^0-9.]/g, ''));
-      const palladiumPrice = parseFloat($('.palladium-price').text().trim().replace(/[^0-9.]/g, ''));
-      
-      if (!isNaN(silverPrice) && silverPrice > 0) {
-        rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: silverPrice });
-        rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / silverPrice });
-        console.log(`✅ Scraped silver price: ${silverPrice} USD/oz`);
+      try {
+        const response = await axios.get('https://www.kitco.com/market/', {
+          timeout: 10000,
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+        });
+        
+        const $ = cheerio.load(response.data);
+        
+        // Try to extract silver, platinum, and palladium prices
+        const silverPrice = parseFloat($('.silver-price').text().trim().replace(/[^0-9.]/g, ''));
+        const platinumPrice = parseFloat($('.platinum-price').text().trim().replace(/[^0-9.]/g, ''));
+        const palladiumPrice = parseFloat($('.palladium-price').text().trim().replace(/[^0-9.]/g, ''));
+        
+        if (!isNaN(silverPrice) && silverPrice > 0) {
+          rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: silverPrice });
+          rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / silverPrice });
+          console.log(`✅ Scraped silver price: ${silverPrice} USD/oz`);
+          silverFound = true;
+        }
+        
+        if (!isNaN(platinumPrice) && platinumPrice > 0) {
+          rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: platinumPrice });
+          rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / platinumPrice });
+          console.log(`✅ Scraped platinum price: ${platinumPrice} USD/oz`);
+          platinumFound = true;
+        }
+        
+        if (!isNaN(palladiumPrice) && palladiumPrice > 0) {
+          rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: palladiumPrice });
+          rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / palladiumPrice });
+          console.log(`✅ Scraped palladium price: ${palladiumPrice} USD/oz`);
+          palladiumFound = true;
+        }
+      } catch (error) {
+        console.warn('Kitco scraping failed, using fallback prices');
       }
       
-      if (!isNaN(platinumPrice) && platinumPrice > 0) {
-        rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: platinumPrice });
-        rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / platinumPrice });
-        console.log(`✅ Scraped platinum price: ${platinumPrice} USD/oz`);
+      // Use fallback prices if scraping failed
+      if (!silverFound) {
+        rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: fallbackSilver });
+        rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / fallbackSilver });
+        console.log(`⚠️ Using fallback silver price: ${fallbackSilver} USD/oz`);
       }
       
-      if (!isNaN(palladiumPrice) && palladiumPrice > 0) {
-        rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: palladiumPrice });
-        rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / palladiumPrice });
-        console.log(`✅ Scraped palladium price: ${palladiumPrice} USD/oz`);
+      if (!platinumFound) {
+        rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: fallbackPlatinum });
+        rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / fallbackPlatinum });
+        console.log(`⚠️ Using fallback platinum price: ${fallbackPlatinum} USD/oz`);
+      }
+      
+      if (!palladiumFound) {
+        rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: fallbackPalladium });
+        rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / fallbackPalladium });
+        console.log(`⚠️ Using fallback palladium price: ${fallbackPalladium} USD/oz`);
       }
       
     } catch (error) {
-      console.error('Metal scraping failed:', error);
+      console.error('Metal scraping completely failed:', error);
     }
     
     return rates;
