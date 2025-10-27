@@ -652,7 +652,7 @@ const AssetsPage: React.FC = () => {
 
                       {/* Shares Column */}
                       <div className="col-span-2 text-right">
-                        {asset.ownership_type === 'shared' && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
+                        {(asset.ownership_type === 'shared' || asset.ownership_type === 'household') && asset.shared_ownership && asset.shared_ownership.length > 0 ? (
                           <div className="flex flex-wrap gap-1 justify-end">
                             {asset.shared_ownership.map((owner) => (
                               <span key={owner.household_member_id} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300">
