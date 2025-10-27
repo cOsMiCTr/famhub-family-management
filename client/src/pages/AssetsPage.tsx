@@ -526,20 +526,22 @@ const AssetsPage: React.FC = () => {
           <div className="overflow-x-auto">
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <div className="col-span-1"></div>
+              <div className="col-span-1 flex justify-center">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></span>
+              </div>
               <div className="col-span-4">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Asset</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-2 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Value</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-2 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost</span>
               </div>
-              <div className="col-span-1 text-right">
+              <div className="col-span-1 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="col-span-2 text-center">
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</span>
               </div>
             </div>
@@ -626,7 +628,7 @@ const AssetsPage: React.FC = () => {
                       <div className="col-span-2 text-right">
                         {asset.purchase_price ? (
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {formatCurrency(asset.purchase_price, asset.purchase_currency || asset.currency)}
+                            {formatCurrency(asset.purchase_price, asset.currency)}
                           </p>
                         ) : (
                           <p className="text-sm text-gray-400">-</p>
