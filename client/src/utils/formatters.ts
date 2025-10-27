@@ -25,7 +25,20 @@ export const formatCurrency = (amount: number, currency: string): string => {
     'USD': '$',
     'EUR': '€',
     'GBP': '£',
-    'GOLD': 'Au'
+    'GOLD': 'Au',
+    'BTC': '₿',
+    'ETH': 'Ξ',
+    'BNB': 'BNB',
+    'XRP': 'XRP',
+    'ADA': 'ADA',
+    'SOL': 'SOL',
+    'DOT': 'DOT',
+    'DOGE': 'DOGE',
+    'LTC': 'Ł',
+    'USDT': 'USDT',
+    'SILVER': 'Ag',
+    'PLATINUM': 'Pt',
+    'PALLADIUM': 'Pd'
   };
   
   return `${formattedAmount} ${currencySymbols[currency] || currency}`;
