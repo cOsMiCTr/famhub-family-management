@@ -250,6 +250,9 @@ router.get('/summary', asyncHandler(async (req, res) => {
     rate.to_currency !== mainCurrency
   );
 
+  console.log(`📊 Dashboard exchange rates: ${relevantRates.length} rates for ${mainCurrency}`);
+  console.log(`📊 Active currency codes: ${activeCurrencyCodes.join(', ')}`);
+
   res.json({
     summary: {
       total_assets_main_currency: totalInMainCurrency,

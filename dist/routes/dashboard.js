@@ -157,6 +157,8 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&
         activeCurrencyCodes.includes(rate.to_currency) &&
         rate.to_currency !== mainCurrency);
+    console.log(`📊 Dashboard exchange rates: ${relevantRates.length} rates for ${mainCurrency}`);
+    console.log(`📊 Active currency codes: ${activeCurrencyCodes.join(', ')}`);
     res.json({
         summary: {
             total_assets_main_currency: totalInMainCurrency,
