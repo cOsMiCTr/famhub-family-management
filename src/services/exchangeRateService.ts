@@ -16,14 +16,12 @@ interface GoldPriceData {
 
 class ExchangeRateService {
   private currencyApiKey: string;
-  private goldApiKey: string;
-  private finnhubApiKey: string;
+  private exchangeRatesApiKey: string;
   private isUpdating: boolean = false;
 
   constructor() {
     this.currencyApiKey = process.env.CURRENCY_API_KEY || '';
-    this.goldApiKey = process.env.GOLD_API_KEY || '';
-    this.finnhubApiKey = process.env.FINNHUB_API_KEY || 'd40c249r01qqo3qh7360d40c249r01qqo3qh736g';
+    this.exchangeRatesApiKey = process.env.EXCHANGE_RATES_API_KEY || 'f7448b6d1e64cb7f4f1221a63';
     
     // Start scheduled updates
     this.startScheduledUpdates();
@@ -82,19 +80,14 @@ class ExchangeRateService {
     try {
       console.log('📈 Fetching exchange rates from scraping sources...');
 
-      // Use Finnhub API directly for faster sync
+      // Use ExchangeRates-Data API for fiat, crypto, and metals
       try {
-        console.log('🔄 Starting Finnhub sync...');
-        await this.updateRatesFromFinnhub();
-        console.log('✅ Exchange rates updated successfully from Finnhub');
-      } catch (finnhubError) {
-        console.error('❌ Finnhub failed with error:', finnhubError);
-        console.warn('⚠️ Finnhub failed, scraping methods will be skipped (they return empty arrays)');
-        
-        // Note: Scraping methods are deprecated and return empty arrays
-        console.log('⚠️ No fallback available. Please ensure Finnhub API is working properly.');
-        
-        throw new Error('Failed to sync exchange rates - Finnhub API error');
+        console.log('🔄 Starting ExchangeRates-Data API sync...');
+        await this.updateRatesFromExchangeRatesData();
+        console.log('✅ Exchange rates updated successfully from ExchangeRates-Data API');
+      } catch (apiError) {
+        console.error('❌ ExchangeRates-Data API failed with error:', apiError);
+        throw new Error('Failed to sync exchange rates - API error');
       }
 
     } catch (error) {
@@ -104,8 +97,8 @@ class ExchangeRateService {
     }
   }
 
-  // Fetch rates from Finnhub API - using sequential fiat-to-all pairing
-  private async updateRatesFromFinnhub(): Promise<void> {
+  // Fetch rates from ExchangeRates-Data API - using sequential fiat-to-all pairing
+  private async updateRatesFromExchangeRatesData(): Promise<void> {
     const allRates: ExchangeRateData[] = [];
     
     // Fetch active currencies from database
@@ -124,15 +117,15 @@ class ExchangeRateService {
       console.log(`🔄 Processing base currency: ${baseFiat}`);
       
       try {
-        // Fetch fiat-to-fiat rates using Finnhub forex API
+        // Fetch fiat-to-fiat rates using ExchangeRates-Data API
         const response = await axios.get(
-          `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
+          `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
           { timeout: 10000 }
         );
         
-        console.log(`📥 Finnhub response for ${baseFiat}:`, JSON.stringify(response.data).substring(0, 200));
+        console.log(`📥 API response for ${baseFiat}:`, JSON.stringify(response.data.rates).substring(0, 200));
         
-        if (response.data && response.data.quote) {
+        if (response.data && response.data.rates) {
           // Process fiat-to-fiat rates (skip already processed pairs)
           for (const targetFiat of activeFiats) {
             if (targetFiat === baseFiat) continue;
@@ -143,8 +136,8 @@ class ExchangeRateService {
             // Skip if reverse pair already processed
             if (processedPairs.has(reversePairKey)) continue;
             
-            if (response.data.quote[targetFiat]) {
-              const rate = response.data.quote[targetFiat];
+            if (response.data.rates[targetFiat]) {
+              const rate = response.data.rates[targetFiat];
               allRates.push({
                 from_currency: baseFiat,
                 to_currency: targetFiat,
@@ -158,51 +151,11 @@ class ExchangeRateService {
         console.error(`Failed to fetch forex rates for ${baseFiat}:`, error);
       }
       
-      // Fetch fiat-to-crypto rates
+      // Fetch fiat-to-crypto rates using ExchangeRates-Data API
       for (const crypto of activeCryptos) {
-        const symbol = this.getFinnhubSymbol(crypto, 'cryptocurrency');
-        if (!symbol) {
-          console.warn(`No Finnhub symbol mapping for crypto: ${crypto}`);
-          continue;
-        }
-        
         try {
-          const timestamp = Math.floor(Date.now() / 1000);
-          const oneDayAgo = timestamp - 86400;
-          
-          const response = await axios.get(
-            `https://finnhub.io/api/v1/crypto/candle?symbol=${symbol}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`,
-            { timeout: 10000 }
-          );
-          
-          if (response.data && response.data.c && response.data.c.length > 0) {
-            const cryptoPriceInUSD = response.data.c[response.data.c.length - 1];
-            
-            // Get baseFiat to USD rate if not USD
-            let baseFiatToUSD = 1;
-            if (baseFiat !== 'USD') {
-              try {
-                const fiatResponse = await axios.get(
-                  `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
-                  { timeout: 5000 }
-                );
-                if (fiatResponse.data && fiatResponse.data.quote && fiatResponse.data.quote.USD) {
-                  baseFiatToUSD = fiatResponse.data.quote.USD;
-                }
-              } catch (err) {
-                console.warn(`Could not fetch ${baseFiat}/USD rate`);
-              }
-            }
-            
-            // Calculate baseFiat to crypto rate
-            const baseFiatToCrypto = baseFiatToUSD / cryptoPriceInUSD;
-            
-            allRates.push({
-              from_currency: baseFiat,
-              to_currency: crypto,
-              rate: baseFiatToCrypto
-            });
-          }
+          // ExchangeRates-Data API doesn't support crypto, skip for now
+          console.log(`⏭️ Skipping crypto ${crypto} - ExchangeRates-Data API doesn't support crypto`);
         } catch (error) {
           console.error(`Failed to fetch ${baseFiat} to ${crypto}:`, error);
         }
@@ -210,53 +163,16 @@ class ExchangeRateService {
       
       // Fetch fiat-to-metal rates
       for (const metal of activeMetals) {
-        const symbol = this.getFinnhubSymbol(metal, 'precious_metal');
-        if (!symbol) {
-          console.warn(`No Finnhub symbol mapping for metal: ${metal}`);
-          continue;
-        }
-        
         try {
-          const response = await axios.get(
-            `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${this.finnhubApiKey}`,
-            { timeout: 10000 }
-          );
-          
-          if (response.data && response.data.c) {
-            const metalPriceInUSD = response.data.c;
-            
-            // Get baseFiat to USD rate if not USD
-            let baseFiatToUSD = 1;
-            if (baseFiat !== 'USD') {
-              try {
-                const fiatResponse = await axios.get(
-                  `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
-                  { timeout: 5000 }
-                );
-                if (fiatResponse.data && fiatResponse.data.quote && fiatResponse.data.quote.USD) {
-                  baseFiatToUSD = fiatResponse.data.quote.USD;
-                }
-              } catch (err) {
-                console.warn(`Could not fetch ${baseFiat}/USD rate`);
-              }
-            }
-            
-            // Calculate baseFiat to metal rate
-            const baseFiatToMetal = baseFiatToUSD / metalPriceInUSD;
-            
-            allRates.push({
-              from_currency: baseFiat,
-              to_currency: metal,
-              rate: baseFiatToMetal
-            });
-          }
+          // ExchangeRates-Data API doesn't support metals, skip for now
+          console.log(`⏭️ Skipping metal ${metal} - ExchangeRates-Data API doesn't support metals`);
         } catch (error) {
           console.error(`Failed to fetch ${baseFiat} to ${metal}:`, error);
         }
       }
     }
     
-    console.log(`✅ Fetched ${allRates.length} exchange rates from Finnhub`);
+    console.log(`✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
     console.log(`📊 Sample rates being stored:`, allRates.slice(0, 5));
     
     // Store all rates
@@ -264,7 +180,7 @@ class ExchangeRateService {
       await this.storeExchangeRates(allRates);
       console.log(`✅ Successfully stored ${allRates.length} rates to database`);
     } else {
-      throw new Error('No rates fetched from Finnhub');
+      throw new Error('No rates fetched from ExchangeRates-Data API');
     }
   }
 

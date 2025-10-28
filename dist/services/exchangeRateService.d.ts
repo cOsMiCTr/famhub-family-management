@@ -5,15 +5,14 @@ interface ExchangeRateData {
 }
 declare class ExchangeRateService {
     private currencyApiKey;
-    private goldApiKey;
-    private finnhubApiKey;
+    private exchangeRatesApiKey;
     private isUpdating;
     constructor();
     private startScheduledUpdates;
     private getActiveCurrenciesByType;
     private getFinnhubSymbol;
     updateExchangeRates(): Promise<void>;
-    private updateRatesFromFinnhub;
+    private updateRatesFromExchangeRatesData;
     private updateFiatRates;
     private updateGoldRates;
     private updateCryptocurrencyRates;
