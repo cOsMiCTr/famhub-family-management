@@ -658,8 +658,8 @@ class ExchangeRateService {
             results.forEach((result, index) => {
                 if (result.status === 'fulfilled' && result.value) {
                     const { code, price } = result.value;
-                    rates.push({ from_currency: code, to_currency: 'USD', rate: 1 / price });
-                    rates.push({ from_currency: 'USD', to_currency: code, rate: price });
+                    rates.push({ from_currency: code, to_currency: 'USD', rate: price });
+                    rates.push({ from_currency: 'USD', to_currency: code, rate: 1 / price });
                 }
             });
             console.log(`✅ Scraped ${rates.length} cryptocurrency rates`);
