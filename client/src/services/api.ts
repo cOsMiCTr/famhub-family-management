@@ -393,6 +393,12 @@ class ApiService {
     const response = await this.api.post('/exchange/sync');
     return response.data;
   }
+
+  // Delete user account
+  async deleteAccount() {
+    const response = await this.api.delete('/users/delete-account');
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

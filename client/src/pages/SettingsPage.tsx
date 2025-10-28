@@ -5,6 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
@@ -701,6 +702,16 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Delete Account Modal */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onSuccess={() => {
+          logout();
+        }}
+        currentUsername={user?.email || ''}
+      />
     </div>
   );
 };
