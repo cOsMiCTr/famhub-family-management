@@ -433,6 +433,12 @@ class ApiService {
     const response = await this.api.get('/two-factor/backup-codes');
     return response.data;
   }
+
+  // Activity log
+  async getActivityLog() {
+    const response = await this.api.get('/users/activity');
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

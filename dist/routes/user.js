@@ -9,6 +9,7 @@ const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
 const loginAttemptService_1 = require("../services/loginAttemptService");
 const shareRedistributionService_1 = require("../services/shareRedistributionService");
+const activityLogService_1 = require("../services/activityLogService");
 const router = express_1.default.Router();
 router.use(auth_1.authenticateToken);
 router.get('/login-history', (0, errorHandler_1.asyncHandler)(async (req, res) => {
@@ -80,6 +81,17 @@ router.delete('/delete-account', (0, errorHandler_1.asyncHandler)(async (req, re
     console.log(`✅ User ${userId} (${userEmail}) account deleted successfully`);
     res.json({
         message: 'Account deleted successfully'
+    });
+}));
+router.get('/activity', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        throw (0, errorHandler_1.createUnauthorizedError)('User not authenticated');
+    }
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit) || 50;
+    const activities = await (0, activityLogService_1.getUserActivity)(userId, limit);
+    res.json({
+        activities
     });
 }));
 exports.default = router;

@@ -4,6 +4,7 @@ import { asyncHandler, createUnauthorizedError } from '../middleware/errorHandle
 import { authenticateToken } from '../middleware/auth';
 import { LoginAttemptService } from '../services/loginAttemptService';
 import { redistributeShares } from '../services/shareRedistributionService';
+import { getUserActivity } from '../services/activityLogService';
 
 const router = express.Router();
 
@@ -131,6 +132,22 @@ router.delete('/delete-account', asyncHandler(async (req, res) => {
 
   res.json({
     message: 'Account deleted successfully'
+  });
+}));
+
+// Get user activity log
+router.get('/activity', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const userId = req.user.id;
+  const limit = parseInt(req.query.limit as string) || 50;
+
+  const activities = await getUserActivity(userId, limit);
+
+  res.json({
+    activities
   });
 }));
 

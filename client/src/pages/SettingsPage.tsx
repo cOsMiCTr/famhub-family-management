@@ -231,6 +231,7 @@ const SettingsPage: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: BellIcon },
     { id: 'family-members', name: t('navigation.familyMembers'), icon: UsersIcon },
     { id: 'security', name: 'Security', icon: ShieldCheckIcon },
+    { id: 'activity', name: 'Activity', icon: ChartBarIcon },
   ];
 
   if (isLoading) {
@@ -360,6 +361,30 @@ const SettingsPage: React.FC = () => {
               >
                 Export to PDF
               </button>
+            </div>
+
+            {/* Data Privacy Section */}
+            <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Data Privacy</h4>
+              <div className="text-sm text-green-700 dark:text-green-300 space-y-2">
+                <p className="font-medium mb-2">What data do we collect?</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Personal information (email, profile details)</li>
+                  <li>Financial data (assets, income, contracts)</li>
+                  <li>Household and family member information</li>
+                  <li>Activity logs for security purposes</li>
+                </ul>
+                <p className="mt-3 font-medium mb-2">Your rights:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Export your data anytime (PDF export available above)</li>
+                  <li>Request data deletion (delete account feature)</li>
+                  <li>Request data correction through settings</li>
+                  <li>GDPR compliant data handling</li>
+                </ul>
+                <p className="mt-3 text-xs">
+                  All data is encrypted and stored securely. We never share your personal information with third parties.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -703,7 +728,33 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
+      {/* Activity Tab */}
+      {activeTab === 'activity' && (
+        <div className="card hover-lift animate-fadeIn">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <ChartBarIcon className="h-5 w-5 mr-2 text-purple-500" />
+              Activity Log
+            </h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              View your recent account activity and actions
+            </p>
+          </div>
+          <div className="card-body">
+            <div className="p-8 text-center">
+              <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                Activity tracking coming soon
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Your account activity will be logged here automatically.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Account Modal */}
       <DeleteAccountModal
         isOpen={showDeleteModal}
