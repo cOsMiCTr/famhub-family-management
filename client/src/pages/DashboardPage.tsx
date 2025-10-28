@@ -120,14 +120,25 @@ const DashboardPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
+      console.log('🔵 FETCHING DASHBOARD DATA...');
+      
       // Fetch dashboard summary from API
       const response = await apiService.get('/dashboard/summary');
       const dashboardData = response.data;
       
       console.log('📊 Dashboard data received:', {
         exchangeRatesCount: dashboardData.exchange_rates?.length || 0,
-        rates: dashboardData.exchange_rates?.slice(0, 3)
+        rates: dashboardData.exchange_rates?.slice(0, 3),
+        fullRates: dashboardData.exchange_rates
       });
+      
+      // Log each rate to see if values changed
+      if (dashboardData.exchange_rates) {
+        console.log('🔵 Individual exchange rates:');
+        dashboardData.exchange_rates.forEach((rate: any) => {
+          console.log(`  ${rate.from_currency} → ${rate.to_currency} = ${rate.rate} (updated_at: ${rate.updated_at})`);
+        });
+      }
       
       setStats({
         totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
@@ -137,6 +148,8 @@ const DashboardPage: React.FC = () => {
         totalMembers: dashboardData.summary?.member_count || 0,
         currency: dashboardData.summary?.main_currency || 'USD'
       });
+      
+      console.log('🔵 Setting exchangeRates with', dashboardData.exchange_rates?.length || 0, 'rates');
       
       setExchangeRates(dashboardData.exchange_rates || []);
       
@@ -172,7 +185,12 @@ const DashboardPage: React.FC = () => {
       setIsSyncing(true);
       setError(null);
       
+      console.log('🔵 SYNC BUTTON CLICKED - Starting sync...');
+      console.log('🔵 Current exchangeRates before sync:', exchangeRates);
+      
       const response = await apiService.syncExchangeRates();
+      
+      console.log('🔵 Sync API response:', response);
       
       if (response.success) {
         console.log('✅ Sync successful, fetching updated rates...');
@@ -181,8 +199,13 @@ const DashboardPage: React.FC = () => {
         const syncTimestamp = new Date().toISOString();
         localStorage.setItem('exchange_rates_last_sync', syncTimestamp);
         
+        console.log('🔵 Before fetchDashboardData - current exchangeRates:', exchangeRates);
+        
         // Refresh dashboard data to get updated rates
         await fetchDashboardData();
+        
+        console.log('🔵 After fetchDashboardData - new exchangeRates:', exchangeRates);
+        
         setLastUpdated(syncTimestamp);
         
         // Trigger highlight animation
