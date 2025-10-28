@@ -616,7 +616,9 @@ const DashboardPage: React.FC = () => {
                     selectedExchangeRates,
                     allRatesList: exchangeRates.map(r => `${r.from_currency}→${r.to_currency}`),
                     filteredRatesList: filteredRates.map(r => `${r.from_currency}→${r.to_currency}`),
-                    activeCurrencies: activeCurrencies.filter(c => c.is_active).map(c => c.code)
+                    activeCurrenciesCount: activeCurrencies.length,
+                    activeCurrenciesList: activeCurrencies.map(c => `${c.code}(${c.is_active})`),
+                    activeCurrenciesCodes: activeCurrencies.filter(c => c.is_active).map(c => c.code)
                   });
                   
                   return filteredRates;
