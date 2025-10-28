@@ -65,18 +65,18 @@ class ExchangeRateService {
         }
         this.isUpdating = true;
         try {
-            console.log('📈 Fetching exchange rates from Finnhub...');
+            console.log('📈 Fetching exchange rates from scraping sources...');
             try {
-                await this.updateRatesFromFinnhub();
-                console.log('✅ Exchange rates updated successfully from Finnhub');
-            }
-            catch (finnhubError) {
-                console.warn('⚠️ Finnhub API failed, falling back to scraping:', finnhubError);
                 await this.updateFiatRates();
                 await this.updateGoldRates();
                 await this.updateCryptocurrencyRates();
                 await this.updateMetalRates();
-                console.log('✅ Exchange rates updated successfully from fallback methods');
+                console.log('✅ Exchange rates updated successfully from scraping');
+            }
+            catch (scrapingError) {
+                console.warn('⚠️ Scraping failed, trying Finnhub API:', scrapingError);
+                await this.updateRatesFromFinnhub();
+                console.log('✅ Exchange rates updated successfully from Finnhub fallback');
             }
         }
         catch (error) {
