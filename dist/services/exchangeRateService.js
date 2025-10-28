@@ -1,37 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -39,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.exchangeRateService = void 0;
 const axios_1 = __importDefault(require("axios"));
 const node_cron_1 = __importDefault(require("node-cron"));
-const cheerio = __importStar(require("cheerio"));
 const database_1 = require("../config/database");
 class ExchangeRateService {
     constructor() {
@@ -333,10 +299,10 @@ class ExchangeRateService {
                                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
                                     const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
                                     const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
-                                    const cryptoCurrencies = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'];
+                                    const cryptoCurrencies = await this.getActiveCurrenciesByType('cryptocurrency');
                                     const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
                                     const isToCrypto = cryptoCurrencies.includes(toCurrency);
-                                    if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+                                    if (cryptoCurrencies.includes(toCurrency)) {
                                         console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
                                         console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
                                         console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
@@ -452,161 +418,16 @@ class ExchangeRateService {
         return [];
     }
     async scrapeECBRates() {
-        try {
-            const response = await axios_1.default.get('https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html', {
-                timeout: 10000,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                }
-            });
-            const $ = cheerio.load(response.data);
-            const rates = [];
-            $('table.forextable tr').each((_, row) => {
-                const cells = $(row).find('td');
-                if (cells.length >= 3) {
-                    const currency = $(cells[0]).text().trim();
-                    const rateText = $(cells[2]).text().trim();
-                    const rate = parseFloat(rateText);
-                    if (currency && !isNaN(rate) && currency.length === 3) {
-                        rates.push({
-                            from_currency: 'EUR',
-                            to_currency: currency,
-                            rate: rate
-                        });
-                        rates.push({
-                            from_currency: currency,
-                            to_currency: 'EUR',
-                            rate: 1 / rate
-                        });
-                    }
-                }
-            });
-            console.log(`🇪🇺 ECB: Scraped ${rates.length} EUR-based rates`);
-            if (rates.length > 0) {
-                console.log(`🇪🇺 ECB: Sample rates:`, rates.slice(0, 3));
-            }
-            return rates;
-        }
-        catch (error) {
-            console.error('ECB scraping failed:', error);
-            return [];
-        }
+        return [];
     }
     async scrapeCBRTRates() {
-        try {
-            const response = await axios_1.default.get('https://www.tcmb.gov.tr/wps/wcm/connect/tr/tcmb+tr/main+menu/istatistikler/resmi+doviz+kurlari', {
-                timeout: 10000,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                }
-            });
-            const $ = cheerio.load(response.data);
-            const rates = [];
-            $('table tr').each((_, row) => {
-                const cells = $(row).find('td');
-                if (cells.length >= 3) {
-                    const currency = $(cells[0]).text().trim();
-                    const rateText = $(cells[1]).text().trim().replace(',', '.');
-                    const rate = parseFloat(rateText);
-                    if (currency && !isNaN(rate) && currency.length === 3) {
-                        rates.push({
-                            from_currency: 'TRY',
-                            to_currency: currency,
-                            rate: rate
-                        });
-                        rates.push({
-                            from_currency: currency,
-                            to_currency: 'TRY',
-                            rate: 1 / rate
-                        });
-                    }
-                }
-            });
-            console.log(`🇹🇷 CBRT: Scraped ${rates.length} TRY-based rates`);
-            return rates;
-        }
-        catch (error) {
-            console.error('CBRT scraping failed:', error);
-            return [];
-        }
+        return [];
     }
     async scrapeBOERates() {
-        try {
-            const response = await axios_1.default.get('https://www.bankofengland.co.uk/boeapps/database/Rates.asp', {
-                timeout: 10000,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                }
-            });
-            const $ = cheerio.load(response.data);
-            const rates = [];
-            $('table tr').each((_, row) => {
-                const cells = $(row).find('td');
-                if (cells.length >= 3) {
-                    const currency = $(cells[0]).text().trim();
-                    const rateText = $(cells[1]).text().trim();
-                    const rate = parseFloat(rateText);
-                    if (currency && !isNaN(rate) && currency.length === 3) {
-                        rates.push({
-                            from_currency: 'GBP',
-                            to_currency: currency,
-                            rate: rate
-                        });
-                        rates.push({
-                            from_currency: currency,
-                            to_currency: 'GBP',
-                            rate: 1 / rate
-                        });
-                    }
-                }
-            });
-            console.log(`🇬🇧 BoE: Scraped ${rates.length} GBP-based rates`);
-            return rates;
-        }
-        catch (error) {
-            console.error('BoE scraping failed:', error);
-            return [];
-        }
+        return [];
     }
     async scrapeFedRates() {
-        try {
-            const currencies = ['EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY'];
-            const rates = [];
-            for (const currency of currencies) {
-                try {
-                    const response = await axios_1.default.get(`https://fred.stlouisfed.org/series/DEXUS${currency.toLowerCase()}`, {
-                        timeout: 5000,
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                        }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const rateText = $('.series-meta-observation-value').text().trim();
-                    const rate = parseFloat(rateText);
-                    if (!isNaN(rate) && rate > 0) {
-                        rates.push({
-                            from_currency: 'USD',
-                            to_currency: currency,
-                            rate: rate
-                        });
-                        rates.push({
-                            from_currency: currency,
-                            to_currency: 'USD',
-                            rate: 1 / rate
-                        });
-                    }
-                }
-                catch (error) {
-                    console.warn(`Failed to scrape ${currency} rate from FRED:`, error);
-                }
-            }
-            console.log(`🇺🇸 Fed: Scraped ${rates.length} USD-based rates`);
-            return rates;
-        }
-        catch (error) {
-            console.error('Fed scraping failed:', error);
-            return [];
-        }
+        return [];
     }
     async forceUpdate() {
         console.log('🔄 Force updating exchange rates...');
@@ -635,177 +456,13 @@ class ExchangeRateService {
         console.log('✅ Force update completed');
     }
     async scrapeGoldRates() {
-        const rates = [];
-        try {
-            const response = await axios_1.default.get('https://www.gold.de/preise/', {
-                timeout: 10000,
-                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-            });
-            const $ = cheerio.load(response.data);
-            $('table tr').each((_, row) => {
-                const cells = $(row).find('td');
-                if (cells.length >= 2) {
-                    const metalName = $(cells[0]).text().trim().toLowerCase();
-                    const priceText = $(cells[1]).text().trim().replace(/[^0-9.,]/g, '');
-                    const price = parseFloat(priceText.replace(',', '.'));
-                    if ((metalName.includes('gold') || metalName.includes('goldmünze')) && !isNaN(price) && price > 0) {
-                        rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: price });
-                        rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / price });
-                        console.log(`✅ Scraped gold price from gold.de: ${price} USD/oz`);
-                    }
-                }
-            });
-            if (rates.length === 0) {
-                const fallbackGold = 2000;
-                rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: fallbackGold });
-                rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / fallbackGold });
-                console.log(`⚠️ Using fallback gold price: ${fallbackGold} USD/oz`);
-            }
-        }
-        catch (error) {
-            console.error('Gold scraping failed:', error);
-            const fallbackGold = 2000;
-            rates.push({ from_currency: 'GOLD', to_currency: 'USD', rate: fallbackGold });
-            rates.push({ from_currency: 'USD', to_currency: 'GOLD', rate: 1 / fallbackGold });
-        }
-        return rates;
+        return [];
     }
     async scrapeCryptocurrencyRates() {
-        const rates = [];
-        try {
-            const cryptos = [
-                { code: 'BTC', url: 'https://www.coingecko.com/en/coins/bitcoin' },
-                { code: 'ETH', url: 'https://www.coingecko.com/en/coins/ethereum' },
-                { code: 'LTC', url: 'https://www.coingecko.com/en/coins/litecoin' },
-                { code: 'XRP', url: 'https://www.coingecko.com/en/coins/ripple' },
-                { code: 'BNB', url: 'https://www.coingecko.com/en/coins/binancecoin' },
-                { code: 'ADA', url: 'https://www.coingecko.com/en/coins/cardano' },
-                { code: 'SOL', url: 'https://www.coingecko.com/en/coins/solana' },
-                { code: 'DOT', url: 'https://www.coingecko.com/en/coins/polkadot' },
-                { code: 'MATIC', url: 'https://www.coingecko.com/en/coins/polygon' },
-                { code: 'AVAX', url: 'https://www.coingecko.com/en/coins/avalanche' },
-                { code: 'LINK', url: 'https://www.coingecko.com/en/coins/chainlink' },
-                { code: 'UNI', url: 'https://www.coingecko.com/en/coins/uniswap' }
-            ];
-            const results = await Promise.allSettled(cryptos.slice(0, 12).map(async ({ code, url }) => {
-                const response = await axios_1.default.get(url, {
-                    timeout: 5000,
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                });
-                const $ = cheerio.load(response.data);
-                const priceText = $('[data-coin-price]').text() || $('.coin-price').text() || $('span:contains("$")').first().text();
-                const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-                if (!isNaN(price) && price > 0) {
-                    return { code, price };
-                }
-                return null;
-            }));
-            results.forEach((result, index) => {
-                if (result.status === 'fulfilled' && result.value) {
-                    const { code, price } = result.value;
-                    rates.push({ from_currency: code, to_currency: 'USD', rate: price });
-                    rates.push({ from_currency: 'USD', to_currency: code, rate: 1 / price });
-                }
-            });
-            console.log(`✅ Scraped ${rates.length} cryptocurrency rates`);
-        }
-        catch (error) {
-            console.error('Crypto scraping failed:', error);
-        }
-        return rates;
+        return [];
     }
     async scrapeMetalRates() {
-        const rates = [];
-        try {
-            const fallbackSilver = 24.50;
-            const fallbackPlatinum = 1050;
-            const fallbackPalladium = 1050;
-            let silverFound = false;
-            let platinumFound = false;
-            let palladiumFound = false;
-            try {
-                const response = await axios_1.default.get('https://www.gold.de/preise/', {
-                    timeout: 10000,
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                });
-                const $ = cheerio.load(response.data);
-                $('table tr').each((_, row) => {
-                    const cells = $(row).find('td');
-                    if (cells.length >= 2) {
-                        const metalName = $(cells[0]).text().trim().toLowerCase();
-                        const priceText = $(cells[1]).text().trim().replace(/[^0-9.,]/g, '');
-                        const price = parseFloat(priceText.replace(',', '.'));
-                        if (!isNaN(price) && price > 0) {
-                            if (metalName.includes('silber') && !silverFound) {
-                                rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: price });
-                                rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / price });
-                                console.log(`✅ Scraped silver price from gold.de: ${price} USD/oz`);
-                                silverFound = true;
-                            }
-                            else if (metalName.includes('platin') && !platinumFound) {
-                                rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: price });
-                                rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / price });
-                                console.log(`✅ Scraped platinum price from gold.de: ${price} USD/oz`);
-                                platinumFound = true;
-                            }
-                            else if (metalName.includes('palladium') && !palladiumFound) {
-                                rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: price });
-                                rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / price });
-                                console.log(`✅ Scraped palladium price from gold.de: ${price} USD/oz`);
-                                palladiumFound = true;
-                            }
-                        }
-                    }
-                });
-            }
-            catch (error) {
-                console.warn('gold.de scraping failed:', error);
-            }
-            if (!silverFound || !platinumFound || !palladiumFound) {
-                try {
-                    const response = await axios_1.default.get('https://goldprice.org/', {
-                        timeout: 10000,
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const silverPriceText = $('[data-metal="silver"]').text().trim() ||
-                        $('.silver-price').text().trim() ||
-                        $('*:contains("Silver")').first().next().text().trim();
-                    const silverPrice = parseFloat(silverPriceText.replace(/[^0-9.]/g, ''));
-                    if (!isNaN(silverPrice) && silverPrice > 0 && !silverFound) {
-                        rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: silverPrice });
-                        rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / silverPrice });
-                        console.log(`✅ Scraped silver price from goldprice.org: ${silverPrice} USD/oz`);
-                        silverFound = true;
-                    }
-                }
-                catch (error) {
-                    console.warn('goldprice.org scraping failed');
-                }
-            }
-            if (!silverFound) {
-                rates.push({ from_currency: 'SILVER', to_currency: 'USD', rate: fallbackSilver });
-                rates.push({ from_currency: 'USD', to_currency: 'SILVER', rate: 1 / fallbackSilver });
-                console.log(`⚠️ Using fallback silver price: ${fallbackSilver} USD/oz`);
-                silverFound = true;
-            }
-            if (!platinumFound) {
-                rates.push({ from_currency: 'PLATINUM', to_currency: 'USD', rate: fallbackPlatinum });
-                rates.push({ from_currency: 'USD', to_currency: 'PLATINUM', rate: 1 / fallbackPlatinum });
-                console.log(`⚠️ Using fallback platinum price: ${fallbackPlatinum} USD/oz`);
-                platinumFound = true;
-            }
-            if (!palladiumFound) {
-                rates.push({ from_currency: 'PALLADIUM', to_currency: 'USD', rate: fallbackPalladium });
-                rates.push({ from_currency: 'USD', to_currency: 'PALLADIUM', rate: 1 / fallbackPalladium });
-                console.log(`⚠️ Using fallback palladium price: ${fallbackPalladium} USD/oz`);
-                palladiumFound = true;
-            }
-        }
-        catch (error) {
-            console.error('Metal scraping completely failed:', error);
-        }
-        return rates;
+        return [];
     }
 }
 exports.exchangeRateService = new ExchangeRateService();

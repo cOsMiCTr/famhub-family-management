@@ -10478,3 +10478,1346 @@ src/services/exchangeRateService.ts(219,55): error TS2304: Cannot find name 'met
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(295,36): error TS2551: Property 'scrapeGoldRates' does not exist on type 'ExchangeRateService'. Did you mean 'scrapeAllRates'?
+src/services/exchangeRateService.ts(317,45): error TS2551: Property 'scrapeCryptocurrencyRates' does not exist on type 'ExchangeRateService'. Did you mean 'updateCryptocurrencyRates'?
+src/services/exchangeRateService.ts(338,37): error TS2551: Property 'scrapeMetalRates' does not exist on type 'ExchangeRateService'. Did you mean 'scrapeAllRates'?
+src/services/exchangeRateService.ts(644,87): error TS2304: Cannot find name 'currency'.
+src/services/exchangeRateService.ts(656,13): error TS2552: Cannot find name 'rates'. Did you mean 'rate'?
+src/services/exchangeRateService.ts(658,28): error TS2304: Cannot find name 'currency'.
+src/services/exchangeRateService.ts(661,13): error TS2552: Cannot find name 'rates'. Did you mean 'rate'?
+src/services/exchangeRateService.ts(662,30): error TS2304: Cannot find name 'currency'.
+src/services/exchangeRateService.ts(668,44): error TS2304: Cannot find name 'currency'.
+src/services/exchangeRateService.ts(672,40): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(673,14): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(681,3): error TS2304: Cannot find name 'async'.
+src/services/exchangeRateService.ts(681,9): error TS2304: Cannot find name 'forceUpdate'.
+src/services/exchangeRateService.ts(681,24): error TS2365: Operator '>' cannot be applied to types 'boolean' and '{ console: Console; "": any; if(: any, this: any): any; }'.
+src/services/exchangeRateService.ts(681,32): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(685,10): error TS2680: A 'this' parameter must be the first parameter.
+src/services/exchangeRateService.ts(689,36): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(693,17): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(697,17): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(702,15): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(705,13): error TS2532: Object is possibly 'undefined'.
+src/services/exchangeRateService.ts(712,11): error TS2304: Cannot find name 'async'.
+src/services/exchangeRateService.ts(712,17): error TS2304: Cannot find name 'scrapeGoldRates'.
+src/services/exchangeRateService.ts(712,36): error TS2365: Operator '>' cannot be applied to types 'boolean' and '{ [x: number]: undefined[]; const: any; ExchangeRateData: any; try: { const: Root; $(: any): any; "": boolean; if(rates: any): any; }; }'.
+src/services/exchangeRateService.ts(712,44): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(713,11): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(713,18): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(717,13): error TS2304: Cannot find name 'response'.
+src/services/exchangeRateService.ts(722,13): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(722,30): error TS2304: Cannot find name 'response'.
+src/services/exchangeRateService.ts(726,23): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(728,29): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(729,29): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(733,13): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(734,13): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(743,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(744,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(751,7): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(752,7): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(759,11): error TS2304: Cannot find name 'async'.
+src/services/exchangeRateService.ts(759,17): error TS2304: Cannot find name 'scrapeCryptocurrencyRates'.
+src/services/exchangeRateService.ts(759,46): error TS2365: Operator '>' cannot be applied to types 'boolean' and '{ [x: number]: undefined[]; const: any; ExchangeRateData: any; try: { const: any; results: any; "": any; console: Console; }; catch(error: any): void; return: any; }'.
+src/services/exchangeRateService.ts(759,54): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(760,11): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(760,18): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(764,13): error TS2304: Cannot find name 'cryptos'.
+src/services/exchangeRateService.ts(780,13): error TS2304: Cannot find name 'results'.
+src/services/exchangeRateService.ts(781,9): error TS2304: Cannot find name 'cryptos'.
+src/services/exchangeRateService.ts(798,7): error TS18004: No value exists in scope for the shorthand property 'results'. Either declare one or provide an initializer.
+src/services/exchangeRateService.ts(801,11): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(802,11): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(806,32): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(811,12): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(815,11): error TS2304: Cannot find name 'async'.
+src/services/exchangeRateService.ts(815,17): error TS2304: Cannot find name 'scrapeMetalRates'.
+src/services/exchangeRateService.ts(815,37): error TS2365: Operator '>' cannot be applied to types 'boolean' and '{ [x: number]: undefined[]; const: any; ExchangeRateData: any; try: boolean | { const: number; let: any; silverFound: boolean; platinumFound: boolean; palladiumFound: boolean; try: { const: Root; $(: any): any; "": any; }; catch(error: any): void; if(: any, silverFound: any): any; }; }'.
+src/services/exchangeRateService.ts(815,45): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(816,11): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(816,18): error TS2693: 'ExchangeRateData' only refers to a type, but is being used as a value here.
+src/services/exchangeRateService.ts(818,9): error TS2872: This kind of expression is always truthy.
+src/services/exchangeRateService.ts(820,13): error TS2304: Cannot find name 'fallbackSilver'.
+src/services/exchangeRateService.ts(821,13): error TS2304: Cannot find name 'fallbackPlatinum'.
+src/services/exchangeRateService.ts(822,13): error TS2304: Cannot find name 'fallbackPalladium'.
+src/services/exchangeRateService.ts(824,7): error TS18004: No value exists in scope for the shorthand property 'let'. Either declare one or provide an initializer.
+src/services/exchangeRateService.ts(825,7): error TS18004: No value exists in scope for the shorthand property 'let'. Either declare one or provide an initializer.
+src/services/exchangeRateService.ts(826,7): error TS18004: No value exists in scope for the shorthand property 'let'. Either declare one or provide an initializer.
+src/services/exchangeRateService.ts(832,15): error TS2304: Cannot find name 'response'.
+src/services/exchangeRateService.ts(837,15): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(837,32): error TS2304: Cannot find name 'response'.
+src/services/exchangeRateService.ts(841,25): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(843,31): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(844,31): error TS2581: Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery`.
+src/services/exchangeRateService.ts(848,52): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(849,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(850,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(852,17): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(853,59): error TS2304: Cannot find name 'platinumFound'.
+src/services/exchangeRateService.ts(854,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(855,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(857,17): error TS2304: Cannot find name 'platinumFound'.
+src/services/exchangeRateService.ts(858,62): error TS2304: Cannot find name 'palladiumFound'.
+src/services/exchangeRateService.ts(859,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(860,17): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(862,17): error TS2304: Cannot find name 'palladiumFound'.
+src/services/exchangeRateService.ts(872,28): error TS2304: Cannot find name 'platinumFound'.
+src/services/exchangeRateService.ts(872,46): error TS2304: Cannot find name 'palladiumFound'.
+src/services/exchangeRateService.ts(887,58): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(888,13): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(889,13): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(891,13): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(899,12): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(900,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(900,73): error TS2304: Cannot find name 'fallbackSilver'.
+src/services/exchangeRateService.ts(901,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(901,77): error TS2304: Cannot find name 'fallbackSilver'.
+src/services/exchangeRateService.ts(902,56): error TS2304: Cannot find name 'fallbackSilver'.
+src/services/exchangeRateService.ts(903,9): error TS2304: Cannot find name 'silverFound'.
+src/services/exchangeRateService.ts(906,12): error TS2304: Cannot find name 'platinumFound'.
+src/services/exchangeRateService.ts(907,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(907,75): error TS2304: Cannot find name 'fallbackPlatinum'.
+src/services/exchangeRateService.ts(908,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(908,79): error TS2304: Cannot find name 'fallbackPlatinum'.
+src/services/exchangeRateService.ts(909,58): error TS2304: Cannot find name 'fallbackPlatinum'.
+src/services/exchangeRateService.ts(910,9): error TS2304: Cannot find name 'platinumFound'.
+src/services/exchangeRateService.ts(913,12): error TS2304: Cannot find name 'palladiumFound'.
+src/services/exchangeRateService.ts(914,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(914,76): error TS2304: Cannot find name 'fallbackPalladium'.
+src/services/exchangeRateService.ts(915,9): error TS2304: Cannot find name 'rates'.
+src/services/exchangeRateService.ts(915,80): error TS2304: Cannot find name 'fallbackPalladium'.
+src/services/exchangeRateService.ts(916,59): error TS2304: Cannot find name 'fallbackPalladium'.
+src/services/exchangeRateService.ts(917,9): error TS2304: Cannot find name 'palladiumFound'.
+src/services/exchangeRateService.ts(672,7): error TS1472: 'catch' or 'finally' expected.
+src/services/exchangeRateService.ts(681,3): error TS1434: Unexpected keyword or identifier.
+src/services/exchangeRateService.ts(681,22): error TS1005: ';' expected.
+src/services/exchangeRateService.ts(681,36): error TS1109: Expression expected.
+src/services/exchangeRateService.ts(682,12): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(682,55): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(685,9): error TS1003: Identifier expected.
+src/services/exchangeRateService.ts(685,14): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(685,29): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(685,31): error TS1136: Property assignment expected.
+src/services/exchangeRateService.ts(704,7): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(709,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(712,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(712,11): error TS1434: Unexpected keyword or identifier.
+src/services/exchangeRateService.ts(712,34): error TS1005: ';' expected.
+src/services/exchangeRateService.ts(712,61): error TS1011: An element access expression should take an argument.
+src/services/exchangeRateService.ts(713,11): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(713,16): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(713,34): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(713,35): error TS1109: Expression expected.
+src/services/exchangeRateService.ts(713,37): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(713,41): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(715,9): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(717,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(720,9): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(722,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(722,44): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(725,9): error TS1003: Identifier expected.
+src/services/exchangeRateService.ts(725,20): error TS1005: '{' expected.
+src/services/exchangeRateService.ts(738,9): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(741,16): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(741,29): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(741,31): error TS1136: Property assignment expected.
+src/services/exchangeRateService.ts(747,5): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(747,7): error TS1005: 'try' expected.
+src/services/exchangeRateService.ts(756,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(759,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(759,11): error TS1434: Unexpected keyword or identifier.
+src/services/exchangeRateService.ts(759,44): error TS1005: ';' expected.
+src/services/exchangeRateService.ts(759,71): error TS1011: An element access expression should take an argument.
+src/services/exchangeRateService.ts(760,11): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(760,16): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(760,34): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(760,35): error TS1109: Expression expected.
+src/services/exchangeRateService.ts(760,37): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(760,41): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(762,9): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(764,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(777,8): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(780,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(796,8): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(798,14): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(804,9): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(806,14): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(806,68): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(807,7): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(811,5): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(811,12): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(811,17): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(815,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(815,11): error TS1434: Unexpected keyword or identifier.
+src/services/exchangeRateService.ts(815,35): error TS1005: ';' expected.
+src/services/exchangeRateService.ts(815,62): error TS1011: An element access expression should take an argument.
+src/services/exchangeRateService.ts(816,11): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(816,16): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(816,34): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(816,35): error TS1109: Expression expected.
+src/services/exchangeRateService.ts(816,37): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(816,41): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(818,9): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(820,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(820,35): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(821,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(821,36): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(822,13): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(822,37): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(824,11): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(824,30): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(825,11): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(825,32): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(826,11): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(826,33): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(831,11): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(832,15): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(835,11): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(837,15): error TS1005: ':' expected.
+src/services/exchangeRateService.ts(837,46): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(840,11): error TS1003: Identifier expected.
+src/services/exchangeRateService.ts(840,22): error TS1005: '{' expected.
+src/services/exchangeRateService.ts(866,11): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(867,9): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(872,7): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(872,11): error TS1003: Identifier expected.
+src/services/exchangeRateService.ts(872,24): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(872,60): error TS1005: ',' expected.
+src/services/exchangeRateService.ts(872,62): error TS1136: Property assignment expected.
+src/services/exchangeRateService.ts(920,5): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(920,7): error TS1005: 'try' expected.
+src/services/exchangeRateService.ts(925,3): error TS1128: Declaration or statement expected.
+src/services/exchangeRateService.ts(926,1): error TS1128: Declaration or statement expected.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [
+     2551,  2551,  2551,  2304, 2552, 2304, 2552, 2304, 2304,
+     2304,  2304,  2304,  2304, 2365, 2532, 2680, 2532, 2532,
+     2532,  2532,  2532,  2304, 2304, 2365, 2693, 2304, 2693,
+     2304,  2581,  2304,  2581, 2581, 2581, 2304, 2304, 2304,
+     2304,  2304,  2304,  2304, 2304, 2365, 2693, 2304, 2693,
+     2304,  2304,  2304, 18004, 2304, 2304, 2304, 2304, 2304,
+     2304,  2365,  2693,  2304, 2693, 2872, 2304, 2304, 2304,
+    18004, 18004, 18004,  2304, 2581, 2304, 2581, 2581, 2581,
+     2304,  2304,  2304,  2304, 2304, 2304, 2304, 2304, 2304,
+     2304,  2304,  2304,  2304, 2304, 2304, 2304, 2304, 2304,
+     2304,  2304,  2304,  2304, 2304, 2304, 2304, 2304, 2304,
+     2304,
+    ... 111 more items
+  ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
