@@ -119,9 +119,8 @@ class ExchangeRateService {
                         if (targetFiat === baseFiat)
                             continue;
                         const pairKey = `${baseFiat}-${targetFiat}`;
-                        const reversePairKey = `${targetFiat}-${baseFiat}`;
-                        if (processedPairs.has(reversePairKey)) {
-                            console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (reverse pair ${reversePairKey} already processed)`);
+                        if (processedPairs.has(pairKey)) {
+                            console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (already processed)`);
                             continue;
                         }
                         if (response.data.rates[targetFiat]) {

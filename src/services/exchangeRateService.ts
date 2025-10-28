@@ -126,16 +126,15 @@ class ExchangeRateService {
         
         if (response.data && response.data.rates) {
           let ratesAddedForBase = 0;
-          // Process fiat-to-fiat rates (skip already processed pairs)
+          // Process fiat-to-fiat rates
           for (const targetFiat of activeFiats) {
             if (targetFiat === baseFiat) continue;
             
             const pairKey = `${baseFiat}-${targetFiat}`;
-            const reversePairKey = `${targetFiat}-${baseFiat}`;
             
-            // Skip if reverse pair already processed
-            if (processedPairs.has(reversePairKey)) {
-              console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (reverse pair ${reversePairKey} already processed)`);
+            // Skip if this exact pair already processed
+            if (processedPairs.has(pairKey)) {
+              console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (already processed)`);
               continue;
             }
             
