@@ -399,6 +399,14 @@ class ApiService {
     const response = await this.api.delete('/users/delete-account');
     return response.data;
   }
+
+  // Export user data as PDF
+  async exportUserData() {
+    const response = await this.api.get('/users/export/pdf', {
+      responseType: 'blob'
+    });
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

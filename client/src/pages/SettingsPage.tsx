@@ -331,6 +331,36 @@ const SettingsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Data Export Section */}
+            <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Export Your Data</h4>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                Download all your personal data including assets, income, contracts, and family members.
+              </p>
+              <button
+                onClick={async () => {
+                  try {
+                    setMessage('Generating PDF export...');
+                    const blob = await apiService.exportUserData();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `user-data-export-${Date.now()}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    setMessage('PDF exported successfully!');
+                  } catch (err: any) {
+                    setError(err.response?.data?.error || 'Failed to export data');
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Export to PDF
+              </button>
+            </div>
           </div>
         </div>
       )}
