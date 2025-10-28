@@ -11,6 +11,7 @@ declare class ExchangeRateService {
     constructor();
     private startScheduledUpdates;
     private getActiveCurrenciesByType;
+    private getFinnhubSymbol;
     updateExchangeRates(): Promise<void>;
     private updateRatesFromFinnhub;
     private updateFiatRates;

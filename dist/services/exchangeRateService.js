@@ -62,6 +62,21 @@ class ExchangeRateService {
         const result = await (0, database_1.query)('SELECT code FROM currencies WHERE currency_type = $1 AND is_active = true ORDER BY code', [type]);
         return result.rows.map(row => row.code);
     }
+    getFinnhubSymbol(code, type) {
+        if (type === 'cryptocurrency') {
+            return `BINANCE:${code}USDT`;
+        }
+        else if (type === 'precious_metal') {
+            const metalMap = {
+                'GOLD': 'OANDA:XAU_USD',
+                'SILVER': 'OANDA:XAG_USD',
+                'PLATINUM': 'OANDA:XPT_USD',
+                'PALLADIUM': 'OANDA:XPD_USD'
+            };
+            return metalMap[code] || '';
+        }
+        return '';
+    }
     async updateExchangeRates() {
         if (this.isUpdating) {
             console.log('⏳ Exchange rate update already in progress, skipping...');
@@ -96,28 +111,6 @@ class ExchangeRateService {
         const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
         const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
         console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
-        const cryptoSymbolMap = {
-            'BTC': 'BINANCE:BTCUSDT',
-            'ETH': 'BINANCE:ETHUSDT',
-            'LTC': 'BINANCE:LTCUSDT',
-            'BNB': 'BINANCE:BNBUSDT',
-            'ADA': 'BINANCE:ADAUSDT',
-            'SOL': 'BINANCE:SOLUSDT',
-            'DOT': 'BINANCE:DOTUSDT',
-            'MATIC': 'BINANCE:MATICUSDT',
-            'AVAX': 'BINANCE:AVAXUSDT',
-            'LINK': 'BINANCE:LINKUSDT',
-            'UNI': 'BINANCE:UNIUSDT',
-            'XRP': 'BINANCE:XRPUSDT',
-            'DOGE': 'BINANCE:DOGEUSDT',
-            'USDT': 'BINANCE:USDTUSDT'
-        };
-        const metalSymbolMap = {
-            'GOLD': 'OANDA:XAU_USD',
-            'SILVER': 'OANDA:XAG_USD',
-            'PLATINUM': 'OANDA:XPT_USD',
-            'PALLADIUM': 'OANDA:XPD_USD'
-        };
         const processedPairs = new Set();
         for (let i = 0; i < activeFiats.length; i++) {
             const baseFiat = activeFiats[i];
@@ -148,14 +141,15 @@ class ExchangeRateService {
                 console.error(`Failed to fetch forex rates for ${baseFiat}:`, error);
             }
             for (const crypto of activeCryptos) {
-                if (!cryptoSymbolMap[crypto]) {
+                const symbol = this.getFinnhubSymbol(crypto, 'cryptocurrency');
+                if (!symbol) {
                     console.warn(`No Finnhub symbol mapping for crypto: ${crypto}`);
                     continue;
                 }
                 try {
                     const timestamp = Math.floor(Date.now() / 1000);
                     const oneDayAgo = timestamp - 86400;
-                    const response = await axios_1.default.get(`https://finnhub.io/api/v1/crypto/candle?symbol=${cryptoSymbolMap[crypto]}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`, { timeout: 10000 });
+                    const response = await axios_1.default.get(`https://finnhub.io/api/v1/crypto/candle?symbol=${symbol}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`, { timeout: 10000 });
                     if (response.data && response.data.c && response.data.c.length > 0) {
                         const cryptoPriceInUSD = response.data.c[response.data.c.length - 1];
                         let baseFiatToUSD = 1;
@@ -183,12 +177,13 @@ class ExchangeRateService {
                 }
             }
             for (const metal of activeMetals) {
-                if (!metalSymbolMap[metal]) {
+                const symbol = this.getFinnhubSymbol(metal, 'precious_metal');
+                if (!symbol) {
                     console.warn(`No Finnhub symbol mapping for metal: ${metal}`);
                     continue;
                 }
                 try {
-                    const response = await axios_1.default.get(`https://finnhub.io/api/v1/quote?symbol=${metalSymbolMap[metal]}&token=${this.finnhubApiKey}`, { timeout: 10000 });
+                    const response = await axios_1.default.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${this.finnhubApiKey}`, { timeout: 10000 });
                     if (response.data && response.data.c) {
                         const metalPriceInUSD = response.data.c;
                         let baseFiatToUSD = 1;
@@ -269,40 +264,7 @@ class ExchangeRateService {
                 console.log(`✅ Scraped ${scrapedCryptoRates.length} cryptocurrency rates`);
                 return;
             }
-            console.log('⚠️ Scraping failed, trying CoinGecko API...');
-            const response = await axios_1.default.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd', { timeout: 10000 });
-            const cryptoData = response.data;
-            const cryptoPairs = {
-                'BTC': 'bitcoin',
-                'ETH': 'ethereum',
-                'LTC': 'litecoin',
-                'BNB': 'binancecoin',
-                'ADA': 'cardano',
-                'SOL': 'solana',
-                'DOT': 'polkadot',
-                'MATIC': 'polygon',
-                'AVAX': 'avalanche-2',
-                'LINK': 'chainlink',
-                'UNI': 'uniswap'
-            };
-            const cryptoRates = [];
-            for (const [cryptoCode, coinGeckoId] of Object.entries(cryptoPairs)) {
-                if (cryptoData[coinGeckoId]) {
-                    const priceInUSD = cryptoData[coinGeckoId].usd;
-                    cryptoRates.push({
-                        from_currency: cryptoCode,
-                        to_currency: 'USD',
-                        rate: priceInUSD
-                    });
-                    cryptoRates.push({
-                        from_currency: 'USD',
-                        to_currency: cryptoCode,
-                        rate: 1 / priceInUSD
-                    });
-                }
-            }
-            await this.storeExchangeRates(cryptoRates);
-            console.log(`✅ Fetched ${cryptoRates.length} cryptocurrency rates from CoinGecko`);
+            console.log('⚠️ Scraping failed, skipping CoinGecko fallback (use Finnhub instead)...');
         }
         catch (error) {
             console.error('Failed to fetch cryptocurrency rates:', error);
@@ -401,7 +363,8 @@ class ExchangeRateService {
         }
     }
     async createCrossConversions() {
-        const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'LTC', 'SOL', 'XRP'];
+        const allCurrencies = await (0, database_1.query)('SELECT code FROM currencies WHERE is_active = true');
+        const currencies = allCurrencies.rows.map(row => row.code);
         try {
             console.log(`🔄 Creating cross-conversions for ${currencies.length} currencies (${currencies.length * (currencies.length - 1)} possible pairs)...`);
             for (const fromCurrency of currencies) {
