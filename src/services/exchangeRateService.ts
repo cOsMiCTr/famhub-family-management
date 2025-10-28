@@ -695,28 +695,31 @@ class ExchangeRateService {
   async forceUpdate(): Promise<void> {
     console.log('🔄 Force updating exchange rates...');
     
-    try {
-      // For manual sync, try scraping first even if APIs are not configured
-      if (!this.currencyApiKey) {
-        console.log('🔄 Manual sync: Attempting scraping without API keys...');
+    // For manual sync, try scraping first even if APIs are not configured
+    if (!this.currencyApiKey) {
+      console.log('🔄 Manual sync: Attempting scraping without API keys...');
+      
+      try {
         const scrapedRates = await this.scrapeAllRates();
         
         if (scrapedRates.length > 0) {
           console.log(`✅ Manual sync: Scraped ${scrapedRates.length} rates successfully`);
           await this.storeExchangeRates(scrapedRates);
           console.log(`✅ Stored ${scrapedRates.length} rates in database`);
-          return;
         } else {
           console.warn('⚠️ No rates scraped, falling back to updateExchangeRates...');
+          await this.updateExchangeRates();
         }
+      } catch (error) {
+        console.error('❌ Error during force update scraping:', error);
+        // Fallback to updateExchangeRates even on error
+        await this.updateExchangeRates();
       }
-      
+    } else {
       await this.updateExchangeRates();
-      console.log('✅ Exchange rates updated via updateExchangeRates');
-    } catch (error) {
-      console.error('❌ Error during force update:', error);
-      throw error; // Re-throw to surface the error
     }
+    
+    console.log('✅ Force update completed');
   }
 
   // Scrape gold prices from gold.de
