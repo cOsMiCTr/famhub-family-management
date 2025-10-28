@@ -23,7 +23,7 @@ router.get('/', asyncHandler(async (req, res) => {
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
      WHERE u.id = $1`,
-    [req.user.id]
+    [req.user.userId]
   );
 
   if (userResult.rows.length === 0) {
@@ -207,7 +207,7 @@ router.post('/change-password', [
   }
 
   // Check password history
-  const isPasswordReused = await PasswordService.checkPasswordHistory(req.user.id, new_password);
+  const isPasswordReused = await PasswordService.checkPasswordHistory(req.user.userId, new_password);
   if (isPasswordReused) {
     throw createValidationError('Cannot reuse a recently used password. Please choose a different password.');
   }
@@ -227,11 +227,11 @@ router.post('/change-password', [
          must_change_password = false,
          updated_at = NOW()
      WHERE id = $2`,
-    [newPasswordHash, req.user.id]
+    [newPasswordHash, req.user.userId]
   );
 
   // Add old password to history
-  await PasswordService.addToPasswordHistory(req.user.id, user.password_hash);
+  await PasswordService.addToPasswordHistory(req.user.userId, user.password_hash);
 
   res.json({
     message: 'Password changed successfully'
