@@ -353,7 +353,13 @@ const SettingsPage: React.FC = () => {
               <div>
                 <label className="form-label">{t('settings.memberSince')}</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white">
-                  {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                  {user?.created_at ? new Date(user.created_at).toLocaleString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'N/A'}
                 </div>
               </div>
             </div>

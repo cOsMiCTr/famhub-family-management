@@ -520,6 +520,21 @@ async function runMigrations(): Promise<void> {
     // Add allowed_currency_types to asset_categories if it doesn't exist
     await addColumnToTable('asset_categories', 'allowed_currency_types', "JSONB DEFAULT '[\"fiat\"]'::jsonb");
 
+    // Add created_at to users table if it doesn't exist
+    await addColumnToTable('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+    
+    // Update all users without created_at to use current timestamp
+    try {
+      await client.query(
+        `UPDATE users 
+         SET created_at = CURRENT_TIMESTAMP 
+         WHERE created_at IS NULL`
+      );
+      console.log('✅ Updated users with created_at timestamps');
+    } catch (error) {
+      console.log('ℹ️ Error updating user created_at:', error);
+    }
+
     // Add foreign key constraint for users.household_id (if not exists)
     try {
       await client.query(`

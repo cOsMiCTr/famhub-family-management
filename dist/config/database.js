@@ -496,6 +496,16 @@ async function runMigrations() {
         await addColumnToTable('contracts', 'assigned_member_ids', 'INTEGER[] DEFAULT ARRAY[]::INTEGER[]');
         await addColumnToTable('household_members', 'user_id', 'INTEGER REFERENCES users(id) ON DELETE SET NULL');
         await addColumnToTable('asset_categories', 'allowed_currency_types', "JSONB DEFAULT '[\"fiat\"]'::jsonb");
+        await addColumnToTable('users', 'created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+        try {
+            await client.query(`UPDATE users 
+         SET created_at = CURRENT_TIMESTAMP 
+         WHERE created_at IS NULL`);
+            console.log('✅ Updated users with created_at timestamps');
+        }
+        catch (error) {
+            console.log('ℹ️ Error updating user created_at:', error);
+        }
         try {
             await client.query(`
         ALTER TABLE users 
