@@ -304,55 +304,10 @@ class ExchangeRateService {
             await this.storeExchangeRates(scrapedRates);
             return;
         }
-        console.log('⚠️ Scraping failed, using static fallback rates');
-        const staticRates = [
-            { from_currency: 'USD', to_currency: 'EUR', rate: 0.85 },
-            { from_currency: 'EUR', to_currency: 'USD', rate: 1.18 },
-            { from_currency: 'USD', to_currency: 'GBP', rate: 0.73 },
-            { from_currency: 'GBP', to_currency: 'USD', rate: 1.37 },
-            { from_currency: 'USD', to_currency: 'TRY', rate: 30.0 },
-            { from_currency: 'TRY', to_currency: 'USD', rate: 0.033 },
-            { from_currency: 'EUR', to_currency: 'GBP', rate: 0.86 },
-            { from_currency: 'GBP', to_currency: 'EUR', rate: 1.16 },
-            { from_currency: 'EUR', to_currency: 'TRY', rate: 35.3 },
-            { from_currency: 'TRY', to_currency: 'EUR', rate: 0.028 },
-            { from_currency: 'GBP', to_currency: 'TRY', rate: 41.1 },
-            { from_currency: 'TRY', to_currency: 'GBP', rate: 0.024 },
-            { from_currency: 'USD', to_currency: 'CNY', rate: 7.2 },
-            { from_currency: 'CNY', to_currency: 'USD', rate: 0.139 },
-            { from_currency: 'USD', to_currency: 'JPY', rate: 150.0 },
-            { from_currency: 'JPY', to_currency: 'USD', rate: 0.0067 },
-            { from_currency: 'USD', to_currency: 'CAD', rate: 1.35 },
-            { from_currency: 'CAD', to_currency: 'USD', rate: 0.74 },
-            { from_currency: 'USD', to_currency: 'AUD', rate: 1.5 },
-            { from_currency: 'AUD', to_currency: 'USD', rate: 0.67 },
-            { from_currency: 'USD', to_currency: 'CHF', rate: 0.88 },
-            { from_currency: 'CHF', to_currency: 'USD', rate: 1.14 }
-        ];
-        await this.storeExchangeRates(staticRates);
+        console.log('⚠️ All syncing methods failed. Please check your internet connection and Finnhub API key.');
     }
     async setFallbackGoldRates() {
-        const fallbackGoldRates = [
-            { from_currency: 'GOLD', to_currency: 'USD', rate: 2000 },
-            { from_currency: 'USD', to_currency: 'GOLD', rate: 0.0005 },
-            { from_currency: 'GOLD', to_currency: 'EUR', rate: 1700 },
-            { from_currency: 'EUR', to_currency: 'GOLD', rate: 0.000588 },
-            { from_currency: 'GOLD', to_currency: 'GBP', rate: 1460 },
-            { from_currency: 'GBP', to_currency: 'GOLD', rate: 0.000685 },
-            { from_currency: 'GOLD', to_currency: 'TRY', rate: 60000 },
-            { from_currency: 'TRY', to_currency: 'GOLD', rate: 0.0000167 },
-            { from_currency: 'GOLD', to_currency: 'CNY', rate: 14400 },
-            { from_currency: 'CNY', to_currency: 'GOLD', rate: 0.0000694 },
-            { from_currency: 'GOLD', to_currency: 'JPY', rate: 300000 },
-            { from_currency: 'JPY', to_currency: 'GOLD', rate: 0.0000033 },
-            { from_currency: 'GOLD', to_currency: 'CAD', rate: 2700 },
-            { from_currency: 'CAD', to_currency: 'GOLD', rate: 0.000370 },
-            { from_currency: 'GOLD', to_currency: 'AUD', rate: 3000 },
-            { from_currency: 'AUD', to_currency: 'GOLD', rate: 0.000333 },
-            { from_currency: 'GOLD', to_currency: 'CHF', rate: 1760 },
-            { from_currency: 'CHF', to_currency: 'GOLD', rate: 0.000568 }
-        ];
-        await this.storeExchangeRates(fallbackGoldRates);
+        console.log('⚠️ Gold fallback rates deprecated. Use Finnhub API instead.');
     }
     async storeExchangeRates(rates) {
         for (const rate of rates) {
@@ -493,104 +448,8 @@ class ExchangeRateService {
         }));
     }
     async scrapeAllRates() {
-        const allRates = [];
-        try {
-            console.log('🌐 Scraping exchange rates from Google Finance...');
-            const fiatPairs = [
-                'EURUSD', 'EURGBP', 'EURTRY', 'EURSGD', 'EURCAD',
-                'USDGBP', 'USDTRY', 'USDCNY', 'USDJPY', 'USDCAD', 'USDAUD', 'USDCHF'
-            ];
-            for (const pair of fiatPairs) {
-                try {
-                    const fromCurrency = pair.substring(0, 3);
-                    const toCurrency = pair.substring(3);
-                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${fromCurrency}-${toCurrency}`, {
-                        timeout: 8000,
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const priceText = $('.AHmHk').text().trim() ||
-                        $('[data-last-price]').attr('data-last-price') ||
-                        $('.YMlKec').text().trim();
-                    const rate = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
-                    if (!isNaN(rate) && rate > 0) {
-                        allRates.push({
-                            from_currency: fromCurrency,
-                            to_currency: toCurrency,
-                            rate: rate
-                        });
-                        allRates.push({
-                            from_currency: toCurrency,
-                            to_currency: fromCurrency,
-                            rate: 1 / rate
-                        });
-                    }
-                }
-                catch (error) {
-                    console.warn(`Failed to scrape ${pair}:`, error);
-                }
-            }
-            console.log(`✅ Scraped ${allRates.length} fiat rates from Google Finance`);
-        }
-        catch (error) {
-            console.error('Error scraping from Google Finance:', error);
-        }
-        try {
-            const cryptoList = ['BTC-USD', 'ETH-USD', 'XRP-USD'];
-            for (const crypto of cryptoList) {
-                try {
-                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${crypto}`, {
-                        timeout: 8000,
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const priceText = $('.AHmHk').text().trim() ||
-                        $('[data-last-price]').attr('data-last-price') ||
-                        $('.YMlKec').text().trim();
-                    const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
-                    if (!isNaN(price) && price > 0) {
-                        const cryptoCode = crypto.split('-')[0];
-                        allRates.push({ from_currency: cryptoCode, to_currency: 'USD', rate: price });
-                        allRates.push({ from_currency: 'USD', to_currency: cryptoCode, rate: 1 / price });
-                    }
-                }
-                catch (error) {
-                    console.warn(`Failed to scrape ${crypto}`);
-                }
-            }
-            console.log(`✅ Added crypto rates from Google Finance`);
-        }
-        catch (error) {
-            console.error('Error scraping crypto from Google Finance:', error);
-        }
-        try {
-            const metals = ['GOLD', 'SILVER'];
-            for (const metal of metals) {
-                try {
-                    const response = await axios_1.default.get(`https://www.google.com/finance/quote/${metal}:COMEX`, {
-                        timeout: 8000,
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const priceText = $('.AHmHk').text().trim() ||
-                        $('[data-last-price]').attr('data-last-price') ||
-                        $('.YMlKec').text().trim();
-                    const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(',', '.'));
-                    if (!isNaN(price) && price > 0) {
-                        allRates.push({ from_currency: metal, to_currency: 'USD', rate: price });
-                        allRates.push({ from_currency: 'USD', to_currency: metal, rate: 1 / price });
-                    }
-                }
-                catch (error) {
-                    console.warn(`Failed to scrape ${metal}`);
-                }
-            }
-            console.log(`✅ Added precious metal rates from Google Finance`);
-        }
-        catch (error) {
-            console.error('Error scraping metals from Google Finance:', error);
-        }
-        return allRates;
+        console.log('⚠️ Google Finance scraping deprecated. Use Finnhub API instead.');
+        return [];
     }
     async scrapeECBRates() {
         try {
