@@ -107,6 +107,78 @@ class ExchangeRateService {
     
     console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
     
+    // First, fetch crypto prices once (in USD)
+    const cryptoPricesInUSD: Record<string, number> = {};
+    
+    for (const crypto of activeCryptos) {
+      try {
+        console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
+        
+        // Scrape from CoinMarketCap
+        const cmcUrls: Record<string, string> = {
+          'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
+          'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
+          'XRP': 'https://coinmarketcap.com/currencies/ripple/',
+          'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
+          'SOL': 'https://coinmarketcap.com/currencies/solana/',
+          'BNB': 'https://coinmarketcap.com/currencies/bnb/',
+          'ADA': 'https://coinmarketcap.com/currencies/cardano/',
+          'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
+          'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
+          'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
+          'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
+          'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
+        };
+        
+        const cmcUrl = cmcUrls[crypto];
+        if (!cmcUrl) {
+          console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
+          continue;
+        }
+        
+        const cmcResponse = await axios.get(cmcUrl, {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        
+        console.log(`📥 Got HTML response for ${crypto}, parsing...`);
+        
+        const $ = cheerio.load(cmcResponse.data);
+        
+        // Try multiple selectors as CMC changes their HTML structure
+        let priceText = '';
+        
+        // Try new selector first (current CMC structure)
+        priceText = $('span[class*="priceValue"]').first().text().trim();
+        
+        if (!priceText) {
+          // Try older selector
+          priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+        }
+        
+        if (!priceText) {
+          // Try even older selector
+          priceText = $('.priceValue').first().text();
+        }
+        
+        console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
+        
+        // Remove $ and commas, convert to number
+        const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
+        
+        if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
+          cryptoPricesInUSD[crypto] = cryptoPriceInUSD;
+          console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+        } else {
+          console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
+      }
+    }
+    
     // Fetch rates for ALL active fiat currencies
     try {
       // Fetch rates for each active fiat currency as base
@@ -121,6 +193,8 @@ class ExchangeRateService {
           console.log(`[${new Date().toISOString()}] 📥 Fetched rates for ${baseFiat}`);
           
           if (response.data && response.data.rates) {
+            const fiatToUSD = response.data.rates.USD || 1;
+            
             // Add fiat rates for other active fiats
             for (const targetFiat of activeFiats) {
               if (targetFiat === baseFiat) continue;
@@ -146,123 +220,50 @@ class ExchangeRateService {
             
             console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseFiat}`);
             
-            // Add crypto rates for this fiat
+            // Add crypto rates for this fiat using fetched crypto prices
             for (const crypto of activeCryptos) {
-              try {
-                console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
-                
-                // Scrape from CoinMarketCap
-                const cmcUrls: Record<string, string> = {
-                  'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
-                  'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
-                  'XRP': 'https://coinmarketcap.com/currencies/ripple/',
-                  'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
-                  'SOL': 'https://coinmarketcap.com/currencies/solana/',
-                  'BNB': 'https://coinmarketcap.com/currencies/bnb/',
-                  'ADA': 'https://coinmarketcap.com/currencies/cardano/',
-                  'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
-                  'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
-                  'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
-                  'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
-                  'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
-                };
-                
-                const cmcUrl = cmcUrls[crypto];
-                if (!cmcUrl) {
-                  console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
-                  continue;
-                }
-                
-                const cmcResponse = await axios.get(cmcUrl, {
-                  timeout: 10000,
-                  headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                  }
-                });
-                
-                console.log(`📥 Got HTML response for ${crypto}, parsing...`);
-                
-                const $ = cheerio.load(cmcResponse.data);
-                
-                // Try multiple selectors as CMC changes their HTML structure
-                let priceText = '';
-                
-                // Try new selector first (current CMC structure)
-                priceText = $('span[class*="priceValue"]').first().text().trim();
-                
-                if (!priceText) {
-                  // Try older selector
-                  priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
-                }
-                
-                if (!priceText) {
-                  // Try even older selector
-                  priceText = $('.priceValue').first().text();
-                }
-                
-                console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
-                
-                // Remove $ and commas, convert to number
-                const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
-                
-                if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
-                  // Get fiat to USD rate from the response
-                  const fiatToUSD = response.data.rates.USD || 1;
-                  
-                  // Calculate fiat to crypto rate
-                  // Formula: 1 Fiat = (Fiat/USD) / (crypto_price_in_USD)
-                  const fiatToCrypto = fiatToUSD / cryptoPriceInUSD;
-                  
-                  console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
-                  console.log(`💱 Calculated ${baseFiat}/${crypto}: ${fiatToCrypto}`);
-                  
-                  allRates.push({
-                    from_currency: baseFiat,
-                    to_currency: crypto,
-                    rate: fiatToCrypto
-                  });
-                } else {
-                  console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
-                }
-              } catch (error) {
-                console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
-              }
+              if (!cryptoPricesInUSD[crypto]) continue;
+              
+              // Calculate fiat to crypto rate
+              // Formula: 1 Fiat = (crypto_price_in_USD) / (Fiat/USD)
+              const fiatToCrypto = cryptoPricesInUSD[crypto] / fiatToUSD;
+              
+              console.log(`💱 Calculated ${baseFiat}/${crypto}: ${fiatToCrypto}`);
+              
+              allRates.push({
+                from_currency: baseFiat,
+                to_currency: crypto,
+                rate: fiatToCrypto
+              });
             }
             
             // Add metal rates for this fiat
             for (const metal of activeMetals) {
-              try {
-                // Fallback metal prices per troy ounce in USD
-                const metalPricesInUSD: Record<string, number> = {
-                  'GOLD': 2100,
-                  'SILVER': 25,
-                  'PLATINUM': 1100,
-                  'PALLADIUM': 1100
-                };
-                
-                const metalPriceInUSD = metalPricesInUSD[metal];
-                if (!metalPriceInUSD) {
-                  console.warn(`No price mapping for metal: ${metal}`);
-                  continue;
-                }
-                
-                // Get fiat to USD rate from the response
-                const fiatToUSD = response.data.rates.USD || 1;
-                
-                // Calculate fiat to metal rate (price per ounce)
-                // Formula: 1 Fiat = (Fiat/USD) / (metal_price_in_USD)
-                const fiatToMetal = metalPriceInUSD / fiatToUSD;
-                
-                console.log(`🥇 Calculated ${metal} rate for ${baseFiat}: ${fiatToMetal}`);
-                
-                allRates.push({
-                  from_currency: baseFiat,
-                  to_currency: metal,
-                  rate: fiatToMetal
-                });
-              } catch (error) {
-                console.error(`Failed to calculate metal rate for ${metal}:`, error);
+              // Fallback metal prices per troy ounce in USD
+              const metalPricesInUSD: Record<string, number> = {
+                'GOLD': 2100,
+                'SILVER': 25,
+                'PLATINUM': 1100,
+                'PALLADIUM': 1100
+              };
+              
+              const metalPriceInUSD = metalPricesInUSD[metal];
+              if (!metalPriceInUSD) {
+                console.warn(`No price mapping for metal: ${metal}`);
+                continue;
               }
+              
+              // Calculate fiat to metal rate (price per ounce)
+              // Formula: 1 Fiat = (metal_price_in_USD) / (Fiat/USD)
+              const fiatToMetal = metalPriceInUSD / fiatToUSD;
+              
+              console.log(`🥇 Calculated ${metal} rate for ${baseFiat}: ${fiatToMetal}`);
+              
+              allRates.push({
+                from_currency: baseFiat,
+                to_currency: metal,
+                rate: fiatToMetal
+              });
             }
           }
         } catch (error) {
