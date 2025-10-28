@@ -251,6 +251,24 @@ router.post('/refresh', auth_1.authenticateToken, (0, errorHandler_1.asyncHandle
         token
     });
 }));
+router.get('/me', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        throw (0, errorHandler_1.createUnauthorizedError)('User not authenticated');
+    }
+    const userId = req.user.userId;
+    const userResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency,
+            u.created_at, h.name as household_name
+     FROM users u
+     LEFT JOIN households h ON u.household_id = h.id
+     WHERE u.id = $1`, [userId]);
+    if (userResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('User');
+    }
+    const userData = userResult.rows[0];
+    res.json({
+        user: userData
+    });
+}));
 router.post('/logout', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     res.json({
         message: 'Logout successful'

@@ -62,6 +62,11 @@ class ApiService {
     return response.data;
   }
 
+  async getCurrentUser() {
+    const response = await this.api.get('/auth/me');
+    return response.data;
+  }
+
   async validateInvitation(token: string) {
     const response = await this.api.get(`/auth/validate-invitation/${token}`);
     return response.data;

@@ -4,7 +4,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
-import { asyncHandler, createValidationError, createUnauthorizedError, CustomError } from '../middleware/errorHandler';
+import { asyncHandler, createValidationError, createUnauthorizedError, createNotFoundError, CustomError } from '../middleware/errorHandler';
 import { authenticateToken, JWTPayload } from '../middleware/auth';
 import { PasswordService } from '../services/passwordService';
 import { LoginAttemptService } from '../services/loginAttemptService';
@@ -437,6 +437,35 @@ router.post('/refresh', authenticateToken, asyncHandler(async (req, res) => {
   res.json({
     message: 'Token refreshed successfully',
     token
+  });
+}));
+
+// Get current user
+router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw createUnauthorizedError('User not authenticated');
+  }
+
+  const userId = req.user.userId;
+  
+  // Fetch full user data including household name
+  const userResult = await query(
+    `SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency,
+            u.created_at, h.name as household_name
+     FROM users u
+     LEFT JOIN households h ON u.household_id = h.id
+     WHERE u.id = $1`,
+    [userId]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  const userData = userResult.rows[0];
+  
+  res.json({
+    user: userData
   });
 }));
 

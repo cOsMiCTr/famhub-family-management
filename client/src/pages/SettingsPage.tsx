@@ -80,7 +80,19 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     loadSettings();
     load2FAStatus();
+    loadCurrentUserData();
   }, []);
+
+  const loadCurrentUserData = async () => {
+    try {
+      const response = await apiService.getCurrentUser();
+      if (response.user) {
+        updateUser(response.user);
+      }
+    } catch (err) {
+      console.error('Error loading current user data:', err);
+    }
+  };
 
   const load2FAStatus = async () => {
     try {
