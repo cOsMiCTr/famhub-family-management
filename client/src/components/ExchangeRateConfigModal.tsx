@@ -68,6 +68,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
     // Cryptocurrencies
     'BTC': 'Bitcoin',
     'ETH': 'Ethereum',
+    'LTC': 'Litecoin',
     'BNB': 'Binance Coin',
     'ADA': 'Cardano',
     'SOL': 'Solana',

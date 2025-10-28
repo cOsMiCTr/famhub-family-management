@@ -124,11 +124,12 @@ class ExchangeRateService {
                 return;
             }
             console.log('⚠️ Scraping failed, trying CoinGecko API...');
-            const response = await axios_1.default.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd', { timeout: 10000 });
+            const response = await axios_1.default.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd', { timeout: 10000 });
             const cryptoData = response.data;
             const cryptoPairs = {
                 'BTC': 'bitcoin',
                 'ETH': 'ethereum',
+                'LTC': 'litecoin',
                 'BNB': 'binancecoin',
                 'ADA': 'cardano',
                 'SOL': 'solana',
@@ -255,7 +256,7 @@ class ExchangeRateService {
         await this.createCrossConversions();
     }
     async createCrossConversions() {
-        const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'XRP'];
+        const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'LTC', 'SOL', 'XRP'];
         try {
             for (const fromCurrency of currencies) {
                 for (const toCurrency of currencies) {

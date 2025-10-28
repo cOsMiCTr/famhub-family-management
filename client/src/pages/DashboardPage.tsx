@@ -556,6 +556,7 @@ const DashboardPage: React.FC = () => {
                     // Cryptocurrencies
                     'BTC': { symbol: '₿', name: 'Bitcoin (₿)', flag: '₿', color: 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700' },
                     'ETH': { symbol: 'Ξ', name: 'Ethereum (Ξ)', flag: 'Ξ', color: 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-300 dark:border-cyan-700' },
+                    'LTC': { symbol: 'Ł', name: 'Litecoin (Ł)', flag: 'Ł', color: 'bg-gray-100 dark:bg-gray-900/30 border-gray-300 dark:border-gray-700' },
                     'XRP': { symbol: 'XRP', name: 'Ripple (XRP)', flag: '💧', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },
                     'BNB': { symbol: 'BNB', name: 'Binance Coin', flag: '🔶', color: 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700' },
                     'ADA': { symbol: '₳', name: 'Cardano (₳)', flag: '🔵', color: 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' },

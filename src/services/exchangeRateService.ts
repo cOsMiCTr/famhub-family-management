@@ -133,7 +133,7 @@ class ExchangeRateService {
       // Fallback to CoinGecko API if scraping fails
       console.log('⚠️ Scraping failed, trying CoinGecko API...');
       const response = await axios.get(
-        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd',
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin,binancecoin,cardano,solana,polkadot,polygon,avalanche-2,chainlink,uniswap&vs_currencies=usd',
         { timeout: 10000 }
       );
 
@@ -141,6 +141,7 @@ class ExchangeRateService {
       const cryptoPairs: { [key: string]: string } = {
         'BTC': 'bitcoin',
         'ETH': 'ethereum',
+        'LTC': 'litecoin',
         'BNB': 'binancecoin',
         'ADA': 'cardano',
         'SOL': 'solana',
@@ -303,7 +304,7 @@ class ExchangeRateService {
   
   // Create cross-conversions between all currencies through common pairs
   private async createCrossConversions(): Promise<void> {
-    const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'XRP'];
+    const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'LTC', 'SOL', 'XRP'];
     
     try {
       for (const fromCurrency of currencies) {
