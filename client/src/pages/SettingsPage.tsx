@@ -239,12 +239,12 @@ const SettingsPage: React.FC = () => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const tabs = [
-    { id: 'profile', name: 'Profile', icon: UserIcon },
-    { id: 'preferences', name: 'Preferences', icon: LanguageIcon },
-    { id: 'notifications', name: 'Notifications', icon: BellIcon },
+    { id: 'profile', name: t('settings.profile'), icon: UserIcon },
+    { id: 'preferences', name: t('settings.preferences'), icon: LanguageIcon },
+    { id: 'notifications', name: t('settings.notifications'), icon: BellIcon },
     { id: 'family-members', name: t('navigation.familyMembers'), icon: UsersIcon },
-    { id: 'security', name: 'Security', icon: ShieldCheckIcon },
-    { id: 'activity', name: 'Activity', icon: ChartBarIcon },
+    { id: 'security', name: t('settings.security'), icon: ShieldCheckIcon },
+    { id: 'activity', name: t('settings.activity'), icon: ChartBarIcon },
   ];
 
   if (isLoading) {
@@ -312,34 +312,34 @@ const SettingsPage: React.FC = () => {
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
               <UserIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Profile Information
+              {t('settings.profileInformation')}
             </h3>
           </div>
           <div className="card-body">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <label className="form-label">Email Address</label>
+                <label className="form-label">{t('settings.emailAddress')}</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white">
                   {user?.email}
                 </div>
               </div>
               
               <div>
-                <label className="form-label">Role</label>
+                <label className="form-label">{t('settings.role')}</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white capitalize">
                   {user?.role}
                 </div>
               </div>
               
               <div>
-                <label className="form-label">Household</label>
+                <label className="form-label">{t('settings.household')}</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white">
-                  {user?.household_name || 'No household assigned'}
+                  {user?.household_name || t('settings.noHousehold')}
                 </div>
               </div>
               
               <div>
-                <label className="form-label">Member Since</label>
+                <label className="form-label">{t('settings.memberSince')}</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-900 dark:text-white">
                   {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                 </div>
@@ -348,9 +348,9 @@ const SettingsPage: React.FC = () => {
             
             {/* Data Export Section */}
             <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Export Your Data</h4>
+              <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">{t('settings.exportYourData')}</h4>
               <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                Download all your personal data including assets, income, contracts, and family members.
+                {t('settings.exportDescription')}
               </p>
               <button
                 onClick={async () => {
@@ -372,30 +372,30 @@ const SettingsPage: React.FC = () => {
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Export to PDF
+                {t('settings.exportToPDF')}
               </button>
             </div>
 
             {/* Data Privacy Section */}
             <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Data Privacy</h4>
+              <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">{t('settings.dataPrivacy')}</h4>
               <div className="text-sm text-green-700 dark:text-green-300 space-y-2">
-                <p className="font-medium mb-2">What data do we collect?</p>
+                <p className="font-medium mb-2">{t('settings.whatDataWeCollect')}</p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Personal information (email, profile details)</li>
-                  <li>Financial data (assets, income, contracts)</li>
-                  <li>Household and family member information</li>
-                  <li>Activity logs for security purposes</li>
+                  <li>{t('settings.dataPersonalInfo')}</li>
+                  <li>{t('settings.dataFinancial')}</li>
+                  <li>{t('settings.dataHousehold')}</li>
+                  <li>{t('settings.dataActivity')}</li>
                 </ul>
-                <p className="mt-3 font-medium mb-2">Your rights:</p>
+                <p className="mt-3 font-medium mb-2">{t('settings.yourRights')}</p>
                 <ul className="list-disc list-inside space-y-1 ml-2">
-                  <li>Export your data anytime (PDF export available above)</li>
-                  <li>Request data deletion (delete account feature)</li>
-                  <li>Request data correction through settings</li>
-                  <li>GDPR compliant data handling</li>
+                  <li>{t('settings.rightsExport')}</li>
+                  <li>{t('settings.rightsDeletion')}</li>
+                  <li>{t('settings.rightsCorrection')}</li>
+                  <li>{t('settings.rightsGDPR')}</li>
                 </ul>
                 <p className="mt-3 text-xs">
-                  All data is encrypted and stored securely. We never share your personal information with third parties.
+                  {t('settings.dataPrivacyNote')}
                 </p>
               </div>
             </div>
@@ -753,21 +753,21 @@ const SettingsPage: React.FC = () => {
             <div className="card-header">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <ShieldCheckIcon className="h-5 w-5 mr-2 text-orange-500" />
-                Account Actions
+                {t('settings.accountActions')}
               </h3>
             </div>
             <div className="card-body">
               <div className="space-y-4">
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-red-800 dark:text-red-200">Delete Account</h4>
+                  <h4 className="text-sm font-medium text-red-800 dark:text-red-200">{t('settings.deleteAccount')}</h4>
                   <p className="text-sm text-red-700 dark:text-red-300 mt-1 mb-2">
-                    Permanently delete your account and all associated data. This action cannot be undone.
+                    {t('settings.deleteAccountDescription')}
                   </p>
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     className="mt-3 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
-                    Delete My Account
+                    {t('settings.deleteMyAccount')}
                   </button>
                 </div>
               </div>
@@ -782,20 +782,20 @@ const SettingsPage: React.FC = () => {
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
               <ChartBarIcon className="h-5 w-5 mr-2 text-purple-500" />
-              Activity Log
+              {t('settings.activityLog')}
             </h3>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              View your recent account activity and actions
+              {t('settings.activityDescription')}
             </p>
           </div>
           <div className="card-body">
             <div className="p-8 text-center">
               <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                Activity tracking coming soon
+                {t('settings.activityComingSoon')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Your account activity will be logged here automatically.
+                {t('settings.activityWillBeLogged')}
               </p>
             </div>
           </div>
