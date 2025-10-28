@@ -30,6 +30,14 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      
+      // Don't fetch if there's no token
+      if (!token) {
+        setAllCurrencies([]);
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch('/api/currencies', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,9 +48,13 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (response.ok) {
         const data = await response.json();
         setAllCurrencies(data);
+      } else if (response.status === 401) {
+        // Token is invalid, clear currencies
+        setAllCurrencies([]);
       }
     } catch (error) {
       console.error('Failed to fetch currencies:', error);
+      setAllCurrencies([]);
     } finally {
       setLoading(false);
     }

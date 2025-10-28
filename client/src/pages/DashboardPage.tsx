@@ -62,6 +62,12 @@ const DashboardPage: React.FC = () => {
   const [previousRates, setPreviousRates] = useState<ExchangeRate[]>([]);
 
   useEffect(() => {
+    // Only fetch data if user is authenticated
+    if (!user) {
+      console.log('🔴 No user found, skipping dashboard data fetch');
+      return;
+    }
+    
     // Load last sync timestamp from localStorage first
     const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
     if (storedLastSync) {
@@ -95,7 +101,7 @@ const DashboardPage: React.FC = () => {
     if (savedShowConversions) {
       setShowConversions(JSON.parse(savedShowConversions));
     }
-  }, []);
+  }, [user]);
 
   const fetchActiveAssets = async () => {
     try {
