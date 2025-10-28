@@ -117,8 +117,10 @@ class ExchangeRateService {
       
       try {
         // Fetch fiat-to-fiat rates using ExchangeRate-API.com
+        // Add timestamp to prevent caching
+        const timestamp = Date.now();
         const response = await axios.get(
-          `https://api.exchangerate-api.com/v4/latest/${baseFiat}`,
+          `https://api.exchangerate-api.com/v4/latest/${baseFiat}?timestamp=${timestamp}`,
           { timeout: 10000 }
         );
         
@@ -141,10 +143,14 @@ class ExchangeRateService {
             if (response.data.rates[targetFiat]) {
               const rate = response.data.rates[targetFiat];
               
-              // DEBUG: Log EUR/TRY specifically
+              // DEBUG: Log EUR/TRY specifically with timestamp
               if (baseFiat === 'EUR' && targetFiat === 'TRY') {
                 console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate from API: ${rate}`);
+                console.log(`[${new Date().toISOString()}] 🔍 Time last updated in response: ${response.data.time_last_updated}`);
               }
+              
+              // Log rate for all currencies during sync for debugging
+              console.log(`📊 ${baseFiat} → ${targetFiat}: ${rate}`);
               
               allRates.push({
                 from_currency: baseFiat,
