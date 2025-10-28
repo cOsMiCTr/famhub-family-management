@@ -368,6 +368,7 @@ class ExchangeRateService {
     async createCrossConversions() {
         const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'LTC', 'SOL', 'XRP'];
         try {
+            console.log(`🔄 Creating cross-conversions for ${currencies.length} currencies (${currencies.length * (currencies.length - 1)} possible pairs)...`);
             for (const fromCurrency of currencies) {
                 for (const toCurrency of currencies) {
                     if (fromCurrency !== toCurrency) {
