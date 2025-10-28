@@ -6,6 +6,7 @@ import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import FamilyMembersTab from '../components/FamilyMembersTab';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
@@ -512,37 +513,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Family Members Tab */}
       {activeTab === 'family-members' && (
-        <div className="card hover-lift animate-fadeIn">
-          <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <UsersIcon className="h-5 w-5 mr-2 text-blue-500" />
-              {t('navigation.familyMembers')}
-            </h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Manage household members for income, asset, and contract assignments
-            </p>
-          </div>
-          <div className="card-body">
-            <div className="text-center py-8">
-              <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                Family Members Management
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Use the dedicated Family Members page to manage household members.
-              </p>
-              <div className="mt-6">
-                <a
-                  href="/family-members"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <UsersIcon className="h-5 w-5 mr-2" />
-                  Go to Family Members
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FamilyMembersTab />
       )}
 
       {/* Security Tab */}
