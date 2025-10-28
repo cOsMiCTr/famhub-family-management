@@ -91,14 +91,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    if (storedToken && storedUser) {
-      const userData = JSON.parse(storedUser);
-      setToken(storedToken);
-      setUser(userData);
-      
-      // Apply saved language preference
-      if (userData.preferred_language && userData.preferred_language !== i18n.language) {
-        i18n.changeLanguage(userData.preferred_language);
+    if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null' && storedUser.trim() !== '') {
+      try {
+        const userData = JSON.parse(storedUser);
+        setToken(storedToken);
+        setUser(userData);
+        
+        // Apply saved language preference
+        if (userData.preferred_language && userData.preferred_language !== i18n.language) {
+          i18n.changeLanguage(userData.preferred_language);
+        }
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        // Clear corrupted data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     }
     setIsLoading(false);
