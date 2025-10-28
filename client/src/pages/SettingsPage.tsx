@@ -6,6 +6,7 @@ import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import TwoFactorSetupModal from '../components/TwoFactorSetupModal';
 import FamilyMembersTab from '../components/FamilyMembersTab';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
@@ -73,10 +74,22 @@ const SettingsPage: React.FC = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('profile');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   useEffect(() => {
     loadSettings();
+    load2FAStatus();
   }, []);
+
+  const load2FAStatus = async () => {
+    try {
+      const response = await apiService.getTwoFactorStatus();
+      setTwoFactorEnabled(response.twoFactorEnabled || false);
+    } catch (err) {
+      console.error('Error loading 2FA status:', err);
+    }
+  };
 
   const loadSettings = async () => {
     setIsLoading(true);
@@ -689,6 +702,53 @@ const SettingsPage: React.FC = () => {
             </div>
           </form>
 
+          {/* Two-Factor Authentication */}
+          <div className="card hover-lift animate-fadeIn">
+            <div className="card-header">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <ShieldCheckIcon className="h-5 w-5 mr-2 text-blue-500" />
+                Two-Factor Authentication
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Add an extra layer of security to your account by enabling two-factor authentication.
+                </p>
+                {twoFactorEnabled ? (
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                          Two-Factor Authentication is enabled
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                          Your account is protected with two-factor authentication
+                        </p>
+                      </div>
+                      <CheckIcon className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                      Two-Factor Authentication is disabled
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                      Enable two-factor authentication to secure your account with a second verification step.
+                    </p>
+                    <button
+                      onClick={() => setShow2FAModal(true)}
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Enable 2FA
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="card hover-lift animate-fadeIn">
             <div className="card-header">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
@@ -754,6 +814,17 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Two-Factor Authentication Modal */}
+      <TwoFactorSetupModal
+        isOpen={show2FAModal}
+        onClose={() => setShow2FAModal(false)}
+        onSuccess={(backupCodes) => {
+          setTwoFactorEnabled(true);
+          setMessage('Two-factor authentication enabled successfully!');
+          console.log('Backup codes:', backupCodes);
+        }}
+      />
 
       {/* Delete Account Modal */}
       <DeleteAccountModal
