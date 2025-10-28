@@ -48,7 +48,10 @@ export async function verifyTwoFactorToken(userId: number, token: string): Promi
     return { valid: false, verified: false };
   }
 
-  const secret = userResult.rows[0].two_factor_secret;
+  const encryptedSecret = userResult.rows[0].two_factor_secret;
+  
+  // Decrypt the secret
+  const secret = decryptSecret(encryptedSecret);
 
   // Verify the token
   const verified = speakeasy.totp.verify({
