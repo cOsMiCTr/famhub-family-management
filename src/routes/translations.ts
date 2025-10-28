@@ -39,6 +39,26 @@ router.get('/', asyncHandler(async (req, res) => {
   });
 }));
 
+// Re-seed translations from seedTranslations.ts (PUBLIC - no auth required for seeding)
+router.post('/reseed', asyncHandler(async (req, res) => {
+  console.log('🌱 Re-seeding translations...');
+  
+  try {
+    const { default: seedTranslations } = await import('../migrations/seedTranslations');
+    await seedTranslations();
+    
+    res.json({
+      message: 'Translations re-seeded successfully'
+    });
+  } catch (error: any) {
+    console.error('❌ Failed to re-seed translations:', error);
+    res.status(500).json({
+      error: 'Failed to re-seed translations',
+      details: error.message
+    });
+  }
+}));
+
 // Apply authentication and admin middleware to management routes
 router.use(authenticateToken);
 router.use(requireAdmin);
@@ -299,27 +319,6 @@ router.put('/:id', [
     message: 'Translation updated successfully',
     translation: result.rows[0]
   });
-}));
-
-
-// Re-seed translations from seedTranslations.ts
-router.post('/reseed', asyncHandler(async (req, res) => {
-  console.log('🌱 Re-seeding translations...');
-  
-  try {
-    const { default: seedTranslations } = await import('../migrations/seedTranslations');
-    await seedTranslations();
-    
-    res.json({
-      message: 'Translations re-seeded successfully'
-    });
-  } catch (error: any) {
-    console.error('❌ Failed to re-seed translations:', error);
-    res.status(500).json({
-      error: 'Failed to re-seed translations',
-      details: error.message
-    });
-  }
 }));
 
 // Sync translations from database to JSON files (for development)
