@@ -103,21 +103,8 @@ router.post('/disable', asyncHandler(async (req, res) => {
   }
 
   const userId = req.user.id;
-  const { password } = req.body;
 
-  if (!password) {
-    return res.status(400).json({ error: 'Password is required to disable 2FA' });
-  }
-
-  // Verify password (simplified - in production, hash and compare)
-  const userResult = await query(
-    'SELECT password_hash FROM users WHERE id = $1',
-    [userId]
-  );
-
-  // For now, just disable without password verification
-  // In production, add proper password verification
-
+  // No password required - user is already authenticated
   await disableTwoFactor(userId);
 
   res.json({

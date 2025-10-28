@@ -97,14 +97,14 @@ const SettingsPage: React.FC = () => {
     }
 
     try {
-      await apiService.disableTwoFactor('');
+      await apiService.disableTwoFactor();
       setTwoFactorEnabled(false);
-      setMessage('Two-factor authentication disabled successfully');
+      setMessage(t('settings.twoFactorDisabled'));
       setError('');
       setTimeout(() => setMessage(''), 3000);
     } catch (err: any) {
       console.error('Error disabling 2FA:', err);
-      setError(err.response?.data?.error || 'Failed to disable two-factor authentication');
+      setError(err.response?.data?.error || t('settings.twoFactorDisableError'));
       setTimeout(() => setError(''), 3000);
     }
   };

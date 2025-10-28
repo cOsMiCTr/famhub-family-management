@@ -424,8 +424,8 @@ class ApiService {
     return response.data;
   }
 
-  async disableTwoFactor(password: string) {
-    const response = await this.api.post('/two-factor/disable', { password });
+  async disableTwoFactor() {
+    const response = await this.api.post('/two-factor/disable', {});
     return response.data;
   }
 
