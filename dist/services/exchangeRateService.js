@@ -106,144 +106,111 @@ class ExchangeRateService {
         const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
         const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
         console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
-        const processedPairs = new Set();
-        for (let i = 0; i < activeFiats.length; i++) {
-            const baseFiat = activeFiats[i];
-            console.log(`🔄 Processing base currency: ${baseFiat}`);
-            try {
-                const timestamp = Date.now();
-                const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}?timestamp=${timestamp}`, { timeout: 10000 });
-                console.log(`[${new Date().toISOString()}] 📥 API response for ${baseFiat}:`, JSON.stringify(response.data));
-                if (response.data && response.data.rates) {
-                    let ratesAddedForBase = 0;
-                    for (const targetFiat of activeFiats) {
-                        if (targetFiat === baseFiat)
-                            continue;
-                        const pairKey = `${baseFiat}-${targetFiat}`;
-                        if (processedPairs.has(pairKey)) {
-                            console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (already processed)`);
-                            continue;
-                        }
-                        if (response.data.rates[targetFiat]) {
-                            const rate = response.data.rates[targetFiat];
-                            if (baseFiat === 'EUR' && targetFiat === 'TRY') {
-                                console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate from API: ${rate}`);
-                                console.log(`[${new Date().toISOString()}] 🔍 Time last updated in response: ${response.data.time_last_updated}`);
-                            }
-                            console.log(`📊 ${baseFiat} → ${targetFiat}: ${rate}`);
-                            allRates.push({
-                                from_currency: baseFiat,
-                                to_currency: targetFiat,
-                                rate: rate
-                            });
-                            processedPairs.add(pairKey);
-                            ratesAddedForBase++;
-                        }
-                    }
-                    console.log(`✅ Added ${ratesAddedForBase} rates for base currency ${baseFiat}`);
-                }
-            }
-            catch (error) {
-                console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates for ${baseFiat}:`, error);
-                if (error instanceof Error) {
-                    console.error(`[${new Date().toISOString()}] Error details:`, error.message);
-                }
-            }
-            for (const crypto of activeCryptos) {
-                try {
-                    const cmcUrls = {
-                        'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
-                        'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
-                        'XRP': 'https://coinmarketcap.com/currencies/ripple/',
-                        'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
-                        'SOL': 'https://coinmarketcap.com/currencies/solana/',
-                        'BNB': 'https://coinmarketcap.com/currencies/bnb/',
-                        'ADA': 'https://coinmarketcap.com/currencies/cardano/',
-                        'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
-                        'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
-                        'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
-                        'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
-                        'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
-                    };
-                    const cmcUrl = cmcUrls[crypto];
-                    if (!cmcUrl) {
-                        console.warn(`No CoinMarketCap URL for ${crypto}`);
+        const baseCurrency = 'EUR';
+        try {
+            const timestamp = Date.now();
+            const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}?timestamp=${timestamp}`, { timeout: 10000 });
+            console.log(`[${new Date().toISOString()}] 📥 API response for ${baseCurrency}:`, JSON.stringify(response.data));
+            if (response.data && response.data.rates) {
+                for (const targetFiat of activeFiats) {
+                    if (targetFiat === baseCurrency)
                         continue;
-                    }
-                    const response = await axios_1.default.get(cmcUrl, {
-                        timeout: 10000,
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    if (response.data.rates[targetFiat]) {
+                        const rate = response.data.rates[targetFiat];
+                        if (targetFiat === 'TRY') {
+                            console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate from API: ${rate}`);
+                            console.log(`[${new Date().toISOString()}] 🔍 Time last updated in response: ${response.data.time_last_updated}`);
                         }
-                    });
-                    const $ = cheerio.load(response.data);
-                    const priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
-                    const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
-                    if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
-                        let baseFiatToUSD = 1;
-                        if (baseFiat !== 'USD') {
-                            try {
-                                const fiatResponse = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}`, { timeout: 5000 });
-                                if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
-                                    baseFiatToUSD = fiatResponse.data.rates.USD;
-                                }
-                            }
-                            catch (err) {
-                                console.warn(`Could not fetch ${baseFiat}/USD rate`);
-                            }
-                        }
-                        const baseFiatToCrypto = baseFiatToUSD / cryptoPriceInUSD;
-                        console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
                         allRates.push({
-                            from_currency: baseFiat,
-                            to_currency: crypto,
-                            rate: baseFiatToCrypto
+                            from_currency: baseCurrency,
+                            to_currency: targetFiat,
+                            rate: rate
                         });
                     }
-                    else {
-                        console.warn(`Could not parse ${crypto} price from CoinMarketCap`);
-                    }
                 }
-                catch (error) {
-                    console.error(`Failed to scrape ${baseFiat} to ${crypto} from CoinMarketCap:`, error);
-                }
-            }
-            for (const metal of activeMetals) {
-                try {
-                    const metalPricesInUSD = {
-                        'GOLD': 2100,
-                        'SILVER': 25,
-                        'PLATINUM': 1100,
-                        'PALLADIUM': 1100
-                    };
-                    const metalPriceInUSD = metalPricesInUSD[metal];
-                    if (!metalPriceInUSD) {
-                        console.warn(`No price mapping for metal: ${metal}`);
-                        continue;
-                    }
-                    let baseFiatToUSD = 1;
-                    if (baseFiat !== 'USD') {
-                        try {
-                            const fiatResponse = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}`, { timeout: 5000 });
-                            if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
-                                baseFiatToUSD = fiatResponse.data.rates.USD;
+                console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseCurrency}`);
+                for (const crypto of activeCryptos) {
+                    try {
+                        const cmcUrls = {
+                            'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
+                            'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
+                            'XRP': 'https://coinmarketcap.com/currencies/ripple/',
+                            'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
+                            'SOL': 'https://coinmarketcap.com/currencies/solana/',
+                            'BNB': 'https://coinmarketcap.com/currencies/bnb/',
+                            'ADA': 'https://coinmarketcap.com/currencies/cardano/',
+                            'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
+                            'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
+                            'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
+                            'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
+                            'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
+                        };
+                        const cmcUrl = cmcUrls[crypto];
+                        if (!cmcUrl) {
+                            console.warn(`No CoinMarketCap URL for ${crypto}`);
+                            continue;
+                        }
+                        const cmcResponse = await axios_1.default.get(cmcUrl, {
+                            timeout: 10000,
+                            headers: {
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                             }
+                        });
+                        const $ = cheerio.load(cmcResponse.data);
+                        const priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+                        const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
+                        if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
+                            const eurToUSD = response.data.rates.USD || 1;
+                            const eurToCrypto = eurToUSD / cryptoPriceInUSD;
+                            console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+                            allRates.push({
+                                from_currency: baseCurrency,
+                                to_currency: crypto,
+                                rate: eurToCrypto
+                            });
                         }
-                        catch (err) {
-                            console.warn(`Could not fetch ${baseFiat}/USD rate`);
+                        else {
+                            console.warn(`Could not parse ${crypto} price from CoinMarketCap`);
                         }
                     }
-                    const baseFiatToMetal = metalPriceInUSD / baseFiatToUSD;
-                    allRates.push({
-                        from_currency: baseFiat,
-                        to_currency: metal,
-                        rate: baseFiatToMetal
-                    });
+                    catch (error) {
+                        console.error(`Failed to scrape ${crypto} from CoinMarketCap:`, error);
+                    }
                 }
-                catch (error) {
-                    console.error(`Failed to fetch ${baseFiat} to ${metal}:`, error);
+                for (const metal of activeMetals) {
+                    try {
+                        const metalPricesInUSD = {
+                            'GOLD': 2100,
+                            'SILVER': 25,
+                            'PLATINUM': 1100,
+                            'PALLADIUM': 1100
+                        };
+                        const metalPriceInUSD = metalPricesInUSD[metal];
+                        if (!metalPriceInUSD) {
+                            console.warn(`No price mapping for metal: ${metal}`);
+                            continue;
+                        }
+                        const eurToUSD = response.data.rates.USD || 1;
+                        const eurToMetal = metalPriceInUSD / eurToUSD;
+                        console.log(`🥇 Calculated ${metal} rate for EUR: ${eurToMetal}`);
+                        allRates.push({
+                            from_currency: baseCurrency,
+                            to_currency: metal,
+                            rate: eurToMetal
+                        });
+                    }
+                    catch (error) {
+                        console.error(`Failed to calculate metal rate for ${metal}:`, error);
+                    }
                 }
             }
+        }
+        catch (error) {
+            console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates for ${baseCurrency}:`, error);
+            if (error instanceof Error) {
+                console.error(`[${new Date().toISOString()}] Error details:`, error.message);
+            }
+            throw error;
         }
         console.log(`[${new Date().toISOString()}] ✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
         console.log(`[${new Date().toISOString()}] 📊 Sample rates being stored:`, allRates.slice(0, 5));
