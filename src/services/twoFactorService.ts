@@ -40,7 +40,7 @@ export async function generateTwoFactorSecret(email: string): Promise<TwoFactorS
 export async function verifyTwoFactorToken(userId: number, token: string): Promise<VerifyResult> {
   // Get user's 2FA secret from database
   const userResult = await query(
-    'SELECT two_factor_secret FROM users WHERE id = $1',
+    'SELECT two_factor_secret, two_factor_enabled FROM users WHERE id = $1',
     [userId]
   );
 
@@ -48,10 +48,18 @@ export async function verifyTwoFactorToken(userId: number, token: string): Promi
     return { valid: false, verified: false };
   }
 
-  const encryptedSecret = userResult.rows[0].two_factor_secret;
-  
-  // Decrypt the secret
-  const secret = decryptSecret(encryptedSecret);
+  let secret: string;
+  const storedSecret = userResult.rows[0].two_factor_secret;
+
+  // Check if the secret is encrypted (base64 format) or plain (base32 format)
+  // If 2FA is enabled, the secret is encrypted; if not, it's temporary unencrypted secret
+  if (userResult.rows[0].two_factor_enabled) {
+    // Secret is encrypted, decrypt it
+    secret = decryptSecret(storedSecret);
+  } else {
+    // Secret is still temporary and unencrypted, use it directly
+    secret = storedSecret;
+  }
 
   // Verify the token
   const verified = speakeasy.totp.verify({
