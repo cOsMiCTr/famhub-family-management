@@ -77,31 +77,33 @@ const DashboardPage: React.FC = () => {
     
     fetchDashboardData();
     
-    // Load user preferences from localStorage
-    const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
-    const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
-    
-    if (savedExchangeRates) {
-      const parsed = JSON.parse(savedExchangeRates);
-      console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
+    // Load user preferences from localStorage (only if we don't already have them set)
+    if (selectedExchangeRates.length === 3 && selectedExchangeRates[0] === 'USD') {
+      const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
+      const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
       
-      // Filter out the user's main currency from saved selection
-      const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
-      const filtered = parsed.filter((c: string) => c !== userMainCurrency);
-      
-      if (filtered.length !== parsed.length) {
-        console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
+      if (savedExchangeRates) {
+        const parsed = JSON.parse(savedExchangeRates);
+        console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
+        
+        // Filter out the user's main currency from saved selection
+        const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+        const filtered = parsed.filter((c: string) => c !== userMainCurrency);
+        
+        if (filtered.length !== parsed.length) {
+          console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
+        }
+        
+        setSelectedExchangeRates(filtered);
+      } else {
+        console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
       }
       
-      setSelectedExchangeRates(filtered);
-    } else {
-      console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
+      if (savedShowConversions) {
+        setShowConversions(JSON.parse(savedShowConversions));
+      }
     }
-    
-    if (savedShowConversions) {
-      setShowConversions(JSON.parse(savedShowConversions));
-    }
-  }, [user]);
+  }, [user, stats]);
 
   const fetchActiveAssets = async () => {
     try {
