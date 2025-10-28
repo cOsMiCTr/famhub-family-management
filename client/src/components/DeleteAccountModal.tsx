@@ -25,7 +25,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
 
   const handleDelete = async () => {
     if (confirmation !== currentUsername) {
-      setError('Username does not match');
+      setError(t('deleteAccount.usernameNotMatch'));
       return;
     }
 
@@ -76,7 +76,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({
                       value={confirmation}
                       onChange={(e) => setConfirmation(e.target.value)}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter username"
+                      placeholder={t('deleteAccount.enterUsername')}
                       disabled={isDeleting}
                     />
                   </div>

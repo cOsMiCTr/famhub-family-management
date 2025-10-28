@@ -146,7 +146,7 @@ const SettingsPage: React.FC = () => {
         });
       }
       
-      setMessage('Settings updated successfully!');
+      setMessage(t('settings.settingsUpdatedSuccess'));
       setTimeout(() => setMessage(''), 5000); // Increased timeout for mobile users
     } catch (err: any) {
       console.error('Settings update error:', err);
@@ -166,13 +166,13 @@ const SettingsPage: React.FC = () => {
     setMessage('');
 
     if (passwordChange.new_password !== passwordChange.confirm_password) {
-      setError('New passwords do not match');
+      setError(t('settings.passwordNotMatch'));
       setIsChangingPassword(false);
       return;
     }
 
     if (passwordChange.new_password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(t('settings.passwordMinLength'));
       setIsChangingPassword(false);
       return;
     }
@@ -183,7 +183,7 @@ const SettingsPage: React.FC = () => {
         new_password: passwordChange.new_password,
       });
       
-      setMessage('Password changed successfully!');
+      setMessage(t('settings.passwordChangedSuccess'));
       setPasswordChange({
         current_password: '',
         new_password: '',
@@ -263,7 +263,7 @@ const SettingsPage: React.FC = () => {
           {t('settings.title')}
         </h1>
         <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
-          Manage your account preferences and settings
+          {t('settings.description')}
         </p>
       </div>
 
@@ -355,7 +355,7 @@ const SettingsPage: React.FC = () => {
               <button
                 onClick={async () => {
                   try {
-                    setMessage('Generating PDF export...');
+                    setMessage(t('settings.generatingPDF'));
                     const blob = await apiService.exportUserData();
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -365,9 +365,9 @@ const SettingsPage: React.FC = () => {
                     link.click();
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
-                    setMessage('PDF exported successfully!');
+                    setMessage(t('settings.pdfExportedSuccess'));
                   } catch (err: any) {
-                    setError(err.response?.data?.error || 'Failed to export data');
+                    setError(err.response?.data?.error || t('settings.failedToExport'));
                   }
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -439,7 +439,7 @@ const SettingsPage: React.FC = () => {
                     
                     <div>
                       <label htmlFor="main_currency" className="form-label">
-                        Main Currency
+                        {t('settings.mainCurrency')}
                       </label>
                       <select
                         id="main_currency"
@@ -464,15 +464,15 @@ const SettingsPage: React.FC = () => {
                 <div className="card-header">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                     <CurrencyDollarIcon className="h-5 w-5 mr-2 text-purple-500" />
-                    Display Preferences
+                    {t('settings.displayPreferences')}
                   </h3>
                 </div>
                 <div className="card-body">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">Dark Mode</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark themes</p>
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">{t('settings.darkModeLabel')}</h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.darkModeDescription')}</p>
                       </div>
                       <div className="flex-shrink-0 ml-4">
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -502,10 +502,10 @@ const SettingsPage: React.FC = () => {
                 {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" />
-                    <span className="ml-2">Saving...</span>
+                    <span className="ml-2">{t('settings.saving')}</span>
                   </>
                 ) : (
-                  'Save Preferences'
+                  t('settings.savePreferences')
                 )}
               </button>
             </div>
@@ -519,15 +519,15 @@ const SettingsPage: React.FC = () => {
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
               <BellIcon className="h-5 w-5 mr-2 text-yellow-500" />
-              Notification Preferences
+              {t('settings.notificationPreferences')}
             </h3>
           </div>
           <div className="card-body">
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Receive notifications via email</p>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">{t('settings.emailNotifications')}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.receiveViaEmail')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -591,14 +591,14 @@ const SettingsPage: React.FC = () => {
             <div className="card-header">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <KeyIcon className="h-5 w-5 mr-2 text-red-500" />
-                Change Password
+                {t('settings.changePasswordTitle')}
               </h3>
             </div>
             <div className="card-body">
               <div className="space-y-4">
                 <div>
                   <label htmlFor="current_password" className="form-label">
-                    Current Password
+                    {t('settings.currentPasswordLabel')}
                   </label>
                   <div className="relative">
                     <input
@@ -626,7 +626,7 @@ const SettingsPage: React.FC = () => {
 
                 <div>
                   <label htmlFor="new_password" className="form-label">
-                    New Password
+                    {t('settings.newPasswordLabel')}
                   </label>
                   <div className="relative">
                     <input
@@ -655,7 +655,7 @@ const SettingsPage: React.FC = () => {
 
                 <div>
                   <label htmlFor="confirm_password" className="form-label">
-                    Confirm New Password
+                    {t('settings.confirmNewPasswordLabel')}
                   </label>
                   <div className="relative">
                     <input
@@ -808,7 +808,7 @@ const SettingsPage: React.FC = () => {
         onClose={() => setShow2FAModal(false)}
         onSuccess={(backupCodes) => {
           setTwoFactorEnabled(true);
-          setMessage('Two-factor authentication enabled successfully!');
+          setMessage(t('settings.2FAEnabledSuccess'));
           console.log('Backup codes:', backupCodes);
         }}
       />
