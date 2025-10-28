@@ -49,6 +49,7 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
   const [activeAssets, setActiveAssets] = useState<any[]>([]);
   
   // New state for currency conversion features
@@ -130,7 +131,11 @@ const DashboardPage: React.FC = () => {
       });
       
       setExchangeRates(dashboardData.exchange_rates || []);
-      setLastUpdated(dashboardData.timestamp || new Date().toISOString());
+      
+      // Get last synced time from localStorage or use timestamp from server
+      const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
+      setLastUpdated(storedLastSync || dashboardData.timestamp || new Date().toISOString());
+      
       console.log('✅ Updated exchange rates:', dashboardData.exchange_rates?.length || 0);
       
       // Fetch active assets
@@ -161,9 +166,14 @@ const DashboardPage: React.FC = () => {
       
       if (response.success) {
         console.log('✅ Sync successful, fetching updated rates...');
+        
+        // Store sync timestamp in localStorage
+        const syncTimestamp = new Date().toISOString();
+        localStorage.setItem('exchange_rates_last_sync', syncTimestamp);
+        
         // Refresh dashboard data to get updated rates
         await fetchDashboardData();
-        setLastUpdated(new Date().toISOString());
+        setLastUpdated(syncTimestamp);
         
         // Trigger highlight animation
         setLastUpdateHighlight(true);

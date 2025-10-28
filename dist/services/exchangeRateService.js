@@ -151,6 +151,35 @@ class ExchangeRateService {
                 console.error(`Failed to fetch ${cryptoCodes[i]} rate:`, error);
             }
         }
+        const metalSymbols = ['OANDA:XAU_USD', 'OANDA:XAG_USD', 'OANDA:XPT_USD', 'OANDA:XPD_USD'];
+        const metalCodes = ['GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM'];
+        for (let i = 0; i < metalSymbols.length; i++) {
+            try {
+                const response = await axios_1.default.get(`https://finnhub.io/api/v1/forex/rates?base=USD&token=${this.finnhubApiKey}`, { timeout: 5000 });
+                try {
+                    const metalResponse = await axios_1.default.get(`https://finnhub.io/api/v1/quote?symbol=${metalSymbols[i]}&token=${this.finnhubApiKey}`, { timeout: 5000 });
+                    if (metalResponse.data && metalResponse.data.c) {
+                        const pricePerOunce = metalResponse.data.c;
+                        fiatRates.push({
+                            from_currency: metalCodes[i],
+                            to_currency: 'USD',
+                            rate: pricePerOunce
+                        });
+                        fiatRates.push({
+                            from_currency: 'USD',
+                            to_currency: metalCodes[i],
+                            rate: 1 / pricePerOunce
+                        });
+                    }
+                }
+                catch (metalError) {
+                    console.warn(`Could not fetch ${metalCodes[i]} via quote endpoint, using fallback`);
+                }
+            }
+            catch (error) {
+                console.error(`Failed to fetch ${metalCodes[i]} rate:`, error);
+            }
+        }
         if (fiatRates.length > 0) {
             await this.storeExchangeRates(fiatRates);
             console.log(`✅ Fetched ${fiatRates.length} rates from Finnhub`);

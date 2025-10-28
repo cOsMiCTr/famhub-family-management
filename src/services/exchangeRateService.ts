@@ -168,6 +168,55 @@ class ExchangeRateService {
       }
     }
     
+    // Fetch metal rates from Finnhub (using forex symbols)
+    // Note: Finnhub uses ticker symbols for precious metals
+    const metalSymbols = ['OANDA:XAU_USD', 'OANDA:XAG_USD', 'OANDA:XPT_USD', 'OANDA:XPD_USD'];
+    const metalCodes = ['GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM'];
+    
+    for (let i = 0; i < metalSymbols.length; i++) {
+      try {
+        // Use forex rates endpoint for metals
+        const response = await axios.get(
+          `https://finnhub.io/api/v1/forex/rates?base=USD&token=${this.finnhubApiKey}`,
+          { timeout: 5000 }
+        );
+        
+        // Metals are typically quoted as price per ounce in USD
+        // We'll fetch from the forex rates which sometimes includes metals
+        // As fallback, we'll use a direct API call to get metal prices
+        
+        // Try alternative: use quote endpoint to get metal prices
+        try {
+          const metalResponse = await axios.get(
+            `https://finnhub.io/api/v1/quote?symbol=${metalSymbols[i]}&token=${this.finnhubApiKey}`,
+            { timeout: 5000 }
+          );
+          
+          if (metalResponse.data && metalResponse.data.c) {
+            const pricePerOunce = metalResponse.data.c;
+            
+            // Store metal to USD (price per ounce)
+            fiatRates.push({
+              from_currency: metalCodes[i],
+              to_currency: 'USD',
+              rate: pricePerOunce
+            });
+            
+            // Store USD to metal
+            fiatRates.push({
+              from_currency: 'USD',
+              to_currency: metalCodes[i],
+              rate: 1 / pricePerOunce
+            });
+          }
+        } catch (metalError) {
+          console.warn(`Could not fetch ${metalCodes[i]} via quote endpoint, using fallback`);
+        }
+      } catch (error) {
+        console.error(`Failed to fetch ${metalCodes[i]} rate:`, error);
+      }
+    }
+    
     // Store all rates
     if (fiatRates.length > 0) {
       await this.storeExchangeRates(fiatRates);
