@@ -123,7 +123,7 @@ class ExchangeRateService {
           { timeout: 10000 }
         );
         
-        console.log(`📥 API response for ${baseFiat}:`, JSON.stringify(response.data.rates).substring(0, 200));
+        console.log(`[${new Date().toISOString()}] 📥 API response for ${baseFiat}:`, JSON.stringify(response.data));
         
         if (response.data && response.data.rates) {
           // Process fiat-to-fiat rates (skip already processed pairs)
@@ -138,6 +138,12 @@ class ExchangeRateService {
             
             if (response.data.rates[targetFiat]) {
               const rate = response.data.rates[targetFiat];
+              
+              // DEBUG: Log EUR/TRY specifically
+              if (baseFiat === 'EUR' && targetFiat === 'TRY') {
+                console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate from API: ${rate}`);
+              }
+              
               allRates.push({
                 from_currency: baseFiat,
                 to_currency: targetFiat,
@@ -262,13 +268,19 @@ class ExchangeRateService {
       }
     }
     
-    console.log(`✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
-    console.log(`📊 Sample rates being stored:`, allRates.slice(0, 5));
+    console.log(`[${new Date().toISOString()}] ✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
+    console.log(`[${new Date().toISOString()}] 📊 Sample rates being stored:`, allRates.slice(0, 5));
+    
+    // DEBUG: Find and log EUR/TRY specifically
+    const eurTryRate = allRates.find(r => r.from_currency === 'EUR' && r.to_currency === 'TRY');
+    if (eurTryRate) {
+      console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate before storing to DB: ${eurTryRate.rate}`);
+    }
     
     // Store all rates
     if (allRates.length > 0) {
       await this.storeExchangeRates(allRates);
-      console.log(`✅ Successfully stored ${allRates.length} rates to database`);
+      console.log(`[${new Date().toISOString()}] ✅ Successfully stored ${allRates.length} rates to database`);
     } else {
       throw new Error('No rates fetched from ExchangeRates-Data API');
     }
