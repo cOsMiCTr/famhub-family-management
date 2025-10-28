@@ -55,3 +55,13 @@ export const getCurrencyName = (code: string): string => {
   return names[code] || code;
 };
 
+// Format currency value with German locale (thousands separator: dot, decimal separator: comma)
+export const formatCurrencyValue = (value: number | string, currencyCode: string): string => {
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  const formattedValue = numericValue.toLocaleString('de-DE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  return `${formattedValue} ${currencyCode}`;
+};
+

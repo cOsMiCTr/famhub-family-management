@@ -165,10 +165,12 @@ router.post('/', [
   // Create initial valuation history entry
   // Use current_value if provided, otherwise use amount as the initial value
   const initialValue = current_value || amount;
+  // Use purchase_date if available, otherwise use date
+  const valuationDate = purchase_date || date;
   await query(
     `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [asset.id, date, initialValue, currency, valuation_method || 'Manual', req.user.id]
+    [asset.id, valuationDate, initialValue, currency, valuation_method || 'Manual', req.user.id]
   );
 
   // Get category and member names for response
@@ -734,20 +736,47 @@ router.put('/:id', [
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
   }
 
-  // Create valuation history entry if current_value was updated
+  // Update or create valuation history entry if current_value was updated
   if (updateData.current_value !== undefined) {
-    await query(
-      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [
-        id, 
-        new Date().toISOString().split('T')[0], 
-        updateData.current_value, 
-        updateData.currency || existingAsset.currency,
-        updateData.valuation_method || 'Manual',
-        req.user.id
-      ]
+    // Check if valuation history exists (get the first entry - initial valuation)
+    const historyCheck = await query(
+      'SELECT id FROM asset_valuation_history WHERE asset_id = $1 ORDER BY valuation_date ASC, created_at ASC LIMIT 1',
+      [id]
     );
+
+    if (historyCheck.rows.length > 0) {
+      // Update the first entry (initial valuation)
+      // Use purchase_date if available, otherwise use date
+      const valuationDate = existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
+      await query(
+        `UPDATE asset_valuation_history 
+         SET value = $1, currency = $2, valuation_method = $3, valuation_date = $4
+         WHERE id = $5`,
+        [
+          updateData.current_value,
+          updateData.currency || existingAsset.currency,
+          updateData.valuation_method || 'Manual',
+          valuationDate,
+          historyCheck.rows[0].id
+        ]
+      );
+    } else {
+      // No history exists, create initial entry
+      // Use purchase_date if available, otherwise use date
+      const valuationDate = existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
+      await query(
+        `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          id, 
+          valuationDate, 
+          updateData.current_value, 
+          updateData.currency || existingAsset.currency,
+          updateData.valuation_method || 'Manual',
+          req.user.id
+        ]
+      );
+    }
   }
 
   res.json({
@@ -822,6 +851,46 @@ router.get('/:id/history', asyncHandler(async (req, res) => {
   res.json({
     asset_id: id,
     history: historyResult.rows
+  });
+}));
+
+// Delete valuation entry
+router.delete('/valuation/:valuationId', asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { valuationId } = req.params;
+
+  // Get the valuation entry and check access
+  const valuationResult = await query(
+    `SELECT avh.*, a.user_id, a.household_id
+     FROM asset_valuation_history avh
+     JOIN assets a ON avh.asset_id = a.id
+     WHERE avh.id = $1`,
+    [valuationId]
+  );
+
+  if (valuationResult.rows.length === 0) {
+    throw createNotFoundError('Valuation entry');
+  }
+
+  const valuation = valuationResult.rows[0];
+
+  // Check permissions
+  if (req.user.role !== 'admin' && valuation.user_id !== req.user.id) {
+    throw new Error('Access denied to this valuation');
+  }
+
+  // Delete the valuation entry
+  await query(
+    'DELETE FROM asset_valuation_history WHERE id = $1',
+    [valuationId]
+  );
+
+  res.json({
+    message: 'Valuation entry deleted successfully',
+    deleted_id: valuationId
   });
 }));
 

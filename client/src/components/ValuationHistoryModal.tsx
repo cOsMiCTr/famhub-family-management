@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { XMarkIcon, PlusIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PlusIcon, ChartBarIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatCurrency, formatDate } from '../utils/assetUtils';
 
 interface ValuationEntry {
@@ -130,6 +130,31 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
     
     if (addFormErrors.length > 0) {
       setAddFormErrors([]);
+    }
+  };
+
+  const handleDeleteValuation = async (valuationId: number) => {
+    if (!window.confirm('Are you sure you want to delete this valuation entry?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/assets/valuation/${valuationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete valuation entry');
+      
+      // Refresh history
+      await fetchHistory();
+    } catch (error) {
+      console.error('Failed to delete valuation entry:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete valuation entry');
     }
   };
 
@@ -327,6 +352,9 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Notes
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -373,6 +401,15 @@ const ValuationHistoryModal: React.FC<ValuationHistoryModalProps> = ({
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                             {entry.notes || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <button
+                              onClick={() => handleDeleteValuation(entry.id)}
+                              className="inline-flex items-center px-2 py-1 border border-red-300 dark:border-red-600 rounded-md text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              title="Delete valuation entry"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
                           </td>
                         </tr>
                       );

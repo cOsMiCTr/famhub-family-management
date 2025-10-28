@@ -246,7 +246,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
           description: asset.description || '',
           date: asset.date || new Date().toISOString().split('T')[0],
           household_member_id: asset.household_member_id?.toString() || '',
-          purchase_date: asset.purchase_date || '',
+          purchase_date: asset.purchase_date ? new Date(asset.purchase_date).toISOString().split('T')[0] : '',
           purchase_price: asset.purchase_price?.toString() || '',
           purchase_currency: asset.purchase_currency || 'USD',
           current_value: asset.current_value?.toString() || '',

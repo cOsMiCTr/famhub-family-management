@@ -29,6 +29,7 @@ import {
 import { apiService } from '../services/api';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
 import { formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwnershipColor, filterAssets } from '../utils/assetUtils';
+import { formatCurrencyValue } from '../utils/currencyHelpers';
 import AddEditAssetModal from '../components/AddEditAssetModal';
 import ValuationHistoryModal from '../components/ValuationHistoryModal';
 import PhotoUploadModal from '../components/PhotoUploadModal';
