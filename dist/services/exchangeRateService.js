@@ -107,56 +107,94 @@ class ExchangeRateService {
         const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
         console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
         const cryptoPricesInUSD = {};
+        const yahooTickers = {
+            'BTC': 'BTC-USD',
+            'ETH': 'ETH-USD',
+            'XRP': 'XRP-USD',
+            'LTC': 'LTC-USD',
+            'SOL': 'SOL-USD',
+            'BNB': 'BNB-USD',
+            'ADA': 'ADA-USD',
+            'DOT': 'DOT-USD',
+            'MATIC': 'MATIC-USD',
+            'AVAX': 'AVAX-USD',
+            'LINK': 'LINK-USD',
+            'UNI': 'UNI-USD'
+        };
         for (const crypto of activeCryptos) {
             try {
-                console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
-                const cmcUrls = {
-                    'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
-                    'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
-                    'XRP': 'https://coinmarketcap.com/currencies/ripple/',
-                    'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
-                    'SOL': 'https://coinmarketcap.com/currencies/solana/',
-                    'BNB': 'https://coinmarketcap.com/currencies/bnb/',
-                    'ADA': 'https://coinmarketcap.com/currencies/cardano/',
-                    'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
-                    'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
-                    'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
-                    'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
-                    'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
-                };
-                const cmcUrl = cmcUrls[crypto];
-                if (!cmcUrl) {
-                    console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
+                console.log(`🔄 Fetching ${crypto} price...`);
+                const ticker = yahooTickers[crypto];
+                if (!ticker) {
+                    console.warn(`⏭️ No Yahoo ticker for ${crypto}`);
                     continue;
                 }
-                const cmcResponse = await axios_1.default.get(cmcUrl, {
-                    timeout: 10000,
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                let cryptoPriceInUSD = null;
+                try {
+                    const yahooApiUrl = `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+                    const yahooResponse = await axios_1.default.get(yahooApiUrl, {
+                        timeout: 10000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    if (yahooResponse.data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+                        cryptoPriceInUSD = yahooResponse.data.chart.result[0].meta.regularMarketPrice;
+                        console.log(`📈 Got ${crypto} price: $${cryptoPriceInUSD} from Yahoo Finance API`);
                     }
-                });
-                console.log(`📥 Got HTML response for ${crypto}, parsing...`);
-                const $ = cheerio.load(cmcResponse.data);
-                let priceText = '';
-                priceText = $('span[class*="priceValue"]').first().text().trim();
-                if (!priceText) {
-                    priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
                 }
-                if (!priceText) {
-                    priceText = $('.priceValue').first().text();
+                catch (apiError) {
+                    console.log(`⚠️ Yahoo API failed for ${crypto}, trying CoinMarketCap scraping...`);
+                    try {
+                        const cmcUrls = {
+                            'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
+                            'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
+                            'XRP': 'https://coinmarketcap.com/currencies/ripple/',
+                            'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
+                            'SOL': 'https://coinmarketcap.com/currencies/solana/',
+                            'BNB': 'https://coinmarketcap.com/currencies/bnb/',
+                            'ADA': 'https://coinmarketcap.com/currencies/cardano/',
+                            'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
+                            'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
+                            'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
+                            'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
+                            'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
+                        };
+                        const cmcUrl = cmcUrls[crypto];
+                        if (cmcUrl) {
+                            const cmcResponse = await axios_1.default.get(cmcUrl, {
+                                timeout: 10000,
+                                headers: {
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                                }
+                            });
+                            const $ = cheerio.load(cmcResponse.data);
+                            let priceText = $('span[class*="priceValue"]').first().text().trim();
+                            if (!priceText) {
+                                priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+                            }
+                            if (!priceText) {
+                                priceText = $('.priceValue').first().text();
+                            }
+                            if (priceText) {
+                                cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
+                                console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+                            }
+                        }
+                    }
+                    catch (scrapeError) {
+                        console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, scrapeError);
+                    }
                 }
-                console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
-                const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
                 if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
                     cryptoPricesInUSD[crypto] = cryptoPriceInUSD;
-                    console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
                 }
                 else {
-                    console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
+                    console.warn(`⚠️ Could not get ${crypto} price from any source`);
                 }
             }
             catch (error) {
-                console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
+                console.error(`❌ Failed to fetch ${crypto}:`, error);
             }
         }
         try {
