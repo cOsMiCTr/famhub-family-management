@@ -154,7 +154,10 @@ class ExchangeRateService {
           }
         }
       } catch (error) {
-        console.error(`Failed to fetch forex rates for ${baseFiat}:`, error);
+        console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates for ${baseFiat}:`, error);
+        if (error instanceof Error) {
+          console.error(`[${new Date().toISOString()}] Error details:`, error.message);
+        }
       }
       
       // Fetch crypto rates from CoinGecko
