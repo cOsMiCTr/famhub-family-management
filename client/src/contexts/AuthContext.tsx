@@ -129,7 +129,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.login(email, password);
       
+      // Check if 2FA is required
+      if (response.requires2FA || response.twoFactorRequired) {
+        return response; // Return early, LoginPage will handle 2FA prompt
+      }
+      
       const { token: newToken, user: userData, must_change_password } = response;
+      
+      // Validate response has required data
+      if (!newToken || !userData) {
+        throw new Error('Invalid login response');
+      }
       
       // Only set authenticated state if password change is NOT required
       // If password change is required, LoginPage will handle it with a modal
@@ -144,7 +154,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         sessionStorage.setItem('sessionStartTime', Date.now().toString());
         
         // Apply user's language preference
-        if (userData.preferred_language && userData.preferred_language !== i18n.language) {
+        if (userData && userData.preferred_language && userData.preferred_language !== i18n.language) {
           i18n.changeLanguage(userData.preferred_language);
         }
       } else {
