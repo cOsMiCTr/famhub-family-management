@@ -106,118 +106,126 @@ class ExchangeRateService {
         const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
         const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
         console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
-        const baseCurrency = 'EUR';
         try {
-            const timestamp = Date.now();
-            const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}?timestamp=${timestamp}`, { timeout: 10000 });
-            console.log(`[${new Date().toISOString()}] 📥 API response for ${baseCurrency}:`, JSON.stringify(response.data));
-            if (response.data && response.data.rates) {
-                for (const targetFiat of activeFiats) {
-                    if (targetFiat === baseCurrency)
-                        continue;
-                    if (response.data.rates[targetFiat]) {
-                        const rate = response.data.rates[targetFiat];
-                        if (targetFiat === 'TRY') {
-                            console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate from API: ${rate}`);
-                            console.log(`[${new Date().toISOString()}] 🔍 Time last updated in response: ${response.data.time_last_updated}`);
-                        }
-                        allRates.push({
-                            from_currency: baseCurrency,
-                            to_currency: targetFiat,
-                            rate: rate
-                        });
-                    }
-                }
-                console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseCurrency}`);
-                for (const crypto of activeCryptos) {
-                    try {
-                        console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
-                        const cmcUrls = {
-                            'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
-                            'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
-                            'XRP': 'https://coinmarketcap.com/currencies/ripple/',
-                            'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
-                            'SOL': 'https://coinmarketcap.com/currencies/solana/',
-                            'BNB': 'https://coinmarketcap.com/currencies/bnb/',
-                            'ADA': 'https://coinmarketcap.com/currencies/cardano/',
-                            'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
-                            'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
-                            'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
-                            'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
-                            'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
-                        };
-                        const cmcUrl = cmcUrls[crypto];
-                        if (!cmcUrl) {
-                            console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
-                            continue;
-                        }
-                        const cmcResponse = await axios_1.default.get(cmcUrl, {
-                            timeout: 10000,
-                            headers: {
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            for (const baseFiat of activeFiats) {
+                try {
+                    const timestamp = Date.now();
+                    const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}?timestamp=${timestamp}`, { timeout: 10000 });
+                    console.log(`[${new Date().toISOString()}] 📥 Fetched rates for ${baseFiat}`);
+                    if (response.data && response.data.rates) {
+                        for (const targetFiat of activeFiats) {
+                            if (targetFiat === baseFiat)
+                                continue;
+                            if (response.data.rates[targetFiat]) {
+                                const rate = response.data.rates[targetFiat];
+                                if (targetFiat === 'TRY') {
+                                    console.log(`[${new Date().toISOString()}] 🔍 ${baseFiat}/TRY rate from API: ${rate}`);
+                                }
+                                if (baseFiat === 'TRY') {
+                                    console.log(`[${new Date().toISOString()}] 🔍 TRY/${targetFiat} rate from API: ${rate}`);
+                                }
+                                allRates.push({
+                                    from_currency: baseFiat,
+                                    to_currency: targetFiat,
+                                    rate: rate
+                                });
                             }
-                        });
-                        console.log(`📥 Got HTML response for ${crypto}, parsing...`);
-                        const $ = cheerio.load(cmcResponse.data);
-                        let priceText = '';
-                        priceText = $('span[class*="priceValue"]').first().text().trim();
-                        if (!priceText) {
-                            priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
                         }
-                        if (!priceText) {
-                            priceText = $('.priceValue').first().text();
+                        console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseFiat}`);
+                        for (const crypto of activeCryptos) {
+                            try {
+                                console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
+                                const cmcUrls = {
+                                    'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
+                                    'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
+                                    'XRP': 'https://coinmarketcap.com/currencies/ripple/',
+                                    'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
+                                    'SOL': 'https://coinmarketcap.com/currencies/solana/',
+                                    'BNB': 'https://coinmarketcap.com/currencies/bnb/',
+                                    'ADA': 'https://coinmarketcap.com/currencies/cardano/',
+                                    'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
+                                    'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
+                                    'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
+                                    'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
+                                    'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
+                                };
+                                const cmcUrl = cmcUrls[crypto];
+                                if (!cmcUrl) {
+                                    console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
+                                    continue;
+                                }
+                                const cmcResponse = await axios_1.default.get(cmcUrl, {
+                                    timeout: 10000,
+                                    headers: {
+                                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                                    }
+                                });
+                                console.log(`📥 Got HTML response for ${crypto}, parsing...`);
+                                const $ = cheerio.load(cmcResponse.data);
+                                let priceText = '';
+                                priceText = $('span[class*="priceValue"]').first().text().trim();
+                                if (!priceText) {
+                                    priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+                                }
+                                if (!priceText) {
+                                    priceText = $('.priceValue').first().text();
+                                }
+                                console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
+                                const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
+                                if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
+                                    const fiatToUSD = response.data.rates.USD || 1;
+                                    const fiatToCrypto = fiatToUSD / cryptoPriceInUSD;
+                                    console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+                                    console.log(`💱 Calculated ${baseFiat}/${crypto}: ${fiatToCrypto}`);
+                                    allRates.push({
+                                        from_currency: baseFiat,
+                                        to_currency: crypto,
+                                        rate: fiatToCrypto
+                                    });
+                                }
+                                else {
+                                    console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
+                                }
+                            }
+                            catch (error) {
+                                console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
+                            }
                         }
-                        console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
-                        const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
-                        if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
-                            const eurToUSD = response.data.rates.USD || 1;
-                            const eurToCrypto = eurToUSD / cryptoPriceInUSD;
-                            console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
-                            console.log(`💱 Calculated EUR/${crypto}: ${eurToCrypto}`);
-                            allRates.push({
-                                from_currency: baseCurrency,
-                                to_currency: crypto,
-                                rate: eurToCrypto
-                            });
+                        for (const metal of activeMetals) {
+                            try {
+                                const metalPricesInUSD = {
+                                    'GOLD': 2100,
+                                    'SILVER': 25,
+                                    'PLATINUM': 1100,
+                                    'PALLADIUM': 1100
+                                };
+                                const metalPriceInUSD = metalPricesInUSD[metal];
+                                if (!metalPriceInUSD) {
+                                    console.warn(`No price mapping for metal: ${metal}`);
+                                    continue;
+                                }
+                                const fiatToUSD = response.data.rates.USD || 1;
+                                const fiatToMetal = metalPriceInUSD / fiatToUSD;
+                                console.log(`🥇 Calculated ${metal} rate for ${baseFiat}: ${fiatToMetal}`);
+                                allRates.push({
+                                    from_currency: baseFiat,
+                                    to_currency: metal,
+                                    rate: fiatToMetal
+                                });
+                            }
+                            catch (error) {
+                                console.error(`Failed to calculate metal rate for ${metal}:`, error);
+                            }
                         }
-                        else {
-                            console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
-                        }
-                    }
-                    catch (error) {
-                        console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
                     }
                 }
-                for (const metal of activeMetals) {
-                    try {
-                        const metalPricesInUSD = {
-                            'GOLD': 2100,
-                            'SILVER': 25,
-                            'PLATINUM': 1100,
-                            'PALLADIUM': 1100
-                        };
-                        const metalPriceInUSD = metalPricesInUSD[metal];
-                        if (!metalPriceInUSD) {
-                            console.warn(`No price mapping for metal: ${metal}`);
-                            continue;
-                        }
-                        const eurToUSD = response.data.rates.USD || 1;
-                        const eurToMetal = metalPriceInUSD / eurToUSD;
-                        console.log(`🥇 Calculated ${metal} rate for EUR: ${eurToMetal}`);
-                        allRates.push({
-                            from_currency: baseCurrency,
-                            to_currency: metal,
-                            rate: eurToMetal
-                        });
-                    }
-                    catch (error) {
-                        console.error(`Failed to calculate metal rate for ${metal}:`, error);
-                    }
+                catch (error) {
+                    console.error(`[${new Date().toISOString()}] ❌ Failed to fetch rates for ${baseFiat}:`, error);
                 }
             }
         }
         catch (error) {
-            console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates for ${baseCurrency}:`, error);
+            console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates:`, error);
             if (error instanceof Error) {
                 console.error(`[${new Date().toISOString()}] Error details:`, error.message);
             }
