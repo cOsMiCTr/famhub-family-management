@@ -379,12 +379,21 @@ class ExchangeRateService {
                                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
                                     const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
                                     const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
+                                    const cryptoCurrencies = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'];
+                                    const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
+                                    const isToCrypto = cryptoCurrencies.includes(toCurrency);
                                     let crossRate;
                                     if (fromCurrency === 'USD') {
                                         crossRate = usdToToCurrency;
                                     }
                                     else if (toCurrency === 'USD') {
                                         crossRate = fromCurrencyToUSD;
+                                    }
+                                    else if (isFromCrypto && !isToCrypto) {
+                                        crossRate = fromCurrencyToUSD / usdToToCurrency;
+                                    }
+                                    else if (!isFromCrypto && isToCrypto) {
+                                        crossRate = fromCurrencyToUSD * (1 / usdToToCurrency);
                                     }
                                     else {
                                         crossRate = fromCurrencyToUSD * usdToToCurrency;

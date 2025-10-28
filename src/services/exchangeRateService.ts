@@ -485,22 +485,32 @@ class ExchangeRateService {
                 
                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
                   // Get rates: fromCurrency -> USD -> toCurrency
-                  // toUSDRate is the rate from fromCurrency to USD
-                  // fromUSDRate is the rate from USD to toCurrency
                   const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
                   const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
                   
+                  // Determine if we're dealing with cryptocurrencies
+                  const cryptoCurrencies = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'];
+                  const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
+                  const isToCrypto = cryptoCurrencies.includes(toCurrency);
+                  
                   // Calculate cross rate
-                  // If fromCurrency = USD, rate is just usdToToCurrency
-                  // If toCurrency = USD, rate is just fromCurrencyToUSD  
-                  // Otherwise: (fromCurrency/USD) * (USD/toCurrency)
                   let crossRate;
                   if (fromCurrency === 'USD') {
                     crossRate = usdToToCurrency;
                   } else if (toCurrency === 'USD') {
                     crossRate = fromCurrencyToUSD;
+                  } else if (isFromCrypto && !isToCrypto) {
+                    // From crypto to fiat: BTC->USD = 65000, USD->EUR = 0.85
+                    // 1 BTC = 65000 USD = 65000 / 0.85 = 76,470 EUR
+                    // crossRate = BTC_in_USD / EUR_per_USD = 65000 / 0.85
+                    crossRate = fromCurrencyToUSD / usdToToCurrency;
+                  } else if (!isFromCrypto && isToCrypto) {
+                    // From fiat to crypto: EUR->USD = 0.85, USD->BTC = 1/65000 = 0.000015
+                    // 1 EUR = 0.85 USD = 0.85 * (1/65000) = 0.000013 BTC
+                    // crossRate = EUR_in_USD * USD_to_BTC = 0.85 * (1/65000)
+                    crossRate = fromCurrencyToUSD * (1 / usdToToCurrency);
                   } else {
-                    // Both are non-USD: multiply rates through USD
+                    // Both are same type (fiat->fiat or crypto->crypto): multiply rates through USD
                     crossRate = fromCurrencyToUSD * usdToToCurrency;
                   }
                   
