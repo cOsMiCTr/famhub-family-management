@@ -62,6 +62,7 @@ export const formatCurrencyValue = (value: number | string, currencyCode: string
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
-  return `${formattedValue} ${currencyCode}`;
+  const symbol = getCurrencySymbol(currencyCode);
+  return `${formattedValue} ${symbol}`;
 };
 

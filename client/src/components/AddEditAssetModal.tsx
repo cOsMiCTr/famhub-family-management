@@ -81,6 +81,7 @@ import {
 } from '@heroicons/react/24/outline';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
 import { validateAssetForm } from '../utils/assetUtils';
+import { formatCurrencyValue } from '../utils/currencyHelpers';
 import SearchableAssetCategorySelector from './SearchableAssetCategorySelector';
 
 interface AddEditAssetModalProps {
@@ -903,12 +904,16 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       </div>
                       <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
                         <span className="font-medium text-gray-700 dark:text-gray-300">Value:</span>
-                        <span className="text-gray-900 dark:text-white">{formData.currency} {formData.amount}</span>
+                        <span className="text-gray-900 dark:text-white">
+                          {formatCurrencyValue(formData.amount || 0, formData.currency)}
+                        </span>
                       </div>
                       {formData.purchase_price && (
                         <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
                           <span className="font-medium text-gray-700 dark:text-gray-300">Purchase Price:</span>
-                          <span className="text-gray-900 dark:text-white">{formData.purchase_currency || formData.currency} {formData.purchase_price}</span>
+                          <span className="text-gray-900 dark:text-white">
+                            {formatCurrencyValue(formData.purchase_price || 0, formData.purchase_currency || formData.currency)}
+                          </span>
                         </div>
                       )}
                       {formData.description && (
