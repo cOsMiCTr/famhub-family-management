@@ -177,8 +177,10 @@ class ExchangeRateService {
             }
         }
         console.log(`✅ Fetched ${allRates.length} exchange rates from Finnhub`);
+        console.log(`📊 Sample rates being stored:`, allRates.slice(0, 5));
         if (allRates.length > 0) {
             await this.storeExchangeRates(allRates);
+            console.log(`✅ Successfully stored ${allRates.length} rates to database`);
         }
         else {
             throw new Error('No rates fetched from Finnhub');
@@ -275,12 +277,14 @@ class ExchangeRateService {
         console.log('⚠️ Gold fallback rates deprecated. Use Finnhub API instead.');
     }
     async storeExchangeRates(rates) {
+        console.log(`💾 Storing ${rates.length} rates to database...`);
         for (const rate of rates) {
             await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
          VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
          ON CONFLICT (from_currency, to_currency)
          DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`, [rate.from_currency, rate.to_currency, rate.rate]);
         }
+        console.log(`✅ Stored ${rates.length} rates successfully`);
     }
     async createCrossConversions() {
         const allCurrencies = await (0, database_1.query)('SELECT code FROM currencies WHERE is_active = true');

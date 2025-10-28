@@ -255,10 +255,12 @@ class ExchangeRateService {
     }
     
     console.log(`✅ Fetched ${allRates.length} exchange rates from Finnhub`);
+    console.log(`📊 Sample rates being stored:`, allRates.slice(0, 5));
     
     // Store all rates
     if (allRates.length > 0) {
       await this.storeExchangeRates(allRates);
+      console.log(`✅ Successfully stored ${allRates.length} rates to database`);
     } else {
       throw new Error('No rates fetched from Finnhub');
     }
@@ -389,6 +391,7 @@ class ExchangeRateService {
 
   // Store exchange rates in database
   private async storeExchangeRates(rates: ExchangeRateData[]): Promise<void> {
+    console.log(`💾 Storing ${rates.length} rates to database...`);
     for (const rate of rates) {
       await query(
         `INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
@@ -398,6 +401,7 @@ class ExchangeRateService {
         [rate.from_currency, rate.to_currency, rate.rate]
       );
     }
+    console.log(`✅ Stored ${rates.length} rates successfully`);
     
     // After storing rates, create cross-conversions for all currencies
     // DISABLED: Too slow for manual sync (creates 342 pairs)
