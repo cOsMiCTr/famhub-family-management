@@ -83,22 +83,16 @@ router.post('/update', asyncHandler(async (req, res) => {
 
 // Manual sync exchange rates (for all users)
 router.post('/sync', asyncHandler(async (req, res) => {
-  try {
-    await exchangeRateService.forceUpdate();
-    
-    res.json({
-      success: true,
-      message: 'Exchange rates synced successfully',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Exchange rate sync error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to sync exchange rates',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+  console.log('🔄 Manual exchange rate sync initiated...');
+  
+  await exchangeRateService.forceUpdate();
+  
+  console.log('✅ Exchange rates synced successfully');
+  res.json({
+    success: true,
+    message: 'Exchange rates synced successfully',
+    timestamp: new Date().toISOString()
+  });
 }));
 
 export default router;

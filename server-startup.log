@@ -1,0 +1,1169 @@
+
+> famhub@1.0.0 dev
+> nodemon src/server.ts
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "user_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:619:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 97,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "user_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:619:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 97,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "user_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:619:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 97,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(22,35): error TS2552: Cannot find name 'YahooFinance'. Did you mean 'yahooFinance'?
+src/services/exchangeRateService.ts(27,19): error TS2552: Cannot find name 'YahooFinance'. Did you mean 'yahooFinance'?
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2552, 2552 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,36): error TS2339: Property 'yf' does not exist on type 'ExchangeRateService'.
+src/services/exchangeRateService.ts(194,36): error TS2339: Property 'yf' does not exist on type 'ExchangeRateService'.
+src/services/exchangeRateService.ts(285,36): error TS2339: Property 'yf' does not exist on type 'ExchangeRateService'.
+src/services/exchangeRateService.ts(432,36): error TS2339: Property 'yf' does not exist on type 'ExchangeRateService'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2339, 2339, 2339, 2339 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(194,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(285,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(432,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(194,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(285,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(432,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(194,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(285,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(432,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(194,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(285,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(432,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(194,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(285,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(432,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(6,38): error TS2307: Cannot find module 'yahoo-finance2/src/utils' or its corresponding type declarations.
+src/services/exchangeRateService.ts(151,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(195,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(286,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+src/services/exchangeRateService.ts(433,31): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    The 'this' context of type 'YahooFinanceWithModules<{ readonly modules: { readonly quoteCombine: { (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidateTrue): Promise<...>; (this: ModuleThis, query: string, queryOptionsOverrides?: QuoteOptions, moduleOptions?: ModuleOptionsWithValidat...' is not assignable to method's 'this' of type 'ModuleThis'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2307, 2769, 2769, 2769, 2769 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(5,10): error TS2614: Module '"yahoo-finance2"' has no exported member 'quote'. Did you mean to use 'import quote from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(5,17): error TS2614: Module '"yahoo-finance2"' has no exported member 'quoteCombine'. Did you mean to use 'import quoteCombine from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(150,31): error TS2304: Cannot find name 'yahooFinance'.
+src/services/exchangeRateService.ts(194,31): error TS2304: Cannot find name 'yahooFinance'.
+src/services/exchangeRateService.ts(285,31): error TS2304: Cannot find name 'yahooFinance'.
+src/services/exchangeRateService.ts(432,31): error TS2304: Cannot find name 'yahooFinance'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2614, 2614, 2304, 2304, 2304, 2304 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(5,10): error TS2614: Module '"yahoo-finance2"' has no exported member 'quote'. Did you mean to use 'import quote from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(5,17): error TS2614: Module '"yahoo-finance2"' has no exported member 'quoteCombine'. Did you mean to use 'import quoteCombine from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(150,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(195,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(287,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(435,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2614, 2614, 2448, 2448, 2448, 2448 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(5,10): error TS2614: Module '"yahoo-finance2"' has no exported member 'quote'. Did you mean to use 'import quote from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(5,17): error TS2614: Module '"yahoo-finance2"' has no exported member 'quoteCombine'. Did you mean to use 'import quoteCombine from "yahoo-finance2"' instead?
+src/services/exchangeRateService.ts(150,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(195,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(287,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(435,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2614, 2614, 2448, 2448, 2448, 2448 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/services/exchangeRateService.ts(150,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(195,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(287,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+src/services/exchangeRateService.ts(435,37): error TS2448: Block-scoped variable 'quote' used before its declaration.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2448, 2448, 2448, 2448 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:621:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m

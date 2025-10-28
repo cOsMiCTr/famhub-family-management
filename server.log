@@ -1,0 +1,159 @@
+
+> famhub@1.0.0 dev
+> nodemon src/server.ts
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database migration failed: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+❌ Database initialization failed: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+❌ Failed to start server: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database migration failed: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+❌ Database initialization failed: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+❌ Failed to start server: error: foreign key constraint "asset_valuation_history_asset_id_fkey" cannot be implemented
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:225:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:114:5) {
+  length: 236,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "asset_id" and "id" are of incompatible types: integer and text.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '9317',
+  routine: 'ATAddForeignKeyConstraint'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

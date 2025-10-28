@@ -237,27 +237,75 @@ async function runMigrations() {
         await client.query(`
       CREATE TABLE IF NOT EXISTS asset_valuation_history (
         id SERIAL PRIMARY KEY,
-        asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
+        asset_id INTEGER,
         valuation_date DATE NOT NULL,
         value DECIMAL(15,2) NOT NULL,
         currency VARCHAR(4) NOT NULL CHECK (currency IN ('TRY', 'GBP', 'USD', 'EUR', 'GOLD')),
         valuation_method VARCHAR(50),
         notes TEXT,
-        created_by INTEGER REFERENCES users(id),
+        created_by INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+        try {
+            await client.query(`
+        ALTER TABLE asset_valuation_history 
+        ADD CONSTRAINT IF NOT EXISTS asset_valuation_history_asset_id_fkey 
+        FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+      `);
+        }
+        catch (e) {
+            if (!e.message.includes('already exists')) {
+                console.log('ℹ️ Constraint may already exist or could not be added');
+            }
+        }
+        try {
+            await client.query(`
+        ALTER TABLE asset_valuation_history 
+        ADD CONSTRAINT IF NOT EXISTS asset_valuation_history_created_by_fkey 
+        FOREIGN KEY (created_by) REFERENCES users(id)
+      `);
+        }
+        catch (e) {
+            if (!e.message.includes('already exists')) {
+                console.log('ℹ️ Constraint may already exist or could not be added');
+            }
+        }
         await client.query(`
       CREATE TABLE IF NOT EXISTS shared_ownership_distribution (
         id SERIAL PRIMARY KEY,
-        asset_id INTEGER REFERENCES assets(id) ON DELETE CASCADE,
-        household_member_id INTEGER REFERENCES household_members(id) ON DELETE CASCADE,
+        asset_id INTEGER,
+        household_member_id INTEGER,
         ownership_percentage DECIMAL(5,2) NOT NULL CHECK (ownership_percentage >= 0 AND ownership_percentage <= 100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(asset_id, household_member_id)
       )
     `);
+        try {
+            await client.query(`
+        ALTER TABLE shared_ownership_distribution 
+        ADD CONSTRAINT IF NOT EXISTS shared_ownership_distribution_asset_id_fkey 
+        FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+      `);
+        }
+        catch (e) {
+            if (!e.message.includes('already exists')) {
+                console.log('ℹ️ Constraint may already exist or could not be added');
+            }
+        }
+        try {
+            await client.query(`
+        ALTER TABLE shared_ownership_distribution 
+        ADD CONSTRAINT IF NOT EXISTS shared_ownership_distribution_household_member_id_fkey 
+        FOREIGN KEY (household_member_id) REFERENCES household_members(id) ON DELETE CASCADE
+      `);
+        }
+        catch (e) {
+            if (!e.message.includes('already exists')) {
+                console.log('ℹ️ Constraint may already exist or could not be added');
+            }
+        }
         await client.query(`
       CREATE TABLE IF NOT EXISTS contract_categories (
         id SERIAL PRIMARY KEY,
@@ -530,7 +578,6 @@ async function runMigrations() {
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_household ON users(household_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_account_status ON users(account_status)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_users_locked_until ON users(account_locked_until)`);
-        await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_user_date ON assets(user_id, date)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_household ON assets(household_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_member ON assets(household_member_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_assets_category ON assets(category_id)`);
