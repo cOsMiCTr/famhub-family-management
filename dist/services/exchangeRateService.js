@@ -390,13 +390,13 @@ class ExchangeRateService {
                                         crossRate = fromCurrencyToUSD;
                                     }
                                     else if (isFromCrypto && !isToCrypto) {
-                                        crossRate = fromCurrencyToUSD / usdToToCurrency;
+                                        crossRate = usdToToCurrency / fromCurrencyToUSD;
                                     }
                                     else if (!isFromCrypto && isToCrypto) {
-                                        crossRate = fromCurrencyToUSD * (1 / usdToToCurrency);
+                                        crossRate = fromCurrencyToUSD / usdToToCurrency;
                                     }
                                     else {
-                                        crossRate = fromCurrencyToUSD * usdToToCurrency;
+                                        crossRate = fromCurrencyToUSD / usdToToCurrency;
                                     }
                                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
