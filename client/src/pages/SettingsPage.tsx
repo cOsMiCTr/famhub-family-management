@@ -191,14 +191,33 @@ const SettingsPage: React.FC = () => {
     setError('');
     setMessage('');
 
-    if (passwordChange.new_password !== passwordChange.confirm_password) {
-      setError(t('settings.passwordNotMatch'));
+    // Custom validation - check all fields
+    if (!passwordChange.current_password) {
+      setError(t('settings.currentPasswordRequired'));
+      setIsChangingPassword(false);
+      return;
+    }
+
+    if (!passwordChange.new_password) {
+      setError(t('settings.newPasswordRequired'));
       setIsChangingPassword(false);
       return;
     }
 
     if (passwordChange.new_password.length < 6) {
       setError(t('settings.passwordMinLength'));
+      setIsChangingPassword(false);
+      return;
+    }
+
+    if (!passwordChange.confirm_password) {
+      setError(t('settings.confirmPasswordRequired'));
+      setIsChangingPassword(false);
+      return;
+    }
+
+    if (passwordChange.new_password !== passwordChange.confirm_password) {
+      setError(t('settings.passwordNotMatch'));
       setIsChangingPassword(false);
       return;
     }
@@ -640,7 +659,6 @@ const SettingsPage: React.FC = () => {
                       value={passwordChange.current_password}
                       onChange={handlePasswordInputChange}
                       className="form-input pr-10"
-                      required
                     />
                     <button
                       type="button"
@@ -668,8 +686,6 @@ const SettingsPage: React.FC = () => {
                       value={passwordChange.new_password}
                       onChange={handlePasswordInputChange}
                       className="form-input pr-10"
-                      required
-                      minLength={6}
                     />
                     <button
                       type="button"
@@ -697,8 +713,6 @@ const SettingsPage: React.FC = () => {
                       value={passwordChange.confirm_password}
                       onChange={handlePasswordInputChange}
                       className="form-input pr-10"
-                      required
-                      minLength={6}
                     />
                     <button
                       type="button"
