@@ -46,6 +46,7 @@ class ExchangeRateService {
         this.isUpdating = false;
         this.currencyApiKey = process.env.CURRENCY_API_KEY || '';
         this.goldApiKey = process.env.GOLD_API_KEY || '';
+        this.finnhubApiKey = process.env.FINNHUB_API_KEY || 'd40c249r01qqo3qh7360d40c249r01qqo3qh736g';
         this.startScheduledUpdates();
     }
     startScheduledUpdates() {
@@ -64,18 +65,98 @@ class ExchangeRateService {
         }
         this.isUpdating = true;
         try {
-            console.log('📈 Fetching exchange rates...');
-            await this.updateFiatRates();
-            await this.updateGoldRates();
-            await this.updateCryptocurrencyRates();
-            await this.updateMetalRates();
-            console.log('✅ Exchange rates updated successfully');
+            console.log('📈 Fetching exchange rates from Finnhub...');
+            try {
+                await this.updateRatesFromFinnhub();
+                console.log('✅ Exchange rates updated successfully from Finnhub');
+            }
+            catch (finnhubError) {
+                console.warn('⚠️ Finnhub API failed, falling back to scraping:', finnhubError);
+                await this.updateFiatRates();
+                await this.updateGoldRates();
+                await this.updateCryptocurrencyRates();
+                await this.updateMetalRates();
+                console.log('✅ Exchange rates updated successfully from fallback methods');
+            }
         }
         catch (error) {
             console.error('❌ Failed to update exchange rates:', error);
         }
         finally {
             this.isUpdating = false;
+        }
+    }
+    async updateRatesFromFinnhub() {
+        const fiatRates = [];
+        const fiatCurrencies = ['USD', 'GBP', 'TRY', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY'];
+        for (const currency of fiatCurrencies) {
+            try {
+                const response = await axios_1.default.get(`https://finnhub.io/api/v1/forex/rates?base=EUR&token=${this.finnhubApiKey}`, { timeout: 5000 });
+                if (response.data && response.data.quote && response.data.quote[currency]) {
+                    const rate = response.data.quote[currency];
+                    fiatRates.push({
+                        from_currency: 'EUR',
+                        to_currency: currency,
+                        rate: rate
+                    });
+                    fiatRates.push({
+                        from_currency: currency,
+                        to_currency: 'EUR',
+                        rate: 1 / rate
+                    });
+                    if (currency !== 'USD') {
+                        const usdRate = response.data.quote.USD;
+                        if (usdRate) {
+                            const usdConv = rate / usdRate;
+                            fiatRates.push({
+                                from_currency: currency,
+                                to_currency: 'USD',
+                                rate: usdConv
+                            });
+                            fiatRates.push({
+                                from_currency: 'USD',
+                                to_currency: currency,
+                                rate: 1 / usdConv
+                            });
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                console.error(`Failed to fetch ${currency} rate:`, error);
+            }
+        }
+        const cryptoSymbols = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:LTCUSDT', 'BINANCE:BNBUSDT', 'BINANCE:ADAUSDT', 'BINANCE:SOLUSDT', 'BINANCE:DOTUSDT', 'BINANCE:MATICUSDT', 'BINANCE:AVAXUSDT', 'BINANCE:LINKUSDT', 'BINANCE:UNIUSDT', 'BINANCE:XRPUSDT'];
+        const cryptoCodes = ['BTC', 'ETH', 'LTC', 'BNB', 'ADA', 'SOL', 'DOT', 'MATIC', 'AVAX', 'LINK', 'UNI', 'XRP'];
+        const timestamp = Math.floor(Date.now() / 1000);
+        const oneDayAgo = timestamp - 86400;
+        for (let i = 0; i < cryptoSymbols.length; i++) {
+            try {
+                const response = await axios_1.default.get(`https://finnhub.io/api/v1/crypto/candle?symbol=${cryptoSymbols[i]}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`, { timeout: 5000 });
+                if (response.data && response.data.c && response.data.c.length > 0) {
+                    const latestPrice = response.data.c[response.data.c.length - 1];
+                    fiatRates.push({
+                        from_currency: cryptoCodes[i],
+                        to_currency: 'USD',
+                        rate: latestPrice
+                    });
+                    fiatRates.push({
+                        from_currency: 'USD',
+                        to_currency: cryptoCodes[i],
+                        rate: 1 / latestPrice
+                    });
+                }
+            }
+            catch (error) {
+                console.error(`Failed to fetch ${cryptoCodes[i]} rate:`, error);
+            }
+        }
+        if (fiatRates.length > 0) {
+            await this.storeExchangeRates(fiatRates);
+            console.log(`✅ Fetched ${fiatRates.length} rates from Finnhub`);
+        }
+        else {
+            throw new Error('No rates fetched from Finnhub');
         }
     }
     async updateFiatRates() {
