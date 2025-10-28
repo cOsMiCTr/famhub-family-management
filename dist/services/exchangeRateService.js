@@ -131,6 +131,7 @@ class ExchangeRateService {
                 console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseCurrency}`);
                 for (const crypto of activeCryptos) {
                     try {
+                        console.log(`🔄 Fetching ${crypto} from CoinMarketCap...`);
                         const cmcUrls = {
                             'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
                             'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
@@ -147,7 +148,7 @@ class ExchangeRateService {
                         };
                         const cmcUrl = cmcUrls[crypto];
                         if (!cmcUrl) {
-                            console.warn(`No CoinMarketCap URL for ${crypto}`);
+                            console.warn(`⏭️ No CoinMarketCap URL for ${crypto}`);
                             continue;
                         }
                         const cmcResponse = await axios_1.default.get(cmcUrl, {
@@ -156,13 +157,23 @@ class ExchangeRateService {
                                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                             }
                         });
+                        console.log(`📥 Got HTML response for ${crypto}, parsing...`);
                         const $ = cheerio.load(cmcResponse.data);
-                        const priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+                        let priceText = '';
+                        priceText = $('span[class*="priceValue"]').first().text().trim();
+                        if (!priceText) {
+                            priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+                        }
+                        if (!priceText) {
+                            priceText = $('.priceValue').first().text();
+                        }
+                        console.log(`📊 Raw price text for ${crypto}: "${priceText}"`);
                         const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
                         if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
                             const eurToUSD = response.data.rates.USD || 1;
                             const eurToCrypto = eurToUSD / cryptoPriceInUSD;
                             console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+                            console.log(`💱 Calculated EUR/${crypto}: ${eurToCrypto}`);
                             allRates.push({
                                 from_currency: baseCurrency,
                                 to_currency: crypto,
@@ -170,11 +181,11 @@ class ExchangeRateService {
                             });
                         }
                         else {
-                            console.warn(`Could not parse ${crypto} price from CoinMarketCap`);
+                            console.warn(`⚠️ Could not parse ${crypto} price from CoinMarketCap (got "${priceText}")`);
                         }
                     }
                     catch (error) {
-                        console.error(`Failed to scrape ${crypto} from CoinMarketCap:`, error);
+                        console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, error);
                     }
                 }
                 for (const metal of activeMetals) {
