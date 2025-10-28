@@ -130,6 +130,8 @@ class ExchangeRateService {
           { timeout: 10000 }
         );
         
+        console.log(`📥 Finnhub response for ${baseFiat}:`, JSON.stringify(response.data).substring(0, 200));
+        
         if (response.data && response.data.quote) {
           // Process fiat-to-fiat rates (skip already processed pairs)
           for (const targetFiat of activeFiats) {

@@ -82,6 +82,7 @@ class ExchangeRateService {
             console.log(`🔄 Processing base currency: ${baseFiat}`);
             try {
                 const response = await axios_1.default.get(`https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`, { timeout: 10000 });
+                console.log(`📥 Finnhub response for ${baseFiat}:`, JSON.stringify(response.data).substring(0, 200));
                 if (response.data && response.data.quote) {
                     for (const targetFiat of activeFiats) {
                         if (targetFiat === baseFiat)
