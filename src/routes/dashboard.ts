@@ -237,6 +237,8 @@ router.get('/summary', asyncHandler(async (req, res) => {
   // Get exchange rates for user's main currency
   const exchangeRates = await exchangeRateService.getAllExchangeRates();
   
+  console.log(`📊 Total exchange rates in DB: ${exchangeRates.length}`);
+  
   // Get active currencies from database
   const activeCurrenciesResult = await query(
     'SELECT code FROM currencies WHERE is_active = true'
@@ -252,6 +254,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
 
   console.log(`📊 Dashboard exchange rates: ${relevantRates.length} rates for ${mainCurrency}`);
   console.log(`📊 Active currency codes: ${activeCurrencyCodes.join(', ')}`);
+  console.log(`📊 Sample relevant rates:`, relevantRates.slice(0, 3));
 
   res.json({
     summary: {

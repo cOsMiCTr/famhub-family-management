@@ -152,6 +152,7 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     const quickStats = quickStatsResult.rows[0];
     const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
+    console.log(`📊 Total exchange rates in DB: ${exchangeRates.length}`);
     const activeCurrenciesResult = await (0, database_1.query)('SELECT code FROM currencies WHERE is_active = true');
     const activeCurrencyCodes = activeCurrenciesResult.rows.map(row => row.code);
     const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&
@@ -159,6 +160,7 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         rate.to_currency !== mainCurrency);
     console.log(`📊 Dashboard exchange rates: ${relevantRates.length} rates for ${mainCurrency}`);
     console.log(`📊 Active currency codes: ${activeCurrencyCodes.join(', ')}`);
+    console.log(`📊 Sample relevant rates:`, relevantRates.slice(0, 3));
     res.json({
         summary: {
             total_assets_main_currency: totalInMainCurrency,
