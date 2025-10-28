@@ -595,7 +595,8 @@ const DashboardPage: React.FC = () => {
                   // Use user.main_currency first, fallback to stats.currency if not available
                   const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
                   const filteredRates = exchangeRates.filter(rate => {
-                    const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                    // If activeCurrencies is empty, skip the isActive check
+                    const isActive = activeCurrencies.length === 0 ? true : activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
                     const isSelected = selectedExchangeRates.includes(rate.to_currency);
                     const matchesMain = rate.from_currency === userMainCurrency;
                     
@@ -603,7 +604,8 @@ const DashboardPage: React.FC = () => {
                       isActive,
                       isSelected,
                       matchesMain,
-                      willShow: isActive && isSelected && matchesMain
+                      willShow: isActive && isSelected && matchesMain,
+                      activeCurrenciesEmpty: activeCurrencies.length === 0
                     });
                     
                     return isActive && isSelected && matchesMain;
