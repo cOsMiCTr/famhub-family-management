@@ -594,21 +594,32 @@ const DashboardPage: React.FC = () => {
                 {(() => {
                   // Use user.main_currency first, fallback to stats.currency if not available
                   const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
+                  const filteredRates = exchangeRates.filter(rate => {
+                    const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
+                    const isSelected = selectedExchangeRates.includes(rate.to_currency);
+                    const matchesMain = rate.from_currency === userMainCurrency;
+                    
+                    console.log(`Filtering ${rate.from_currency}→${rate.to_currency}:`, {
+                      isActive,
+                      isSelected,
+                      matchesMain,
+                      willShow: isActive && isSelected && matchesMain
+                    });
+                    
+                    return isActive && isSelected && matchesMain;
+                  });
+                  
                   console.log('🔵 Exchange rates debug:', {
                     totalRates: exchangeRates.length,
+                    filteredCount: filteredRates.length,
                     userMainCurrency,
                     selectedExchangeRates,
-                    sampleRates: exchangeRates.slice(0, 3),
+                    allRatesList: exchangeRates.map(r => `${r.from_currency}→${r.to_currency}`),
+                    filteredRatesList: filteredRates.map(r => `${r.from_currency}→${r.to_currency}`),
                     activeCurrencies: activeCurrencies.filter(c => c.is_active).map(c => c.code)
                   });
                   
-                  return exchangeRates
-                    .filter(rate => {
-                      const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
-                      const isSelected = selectedExchangeRates.includes(rate.to_currency);
-                      const matchesMain = rate.from_currency === userMainCurrency;
-                      return isActive && isSelected && matchesMain;
-                    });
+                  return filteredRates;
                 })()
                   .map((rate, index) => {
                   const currencyInfo: { [key: string]: { symbol: string; name: string; flag: string; color: string } } = {
