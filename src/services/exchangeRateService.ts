@@ -330,7 +330,22 @@ class ExchangeRateService {
                 );
                 
                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
-                  const crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                  // For crypto, we need to divide, not multiply
+                  const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(fromCurrency);
+                  const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(toCurrency);
+                  
+                  let crossRate;
+                  if (isFromCrypto && !isToCrypto) {
+                    // From crypto to fiat: BTC/USD / EUR/USD = BTC/EUR
+                    crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
+                  } else if (!isFromCrypto && isToCrypto) {
+                    // From fiat to crypto: USD/EUR * BTC/USD = BTC/EUR
+                    crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                  } else {
+                    // Both crypto or both fiat
+                    crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                  }
+                  
                   await query(
                     `INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)

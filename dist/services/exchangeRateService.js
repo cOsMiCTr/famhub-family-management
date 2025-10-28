@@ -267,7 +267,18 @@ class ExchangeRateService {
                                 const toUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', [fromCurrency, 'USD']);
                                 const fromUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', ['USD', toCurrency]);
                                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
-                                    const crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                    const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(fromCurrency);
+                                    const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(toCurrency);
+                                    let crossRate;
+                                    if (isFromCrypto && !isToCrypto) {
+                                        crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
+                                    }
+                                    else if (!isFromCrypto && isToCrypto) {
+                                        crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                    }
+                                    else {
+                                        crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                    }
                                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
                      ON CONFLICT (from_currency, to_currency)
