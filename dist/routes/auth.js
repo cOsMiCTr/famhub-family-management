@@ -255,7 +255,7 @@ router.get('/me', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(asy
     if (!req.user) {
         throw (0, errorHandler_1.createUnauthorizedError)('User not authenticated');
     }
-    const userId = req.user.userId;
+    const userId = req.user.id;
     const userResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency,
             u.created_at, h.name as household_name
      FROM users u

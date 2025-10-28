@@ -446,7 +446,7 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
     throw createUnauthorizedError('User not authenticated');
   }
 
-  const userId = req.user.userId;
+  const userId = req.user.id;
   
   // Fetch full user data including household name
   const userResult = await query(
