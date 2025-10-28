@@ -151,21 +151,111 @@ class ExchangeRateService {
         console.error(`Failed to fetch forex rates for ${baseFiat}:`, error);
       }
       
-      // Fetch fiat-to-crypto rates using ExchangeRates-Data API
+      // Fetch crypto rates from CoinGecko
       for (const crypto of activeCryptos) {
         try {
-          // ExchangeRates-Data API doesn't support crypto, skip for now
-          console.log(`⏭️ Skipping crypto ${crypto} - ExchangeRates-Data API doesn't support crypto`);
+          const geckoUrlMap: Record<string, string> = {
+            'BTC': 'bitcoin',
+            'ETH': 'ethereum',
+            'XRP': 'ripple',
+            'LTC': 'litecoin',
+            'SOL': 'solana',
+            'BNB': 'binancecoin',
+            'ADA': 'cardano',
+            'DOT': 'polkadot',
+            'MATIC': 'polygon',
+            'AVAX': 'avalanche-2',
+            'LINK': 'chainlink',
+            'UNI': 'uniswap'
+          };
+          
+          const geckoId = geckoUrlMap[crypto];
+          if (!geckoId) {
+            console.warn(`No CoinGecko ID for ${crypto}`);
+            continue;
+          }
+          
+          const response = await axios.get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${geckoId}&vs_currencies=usd`,
+            { timeout: 10000 }
+          );
+          
+          if (response.data && response.data[geckoId] && response.data[geckoId].usd) {
+            const cryptoPriceInUSD = response.data[geckoId].usd;
+            
+            // Get baseFiat to USD rate
+            let baseFiatToUSD = 1;
+            if (baseFiat !== 'USD') {
+              try {
+                const fiatResponse = await axios.get(
+                  `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
+                  { timeout: 5000 }
+                );
+                if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
+                  baseFiatToUSD = fiatResponse.data.rates.USD;
+                }
+              } catch (err) {
+                console.warn(`Could not fetch ${baseFiat}/USD rate`);
+              }
+            }
+            
+            // Calculate baseFiat to crypto rate
+            // Formula: 1 baseFiat = (USD_to_baseFiat) / (crypto_price_in_USD) crypto
+            // Example: 1 EUR = 0.85 / 65000 BTC = 0.000013 BTC per EUR
+            const baseFiatToCrypto = baseFiatToUSD / cryptoPriceInUSD;
+            
+            allRates.push({
+              from_currency: baseFiat,
+              to_currency: crypto,
+              rate: baseFiatToCrypto
+            });
+          }
         } catch (error) {
           console.error(`Failed to fetch ${baseFiat} to ${crypto}:`, error);
         }
       }
       
-      // Fetch fiat-to-metal rates
+      // Metals: Use simple fallback prices
       for (const metal of activeMetals) {
         try {
-          // ExchangeRates-Data API doesn't support metals, skip for now
-          console.log(`⏭️ Skipping metal ${metal} - ExchangeRates-Data API doesn't support metals`);
+          // Fallback metal prices per troy ounce in USD
+          const metalPricesInUSD: Record<string, number> = {
+            'GOLD': 2100,
+            'SILVER': 25,
+            'PLATINUM': 1100,
+            'PALLADIUM': 1100
+          };
+          
+          const metalPriceInUSD = metalPricesInUSD[metal];
+          if (!metalPriceInUSD) {
+            console.warn(`No price mapping for metal: ${metal}`);
+            continue;
+          }
+          
+          // Get baseFiat to USD rate
+          let baseFiatToUSD = 1;
+          if (baseFiat !== 'USD') {
+            try {
+              const fiatResponse = await axios.get(
+                `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
+                { timeout: 5000 }
+              );
+              if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
+                baseFiatToUSD = fiatResponse.data.rates.USD;
+              }
+            } catch (err) {
+              console.warn(`Could not fetch ${baseFiat}/USD rate`);
+            }
+          }
+          
+          // Calculate baseFiat to metal rate (price per ounce)
+          const baseFiatToMetal = metalPriceInUSD / baseFiatToUSD;
+          
+          allRates.push({
+            from_currency: baseFiat,
+            to_currency: metal,
+            rate: baseFiatToMetal
+          });
         } catch (error) {
           console.error(`Failed to fetch ${baseFiat} to ${metal}:`, error);
         }
