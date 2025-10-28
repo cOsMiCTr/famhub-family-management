@@ -45,8 +45,12 @@ class ApiService {
           return this.api(config);
         }
         
-        // Only redirect to login for 401 errors that are NOT from the login endpoint itself
-        if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+        // Only redirect to login for 401 errors that are NOT from the login or settings endpoints
+        // Exclude settings endpoints to allow password change errors to display properly
+        const isSettingsEndpoint = error.config?.url?.includes('/settings');
+        const isLoginEndpoint = error.config?.url?.includes('/auth/login');
+        
+        if (error.response?.status === 401 && !isLoginEndpoint && !isSettingsEndpoint) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
