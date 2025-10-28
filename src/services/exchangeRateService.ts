@@ -779,6 +779,7 @@ class ExchangeRateService {
       const cryptos = [
         { code: 'BTC', url: 'https://www.coingecko.com/en/coins/bitcoin' },
         { code: 'ETH', url: 'https://www.coingecko.com/en/coins/ethereum' },
+        { code: 'LTC', url: 'https://www.coingecko.com/en/coins/litecoin' },
         { code: 'XRP', url: 'https://www.coingecko.com/en/coins/ripple' },
         { code: 'BNB', url: 'https://www.coingecko.com/en/coins/binancecoin' },
         { code: 'ADA', url: 'https://www.coingecko.com/en/coins/cardano' },
@@ -792,7 +793,7 @@ class ExchangeRateService {
       
       // Try to scrape a few cryptos in parallel
       const results = await Promise.allSettled(
-        cryptos.slice(0, 3).map(async ({ code, url }) => {
+        cryptos.slice(0, 12).map(async ({ code, url }) => {
           const response = await axios.get(url, {
             timeout: 5000,
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
