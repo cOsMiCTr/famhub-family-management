@@ -407,6 +407,32 @@ class ApiService {
     });
     return response.data;
   }
+
+  // Two-factor authentication
+  async setupTwoFactor() {
+    const response = await this.api.post('/two-factor/setup');
+    return response.data;
+  }
+
+  async verifyTwoFactor(token: string) {
+    const response = await this.api.post('/two-factor/verify', { token });
+    return response.data;
+  }
+
+  async disableTwoFactor(password: string) {
+    const response = await this.api.post('/two-factor/disable', { password });
+    return response.data;
+  }
+
+  async getTwoFactorStatus() {
+    const response = await this.api.get('/two-factor/status');
+    return response.data;
+  }
+
+  async getBackupCodes() {
+    const response = await this.api.get('/two-factor/backup-codes');
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();
