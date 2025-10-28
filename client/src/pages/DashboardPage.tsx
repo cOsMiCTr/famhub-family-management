@@ -60,6 +60,13 @@ const DashboardPage: React.FC = () => {
   const [lastUpdateHighlight, setLastUpdateHighlight] = useState(false);
 
   useEffect(() => {
+    // Load last sync timestamp from localStorage first
+    const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
+    if (storedLastSync) {
+      console.log('🕐 Loaded last sync time from localStorage:', storedLastSync);
+      setLastUpdated(storedLastSync);
+    }
+    
     fetchDashboardData();
     
     // Load user preferences from localStorage
@@ -132,9 +139,11 @@ const DashboardPage: React.FC = () => {
       
       setExchangeRates(dashboardData.exchange_rates || []);
       
-      // Get last synced time from localStorage or use timestamp from server
-      const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
-      setLastUpdated(storedLastSync || dashboardData.timestamp || new Date().toISOString());
+      // Don't update lastUpdated here unless it's empty - it should only change on manual sync
+      if (!lastUpdated) {
+        const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
+        setLastUpdated(storedLastSync || dashboardData.timestamp || new Date().toISOString());
+      }
       
       console.log('✅ Updated exchange rates:', dashboardData.exchange_rates?.length || 0);
       
