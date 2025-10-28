@@ -77,33 +77,31 @@ const DashboardPage: React.FC = () => {
     
     fetchDashboardData();
     
-    // Load user preferences from localStorage (only if we don't already have them set)
-    if (selectedExchangeRates.length === 3 && selectedExchangeRates[0] === 'USD') {
-      const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
-      const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
+    // Load user preferences from localStorage
+    const savedExchangeRates = localStorage.getItem('dashboard_exchange_rates');
+    const savedShowConversions = localStorage.getItem('dashboard_show_conversions');
+    
+    if (savedExchangeRates) {
+      const parsed = JSON.parse(savedExchangeRates);
+      console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
       
-      if (savedExchangeRates) {
-        const parsed = JSON.parse(savedExchangeRates);
-        console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
-        
-        // Filter out the user's main currency from saved selection
-        const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
-        const filtered = parsed.filter((c: string) => c !== userMainCurrency);
-        
-        if (filtered.length !== parsed.length) {
-          console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
-        }
-        
-        setSelectedExchangeRates(filtered);
-      } else {
-        console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
+      // Filter out the user's main currency from saved selection
+      const userMainCurrency = user?.main_currency || 'USD';
+      const filtered = parsed.filter((c: string) => c !== userMainCurrency);
+      
+      if (filtered.length !== parsed.length) {
+        console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
       }
       
-      if (savedShowConversions) {
-        setShowConversions(JSON.parse(savedShowConversions));
-      }
+      setSelectedExchangeRates(filtered);
+    } else {
+      console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
     }
-  }, [user, stats]);
+    
+    if (savedShowConversions) {
+      setShowConversions(JSON.parse(savedShowConversions));
+    }
+  }, [user]);
 
   const fetchActiveAssets = async () => {
     try {
@@ -270,8 +268,8 @@ const DashboardPage: React.FC = () => {
   
   // Helper function to get available fiat currencies only (excluding user's main currency)
   const getAvailableCurrencies = (): string[] => {
-    // Get user's main currency
-    const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+    // Get user's main currency (user.main_currency takes priority)
+    const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
     
     // Get only active fiat currencies (exclude cryptos and metals) excluding user's main currency
     const activeFiatCurrencies = activeCurrencies
@@ -284,7 +282,7 @@ const DashboardPage: React.FC = () => {
   // Handle exchange rate configuration
   const handleExchangeRateConfig = (selectedCurrencies: string[]) => {
     // Filter out user's main currency before saving
-    const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+    const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
     const filtered = selectedCurrencies.filter(c => c !== userMainCurrency);
     
     console.log('💾 Saving exchange rates to localStorage:', filtered);
@@ -594,7 +592,8 @@ const DashboardPage: React.FC = () => {
                 'grid-cols-2'
               }`}>
                 {(() => {
-                  const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
+                  // Use user.main_currency first, fallback to stats.currency if not available
+                  const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
                   console.log('🔵 Exchange rates debug:', {
                     totalRates: exchangeRates.length,
                     userMainCurrency,
