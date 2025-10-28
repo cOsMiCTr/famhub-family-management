@@ -196,14 +196,17 @@ const DashboardPage: React.FC = () => {
     return formatCurrency(convertedAmount, toCurrency);
   };
   
-  // Helper function to get available currencies from exchange rates (all active currencies)
+  // Helper function to get available currencies from exchange rates (fiat and crypto only, no metals)
   const getAvailableCurrencies = (): string[] => {
     // Get user's main currency
     const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
     
-    // Get all active currencies (including fiat, metal, and crypto) excluding user's main currency
+    // Metal currency codes to exclude
+    const metalCodes = ['GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM'];
+    
+    // Get only fiat and crypto currencies (exclude metals) excluding user's main currency
     const activeCurrencyCodes = activeCurrencies
-      .filter(c => c.is_active && c.code !== userMainCurrency)
+      .filter(c => c.is_active && c.code !== userMainCurrency && !metalCodes.includes(c.code))
       .map(c => c.code);
     
     // Also include currencies from exchange rates for additional coverage
