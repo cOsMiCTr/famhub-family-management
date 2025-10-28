@@ -94,7 +94,7 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
           </p>
 
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {availableCurrencies.map(currency => (
+            {availableCurrencies.sort().map(currency => (
               <label
                 key={currency}
                 className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
