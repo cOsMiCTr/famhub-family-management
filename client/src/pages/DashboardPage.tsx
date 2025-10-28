@@ -591,6 +591,19 @@ const DashboardPage: React.FC = () => {
                     const isActive = activeCurrencies.some(c => c.code === rate.to_currency && c.is_active);
                     const isSelected = selectedExchangeRates.includes(rate.to_currency);
                     const matchesMain = rate.from_currency === userMainCurrency;
+                    
+                    // Debug logging
+                    if (index === 0) {
+                      console.log('🔵 Filter check:', {
+                        rate: `${rate.from_currency}→${rate.to_currency}`,
+                        userMainCurrency,
+                        isActive,
+                        isSelected,
+                        matchesMain,
+                        selectedExchangeRates
+                      });
+                    }
+                    
                     return isActive && isSelected && matchesMain;
                   })
                   .map((rate, index) => {
