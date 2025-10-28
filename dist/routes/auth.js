@@ -24,10 +24,13 @@ router.post('/login', [
     const { email, password } = req.body;
     const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
-    const userResult = await (0, database_1.query)(`SELECT id, email, password_hash, role, household_id, preferred_language, main_currency,
-            must_change_password, account_status, failed_login_attempts, 
-            account_locked_until, last_login_at, last_activity_at
-     FROM users WHERE email = $1`, [email]);
+    const userResult = await (0, database_1.query)(`SELECT u.id, u.email, u.password_hash, u.role, u.household_id, u.preferred_language, u.main_currency,
+            u.must_change_password, u.account_status, u.failed_login_attempts, 
+            u.account_locked_until, u.last_login_at, u.last_activity_at, u.created_at,
+            h.name as household_name
+     FROM users u
+     LEFT JOIN households h ON u.household_id = h.id
+     WHERE u.email = $1`, [email]);
     if (userResult.rows.length === 0) {
         await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, null, false, ipAddress, userAgent, 'User not found');
         throw (0, errorHandler_1.createUnauthorizedError)('Invalid email or password');

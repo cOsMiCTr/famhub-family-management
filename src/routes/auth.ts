@@ -31,10 +31,13 @@ router.post('/login', [
 
   // Find user by email
   const userResult = await query(
-    `SELECT id, email, password_hash, role, household_id, preferred_language, main_currency,
-            must_change_password, account_status, failed_login_attempts, 
-            account_locked_until, last_login_at, last_activity_at
-     FROM users WHERE email = $1`,
+    `SELECT u.id, u.email, u.password_hash, u.role, u.household_id, u.preferred_language, u.main_currency,
+            u.must_change_password, u.account_status, u.failed_login_attempts, 
+            u.account_locked_until, u.last_login_at, u.last_activity_at, u.created_at,
+            h.name as household_name
+     FROM users u
+     LEFT JOIN households h ON u.household_id = h.id
+     WHERE u.email = $1`,
     [email]
   );
 
