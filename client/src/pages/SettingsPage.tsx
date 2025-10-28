@@ -758,19 +758,6 @@ const SettingsPage: React.FC = () => {
             </div>
             <div className="card-body">
               <div className="space-y-4">
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Sign Out</h4>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                    Sign out of your account on this device
-                  </p>
-                  <button
-                    onClick={logout}
-                    className="mt-3 btn-secondary"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-                
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <h4 className="text-sm font-medium text-red-800 dark:text-red-200">Delete Account</h4>
                   <p className="text-sm text-red-700 dark:text-red-300 mt-1 mb-2">
