@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useCurrencies } from '../contexts/CurrencyContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { reloadTranslations } from '../i18n';
+import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
   UserIcon, 
   LanguageIcon, 
@@ -39,6 +41,7 @@ const SettingsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { user, logout, updateUser } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const activeCurrencies = useCurrencies();
   
   const [settings, setSettings] = useState<UserSettings>({
     preferred_language: 'en',
@@ -214,13 +217,10 @@ const SettingsPage: React.FC = () => {
     { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
   ];
 
-  const currencies = [
-    { code: 'USD', name: 'US Dollar ($)', symbol: '$' },
-    { code: 'EUR', name: 'Euro (€)', symbol: '€' },
-    { code: 'GBP', name: 'British Pound (£)', symbol: '£' },
-    { code: 'TRY', name: 'Turkish Lira (₺)', symbol: '₺' },
-    { code: 'GOLD', name: 'Gold (Au)', symbol: 'Au' },
-  ];
+  // Filter to show only active fiat currencies
+  const fiatCurrencies = activeCurrencies
+    .filter(c => c.is_active && c.currency_type === 'fiat')
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: UserIcon },
@@ -378,9 +378,9 @@ const SettingsPage: React.FC = () => {
                         onChange={handleSettingsChange}
                         className="form-input"
                       >
-                        {currencies.map((currency) => (
+                        {fiatCurrencies.map((currency) => (
                           <option key={currency.code} value={currency.code}>
-                            {currency.name}
+                            {formatCurrencyWithSymbol(currency.code, currency.name)}
                           </option>
                         ))}
                       </select>

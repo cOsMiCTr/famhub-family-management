@@ -7,6 +7,7 @@ import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ExchangeRateConfigModal from '../components/ExchangeRateConfigModal';
 import { formatCurrency } from '../utils/formatters';
+import { formatCurrencyWithSymbol, getCurrencyName } from '../utils/currencyHelpers';
 import { 
   WalletIcon, 
   ChartBarIcon, 
@@ -232,28 +233,17 @@ const DashboardPage: React.FC = () => {
     return '';
   };
   
-  // Helper function to get available currencies from exchange rates (fiat and crypto only, no metals)
+  // Helper function to get available fiat currencies only (excluding user's main currency)
   const getAvailableCurrencies = (): string[] => {
     // Get user's main currency
     const userMainCurrency = stats?.currency || user?.main_currency || 'USD';
     
-    // Metal currency codes to exclude
-    const metalCodes = ['GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM'];
-    
-    // Get only fiat and crypto currencies (exclude metals) excluding user's main currency
-    const activeCurrencyCodes = activeCurrencies
-      .filter(c => c.is_active && c.code !== userMainCurrency && !metalCodes.includes(c.code))
+    // Get only active fiat currencies (exclude cryptos and metals) excluding user's main currency
+    const activeFiatCurrencies = activeCurrencies
+      .filter(c => c.is_active && c.currency_type === 'fiat' && c.code !== userMainCurrency)
       .map(c => c.code);
     
-    // Also include currencies from exchange rates for additional coverage
-    const currencies = new Set<string>(activeCurrencyCodes);
-    exchangeRates.forEach(rate => {
-      if (rate.to_currency && activeCurrencyCodes.includes(rate.to_currency)) {
-        currencies.add(rate.to_currency);
-      }
-    });
-    
-    return Array.from(currencies).sort();
+    return activeFiatCurrencies.sort();
   };
   
   // Handle exchange rate configuration
@@ -405,9 +395,13 @@ const DashboardPage: React.FC = () => {
                   className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">{t('dashboard.convertTo')}</option>
-                  {getAvailableCurrencies().map(currency => (
-                    <option key={currency} value={currency}>{currency}</option>
-                  ))}
+                  {getAvailableCurrencies().map(currency => {
+                    const currencyObj = activeCurrencies.find(c => c.code === currency);
+                    const displayName = currencyObj ? formatCurrencyWithSymbol(currency, currencyObj.name) : currency;
+                    return (
+                      <option key={currency} value={currency}>{displayName}</option>
+                    );
+                  })}
                 </select>
               </div>
             )}

@@ -43,6 +43,15 @@ class ExchangeRateService {
     }, 5000); // Wait 5 seconds after server start
   }
 
+  // Helper method to fetch active currencies by type from database
+  private async getActiveCurrenciesByType(type: 'fiat' | 'cryptocurrency' | 'precious_metal'): Promise<string[]> {
+    const result = await query(
+      'SELECT code FROM currencies WHERE currency_type = $1 AND is_active = true ORDER BY code',
+      [type]
+    );
+    return result.rows.map(row => row.code);
+  }
+
   // Update exchange rates from external API
   async updateExchangeRates(): Promise<void> {
     if (this.isUpdating) {
@@ -78,149 +87,185 @@ class ExchangeRateService {
     }
   }
 
-  // Fetch rates from Finnhub API
+  // Fetch rates from Finnhub API - using sequential fiat-to-all pairing
   private async updateRatesFromFinnhub(): Promise<void> {
-    const fiatRates: ExchangeRateData[] = [];
+    const allRates: ExchangeRateData[] = [];
     
-    // Fetch fiat rates (EUR as base, convert to other fiat)
-    const fiatCurrencies = ['USD', 'GBP', 'TRY', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY'];
+    // Fetch active currencies from database
+    const activeFiats = await this.getActiveCurrenciesByType('fiat');
+    const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
+    const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
     
-    for (const currency of fiatCurrencies) {
+    console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
+    
+    // Map crypto codes to Finnhub symbols
+    const cryptoSymbolMap: Record<string, string> = {
+      'BTC': 'BINANCE:BTCUSDT',
+      'ETH': 'BINANCE:ETHUSDT',
+      'LTC': 'BINANCE:LTCUSDT',
+      'BNB': 'BINANCE:BNBUSDT',
+      'ADA': 'BINANCE:ADAUSDT',
+      'SOL': 'BINANCE:SOLUSDT',
+      'DOT': 'BINANCE:DOTUSDT',
+      'MATIC': 'BINANCE:MATICUSDT',
+      'AVAX': 'BINANCE:AVAXUSDT',
+      'LINK': 'BINANCE:LINKUSDT',
+      'UNI': 'BINANCE:UNIUSDT',
+      'XRP': 'BINANCE:XRPUSDT',
+      'DOGE': 'BINANCE:DOGEUSDT',
+      'USDT': 'BINANCE:USDTUSDT'
+    };
+    
+    // Map metal codes to Finnhub symbols
+    const metalSymbolMap: Record<string, string> = {
+      'GOLD': 'OANDA:XAU_USD',
+      'SILVER': 'OANDA:XAG_USD',
+      'PLATINUM': 'OANDA:XPT_USD',
+      'PALLADIUM': 'OANDA:XPD_USD'
+    };
+    
+    // Track processed pairs to avoid duplicates
+    const processedPairs = new Set<string>();
+    
+    // Sequential fiat-to-all pairing
+    for (let i = 0; i < activeFiats.length; i++) {
+      const baseFiat = activeFiats[i];
+      console.log(`🔄 Processing base currency: ${baseFiat}`);
+      
       try {
+        // Fetch fiat-to-fiat rates using Finnhub forex API
         const response = await axios.get(
-          `https://finnhub.io/api/v1/forex/rates?base=EUR&token=${this.finnhubApiKey}`,
-          { timeout: 5000 }
+          `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
+          { timeout: 10000 }
         );
         
-        if (response.data && response.data.quote && response.data.quote[currency]) {
-          const rate = response.data.quote[currency];
-          
-          // Store EUR to other currency
-          fiatRates.push({
-            from_currency: 'EUR',
-            to_currency: currency,
-            rate: rate
-          });
-          
-          // Store reverse rate
-          fiatRates.push({
-            from_currency: currency,
-            to_currency: 'EUR',
-            rate: 1 / rate
-          });
-          
-          // Store to USD
-          if (currency !== 'USD') {
-            const usdRate = response.data.quote.USD;
-            if (usdRate) {
-              const usdConv = rate / usdRate;
-              fiatRates.push({
-                from_currency: currency,
-                to_currency: 'USD',
-                rate: usdConv
+        if (response.data && response.data.quote) {
+          // Process fiat-to-fiat rates (skip already processed pairs)
+          for (const targetFiat of activeFiats) {
+            if (targetFiat === baseFiat) continue;
+            
+            const pairKey = `${baseFiat}-${targetFiat}`;
+            const reversePairKey = `${targetFiat}-${baseFiat}`;
+            
+            // Skip if reverse pair already processed
+            if (processedPairs.has(reversePairKey)) continue;
+            
+            if (response.data.quote[targetFiat]) {
+              const rate = response.data.quote[targetFiat];
+              allRates.push({
+                from_currency: baseFiat,
+                to_currency: targetFiat,
+                rate: rate
               });
-              fiatRates.push({
-                from_currency: 'USD',
-                to_currency: currency,
-                rate: 1 / usdConv
-              });
+              processedPairs.add(pairKey);
             }
           }
         }
       } catch (error) {
-        console.error(`Failed to fetch ${currency} rate:`, error);
+        console.error(`Failed to fetch forex rates for ${baseFiat}:`, error);
       }
-    }
-    
-    // Fetch crypto rates
-    const cryptoSymbols = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:LTCUSDT', 'BINANCE:BNBUSDT', 'BINANCE:ADAUSDT', 'BINANCE:SOLUSDT', 'BINANCE:DOTUSDT', 'BINANCE:MATICUSDT', 'BINANCE:AVAXUSDT', 'BINANCE:LINKUSDT', 'BINANCE:UNIUSDT', 'BINANCE:XRPUSDT'];
-    const cryptoCodes = ['BTC', 'ETH', 'LTC', 'BNB', 'ADA', 'SOL', 'DOT', 'MATIC', 'AVAX', 'LINK', 'UNI', 'XRP'];
-    
-    const timestamp = Math.floor(Date.now() / 1000);
-    const oneDayAgo = timestamp - 86400;
-    
-    for (let i = 0; i < cryptoSymbols.length; i++) {
-      try {
-        const response = await axios.get(
-          `https://finnhub.io/api/v1/crypto/candle?symbol=${cryptoSymbols[i]}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`,
-          { timeout: 5000 }
-        );
-        
-        if (response.data && response.data.c && response.data.c.length > 0) {
-          const latestPrice = response.data.c[response.data.c.length - 1];
-          
-          // Store crypto to USD
-          fiatRates.push({
-            from_currency: cryptoCodes[i],
-            to_currency: 'USD',
-            rate: latestPrice
-          });
-          
-          // Store USD to crypto
-          fiatRates.push({
-            from_currency: 'USD',
-            to_currency: cryptoCodes[i],
-            rate: 1 / latestPrice
-          });
+      
+      // Fetch fiat-to-crypto rates
+      for (const crypto of activeCryptos) {
+        if (!cryptoSymbolMap[crypto]) {
+          console.warn(`No Finnhub symbol mapping for crypto: ${crypto}`);
+          continue;
         }
-      } catch (error) {
-        console.error(`Failed to fetch ${cryptoCodes[i]} rate:`, error);
-      }
-    }
-    
-    // Fetch metal rates from Finnhub (using forex symbols)
-    // Note: Finnhub uses ticker symbols for precious metals
-    const metalSymbols = ['OANDA:XAU_USD', 'OANDA:XAG_USD', 'OANDA:XPT_USD', 'OANDA:XPD_USD'];
-    const metalCodes = ['GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM'];
-    
-    for (let i = 0; i < metalSymbols.length; i++) {
-      try {
-        // Use forex rates endpoint for metals
-        const response = await axios.get(
-          `https://finnhub.io/api/v1/forex/rates?base=USD&token=${this.finnhubApiKey}`,
-          { timeout: 5000 }
-        );
         
-        // Metals are typically quoted as price per ounce in USD
-        // We'll fetch from the forex rates which sometimes includes metals
-        // As fallback, we'll use a direct API call to get metal prices
-        
-        // Try alternative: use quote endpoint to get metal prices
         try {
-          const metalResponse = await axios.get(
-            `https://finnhub.io/api/v1/quote?symbol=${metalSymbols[i]}&token=${this.finnhubApiKey}`,
-            { timeout: 5000 }
+          const timestamp = Math.floor(Date.now() / 1000);
+          const oneDayAgo = timestamp - 86400;
+          
+          const response = await axios.get(
+            `https://finnhub.io/api/v1/crypto/candle?symbol=${cryptoSymbolMap[crypto]}&resolution=1&from=${oneDayAgo}&to=${timestamp}&token=${this.finnhubApiKey}`,
+            { timeout: 10000 }
           );
           
-          if (metalResponse.data && metalResponse.data.c) {
-            const pricePerOunce = metalResponse.data.c;
+          if (response.data && response.data.c && response.data.c.length > 0) {
+            const cryptoPriceInUSD = response.data.c[response.data.c.length - 1];
             
-            // Store metal to USD (price per ounce)
-            fiatRates.push({
-              from_currency: metalCodes[i],
-              to_currency: 'USD',
-              rate: pricePerOunce
-            });
+            // Get baseFiat to USD rate if not USD
+            let baseFiatToUSD = 1;
+            if (baseFiat !== 'USD') {
+              try {
+                const fiatResponse = await axios.get(
+                  `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
+                  { timeout: 5000 }
+                );
+                if (fiatResponse.data && fiatResponse.data.quote && fiatResponse.data.quote.USD) {
+                  baseFiatToUSD = fiatResponse.data.quote.USD;
+                }
+              } catch (err) {
+                console.warn(`Could not fetch ${baseFiat}/USD rate`);
+              }
+            }
             
-            // Store USD to metal
-            fiatRates.push({
-              from_currency: 'USD',
-              to_currency: metalCodes[i],
-              rate: 1 / pricePerOunce
+            // Calculate baseFiat to crypto rate
+            const baseFiatToCrypto = baseFiatToUSD / cryptoPriceInUSD;
+            
+            allRates.push({
+              from_currency: baseFiat,
+              to_currency: crypto,
+              rate: baseFiatToCrypto
             });
           }
-        } catch (metalError) {
-          console.warn(`Could not fetch ${metalCodes[i]} via quote endpoint, using fallback`);
+        } catch (error) {
+          console.error(`Failed to fetch ${baseFiat} to ${crypto}:`, error);
         }
-      } catch (error) {
-        console.error(`Failed to fetch ${metalCodes[i]} rate:`, error);
+      }
+      
+      // Fetch fiat-to-metal rates
+      for (const metal of activeMetals) {
+        if (!metalSymbolMap[metal]) {
+          console.warn(`No Finnhub symbol mapping for metal: ${metal}`);
+          continue;
+        }
+        
+        try {
+          const response = await axios.get(
+            `https://finnhub.io/api/v1/quote?symbol=${metalSymbolMap[metal]}&token=${this.finnhubApiKey}`,
+            { timeout: 10000 }
+          );
+          
+          if (response.data && response.data.c) {
+            const metalPriceInUSD = response.data.c;
+            
+            // Get baseFiat to USD rate if not USD
+            let baseFiatToUSD = 1;
+            if (baseFiat !== 'USD') {
+              try {
+                const fiatResponse = await axios.get(
+                  `https://finnhub.io/api/v1/forex/rates?base=${baseFiat}&token=${this.finnhubApiKey}`,
+                  { timeout: 5000 }
+                );
+                if (fiatResponse.data && fiatResponse.data.quote && fiatResponse.data.quote.USD) {
+                  baseFiatToUSD = fiatResponse.data.quote.USD;
+                }
+              } catch (err) {
+                console.warn(`Could not fetch ${baseFiat}/USD rate`);
+              }
+            }
+            
+            // Calculate baseFiat to metal rate
+            const baseFiatToMetal = baseFiatToUSD / metalPriceInUSD;
+            
+            allRates.push({
+              from_currency: baseFiat,
+              to_currency: metal,
+              rate: baseFiatToMetal
+            });
+          }
+        } catch (error) {
+          console.error(`Failed to fetch ${baseFiat} to ${metal}:`, error);
+        }
       }
     }
     
+    console.log(`✅ Fetched ${allRates.length} exchange rates from Finnhub`);
+    
     // Store all rates
-    if (fiatRates.length > 0) {
-      await this.storeExchangeRates(fiatRates);
-      console.log(`✅ Fetched ${fiatRates.length} rates from Finnhub`);
+    if (allRates.length > 0) {
+      await this.storeExchangeRates(allRates);
     } else {
       throw new Error('No rates fetched from Finnhub');
     }
@@ -586,13 +631,13 @@ class ExchangeRateService {
           const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
           const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
           
-          // Determine if we're dealing with cryptocurrencies
-          const cryptoCurrencies = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'];
+          // Fetch active cryptocurrencies from database
+          const cryptoCurrencies = await this.getActiveCurrenciesByType('cryptocurrency');
           const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
           const isToCrypto = cryptoCurrencies.includes(toCurrency);
           
           // DEBUG: Log for crypto conversions
-          if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+          if (cryptoCurrencies.includes(toCurrency)) {
             console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
             console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
             console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
@@ -614,7 +659,7 @@ class ExchangeRateService {
           }
           
           // DEBUG: Log the calculated cross rate
-          if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+          if (cryptoCurrencies.includes(toCurrency)) {
             console.log(`🔍 Calculated crossRate: ${crossRate}`);
             console.log(`🔍 This means: 1 ${fromCurrency} = ${crossRate} ${toCurrency}`);
           }

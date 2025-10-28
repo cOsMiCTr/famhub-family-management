@@ -10,6 +10,7 @@ declare class ExchangeRateService {
     private isUpdating;
     constructor();
     private startScheduledUpdates;
+    private getActiveCurrenciesByType;
     updateExchangeRates(): Promise<void>;
     private updateRatesFromFinnhub;
     private updateFiatRates;
