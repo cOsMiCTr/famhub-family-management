@@ -26,6 +26,8 @@ const TwoFactorSetupModal: React.FC<TwoFactorSetupModalProps> = ({
   useEffect(() => {
     if (isOpen && step === 1) {
       initializeSetup();
+      // Clear error when modal opens
+      setError('');
     }
   }, [isOpen, step]);
 
@@ -50,8 +52,10 @@ const TwoFactorSetupModal: React.FC<TwoFactorSetupModalProps> = ({
 
     try {
       setIsLoading(true);
+      setError(''); // Clear previous errors
       const response = await apiService.verifyTwoFactor(verificationCode);
       setBackupCodes(response.backupCodes);
+      setError(''); // Clear any errors on success
       setStep(3);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid verification code');
@@ -69,6 +73,7 @@ const TwoFactorSetupModal: React.FC<TwoFactorSetupModalProps> = ({
     setManualKey('');
     setVerificationCode('');
     setBackupCodes([]);
+    setError(''); // Clear error when closing
   };
 
   if (!isOpen) return null;

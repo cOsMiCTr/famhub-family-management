@@ -10,6 +10,7 @@ import { PasswordService } from '../services/passwordService';
 import { LoginAttemptService } from '../services/loginAttemptService';
 import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 import { NotificationService } from '../services/notificationService';
+import { verifyTwoFactorToken } from '../services/twoFactorService';
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ router.post('/login', [
     `SELECT u.id, u.email, u.password_hash, u.role, u.household_id, u.preferred_language, u.main_currency,
             u.must_change_password, u.account_status, u.failed_login_attempts, 
             u.account_locked_until, u.last_login_at, u.last_activity_at, u.created_at,
-            h.name as household_name
+            u.two_factor_enabled, h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
      WHERE u.email = $1`,
@@ -149,6 +150,36 @@ router.post('/login', [
       401,
       'INVALID_CREDENTIALS'
     );
+  }
+
+  // Check if 2FA is enabled
+  if (user.two_factor_enabled) {
+    const { twoFactorCode } = req.body;
+    
+    if (!twoFactorCode) {
+      // Return 2FA required response without token
+      return res.status(200).json({
+        message: '2FA code required',
+        requires2FA: true,
+        twoFactorRequired: true
+      });
+    }
+
+    // Verify 2FA code
+    const verifyResult = await verifyTwoFactorToken(user.id, twoFactorCode);
+    
+    if (!verifyResult.verified) {
+      await LoginAttemptService.recordLoginAttempt(
+        email,
+        user.id,
+        false,
+        ipAddress,
+        userAgent,
+        'Invalid 2FA code'
+      );
+      
+      throw createUnauthorizedError('Invalid 2FA code');
+    }
   }
 
   // Successful login - reset failed attempts and update timestamps
