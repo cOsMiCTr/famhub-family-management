@@ -81,7 +81,7 @@ router.put('/', [
   }
 
   updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-  updateValues.push(req.user.id);
+  updateValues.push(req.user.userId);
 
   const result = await query(
     `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount} RETURNING *`,
