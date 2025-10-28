@@ -798,7 +798,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       <h5 className="text-md font-medium text-gray-900 dark:text-white mb-4">
                         Purchase Information (Optional)
                       </h5>
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Purchase Price
@@ -813,21 +813,6 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                             className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                             placeholder="0.00"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Currency
-                          </label>
-                          <select
-                            name="purchase_currency"
-                            value={formData.purchase_currency}
-                            onChange={handleInputChange}
-                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                          >
-                            {currencyOptions.map(option => (
-                              <option key={option.value} value={option.value}>{option.label}</option>
-                            ))}
-                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

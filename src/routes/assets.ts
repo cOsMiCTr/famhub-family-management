@@ -162,16 +162,33 @@ router.post('/', [
     }
   }
 
-  // Create initial valuation history entry
-  // Use current_value if provided, otherwise use amount as the initial value
-  const initialValue = current_value || amount;
-  // Use purchase_date if available, otherwise use date
-  const valuationDate = purchase_date || date;
-  await query(
-    `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [asset.id, valuationDate, initialValue, currency, valuation_method || 'Manual', req.user.id]
-  );
+  // Create valuation history entries
+  // If purchase_price exists, create two entries: purchase price first, then current value
+  if (purchase_price && purchase_date) {
+    // First entry: purchase price at purchase date
+    await query(
+      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [asset.id, purchase_date, purchase_price, currency, valuation_method || 'Manual', req.user.id]
+    );
+    
+    // Second entry: current value at current date
+    const currentValue = current_value || amount;
+    await query(
+      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [asset.id, new Date().toISOString().split('T')[0], currentValue, currency, valuation_method || 'Manual', req.user.id]
+    );
+  } else {
+    // Single entry: current value
+    const initialValue = current_value || amount;
+    const valuationDate = purchase_date || date;
+    await query(
+      `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [asset.id, valuationDate, initialValue, currency, valuation_method || 'Manual', req.user.id]
+    );
+  }
 
   // Get category and member names for response
   const [categoryNameResult, memberNameResult] = await Promise.all([
@@ -736,46 +753,98 @@ router.put('/:id', [
     await query('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
   }
 
-  // Update or create valuation history entry if current_value was updated
-  if (updateData.current_value !== undefined) {
-    // Check if valuation history exists (get the first entry - initial valuation)
-    const historyCheck = await query(
-      'SELECT id FROM asset_valuation_history WHERE asset_id = $1 ORDER BY valuation_date ASC, created_at ASC LIMIT 1',
-      [id]
-    );
+  // Update or create valuation history entries
+  const hasHistory = await query('SELECT COUNT(*) as count FROM asset_valuation_history WHERE asset_id = $1', [id]);
+  const historyCount = parseInt(hasHistory.rows[0].count);
 
-    if (historyCheck.rows.length > 0) {
-      // Update the first entry (initial valuation)
-      // Use purchase_date if available, otherwise use date
-      const valuationDate = existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
-      await query(
-        `UPDATE asset_valuation_history 
-         SET value = $1, currency = $2, valuation_method = $3, valuation_date = $4
-         WHERE id = $5`,
-        [
-          updateData.current_value,
-          updateData.currency || existingAsset.currency,
-          updateData.valuation_method || 'Manual',
-          valuationDate,
-          historyCheck.rows[0].id
-        ]
-      );
+  if (updateData.purchase_price !== undefined || updateData.purchase_date !== undefined || updateData.current_value !== undefined || updateData.amount !== undefined) {
+    if (historyCount === 0) {
+      // No history exists, create new entries based on updated data
+      const purchasePrice = updateData.purchase_price !== undefined ? updateData.purchase_price : existingAsset.purchase_price;
+      const purchaseDate = updateData.purchase_date !== undefined ? updateData.purchase_date : existingAsset.purchase_date;
+      const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : existingAsset.current_value || existingAsset.amount);
+      const currency = updateData.currency || existingAsset.currency;
+
+      if (purchasePrice && purchaseDate) {
+        // Create two entries: purchase price first, then current value
+        await query(
+          `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, purchaseDate, purchasePrice, currency, existingAsset.valuation_method || 'Manual', req.user.id]
+        );
+        await query(
+          `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, new Date().toISOString().split('T')[0], currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]
+        );
+      } else {
+        // Single entry
+        await query(
+          `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, existingAsset.date, currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]
+        );
+      }
     } else {
-      // No history exists, create initial entry
-      // Use purchase_date if available, otherwise use date
-      const valuationDate = existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
-      await query(
-        `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          id, 
-          valuationDate, 
-          updateData.current_value, 
-          updateData.currency || existingAsset.currency,
-          updateData.valuation_method || 'Manual',
-          req.user.id
-        ]
+      // Update existing valuations
+      const valuations = await query(
+        'SELECT id FROM asset_valuation_history WHERE asset_id = $1 ORDER BY valuation_date ASC, created_at ASC',
+        [id]
       );
+
+      // If only one entry exists and purchase price is being added, create a second entry
+      if (historyCount === 1 && updateData.purchase_price && updateData.purchase_date) {
+        const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : existingAsset.current_value || existingAsset.amount);
+        const currency = updateData.currency || existingAsset.currency;
+        // Update first entry with purchase info
+        await query(
+          `UPDATE asset_valuation_history SET value = $1, valuation_date = $2 WHERE id = $3`,
+          [updateData.purchase_price, updateData.purchase_date, valuations.rows[0].id]
+        );
+        // Create second entry with current value
+        await query(
+          `INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, new Date().toISOString().split('T')[0], currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]
+        );
+      } else {
+        // Update first entry (oldest)
+        const valuationDate = updateData.purchase_date || existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
+        const value = updateData.purchase_price !== undefined ? updateData.purchase_price : (updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : null));
+        
+        if (value !== null && value !== undefined) {
+          await query(
+            `UPDATE asset_valuation_history 
+             SET value = $1, currency = $2, valuation_method = $3, valuation_date = $4
+             WHERE id = $5`,
+            [
+              value,
+              updateData.currency || existingAsset.currency,
+              existingAsset.valuation_method || 'Manual',
+              valuationDate,
+              valuations.rows[0].id
+            ]
+          );
+        }
+
+        // If second entry exists, update it with current value
+        if (valuations.rows.length === 2) {
+          const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : null);
+          if (currentValue !== null && currentValue !== undefined) {
+            await query(
+              `UPDATE asset_valuation_history 
+               SET value = $1, currency = $2, valuation_method = $3
+               WHERE id = $4`,
+              [
+                currentValue,
+                updateData.currency || existingAsset.currency,
+                existingAsset.valuation_method || 'Manual',
+                valuations.rows[1].id
+              ]
+            );
+          }
+        }
+      }
     }
   }
 
