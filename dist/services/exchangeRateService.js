@@ -363,7 +363,6 @@ class ExchangeRateService {
          ON CONFLICT (from_currency, to_currency)
          DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`, [rate.from_currency, rate.to_currency, rate.rate]);
         }
-        await this.createCrossConversions();
     }
     async createCrossConversions() {
         const currencies = ['USD', 'EUR', 'GBP', 'TRY', 'CNY', 'JPY', 'CAD', 'AUD', 'CHF', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM', 'BTC', 'ETH', 'LTC', 'SOL', 'XRP'];

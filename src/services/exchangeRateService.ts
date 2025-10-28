@@ -453,7 +453,8 @@ class ExchangeRateService {
     }
     
     // After storing rates, create cross-conversions for all currencies
-    await this.createCrossConversions();
+    // DISABLED: Too slow for manual sync (creates 342 pairs)
+    // await this.createCrossConversions();
   }
   
   // Create cross-conversions between all currencies through common pairs
