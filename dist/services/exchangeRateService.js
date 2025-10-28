@@ -440,7 +440,8 @@ class ExchangeRateService {
         return result.rows.map(row => ({
             from_currency: row.from_currency,
             to_currency: row.to_currency,
-            rate: parseFloat(row.rate)
+            rate: parseFloat(row.rate),
+            updated_at: row.updated_at
         }));
     }
     async scrapeAllRates() {

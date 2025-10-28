@@ -2,6 +2,7 @@ interface ExchangeRateData {
     from_currency: string;
     to_currency: string;
     rate: number;
+    updated_at?: string;
 }
 declare class ExchangeRateService {
     private currencyApiKey;
