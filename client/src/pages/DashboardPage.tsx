@@ -59,6 +59,7 @@ const DashboardPage: React.FC = () => {
   const [showRateConfig, setShowRateConfig] = useState(false);
   const [tempConversionCurrency, setTempConversionCurrency] = useState<string | null>(null);
   const [lastUpdateHighlight, setLastUpdateHighlight] = useState(false);
+  const [previousRates, setPreviousRates] = useState<ExchangeRate[]>([]);
 
   useEffect(() => {
     // Load last sync timestamp from localStorage first
@@ -150,6 +151,9 @@ const DashboardPage: React.FC = () => {
       });
       
       console.log('🔵 Setting exchangeRates with', dashboardData.exchange_rates?.length || 0, 'rates');
+      
+      // Store previous rates for comparison
+      setPreviousRates(exchangeRates);
       
       setExchangeRates(dashboardData.exchange_rates || []);
       
@@ -643,6 +647,10 @@ const DashboardPage: React.FC = () => {
                       <div className="text-center mt-3">
                         <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                           {rate.rate.toFixed(4)} {toCurrency.symbol}
+                          {/* Show visual indicator if rate changed */}
+                          {previousRates.find(pr => pr.from_currency === rate.from_currency && pr.to_currency === rate.to_currency && Math.abs(pr.rate - rate.rate) > 0.00000001) && (
+                            <span className="ml-2 text-green-500 animate-pulse">📈</span>
+                          )}
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
