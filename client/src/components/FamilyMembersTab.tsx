@@ -141,10 +141,20 @@ const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
 
   const openEditModal = (member: HouseholdMember) => {
     setSelectedMember(member);
+    
+    // Format date_of_birth for date input (YYYY-MM-DD)
+    let formattedDate = '';
+    if (member.date_of_birth) {
+      const date = new Date(member.date_of_birth);
+      if (!isNaN(date.getTime())) {
+        formattedDate = date.toISOString().split('T')[0];
+      }
+    }
+    
     setFormData({
       name: member.name,
       relationship: member.relationship || '',
-      date_of_birth: member.date_of_birth || '',
+      date_of_birth: formattedDate,
       notes: member.notes || ''
     });
     setShowEditModal(true);
