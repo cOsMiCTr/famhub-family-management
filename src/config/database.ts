@@ -640,6 +640,36 @@ async function runMigrations(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_admin_notifications_read ON admin_notifications(read)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_admin_notifications_created_at ON admin_notifications(created_at)`);
 
+    // Add two-factor authentication columns to users table
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false`);
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_secret TEXT`);
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS backup_codes JSONB`);
+      console.log('✅ Added two-factor authentication columns to users table');
+    } catch (error: any) {
+      console.log('ℹ️ Two-factor columns already exist or users table does not exist');
+    }
+
+    // Create user_activity table
+    try {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS user_activity (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          action_type VARCHAR(50) NOT NULL,
+          description TEXT,
+          ip_address VARCHAR(45),
+          user_agent TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      await client.query(`CREATE INDEX IF NOT EXISTS idx_user_activity_user_created ON user_activity(user_id, created_at DESC)`);
+      await client.query(`CREATE INDEX IF NOT EXISTS idx_user_activity_action ON user_activity(action_type)`);
+      console.log('✅ Created user_activity table');
+    } catch (error: any) {
+      console.log('ℹ️ user_activity table already exists');
+    }
+
     console.log('✅ Database migrations completed successfully');
   } catch (error) {
     console.error('❌ Database migration failed:', error);

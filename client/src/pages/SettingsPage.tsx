@@ -70,6 +70,7 @@ const SettingsPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('profile');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -228,7 +229,6 @@ const SettingsPage: React.FC = () => {
     { id: 'notifications', name: 'Notifications', icon: BellIcon },
     { id: 'family-members', name: t('navigation.familyMembers'), icon: UsersIcon },
     { id: 'security', name: 'Security', icon: ShieldCheckIcon },
-    ...(user?.role === 'admin' ? [{ id: 'master-admin', name: 'Master Admin', icon: ShieldCheckIcon }] : []),
   ];
 
   if (isLoading) {
@@ -683,127 +683,18 @@ const SettingsPage: React.FC = () => {
                     Sign Out
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Master Admin Tab */}
-      {activeTab === 'master-admin' && user?.role === 'admin' && (
-        <div className="space-y-6">
-          <div className="card hover-lift animate-fadeIn">
-            <div className="card-header">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <ShieldCheckIcon className="h-5 w-5 mr-2 text-red-500" />
-                Master Admin Controls
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Advanced administrative functions for system management
-              </p>
-            </div>
-            <div className="card-body">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* User Management */}
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">User Management</h4>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                    Manage users, roles, and permissions
+                
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <h4 className="text-sm font-medium text-red-800 dark:text-red-200">Delete Account</h4>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1 mb-2">
+                    Permanently delete your account and all associated data. This action cannot be undone.
                   </p>
-                  <div className="space-y-2">
-                    <button className="w-full text-left px-3 py-2 text-sm bg-blue-100 dark:bg-blue-800 rounded hover:bg-blue-200 dark:hover:bg-blue-700">
-                      • Invite New Users
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-blue-100 dark:bg-blue-800 rounded hover:bg-blue-200 dark:hover:bg-blue-700">
-                      • Manage User Roles
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-blue-100 dark:bg-blue-800 rounded hover:bg-blue-200 dark:hover:bg-blue-700">
-                      • View All Users
-                    </button>
-                  </div>
-                </div>
-
-                {/* Household Management */}
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Household Management</h4>
-                  <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                    Create and manage family households
-                  </p>
-                  <div className="space-y-2">
-                    <button className="w-full text-left px-3 py-2 text-sm bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700">
-                      • Create New Household
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700">
-                      • Assign Users to Households
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-green-100 dark:bg-green-800 rounded hover:bg-green-200 dark:hover:bg-green-700">
-                      • Manage Household Settings
-                    </button>
-                  </div>
-                </div>
-
-                {/* System Settings */}
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">System Settings</h4>
-                  <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
-                    Configure system-wide settings
-                  </p>
-                  <div className="space-y-2">
-                    <button className="w-full text-left px-3 py-2 text-sm bg-purple-100 dark:bg-purple-800 rounded hover:bg-purple-200 dark:hover:bg-purple-700">
-                      • Exchange Rate Settings
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-purple-100 dark:bg-purple-800 rounded hover:bg-purple-200 dark:hover:bg-purple-700">
-                      • Default Categories
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-purple-100 dark:bg-purple-800 rounded hover:bg-purple-200 dark:hover:bg-purple-700">
-                      • System Maintenance
-                    </button>
-                  </div>
-                </div>
-
-                {/* Data Management */}
-                <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-                  <h4 className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-2">Data Management</h4>
-                  <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
-                    Manage application data and backups
-                  </p>
-                  <div className="space-y-2">
-                    <button className="w-full text-left px-3 py-2 text-sm bg-orange-100 dark:bg-orange-800 rounded hover:bg-orange-200 dark:hover:bg-orange-700">
-                      • Export Data
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-orange-100 dark:bg-orange-800 rounded hover:bg-orange-200 dark:hover:bg-orange-700">
-                      • Database Backup
-                    </button>
-                    <button className="w-full text-left px-3 py-2 text-sm bg-orange-100 dark:bg-orange-800 rounded hover:bg-orange-200 dark:hover:bg-orange-700">
-                      • System Logs
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Admin Statistics */}
-          <div className="card hover-lift animate-fadeIn">
-            <div className="card-header">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-500" />
-                System Statistics
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">24</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Users</div>
-                </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">8</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Active Households</div>
-                </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">156</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Total Assets</div>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="mt-3 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Delete My Account
+                  </button>
                 </div>
               </div>
             </div>
