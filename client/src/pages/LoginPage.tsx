@@ -23,6 +23,18 @@ const LoginPage: React.FC = () => {
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [lastLoginInfo, setLastLoginInfo] = useState<{ date?: string; time?: string } | null>(null);
 
+  // Clean up corrupted localStorage data on page load
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user === 'undefined' || user === 'null' || (user && user.trim() === 'undefined')) {
+      console.log('Cleaning corrupted localStorage data');
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('temp_token');
+      sessionStorage.clear();
+    }
+  }, []);
+
   // Debug logging for modal state changes
   useEffect(() => {
     console.log('showPasswordChangeModal changed to:', showPasswordChangeModal);
