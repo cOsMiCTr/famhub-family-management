@@ -57,8 +57,8 @@ class ApiService {
   }
 
   // Auth endpoints
-  async login(email: string, password: string) {
-    const response = await this.api.post('/auth/login', { email, password });
+  async login(email: string, password: string, twoFactorCode?: string) {
+    const response = await this.api.post('/auth/login', { email, password, twoFactorCode });
     return response.data;
   }
 

@@ -16,7 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<any>;
+  login: (email: string, password: string, twoFactorCode?: string) => Promise<any>;
   logout: () => void;
   completeRegistration: (data: any) => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
@@ -125,9 +125,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user, token]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, twoFactorCode?: string) => {
     try {
-      const response = await apiService.login(email, password);
+      const response = await apiService.login(email, password, twoFactorCode);
       
       // Check if 2FA is required
       if (response.requires2FA || response.twoFactorRequired) {

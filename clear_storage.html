@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear FamHub Storage</title>
+</head>
+<body>
+    <h1>FamHub Storage Cleaner</h1>
+    <p>Click the button below to clear corrupted localStorage data:</p>
+    <button onclick="clearStorage()">Clear Storage and Reload</button>
+    <script>
+        function clearStorage() {
+            // Clear localStorage
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            localStorage.removeItem('temp_token');
+            localStorage.removeItem('i18nextLng');
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            alert('Storage cleared! Reloading page...');
+            window.location.href = 'https://famhub-family-management-3ba5cfaa59ef.herokuapp.com/login';
+        }
+    </script>
+</body>
+</html>

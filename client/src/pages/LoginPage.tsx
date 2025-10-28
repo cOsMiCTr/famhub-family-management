@@ -16,12 +16,14 @@ const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    twoFactorCode: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [lastLoginInfo, setLastLoginInfo] = useState<{ date?: string; time?: string } | null>(null);
+  const [requires2FA, setRequires2FA] = useState(false);
 
   // Clean up corrupted localStorage data on page load
   useEffect(() => {
@@ -52,6 +54,26 @@ const LoginPage: React.FC = () => {
     // setError(''); // REMOVED - keep previous error visible while loading
 
     try {
+      // If 2FA is required, submit with the code
+      if (requires2FA && formData.twoFactorCode) {
+        const response = await login(formData.email, formData.password, formData.twoFactorCode);
+        
+        // 2FA code was submitted, check if login is successful
+        if (response.token && response.user) {
+          setError('');
+          setRequires2FA(false);
+          setIsLoading(false);
+          
+          // Navigate to dashboard on successful 2FA login
+          navigate('/dashboard');
+          return;
+        } else {
+          setError(response.error || t('auth.invalid2FACode'));
+          setIsLoading(false);
+          return;
+        }
+      }
+      
       const response = await login(formData.email, formData.password);
       
       // Debug logging
@@ -60,6 +82,14 @@ const LoginPage: React.FC = () => {
         user: response.user,
         full_response: response
       });
+      
+      // Check if 2FA is required
+      if (response.requires2FA || response.twoFactorRequired) {
+        setRequires2FA(true);
+        setError('');
+        setIsLoading(false);
+        return;
+      }
       
       // Only clear error on success
       setError('');
@@ -158,7 +188,7 @@ const LoginPage: React.FC = () => {
     localStorage.removeItem('temp_token');
     
     // Reset form and error state
-    setFormData({ email: '', password: '' });
+    setFormData({ email: '', password: '', twoFactorCode: '' });
     setError('');
     setIsLoading(false);
     
@@ -279,9 +309,32 @@ const LoginPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* 2FA Code Input */}
+                  {requires2FA && (
+                    <div>
+                      <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {t('auth.enter2FACode')}
+                      </label>
+                      <input
+                        id="twoFactorCode"
+                        name="twoFactorCode"
+                        type="text"
+                        autoComplete="one-time-code"
+                        required
+                        className="form-input w-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        placeholder={t('auth.enter2FACodePlaceholder')}
+                        value={formData.twoFactorCode}
+                        onChange={handleChange}
+                      />
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        {t('auth.enter2FACodeHelp')}
+                      </p>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    disabled={isLoading || !formData.email || !formData.password}
+                    disabled={isLoading || !formData.email || !formData.password || (requires2FA && !formData.twoFactorCode)}
                     className="btn-primary w-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
@@ -289,6 +342,8 @@ const LoginPage: React.FC = () => {
                         <LoadingSpinner size="sm" />
                         <span className="ml-2">Signing in...</span>
                       </>
+                    ) : requires2FA ? (
+                      t('auth.verifyAndLogin')
                     ) : (
                       t('auth.loginButton')
                     )}
