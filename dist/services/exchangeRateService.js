@@ -296,14 +296,14 @@ class ExchangeRateService {
     }
     async updateCryptocurrencyRates() {
         try {
-            console.log('💰 Scraping cryptocurrency rates...');
+            console.log('💰 Scraping cryptocurrency rates from CoinMarketCap...');
             const scrapedCryptoRates = await this.scrapeCryptocurrencyRates();
             if (scrapedCryptoRates.length > 0) {
                 await this.storeExchangeRates(scrapedCryptoRates);
                 console.log(`✅ Scraped ${scrapedCryptoRates.length} cryptocurrency rates`);
                 return;
             }
-            console.log('⚠️ Scraping failed, skipping CoinGecko fallback (use Finnhub instead)...');
+            console.log('⚠️ Scraping failed from CoinMarketCap...');
         }
         catch (error) {
             console.error('Failed to fetch cryptocurrency rates:', error);

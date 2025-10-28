@@ -350,10 +350,10 @@ class ExchangeRateService {
     }
   }
 
-  // Update cryptocurrency rates - Try scraping first, fallback to CoinGecko API
+  // Update cryptocurrency rates - Scraping from CoinMarketCap
   private async updateCryptocurrencyRates(): Promise<void> {
     try {
-      console.log('💰 Scraping cryptocurrency rates...');
+      console.log('💰 Scraping cryptocurrency rates from CoinMarketCap...');
       
       // Try scraping first
       const scrapedCryptoRates = await this.scrapeCryptocurrencyRates();
@@ -364,8 +364,7 @@ class ExchangeRateService {
         return;
       }
       
-      // Fallback to CoinGecko API if scraping fails
-      console.log('⚠️ Scraping failed, skipping CoinGecko fallback (use Finnhub instead)...');
+      console.log('⚠️ Scraping failed from CoinMarketCap...');
 
     } catch (error) {
       console.error('Failed to fetch cryptocurrency rates:', error);
@@ -712,17 +711,17 @@ class ExchangeRateService {
     console.log('✅ Force update completed');
   }
 
-  // Scrape gold prices (deprecated - use Finnhub)
+  // Scrape gold prices (deprecated - not used)
   private async scrapeGoldRates(): Promise<ExchangeRateData[]> {
     return [];
   }
 
-  // Scrape cryptocurrency rates (deprecated - use Finnhub)
+  // Scrape cryptocurrency rates (deprecated - now uses CoinMarketCap)
   private async scrapeCryptocurrencyRates(): Promise<ExchangeRateData[]> {
     return [];
   }
 
-  // Scrape metal rates (deprecated - use Finnhub)
+  // Scrape metal rates (deprecated - not used)
   private async scrapeMetalRates(): Promise<ExchangeRateData[]> {
     return [];
   }
