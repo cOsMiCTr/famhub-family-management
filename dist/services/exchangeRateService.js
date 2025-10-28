@@ -382,6 +382,12 @@ class ExchangeRateService {
                                     const cryptoCurrencies = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'];
                                     const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
                                     const isToCrypto = cryptoCurrencies.includes(toCurrency);
+                                    if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+                                        console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
+                                        console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
+                                        console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
+                                        console.log(`🔍 isFromCrypto: ${isFromCrypto}, isToCrypto: ${isToCrypto}`);
+                                    }
                                     let crossRate;
                                     if (fromCurrency === 'USD') {
                                         crossRate = usdToToCurrency;
@@ -397,6 +403,10 @@ class ExchangeRateService {
                                     }
                                     else {
                                         crossRate = fromCurrencyToUSD / usdToToCurrency;
+                                    }
+                                    if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+                                        console.log(`🔍 Calculated crossRate: ${crossRate}`);
+                                        console.log(`🔍 This means: 1 ${fromCurrency} = ${crossRate} ${toCurrency}`);
                                     }
                                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)

@@ -493,6 +493,14 @@ class ExchangeRateService {
                   const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
                   const isToCrypto = cryptoCurrencies.includes(toCurrency);
                   
+                  // DEBUG: Log for crypto conversions
+                  if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+                    console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
+                    console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
+                    console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
+                    console.log(`🔍 isFromCrypto: ${isFromCrypto}, isToCrypto: ${isToCrypto}`);
+                  }
+                  
                   // Calculate cross rate
                   // Understanding the rates stored in DB:
                   // - fromCurrencyToUSD: how much FROM_CURRENCY you get for 1 USD (e.g., EUR/USD = 0.85)
@@ -519,6 +527,12 @@ class ExchangeRateService {
                     // Both are same type (fiat->fiat or crypto->crypto): 
                     // Formula: (A_per_USD) / (B_per_USD) = A_to_B
                     crossRate = fromCurrencyToUSD / usdToToCurrency;
+                  }
+                  
+                  // DEBUG: Log the calculated cross rate
+                  if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
+                    console.log(`🔍 Calculated crossRate: ${crossRate}`);
+                    console.log(`🔍 This means: 1 ${fromCurrency} = ${crossRate} ${toCurrency}`);
                   }
                   
                   await query(
