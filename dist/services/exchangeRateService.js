@@ -193,9 +193,15 @@ class ExchangeRateService {
         }
         console.log(`[${new Date().toISOString()}] ✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
         console.log(`[${new Date().toISOString()}] 📊 Sample rates being stored:`, allRates.slice(0, 5));
+        const eurRates = allRates.filter(r => r.from_currency === 'EUR');
+        console.log(`[${new Date().toISOString()}] 🔍 All EUR rates:`, eurRates);
         const eurTryRate = allRates.find(r => r.from_currency === 'EUR' && r.to_currency === 'TRY');
+        console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY found:`, eurTryRate);
         if (eurTryRate) {
             console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate before storing to DB: ${eurTryRate.rate}`);
+        }
+        else {
+            console.log(`[${new Date().toISOString()}] ⚠️ EUR/TRY rate NOT found in allRates array`);
         }
         if (allRates.length > 0) {
             await this.storeExchangeRates(allRates);
