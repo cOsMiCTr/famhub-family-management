@@ -457,6 +457,9 @@ router.get('/me', authenticateToken, asyncHandler(async (req, res) => {
      WHERE u.id = $1`,
     [userId]
   );
+  
+  console.log('User ID being queried:', userId);
+  console.log('User result:', userResult.rows);
 
   if (userResult.rows.length === 0) {
     throw createNotFoundError('User');

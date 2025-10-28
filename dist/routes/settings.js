@@ -19,7 +19,7 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
-     WHERE u.id = $1`, [req.user.id]);
+     WHERE u.id = $1`, [req.user.userId]);
     if (userResult.rows.length === 0) {
         throw new Error('User not found');
     }
@@ -63,7 +63,7 @@ router.put('/', [
         throw (0, errorHandler_1.createValidationError)('No fields to update');
     }
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-    updateValues.push(req.user.id);
+    updateValues.push(req.user.userId);
     const result = await (0, database_1.query)(`UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount} RETURNING *`, updateValues);
     const { password_hash, ...userWithoutPassword } = result.rows[0];
     res.json({
@@ -151,7 +151,7 @@ router.post('/change-password', [
     if (!complexityCheck.isValid) {
         throw (0, errorHandler_1.createValidationError)(`Password does not meet requirements: ${complexityCheck.errors.join(', ')}`);
     }
-    const userResult = await (0, database_1.query)('SELECT id, password_hash FROM users WHERE id = $1', [req.user.id]);
+    const userResult = await (0, database_1.query)('SELECT id, password_hash FROM users WHERE id = $1', [req.user.userId]);
     if (userResult.rows.length === 0) {
         throw (0, errorHandler_1.createUnauthorizedError)('User not found');
     }
@@ -160,7 +160,7 @@ router.post('/change-password', [
     if (!isValidCurrentPassword) {
         throw (0, errorHandler_1.createUnauthorizedError)('Current password is incorrect');
     }
-    const isPasswordReused = await passwordService_1.PasswordService.checkPasswordHistory(req.user.id, new_password);
+    const isPasswordReused = await passwordService_1.PasswordService.checkPasswordHistory(req.user.userId, new_password);
     if (isPasswordReused) {
         throw (0, errorHandler_1.createValidationError)('Cannot reuse a recently used password. Please choose a different password.');
     }
@@ -174,8 +174,8 @@ router.post('/change-password', [
          END,
          must_change_password = false,
          updated_at = NOW()
-     WHERE id = $2`, [newPasswordHash, req.user.id]);
-    await passwordService_1.PasswordService.addToPasswordHistory(req.user.id, user.password_hash);
+     WHERE id = $2`, [newPasswordHash, req.user.userId]);
+    await passwordService_1.PasswordService.addToPasswordHistory(req.user.userId, user.password_hash);
     res.json({
         message: 'Password changed successfully'
     });

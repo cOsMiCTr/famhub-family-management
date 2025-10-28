@@ -80,19 +80,7 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     loadSettings();
     load2FAStatus();
-    loadCurrentUserData();
   }, []);
-
-  const loadCurrentUserData = async () => {
-    try {
-      const response = await apiService.getCurrentUser();
-      if (response.user) {
-        updateUser(response.user);
-      }
-    } catch (err) {
-      console.error('Error loading current user data:', err);
-    }
-  };
 
   const load2FAStatus = async () => {
     try {
@@ -115,6 +103,14 @@ const SettingsPage: React.FC = () => {
         income_alerts: true,
         dark_mode: isDark,
       });
+      
+      // Update user data with household info from settings response
+      if (response.user && (response.user.household_name || response.user.created_at)) {
+        updateUser({
+          household_name: response.user.household_name,
+          created_at: response.user.created_at
+        });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to load settings');
     } finally {

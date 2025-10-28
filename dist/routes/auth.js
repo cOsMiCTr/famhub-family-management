@@ -261,6 +261,8 @@ router.get('/me', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(asy
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
      WHERE u.id = $1`, [userId]);
+    console.log('User ID being queried:', userId);
+    console.log('User result:', userResult.rows);
     if (userResult.rows.length === 0) {
         throw (0, errorHandler_1.createNotFoundError)('User');
     }
