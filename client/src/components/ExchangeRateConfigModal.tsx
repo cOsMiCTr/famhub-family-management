@@ -22,9 +22,16 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedCurrencies(currentSelection);
+      // Filter currentSelection to only include available currencies
+      const filteredSelection = currentSelection.filter(c => availableCurrencies.includes(c));
+      console.log('🔍 Modal opened with selection:', {
+        original: currentSelection,
+        filtered: filteredSelection,
+        available: availableCurrencies
+      });
+      setSelectedCurrencies(filteredSelection);
     }
-  }, [isOpen, currentSelection]);
+  }, [isOpen, currentSelection, availableCurrencies]);
 
   const handleCurrencyToggle = (currency: string) => {
     setSelectedCurrencies(prev => {
