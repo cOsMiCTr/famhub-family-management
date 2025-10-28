@@ -1,10 +1,10 @@
 import { query } from '../config/database';
-import { CustomError } from '../utils/errors';
 
 interface ShareOwner {
   household_member_id: number;
   ownership_percentage: number;
   member_name: string;
+  user_id?: number;
 }
 
 /**

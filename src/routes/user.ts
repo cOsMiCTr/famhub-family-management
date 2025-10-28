@@ -1,6 +1,6 @@
 import express from 'express';
 import { query } from '../config/database';
-import { asyncHandler, createUnauthorizedError, createBadRequestError } from '../middleware/errorHandler';
+import { asyncHandler, createUnauthorizedError } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
 import { LoginAttemptService } from '../services/loginAttemptService';
 import { redistributeShares } from '../services/shareRedistributionService';

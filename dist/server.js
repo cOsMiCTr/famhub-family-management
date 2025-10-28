@@ -24,6 +24,7 @@ const income_categories_1 = __importDefault(require("./routes/income-categories"
 const income_1 = __importDefault(require("./routes/income"));
 const asset_categories_1 = __importDefault(require("./routes/asset-categories"));
 const currencies_1 = __importDefault(require("./routes/currencies"));
+const export_1 = __importDefault(require("./routes/export"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const database_1 = require("./config/database");
 const app = (0, express_1.default)();
@@ -67,6 +68,7 @@ app.use('/api/income-categories', income_categories_1.default);
 app.use('/api/income', income_1.default);
 app.use('/api/asset-categories', asset_categories_1.default);
 app.use('/api/currencies', currencies_1.default);
+app.use('/api/users/export', export_1.default);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
