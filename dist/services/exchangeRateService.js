@@ -377,17 +377,17 @@ class ExchangeRateService {
                                 const toUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', [fromCurrency, 'USD']);
                                 const fromUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', ['USD', toCurrency]);
                                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
-                                    const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(fromCurrency);
-                                    const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(toCurrency);
+                                    const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
+                                    const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
                                     let crossRate;
-                                    if (isFromCrypto && !isToCrypto) {
-                                        crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
+                                    if (fromCurrency === 'USD') {
+                                        crossRate = usdToToCurrency;
                                     }
-                                    else if (!isFromCrypto && isToCrypto) {
-                                        crossRate = (1 / parseFloat(fromUSDRate.rows[0].rate)) * parseFloat(toUSDRate.rows[0].rate);
+                                    else if (toCurrency === 'USD') {
+                                        crossRate = fromCurrencyToUSD;
                                     }
                                     else {
-                                        crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                        crossRate = fromCurrencyToUSD * usdToToCurrency;
                                     }
                                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)

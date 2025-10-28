@@ -484,23 +484,24 @@ class ExchangeRateService {
                 );
                 
                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
-                  // For crypto, we need to divide, not multiply
-                  const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(fromCurrency);
-                  const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(toCurrency);
+                  // Get rates: fromCurrency -> USD -> toCurrency
+                  // toUSDRate is the rate from fromCurrency to USD
+                  // fromUSDRate is the rate from USD to toCurrency
+                  const fromCurrencyToUSD = parseFloat(toUSDRate.rows[0].rate);
+                  const usdToToCurrency = parseFloat(fromUSDRate.rows[0].rate);
                   
+                  // Calculate cross rate
+                  // If fromCurrency = USD, rate is just usdToToCurrency
+                  // If toCurrency = USD, rate is just fromCurrencyToUSD  
+                  // Otherwise: (fromCurrency/USD) * (USD/toCurrency)
                   let crossRate;
-                  if (isFromCrypto && !isToCrypto) {
-                    // From crypto to fiat: BTC/USD / EUR/USD = BTC/EUR
-                    // Example: if BTC/USD = 65000 and EUR/USD = 0.85, then BTC/EUR = 65000 / 0.85 = 76,470
-                    crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
-                  } else if (!isFromCrypto && isToCrypto) {
-                    // From fiat to crypto: USD/EUR * BTC/USD = BTC/EUR
-                    // Actually, this should be BTC/USD / EUR/USD, which is done above
-                    // Let's fix this: if converting EUR to BTC, we need EUR/USD then USD/BTC
-                    crossRate = (1 / parseFloat(fromUSDRate.rows[0].rate)) * parseFloat(toUSDRate.rows[0].rate);
+                  if (fromCurrency === 'USD') {
+                    crossRate = usdToToCurrency;
+                  } else if (toCurrency === 'USD') {
+                    crossRate = fromCurrencyToUSD;
                   } else {
-                    // Both crypto or both fiat: simple multiplication
-                    crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                    // Both are non-USD: multiply rates through USD
+                    crossRate = fromCurrencyToUSD * usdToToCurrency;
                   }
                   
                   await query(
