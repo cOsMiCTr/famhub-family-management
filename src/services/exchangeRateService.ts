@@ -159,38 +159,46 @@ class ExchangeRateService {
         }
       }
       
-      // Fetch crypto rates from CoinGecko
+      // Fetch crypto rates from CoinMarketCap scraping
       for (const crypto of activeCryptos) {
         try {
-          const geckoUrlMap: Record<string, string> = {
-            'BTC': 'bitcoin',
-            'ETH': 'ethereum',
-            'XRP': 'ripple',
-            'LTC': 'litecoin',
-            'SOL': 'solana',
-            'BNB': 'binancecoin',
-            'ADA': 'cardano',
-            'DOT': 'polkadot',
-            'MATIC': 'polygon',
-            'AVAX': 'avalanche-2',
-            'LINK': 'chainlink',
-            'UNI': 'uniswap'
+          // Scrape from CoinMarketCap
+          const cmcUrls: Record<string, string> = {
+            'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
+            'ETH': 'https://coinmarketcap.com/currencies/ethereum/',
+            'XRP': 'https://coinmarketcap.com/currencies/ripple/',
+            'LTC': 'https://coinmarketcap.com/currencies/litecoin/',
+            'SOL': 'https://coinmarketcap.com/currencies/solana/',
+            'BNB': 'https://coinmarketcap.com/currencies/bnb/',
+            'ADA': 'https://coinmarketcap.com/currencies/cardano/',
+            'DOT': 'https://coinmarketcap.com/currencies/polkadot/',
+            'MATIC': 'https://coinmarketcap.com/currencies/polygon/',
+            'AVAX': 'https://coinmarketcap.com/currencies/avalanche/',
+            'LINK': 'https://coinmarketcap.com/currencies/chainlink/',
+            'UNI': 'https://coinmarketcap.com/currencies/uniswap/'
           };
           
-          const geckoId = geckoUrlMap[crypto];
-          if (!geckoId) {
-            console.warn(`No CoinGecko ID for ${crypto}`);
+          const cmcUrl = cmcUrls[crypto];
+          if (!cmcUrl) {
+            console.warn(`No CoinMarketCap URL for ${crypto}`);
             continue;
           }
           
-          const response = await axios.get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${geckoId}&vs_currencies=usd`,
-            { timeout: 10000 }
-          );
+          const response = await axios.get(cmcUrl, {
+            timeout: 10000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
           
-          if (response.data && response.data[geckoId] && response.data[geckoId].usd) {
-            const cryptoPriceInUSD = response.data[geckoId].usd;
-            
+          const $ = cheerio.load(response.data);
+          
+          // Extract price from CoinMarketCap page
+          const priceText = $('span.sc-aef7b723-0.bsFTBp').first().text();
+          // Remove $ and commas, convert to number
+          const cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
+          
+          if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
             // Get baseFiat to USD rate
             let baseFiatToUSD = 1;
             if (baseFiat !== 'USD') {
@@ -212,14 +220,18 @@ class ExchangeRateService {
             // Example: 1 EUR = 0.85 / 65000 BTC = 0.000013 BTC per EUR
             const baseFiatToCrypto = baseFiatToUSD / cryptoPriceInUSD;
             
+            console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
+            
             allRates.push({
               from_currency: baseFiat,
               to_currency: crypto,
               rate: baseFiatToCrypto
             });
+          } else {
+            console.warn(`Could not parse ${crypto} price from CoinMarketCap`);
           }
         } catch (error) {
-          console.error(`Failed to fetch ${baseFiat} to ${crypto}:`, error);
+          console.error(`Failed to scrape ${baseFiat} to ${crypto} from CoinMarketCap:`, error);
         }
       }
       
