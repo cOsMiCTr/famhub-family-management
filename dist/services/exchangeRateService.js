@@ -11,7 +11,6 @@ class ExchangeRateService {
     constructor() {
         this.isUpdating = false;
         this.currencyApiKey = process.env.CURRENCY_API_KEY || '';
-        this.exchangeRatesApiKey = process.env.EXCHANGE_RATES_API_KEY || 'f7448b6d1e64cb7f4f1221a63';
         this.startScheduledUpdates();
     }
     startScheduledUpdates() {
@@ -78,7 +77,7 @@ class ExchangeRateService {
             const baseFiat = activeFiats[i];
             console.log(`🔄 Processing base currency: ${baseFiat}`);
             try {
-                const response = await axios_1.default.get(`https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`, { timeout: 10000 });
+                const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}`, { timeout: 10000 });
                 console.log(`[${new Date().toISOString()}] 📥 API response for ${baseFiat}:`, JSON.stringify(response.data));
                 if (response.data && response.data.rates) {
                     for (const targetFiat of activeFiats) {
@@ -136,7 +135,7 @@ class ExchangeRateService {
                         let baseFiatToUSD = 1;
                         if (baseFiat !== 'USD') {
                             try {
-                                const fiatResponse = await axios_1.default.get(`https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`, { timeout: 5000 });
+                                const fiatResponse = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}`, { timeout: 5000 });
                                 if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
                                     baseFiatToUSD = fiatResponse.data.rates.USD;
                                 }
@@ -173,7 +172,7 @@ class ExchangeRateService {
                     let baseFiatToUSD = 1;
                     if (baseFiat !== 'USD') {
                         try {
-                            const fiatResponse = await axios_1.default.get(`https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`, { timeout: 5000 });
+                            const fiatResponse = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}`, { timeout: 5000 });
                             if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
                                 baseFiatToUSD = fiatResponse.data.rates.USD;
                             }

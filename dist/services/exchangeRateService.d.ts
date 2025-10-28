@@ -5,7 +5,6 @@ interface ExchangeRateData {
 }
 declare class ExchangeRateService {
     private currencyApiKey;
-    private exchangeRatesApiKey;
     private isUpdating;
     constructor();
     private startScheduledUpdates;

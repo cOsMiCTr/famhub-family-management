@@ -16,12 +16,10 @@ interface GoldPriceData {
 
 class ExchangeRateService {
   private currencyApiKey: string;
-  private exchangeRatesApiKey: string;
   private isUpdating: boolean = false;
 
   constructor() {
     this.currencyApiKey = process.env.CURRENCY_API_KEY || '';
-    this.exchangeRatesApiKey = process.env.EXCHANGE_RATES_API_KEY || 'f7448b6d1e64cb7f4f1221a63';
     
     // Start scheduled updates
     this.startScheduledUpdates();
@@ -117,9 +115,9 @@ class ExchangeRateService {
       console.log(`🔄 Processing base currency: ${baseFiat}`);
       
       try {
-        // Fetch fiat-to-fiat rates using ExchangeRates-Data API
+        // Fetch fiat-to-fiat rates using ExchangeRate-API.com
         const response = await axios.get(
-          `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
+          `https://api.exchangerate-api.com/v4/latest/${baseFiat}`,
           { timeout: 10000 }
         );
         
@@ -197,7 +195,7 @@ class ExchangeRateService {
             if (baseFiat !== 'USD') {
               try {
                 const fiatResponse = await axios.get(
-                  `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
+                  `https://api.exchangerate-api.com/v4/latest/${baseFiat}`,
                   { timeout: 5000 }
                 );
                 if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
@@ -246,7 +244,7 @@ class ExchangeRateService {
           if (baseFiat !== 'USD') {
             try {
               const fiatResponse = await axios.get(
-                `https://api.exchangeratesdata.io/v1/latest?access_key=${this.exchangeRatesApiKey}&base=${baseFiat}`,
+                `https://api.exchangerate-api.com/v4/latest/${baseFiat}`,
                 { timeout: 5000 }
               );
               if (fiatResponse.data && fiatResponse.data.rates && fiatResponse.data.rates.USD) {
