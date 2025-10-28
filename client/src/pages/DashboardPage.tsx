@@ -186,14 +186,31 @@ const DashboardPage: React.FC = () => {
   const getConvertedValue = (amount: number, fromCurrency: string, toCurrency: string): string => {
     if (fromCurrency === toCurrency) return '';
     
-    const rate = exchangeRates.find(r => 
+    // First try direct conversion
+    let rate = exchangeRates.find(r => 
       r.from_currency === fromCurrency && r.to_currency === toCurrency
     );
     
-    if (!rate) return '';
+    if (rate) {
+      const convertedAmount = amount * rate.rate;
+      return formatCurrency(convertedAmount, toCurrency);
+    }
     
-    const convertedAmount = amount * rate.rate;
-    return formatCurrency(convertedAmount, toCurrency);
+    // If no direct rate, try through USD as intermediate
+    const toUSDRate = exchangeRates.find(r => 
+      r.from_currency === fromCurrency && r.to_currency === 'USD'
+    );
+    const fromUSDRate = exchangeRates.find(r => 
+      r.from_currency === 'USD' && r.to_currency === toCurrency
+    );
+    
+    if (toUSDRate && fromUSDRate) {
+      const usdAmount = amount * toUSDRate.rate;
+      const convertedAmount = usdAmount * fromUSDRate.rate;
+      return formatCurrency(convertedAmount, toCurrency);
+    }
+    
+    return '';
   };
   
   // Helper function to get available currencies from exchange rates (fiat and crypto only, no metals)
