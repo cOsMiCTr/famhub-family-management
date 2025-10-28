@@ -51,20 +51,22 @@ const fetchTranslations = async (language: string) => {
 const getSavedLanguage = () => {
   // First check if user data is stored
   const storedUser = localStorage.getItem('user');
-  if (storedUser) {
+  if (storedUser && storedUser !== 'undefined' && storedUser !== 'null' && storedUser.trim() !== '') {
     try {
       const user = JSON.parse(storedUser);
-      if (user.preferred_language) {
+      if (user && user.preferred_language) {
         return user.preferred_language;
       }
     } catch (error) {
       console.error('Error parsing stored user:', error);
+      // Clear corrupted data
+      localStorage.removeItem('user');
     }
   }
   
   // Fallback to localStorage language setting
   const savedLanguage = localStorage.getItem('i18nextLng');
-  if (savedLanguage && ['en', 'de', 'tr'].includes(savedLanguage)) {
+  if (savedLanguage && savedLanguage !== 'undefined' && ['en', 'de', 'tr'].includes(savedLanguage)) {
     return savedLanguage;
   }
   
