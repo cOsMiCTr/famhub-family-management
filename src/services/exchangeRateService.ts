@@ -125,6 +125,7 @@ class ExchangeRateService {
         console.log(`[${new Date().toISOString()}] 📥 API response for ${baseFiat}:`, JSON.stringify(response.data));
         
         if (response.data && response.data.rates) {
+          let ratesAddedForBase = 0;
           // Process fiat-to-fiat rates (skip already processed pairs)
           for (const targetFiat of activeFiats) {
             if (targetFiat === baseFiat) continue;
@@ -133,7 +134,10 @@ class ExchangeRateService {
             const reversePairKey = `${targetFiat}-${baseFiat}`;
             
             // Skip if reverse pair already processed
-            if (processedPairs.has(reversePairKey)) continue;
+            if (processedPairs.has(reversePairKey)) {
+              console.log(`⏭️ Skipping ${baseFiat}-${targetFiat} (reverse pair ${reversePairKey} already processed)`);
+              continue;
+            }
             
             if (response.data.rates[targetFiat]) {
               const rate = response.data.rates[targetFiat];
@@ -149,8 +153,10 @@ class ExchangeRateService {
                 rate: rate
               });
               processedPairs.add(pairKey);
+              ratesAddedForBase++;
             }
           }
+          console.log(`✅ Added ${ratesAddedForBase} rates for base currency ${baseFiat}`);
         }
       } catch (error) {
         console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates for ${baseFiat}:`, error);
