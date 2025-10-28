@@ -84,18 +84,17 @@ class ExchangeRateService {
 
       // Use Finnhub API directly for faster sync
       try {
+        console.log('🔄 Starting Finnhub sync...');
         await this.updateRatesFromFinnhub();
         console.log('✅ Exchange rates updated successfully from Finnhub');
       } catch (finnhubError) {
-        console.warn('⚠️ Finnhub failed, trying scraping:', finnhubError);
+        console.error('❌ Finnhub failed with error:', finnhubError);
+        console.warn('⚠️ Finnhub failed, scraping methods will be skipped (they return empty arrays)');
         
-        // Fallback to scraping
-        await this.updateFiatRates();
-        await this.updateGoldRates();
-        await this.updateCryptocurrencyRates();
-        await this.updateMetalRates();
+        // Note: Scraping methods are deprecated and return empty arrays
+        console.log('⚠️ No fallback available. Please ensure Finnhub API is working properly.');
         
-        console.log('✅ Exchange rates updated successfully from scraping');
+        throw new Error('Failed to sync exchange rates - Finnhub API error');
       }
 
     } catch (error) {
