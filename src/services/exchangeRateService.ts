@@ -485,18 +485,21 @@ class ExchangeRateService {
                 
                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
                   // For crypto, we need to divide, not multiply
-                  const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(fromCurrency);
-                  const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(toCurrency);
+                  const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(fromCurrency);
+                  const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(toCurrency);
                   
                   let crossRate;
                   if (isFromCrypto && !isToCrypto) {
                     // From crypto to fiat: BTC/USD / EUR/USD = BTC/EUR
+                    // Example: if BTC/USD = 65000 and EUR/USD = 0.85, then BTC/EUR = 65000 / 0.85 = 76,470
                     crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
                   } else if (!isFromCrypto && isToCrypto) {
                     // From fiat to crypto: USD/EUR * BTC/USD = BTC/EUR
-                    crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                    // Actually, this should be BTC/USD / EUR/USD, which is done above
+                    // Let's fix this: if converting EUR to BTC, we need EUR/USD then USD/BTC
+                    crossRate = (1 / parseFloat(fromUSDRate.rows[0].rate)) * parseFloat(toUSDRate.rows[0].rate);
                   } else {
-                    // Both crypto or both fiat
+                    // Both crypto or both fiat: simple multiplication
                     crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
                   }
                   

@@ -377,14 +377,14 @@ class ExchangeRateService {
                                 const toUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', [fromCurrency, 'USD']);
                                 const fromUSDRate = await (0, database_1.query)('SELECT rate FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2', ['USD', toCurrency]);
                                 if (toUSDRate.rows.length > 0 && fromUSDRate.rows.length > 0) {
-                                    const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(fromCurrency);
-                                    const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP'].includes(toCurrency);
+                                    const isFromCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(fromCurrency);
+                                    const isToCrypto = ['BTC', 'ETH', 'LTC', 'SOL', 'XRP', 'BNB', 'ADA', 'MATIC', 'AVAX', 'LINK', 'UNI'].includes(toCurrency);
                                     let crossRate;
                                     if (isFromCrypto && !isToCrypto) {
                                         crossRate = parseFloat(toUSDRate.rows[0].rate) / parseFloat(fromUSDRate.rows[0].rate);
                                     }
                                     else if (!isFromCrypto && isToCrypto) {
-                                        crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
+                                        crossRate = (1 / parseFloat(fromUSDRate.rows[0].rate)) * parseFloat(toUSDRate.rows[0].rate);
                                     }
                                     else {
                                         crossRate = parseFloat(toUSDRate.rows[0].rate) * parseFloat(fromUSDRate.rows[0].rate);
