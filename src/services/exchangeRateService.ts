@@ -160,13 +160,13 @@ class ExchangeRateService {
           cryptoRates.push({
             from_currency: cryptoCode,
             to_currency: 'USD',
-            rate: 1 / priceInUSD
+            rate: priceInUSD
           });
           
           cryptoRates.push({
             from_currency: 'USD',
             to_currency: cryptoCode,
-            rate: priceInUSD
+            rate: 1 / priceInUSD
           });
         }
       }
