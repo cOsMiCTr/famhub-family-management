@@ -218,11 +218,23 @@ class ExchangeRateService {
       // Fetch rates for each active fiat currency as base
       for (const baseFiat of activeFiats) {
         try {
-          // Use a random query parameter to bypass caching
+          // Use API key if available (v6 endpoint), otherwise use free v4 endpoint
           const timestamp = Date.now();
           const random = Math.random().toString(36).substring(7);
+          let apiUrl: string;
+          
+          if (this.currencyApiKey) {
+            // Use v6 endpoint with API key for more frequent updates
+            apiUrl = `https://v6.exchangerate-api.com/v6/${this.currencyApiKey}/latest/${baseFiat}`;
+            console.log(`[${new Date().toISOString()}] 🔑 Using API key for ${baseFiat} (v6 endpoint)`);
+          } else {
+            // Fallback to free v4 endpoint (updates once per day, no key required)
+            apiUrl = `https://api.exchangerate-api.com/v4/latest/${baseFiat}?t=${timestamp}&r=${random}`;
+            console.log(`[${new Date().toISOString()}] ⚠️ No API key - using free v4 endpoint for ${baseFiat} (limited to once per day)`);
+          }
+          
           const response = await axios.get(
-            `https://api.exchangerate-api.com/v4/latest/${baseFiat}?t=${timestamp}&r=${random}`,
+            apiUrl,
             { 
               timeout: 15000,
               headers: {
