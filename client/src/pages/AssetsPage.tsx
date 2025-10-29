@@ -915,7 +915,15 @@ const AssetsPage: React.FC = () => {
                             <>
                               <span className="mx-2">•</span>
                               <MapPinIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                              {asset.location}
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(asset.location)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline cursor-pointer transition-colors"
+                                title={`Open ${asset.location} in Google Maps`}
+                              >
+                                {asset.location}
+                              </a>
                             </>
                           )}
                         </div>
