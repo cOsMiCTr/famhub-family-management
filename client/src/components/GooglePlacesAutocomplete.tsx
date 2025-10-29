@@ -119,17 +119,42 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.addEventListener('keydown', overrideStyles);
         inputRef.current.addEventListener('keyup', overrideStyles);
         
+        // Inject a style tag to force white background with highest specificity
+        if (!document.getElementById('google-places-autocomplete-override')) {
+          const style = document.createElement('style');
+          style.id = 'google-places-autocomplete-override';
+          style.textContent = `
+            input[type="text"].pac-target-input,
+            input.pac-target-input,
+            input[autocomplete="off"] {
+              background-color: #ffffff !important;
+              color: #111827 !important;
+              background-image: none !important;
+            }
+            .dark input[type="text"].pac-target-input,
+            .dark input.pac-target-input,
+            .dark input[autocomplete="off"] {
+              background-color: rgb(55, 65, 81) !important;
+              color: #ffffff !important;
+              background-image: none !important;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
         // Use MutationObserver to watch for style attribute changes and override them
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style' && inputRef.current) {
               const currentBg = window.getComputedStyle(inputRef.current).backgroundColor;
               const currentColor = window.getComputedStyle(inputRef.current).color;
-              // Check if Google Maps has applied dark colors
-              if (currentBg.includes('54') || currentBg.includes('59') || currentBg === 'rgb(54, 59, 71)' || currentBg.includes('36, 59, 71')) {
+              // Check if Google Maps has applied dark colors (including #363B47 = rgb(54, 59, 71))
+              const darkColors = ['54', '59', '71', '36, 59, 71', '#363B47', 'rgb(54, 59, 71)', 'rgb(54,59,71)'];
+              const hasDarkBg = darkColors.some(color => currentBg.includes(color));
+              if (hasDarkBg && !isDarkMode) {
                 overrideStyles();
               }
-              // Also check for dark text colors
+              // Also check for white text in light mode (indicates dark background was applied)
               if (currentColor === 'rgb(255, 255, 255)' && !isDarkMode) {
                 overrideStyles();
               }
