@@ -101,8 +101,15 @@ JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRES_IN=7d
 CURRENCY_API_KEY=your-currency-api-key
 GOLD_API_KEY=your-gold-api-key
+GOOGLE_MAPS_API_KEY=your-google-maps-api-key
 CLIENT_URL=http://localhost:3000
 ```
+
+**Note for Google Maps API:**
+- Create a `.env` file in the `client` folder with `VITE_GOOGLE_MAPS_API_KEY=your-google-maps-api-key`
+- Or set it in your root `.env` and Vite will access it as `VITE_GOOGLE_MAPS_API_KEY`
+- Get your API key from [Google Cloud Console](https://console.cloud.google.com/)
+- Enable "Places API" for your project
 
 ## Database Schema
 

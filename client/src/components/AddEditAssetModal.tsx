@@ -83,6 +83,7 @@ import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils'
 import { validateAssetForm } from '../utils/assetUtils';
 import { formatCurrencyValue } from '../utils/currencyHelpers';
 import SearchableAssetCategorySelector from './SearchableAssetCategorySelector';
+import GooglePlacesAutocomplete from './GooglePlacesAutocomplete';
 
 interface AddEditAssetModalProps {
   isOpen: boolean;
@@ -860,13 +861,16 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Location
                       </label>
-                      <input
-                        type="text"
-                        name="location"
+                      <GooglePlacesAutocomplete
                         value={formData.location}
-                        onChange={handleInputChange}
+                        onChange={(value) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            location: value
+                          }));
+                        }}
+                        placeholder="Type address or location..."
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="e.g., Garage, Bank Account, Investment Platform"
                       />
                     </div>
 

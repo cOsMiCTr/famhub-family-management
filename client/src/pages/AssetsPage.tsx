@@ -911,13 +911,6 @@ const AssetsPage: React.FC = () => {
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
                           {category ? getCategoryName(category) : t('assets.unknownCategory')}
-                          {asset.member_name && asset.ownership_type === 'single' && (
-                            <>
-                              <span className="mx-2">•</span>
-                              <UserIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                              {asset.member_name}
-                            </>
-                          )}
                           {asset.location && (
                             <>
                               <span className="mx-2">•</span>
