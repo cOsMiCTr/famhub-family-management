@@ -57,9 +57,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const navigation = [
     { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon },
-    { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon },
-    { name: t('navigation.contracts'), href: '/contracts', icon: DocumentTextIcon },
     { name: t('navigation.income'), href: '/income', icon: BanknotesIcon },
+    { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon },
     { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
   ];
 
@@ -105,12 +104,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {/* Logo */}
             <div id="sidebar-logo" className="flex h-16 items-center justify-between px-4 lg:px-6 border-b border-gray-200 dark:border-gray-700">
               <div className={`flex items-center space-x-3 ${isSidebarCollapsed ? 'lg:justify-center lg:space-x-0' : ''}`}>
-                <img 
-                  src="/FamHub_Logo_Small.png" 
-                  alt="FamHub Logo" 
-                  className={`h-8 w-8 flex-shrink-0 ${isSidebarCollapsed ? 'lg:mx-auto' : ''}`}
-                  style={{ objectFit: 'contain' }}
-                />
                 <span className={`text-xl font-bold text-gray-900 dark:text-white ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>FamHub</span>
               </div>
               <div className="flex items-center space-x-2">
