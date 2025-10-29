@@ -7,8 +7,6 @@
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "migrate": "node dist/migrations/migrate.js",
-    "seed": "node dist/migrations/seed.js",
     "knex": "knex --knexfile src/database/knexfile.ts",
     "migrate:latest": "ts-node -r dotenv/config node_modules/.bin/knex migrate:latest --knexfile src/database/knexfile.ts",
     "migrate:latest:prod": "node -r dotenv/config node_modules/.bin/knex migrate:latest --knexfile dist/database/knexfile.js",

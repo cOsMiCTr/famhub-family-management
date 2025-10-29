@@ -44,8 +44,9 @@ router.post('/reseed', asyncHandler(async (req, res) => {
   console.log('🌱 Re-seeding translations...');
   
   try {
-    const { default: seedTranslations } = await import('../migrations/seedTranslations');
-    await seedTranslations();
+    const { db } = await import('../database/connection');
+    const { seed: seedTranslations } = await import('../database/seeds/02_translations');
+    await seedTranslations(db);
     
     res.json({
       message: 'Translations re-seeded successfully'
