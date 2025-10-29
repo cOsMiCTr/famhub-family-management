@@ -12,6 +12,7 @@ const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
 const passwordService_1 = require("../services/passwordService");
 const loginAttemptService_1 = require("../services/loginAttemptService");
+const twoFactorService_1 = require("../services/twoFactorService");
 const router = express_1.default.Router();
 router.post('/login', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Valid email required'),
@@ -27,7 +28,7 @@ router.post('/login', [
     const userResult = await (0, database_1.query)(`SELECT u.id, u.email, u.password_hash, u.role, u.household_id, u.preferred_language, u.main_currency,
             u.must_change_password, u.account_status, u.failed_login_attempts, 
             u.account_locked_until, u.last_login_at, u.last_activity_at, u.created_at,
-            h.name as household_name
+            u.two_factor_enabled, h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
      WHERE u.email = $1`, [email]);
@@ -76,6 +77,21 @@ router.post('/login', [
         const remainingAttempts = 3 - (user.failed_login_attempts + 1);
         const lockWarning = user.role === 'admin' ? '' : (remainingAttempts > 0 ? ` ${remainingAttempts} attempts remaining.` : ' Account will be locked.');
         throw new errorHandler_1.CustomError(`Invalid email or password.${lockWarning}`, 401, 'INVALID_CREDENTIALS');
+    }
+    if (user.two_factor_enabled) {
+        const { twoFactorCode } = req.body;
+        if (!twoFactorCode) {
+            return res.status(200).json({
+                message: '2FA code required',
+                requires2FA: true,
+                twoFactorRequired: true
+            });
+        }
+        const verifyResult = await (0, twoFactorService_1.verifyTwoFactorToken)(user.id, twoFactorCode);
+        if (!verifyResult.verified) {
+            await loginAttemptService_1.LoginAttemptService.recordLoginAttempt(email, user.id, false, ipAddress, userAgent, 'Invalid 2FA code');
+            throw (0, errorHandler_1.createUnauthorizedError)('Invalid 2FA code');
+        }
     }
     await loginAttemptService_1.LoginAttemptService.resetFailedAttempts(user.id);
     await (0, database_1.query)(`UPDATE users 

@@ -55,15 +55,18 @@ async function initializeDatabase() {
         const client = await exports.pool.connect();
         console.log('📊 Database connection established');
         client.release();
-        await runMigrations();
+        const { db } = await Promise.resolve().then(() => __importStar(require('../database/connection')));
+        console.log('🔄 Running database migrations...');
+        await db.migrate.latest();
+        console.log('✅ Database migrations completed');
         const seedClient = await exports.pool.connect();
         try {
             const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
             const corruptedCount = await seedClient.query('SELECT COUNT(*) as count FROM translations WHERE en = \'\' OR en IS NULL');
             if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
-                console.log('🌱 Seeding translations from JSON files...');
-                const { default: seedTranslations } = await Promise.resolve().then(() => __importStar(require('../migrations/seedTranslations')));
-                await seedTranslations();
+                console.log('🌱 Seeding translations...');
+                const { seed: seedTranslations } = await Promise.resolve().then(() => __importStar(require('../database/seeds/02_translations')));
+                await seedTranslations(db);
                 console.log('✅ Translations seeded successfully');
             }
             else {
@@ -78,8 +81,8 @@ async function initializeDatabase() {
             const categoryCount = await categoryClient.query('SELECT COUNT(*) as count FROM income_categories');
             if (parseInt(categoryCount.rows[0].count) === 0) {
                 console.log('🌱 Seeding income categories...');
-                const { default: seedIncomeCategories } = await Promise.resolve().then(() => __importStar(require('../migrations/seedIncomeCategories')));
-                await seedIncomeCategories();
+                const { seed: seedIncomeCategories } = await Promise.resolve().then(() => __importStar(require('../database/seeds/03_income_categories')));
+                await seedIncomeCategories(db);
                 console.log('✅ Income categories seeded successfully');
             }
             else {
@@ -95,8 +98,8 @@ async function initializeDatabase() {
             const wrongTypeCount = await assetCategoryClient.query('SELECT COUNT(*) as count FROM asset_categories WHERE type = \'income\'');
             if (parseInt(assetCategoryCount.rows[0].count) === 0 || parseInt(wrongTypeCount.rows[0].count) > 0) {
                 console.log('🌱 Seeding asset categories...');
-                const { default: seedAssetCategories } = await Promise.resolve().then(() => __importStar(require('../migrations/seedAssetCategories')));
-                await seedAssetCategories();
+                const { seed: seedAssetCategories } = await Promise.resolve().then(() => __importStar(require('../database/seeds/04_asset_categories')));
+                await seedAssetCategories(db);
                 console.log('✅ Asset categories seeded successfully');
             }
             else {
@@ -111,8 +114,8 @@ async function initializeDatabase() {
             const currencyCount = await currencyClient.query('SELECT COUNT(*) as count FROM currencies');
             if (parseInt(currencyCount.rows[0].count) === 0) {
                 console.log('🌱 Seeding currencies...');
-                const { default: seedCurrencies } = await Promise.resolve().then(() => __importStar(require('../migrations/seedCurrencies')));
-                await seedCurrencies();
+                const { seed: seedCurrencies } = await Promise.resolve().then(() => __importStar(require('../database/seeds/01_currencies')));
+                await seedCurrencies(db);
                 console.log('✅ Currencies seeded successfully');
             }
             else {

@@ -89,6 +89,7 @@ router.get('/users', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const usersResult = await (0, database_1.query)(`SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, 
             u.account_status, u.last_login_at, u.last_activity_at, u.failed_login_attempts,
             u.account_locked_until, u.must_change_password, u.created_at, u.updated_at,
+            u.two_factor_enabled,
             h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
@@ -223,6 +224,36 @@ router.post('/users/:id/unlock', (0, errorHandler_1.asyncHandler)(async (req, re
     res.json({
         message: 'Account unlocked successfully'
     });
+}));
+router.post('/users/:id/toggle-2fa', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const { action } = req.body;
+    const userResult = await (0, database_1.query)('SELECT id, email, two_factor_enabled FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('User');
+    }
+    const user = userResult.rows[0];
+    if (action === 'disable' || (!action && user.two_factor_enabled)) {
+        if (!user.two_factor_enabled) {
+            throw new errorHandler_1.CustomError('2FA is already disabled.', 400, '2FA_ALREADY_DISABLED');
+        }
+        await (0, database_1.query)(`UPDATE users 
+       SET two_factor_enabled = false,
+           two_factor_secret = NULL,
+           backup_codes = NULL,
+           updated_at = NOW()
+       WHERE id = $1`, [id]);
+        res.json({
+            message: '2FA disabled successfully',
+            two_factor_enabled: false
+        });
+    }
+    else if (action === 'enable' || (!action && !user.two_factor_enabled)) {
+        if (user.two_factor_enabled) {
+            throw new errorHandler_1.CustomError('2FA is already enabled.', 400, '2FA_ALREADY_ENABLED');
+        }
+        throw new errorHandler_1.CustomError('2FA cannot be enabled remotely. The user must enable it through their Settings page with their authenticator app.', 400, 'CANNOT_ENABLE_2FA_REMOTELY');
+    }
 }));
 router.put('/users/:id/toggle-status', [
     (0, express_validator_1.body)('status').isIn(['active', 'locked']).withMessage('Invalid status')

@@ -38,7 +38,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exchangeRateService = void 0;
 const axios_1 = __importDefault(require("axios"));
-const node_cron_1 = __importDefault(require("node-cron"));
 const cheerio = __importStar(require("cheerio"));
 const database_1 = require("../config/database");
 class ExchangeRateService {
@@ -48,13 +47,6 @@ class ExchangeRateService {
         this.startScheduledUpdates();
     }
     startScheduledUpdates() {
-        node_cron_1.default.schedule('0 */6 * * *', async () => {
-            console.log('🔄 Starting scheduled exchange rate update...');
-            await this.updateExchangeRates();
-        });
-        setTimeout(() => {
-            this.updateExchangeRates();
-        }, 5000);
     }
     async getActiveCurrenciesByType(type) {
         const result = await (0, database_1.query)('SELECT code FROM currencies WHERE currency_type = $1 AND is_active = true ORDER BY code', [type]);
@@ -77,24 +69,18 @@ class ExchangeRateService {
     }
     async updateExchangeRates() {
         if (this.isUpdating) {
-            console.log('⏳ Exchange rate update already in progress, skipping...');
+            console.log('⏳ Sync already in progress, skipping...');
             return;
         }
         this.isUpdating = true;
+        console.log('🔄 Starting exchange rate sync...');
         try {
-            console.log('📈 Fetching exchange rates from scraping sources...');
-            try {
-                console.log('🔄 Starting ExchangeRates-Data API sync...');
-                await this.updateRatesFromExchangeRatesData();
-                console.log('✅ Exchange rates updated successfully from ExchangeRates-Data API');
-            }
-            catch (apiError) {
-                console.error('❌ ExchangeRates-Data API failed with error:', apiError);
-                throw new Error('Failed to sync exchange rates - API error');
-            }
+            await this.updateRatesFromExchangeRatesData();
+            console.log('✅ Exchange rate sync completed successfully');
         }
-        catch (error) {
-            console.error('❌ Failed to update exchange rates:', error);
+        catch (apiError) {
+            console.error('❌ ExchangeRate-API.com failed:', apiError);
+            throw new Error('Failed to sync exchange rates - API error');
         }
         finally {
             this.isUpdating = false;
@@ -105,7 +91,7 @@ class ExchangeRateService {
         const activeFiats = await this.getActiveCurrenciesByType('fiat');
         const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
         const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
-        console.log(`📊 Active currencies: ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
+        console.log(`📊 Fetching rates for ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
         const cryptoPricesInUSD = {};
         const yahooTickers = {
             'BTC': 'BTC-USD',
@@ -123,10 +109,8 @@ class ExchangeRateService {
         };
         for (const crypto of activeCryptos) {
             try {
-                console.log(`🔄 Fetching ${crypto} price...`);
                 const ticker = yahooTickers[crypto];
                 if (!ticker) {
-                    console.warn(`⏭️ No Yahoo ticker for ${crypto}`);
                     continue;
                 }
                 let cryptoPriceInUSD = null;
@@ -140,11 +124,9 @@ class ExchangeRateService {
                     });
                     if (yahooResponse.data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
                         cryptoPriceInUSD = yahooResponse.data.chart.result[0].meta.regularMarketPrice;
-                        console.log(`📈 Got ${crypto} price: $${cryptoPriceInUSD} from Yahoo Finance API`);
                     }
                 }
                 catch (apiError) {
-                    console.log(`⚠️ Yahoo API failed for ${crypto}, trying CoinMarketCap scraping...`);
                     try {
                         const cmcUrls = {
                             'BTC': 'https://coinmarketcap.com/currencies/bitcoin/',
@@ -178,31 +160,52 @@ class ExchangeRateService {
                             }
                             if (priceText) {
                                 cryptoPriceInUSD = parseFloat(priceText.replace(/[$,]/g, ''));
-                                console.log(`📈 Scraped ${crypto} price: $${cryptoPriceInUSD} from CoinMarketCap`);
                             }
                         }
                     }
                     catch (scrapeError) {
-                        console.error(`❌ Failed to scrape ${crypto} from CoinMarketCap:`, scrapeError);
                     }
                 }
                 if (cryptoPriceInUSD && !isNaN(cryptoPriceInUSD)) {
                     cryptoPricesInUSD[crypto] = cryptoPriceInUSD;
                 }
-                else {
-                    console.warn(`⚠️ Could not get ${crypto} price from any source`);
-                }
             }
             catch (error) {
-                console.error(`❌ Failed to fetch ${crypto}:`, error);
             }
         }
         try {
             for (const baseFiat of activeFiats) {
+                let apiUrl = '';
                 try {
                     const timestamp = Date.now();
-                    const response = await axios_1.default.get(`https://api.exchangerate-api.com/v4/latest/${baseFiat}?timestamp=${timestamp}`, { timeout: 10000 });
-                    console.log(`[${new Date().toISOString()}] 📥 Fetched rates for ${baseFiat}`);
+                    const random = Math.random().toString(36).substring(7);
+                    if (this.currencyApiKey) {
+                        apiUrl = `https://v6.exchangerate-api.com/v6/${this.currencyApiKey}/latest/${baseFiat}`;
+                    }
+                    else {
+                        apiUrl = `https://api.exchangerate-api.com/v4/latest/${baseFiat}?t=${timestamp}&r=${random}`;
+                    }
+                    const response = await axios_1.default.get(apiUrl, {
+                        timeout: 15000,
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        }
+                    });
+                    console.log(`📥 API Response ${baseFiat}:`, {
+                        url: apiUrl.includes('v6') ? 'v6 (with API key)' : 'v4 (free tier)',
+                        status: response.status,
+                        statusText: response.statusText,
+                        base: response.data?.base || 'N/A',
+                        date: response.data?.date || 'N/A',
+                        hasRates: !!(response.data && response.data.rates),
+                        ratesCount: response.data?.rates ? Object.keys(response.data.rates).length : 0,
+                        sampleRates: response.data?.rates ? {
+                            USD: response.data.rates.USD || 'N/A',
+                            EUR: response.data.rates.EUR || 'N/A',
+                            GBP: response.data.rates.GBP || 'N/A'
+                        } : 'No rates'
+                    });
                     if (response.data && response.data.rates) {
                         const fiatToUSD = response.data.rates.USD || 1;
                         for (const targetFiat of activeFiats) {
@@ -210,12 +213,6 @@ class ExchangeRateService {
                                 continue;
                             if (response.data.rates[targetFiat]) {
                                 const rate = response.data.rates[targetFiat];
-                                if (targetFiat === 'TRY') {
-                                    console.log(`[${new Date().toISOString()}] 🔍 ${baseFiat}/TRY rate from API: ${rate}`);
-                                }
-                                if (baseFiat === 'TRY') {
-                                    console.log(`[${new Date().toISOString()}] 🔍 TRY/${targetFiat} rate from API: ${rate}`);
-                                }
                                 allRates.push({
                                     from_currency: baseFiat,
                                     to_currency: targetFiat,
@@ -223,12 +220,10 @@ class ExchangeRateService {
                                 });
                             }
                         }
-                        console.log(`✅ Added ${activeFiats.length - 1} fiat rates for ${baseFiat}`);
                         for (const crypto of activeCryptos) {
                             if (!cryptoPricesInUSD[crypto])
                                 continue;
                             const fiatToCrypto = cryptoPricesInUSD[crypto] / fiatToUSD;
-                            console.log(`💱 Calculated ${baseFiat}/${crypto}: ${fiatToCrypto}`);
                             allRates.push({
                                 from_currency: baseFiat,
                                 to_currency: crypto,
@@ -244,11 +239,9 @@ class ExchangeRateService {
                             };
                             const metalPriceInUSD = metalPricesInUSD[metal];
                             if (!metalPriceInUSD) {
-                                console.warn(`No price mapping for metal: ${metal}`);
                                 continue;
                             }
                             const fiatToMetal = metalPriceInUSD / fiatToUSD;
-                            console.log(`🥇 Calculated ${metal} rate for ${baseFiat}: ${fiatToMetal}`);
                             allRates.push({
                                 from_currency: baseFiat,
                                 to_currency: metal,
@@ -258,35 +251,24 @@ class ExchangeRateService {
                     }
                 }
                 catch (error) {
-                    console.error(`[${new Date().toISOString()}] ❌ Failed to fetch rates for ${baseFiat}:`, error);
+                    console.error(`❌ Failed to fetch rates for ${baseFiat}:`, {
+                        status: error.response?.status,
+                        message: error.message
+                    });
                 }
             }
         }
         catch (error) {
-            console.error(`[${new Date().toISOString()}] ❌ Failed to fetch forex rates:`, error);
-            if (error instanceof Error) {
-                console.error(`[${new Date().toISOString()}] Error details:`, error.message);
-            }
+            console.error(`❌ Failed to fetch forex rates:`, error);
             throw error;
         }
-        console.log(`[${new Date().toISOString()}] ✅ Fetched ${allRates.length} exchange rates from ExchangeRates-Data API`);
-        console.log(`[${new Date().toISOString()}] 📊 Sample rates being stored:`, allRates.slice(0, 5));
-        const eurRates = allRates.filter(r => r.from_currency === 'EUR');
-        console.log(`[${new Date().toISOString()}] 🔍 All EUR rates:`, eurRates);
-        const eurTryRate = allRates.find(r => r.from_currency === 'EUR' && r.to_currency === 'TRY');
-        console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY found:`, eurTryRate);
-        if (eurTryRate) {
-            console.log(`[${new Date().toISOString()}] 🔍 EUR/TRY rate before storing to DB: ${eurTryRate.rate}`);
-        }
-        else {
-            console.log(`[${new Date().toISOString()}] ⚠️ EUR/TRY rate NOT found in allRates array`);
-        }
         if (allRates.length > 0) {
+            console.log(`💾 Storing ${allRates.length} exchange rates to database...`);
             await this.storeExchangeRates(allRates);
-            console.log(`[${new Date().toISOString()}] ✅ Successfully stored ${allRates.length} rates to database`);
+            console.log(`✅ Successfully stored ${allRates.length} rates`);
         }
         else {
-            throw new Error('No rates fetched from ExchangeRates-Data API');
+            throw new Error('No rates fetched from ExchangeRate-API.com');
         }
     }
     async updateFiatRates() {
@@ -380,14 +362,12 @@ class ExchangeRateService {
         console.log('⚠️ Gold fallback rates deprecated. Use Finnhub API instead.');
     }
     async storeExchangeRates(rates) {
-        console.log(`💾 Storing ${rates.length} rates to database...`);
         for (const rate of rates) {
             await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
          VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
          ON CONFLICT (from_currency, to_currency)
          DO UPDATE SET rate = $3, updated_at = CURRENT_TIMESTAMP`, [rate.from_currency, rate.to_currency, rate.rate]);
         }
-        console.log(`✅ Stored ${rates.length} rates successfully`);
     }
     async createCrossConversions() {
         const allCurrencies = await (0, database_1.query)('SELECT code FROM currencies WHERE is_active = true');
@@ -408,12 +388,6 @@ class ExchangeRateService {
                                     const cryptoCurrencies = await this.getActiveCurrenciesByType('cryptocurrency');
                                     const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
                                     const isToCrypto = cryptoCurrencies.includes(toCurrency);
-                                    if (cryptoCurrencies.includes(toCurrency)) {
-                                        console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
-                                        console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
-                                        console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
-                                        console.log(`🔍 isFromCrypto: ${isFromCrypto}, isToCrypto: ${isToCrypto}`);
-                                    }
                                     let crossRate;
                                     if (fromCurrency === 'USD') {
                                         crossRate = usdToToCurrency;
@@ -429,10 +403,6 @@ class ExchangeRateService {
                                     }
                                     else {
                                         crossRate = fromCurrencyToUSD / usdToToCurrency;
-                                    }
-                                    if (fromCurrency === 'EUR' && cryptoCurrencies.includes(toCurrency)) {
-                                        console.log(`🔍 Calculated crossRate: ${crossRate}`);
-                                        console.log(`🔍 This means: 1 ${fromCurrency} = ${crossRate} ${toCurrency}`);
                                     }
                                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
                      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
@@ -467,12 +437,6 @@ class ExchangeRateService {
                     const cryptoCurrencies = await this.getActiveCurrenciesByType('cryptocurrency');
                     const isFromCrypto = cryptoCurrencies.includes(fromCurrency);
                     const isToCrypto = cryptoCurrencies.includes(toCurrency);
-                    if (cryptoCurrencies.includes(toCurrency)) {
-                        console.log(`🔍 DEBUG: Converting ${fromCurrency} to ${toCurrency}`);
-                        console.log(`🔍 fromCurrencyToUSD (${fromCurrency}/USD): ${fromCurrencyToUSD}`);
-                        console.log(`🔍 usdToToCurrency (USD/${toCurrency}): ${usdToToCurrency}`);
-                        console.log(`🔍 isFromCrypto: ${isFromCrypto}, isToCrypto: ${isToCrypto}`);
-                    }
                     let crossRate;
                     if (fromCurrency === 'USD') {
                         crossRate = usdToToCurrency;
@@ -488,10 +452,6 @@ class ExchangeRateService {
                     }
                     else {
                         crossRate = fromCurrencyToUSD / usdToToCurrency;
-                    }
-                    if (cryptoCurrencies.includes(toCurrency)) {
-                        console.log(`🔍 Calculated crossRate: ${crossRate}`);
-                        console.log(`🔍 This means: 1 ${fromCurrency} = ${crossRate} ${toCurrency}`);
                     }
                     await (0, database_1.query)(`INSERT INTO exchange_rates (from_currency, to_currency, rate, updated_at)
              VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
@@ -537,30 +497,13 @@ class ExchangeRateService {
         return [];
     }
     async forceUpdate() {
-        console.log('🔄 Force updating exchange rates...');
-        if (!this.currencyApiKey) {
-            console.log('🔄 Manual sync: Attempting scraping without API keys...');
-            try {
-                const scrapedRates = await this.scrapeAllRates();
-                if (scrapedRates.length > 0) {
-                    console.log(`✅ Manual sync: Scraped ${scrapedRates.length} rates successfully`);
-                    await this.storeExchangeRates(scrapedRates);
-                    console.log(`✅ Stored ${scrapedRates.length} rates in database`);
-                }
-                else {
-                    console.warn('⚠️ No rates scraped, falling back to updateExchangeRates...');
-                    await this.updateExchangeRates();
-                }
-            }
-            catch (error) {
-                console.error('❌ Error during force update scraping:', error);
-                await this.updateExchangeRates();
-            }
-        }
-        else {
+        try {
             await this.updateExchangeRates();
         }
-        console.log('✅ Force update completed');
+        catch (error) {
+            console.error(`❌ Force update failed:`, error);
+            throw error;
+        }
     }
     async scrapeGoldRates() {
         return [];

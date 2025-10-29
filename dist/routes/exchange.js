@@ -59,9 +59,7 @@ router.post('/update', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     });
 }));
 router.post('/sync', (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    console.log('🔄 Manual exchange rate sync initiated...');
     await exchangeRateService_1.exchangeRateService.forceUpdate();
-    console.log('✅ Exchange rates synced successfully');
     res.json({
         success: true,
         message: 'Exchange rates synced successfully',

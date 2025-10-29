@@ -37071,3 +37071,3752 @@ src/services/exchangeRateService.ts(344,18): error TS2304: Cannot find name 'api
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+(node:91533) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [Bus]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Constraint may already exist or could not be added
+ℹ️ Column must_change_password already exists
+ℹ️ Column password_changed_at already exists
+ℹ️ Column account_status already exists
+ℹ️ Column failed_login_attempts already exists
+ℹ️ Column last_failed_login_at already exists
+ℹ️ Column account_locked_until already exists
+ℹ️ Column last_login_at already exists
+ℹ️ Column last_activity_at already exists
+ℹ️ Column password_history already exists
+ℹ️ Column household_member_id in assets already exists
+ℹ️ Column assigned_member_ids in contracts already exists
+ℹ️ Column user_id in household_members already exists
+ℹ️ Column allowed_currency_types in asset_categories already exists
+ℹ️ Column created_at in users already exists
+✅ Updated users with created_at timestamps
+✅ Updated login_attempts foreign key constraint
+✅ Updated admin_notifications foreign key constraint
+ℹ️ Assets table columns already updated or table does not exist
+✅ Updated asset_categories table with new columns and constraint
+❌ Database migration failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Database initialization failed: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+❌ Failed to start server: error: column "household_id" does not exist
+    at /Users/cosmic/Downloads/famhub-fresh/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runMigrations (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:636:5)
+    at async initializeDatabase (/Users/cosmic/Downloads/famhub-fresh/src/config/database.ts:24:5)
+    at async startServer (/Users/cosmic/Downloads/famhub-fresh/src/server.ts:118:5) {
+  length: 102,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1843',
+  routine: 'ComputeIndexAttrs'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859
+    return new TSError(diagnosticText, diagnosticCodes, diagnostics);
+           ^
+TSError: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,13): error TS2451: Cannot redeclare block-scoped variable 'db'.
+src/config/database.ts(30,13): error TS2451: Cannot redeclare block-scoped variable 'db'.
+
+    at createTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1617:30)
+    at node:internal/modules/cjs/loader:1824:10
+    at Object.require.extensions.<computed> [as .ts] (/Users/cosmic/Downloads/famhub-fresh/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  diagnosticCodes: [ 2451, 2451 ]
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+(node:91533) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [Bus]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+❌ Failed to start server: src/database/knexfile.ts(29,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+src/database/knexfile.ts(49,5): error TS2353: Object literal may only specify known properties, and 'ssl' does not exist in type 'Config<any>'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+❌ Database initialization failed: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+❌ Failed to start server: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+❌ Database initialization failed: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+❌ Failed to start server: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+❌ Database initialization failed: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+❌ Failed to start server: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+❌ Database initialization failed: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+❌ Failed to start server: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+❌ Database initialization failed: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+❌ Failed to start server: [Error: ENOENT: no such file or directory, scandir '/Users/cosmic/Downloads/famhub-fresh/migrations'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/cosmic/Downloads/famhub-fresh/migrations'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+❌ Failed to start server: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+❌ Failed to start server: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+❌ Database initialization failed: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+❌ Failed to start server: src/database/knexfile.ts(25,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(29,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(47,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(51,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(69,18): error TS2304: Cannot find name 'isProduction'.
+src/database/knexfile.ts(73,18): error TS2304: Cannot find name 'isProduction'.
+
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+📊 Database connection established
+🔄 Running database migrations...
+migration file "0000000000000_initial_schema.ts" failed
+migration failed with error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+❌ Database initialization failed: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+❌ Failed to start server: error: create table "users" ("id" serial primary key, "email" varchar(255) not null, "password_hash" varchar(255) not null, "role" varchar(20) default 'user', "household_id" integer, "preferred_language" varchar(5) default 'en', "main_currency" varchar(4) default 'USD', "must_change_password" boolean default '0', "password_changed_at" timestamptz, "account_status" varchar(50) default 'active', "failed_login_attempts" integer default '0', "last_failed_login_at" timestamptz, "account_locked_until" timestamptz, "last_login_at" timestamptz, "last_activity_at" timestamptz, "password_history" TEXT[] default 'ARRAY[]::TEXT[]', "created_at" timestamptz default CURRENT_TIMESTAMP, "updated_at" timestamptz default CURRENT_TIMESTAMP, "two_factor_enabled" boolean default '0', "two_factor_secret" text, "backup_codes" jsonb) - relation "users" already exists
+    at Parser.parseErrorMessage (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:369:69)
+    at Parser.handlePacket (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:187:21)
+    at Parser.parse (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/parser.ts:102:30)
+    at Socket.<anonymous> (/Users/cosmic/Downloads/famhub-fresh/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:507:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Socket.Readable.push (node:internal/streams/readable:390:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+  length: 99,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1203',
+  routine: 'heap_create_with_catalog'
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

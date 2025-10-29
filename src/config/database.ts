@@ -20,8 +20,11 @@ export async function initializeDatabase(): Promise<void> {
     console.log('📊 Database connection established');
     client.release();
 
-    // Run migrations
-    await runMigrations();
+    // Run Knex migrations
+    const { db } = await import('../database/connection');
+    console.log('🔄 Running database migrations...');
+    await db.migrate.latest();
+    console.log('✅ Database migrations completed');
     
     // Seed translations if table is empty or corrupted
     const seedClient = await pool.connect();
@@ -29,14 +32,14 @@ export async function initializeDatabase(): Promise<void> {
       const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
       const corruptedCount = await seedClient.query('SELECT COUNT(*) as count FROM translations WHERE en = \'\' OR en IS NULL');
       
-        if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
-          console.log('🌱 Seeding translations from JSON files...');
-          const { default: seedTranslations } = await import('../migrations/seedTranslations');
-          await seedTranslations();
-          console.log('✅ Translations seeded successfully');
-        } else {
-          console.log('✅ Translations are intact');
-        }
+      if (parseInt(translationCount.rows[0].count) === 0 || parseInt(corruptedCount.rows[0].count) > 0) {
+        console.log('🌱 Seeding translations...');
+        const { seed: seedTranslations } = await import('../database/seeds/02_translations');
+        await seedTranslations(db);
+        console.log('✅ Translations seeded successfully');
+      } else {
+        console.log('✅ Translations are intact');
+      }
     } finally {
       seedClient.release();
     }
@@ -48,8 +51,8 @@ export async function initializeDatabase(): Promise<void> {
       
       if (parseInt(categoryCount.rows[0].count) === 0) {
         console.log('🌱 Seeding income categories...');
-        const { default: seedIncomeCategories } = await import('../migrations/seedIncomeCategories');
-        await seedIncomeCategories();
+        const { seed: seedIncomeCategories } = await import('../database/seeds/03_income_categories');
+        await seedIncomeCategories(db);
         console.log('✅ Income categories seeded successfully');
       } else {
         console.log('✅ Income categories are intact');
@@ -66,8 +69,8 @@ export async function initializeDatabase(): Promise<void> {
       
       if (parseInt(assetCategoryCount.rows[0].count) === 0 || parseInt(wrongTypeCount.rows[0].count) > 0) {
         console.log('🌱 Seeding asset categories...');
-        const { default: seedAssetCategories } = await import('../migrations/seedAssetCategories');
-        await seedAssetCategories();
+        const { seed: seedAssetCategories } = await import('../database/seeds/04_asset_categories');
+        await seedAssetCategories(db);
         console.log('✅ Asset categories seeded successfully');
       } else {
         console.log('✅ Asset categories are intact');
@@ -83,8 +86,8 @@ export async function initializeDatabase(): Promise<void> {
       
       if (parseInt(currencyCount.rows[0].count) === 0) {
         console.log('🌱 Seeding currencies...');
-        const { default: seedCurrencies } = await import('../migrations/seedCurrencies');
-        await seedCurrencies();
+        const { seed: seedCurrencies } = await import('../database/seeds/01_currencies');
+        await seedCurrencies(db);
         console.log('✅ Currencies seeded successfully');
       } else {
         console.log('✅ Currencies are intact');

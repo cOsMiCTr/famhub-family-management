@@ -151,7 +151,7 @@ router.post('/change-password', [
     if (!complexityCheck.isValid) {
         throw (0, errorHandler_1.createValidationError)(`Password does not meet requirements: ${complexityCheck.errors.join(', ')}`);
     }
-    const userResult = await (0, database_1.query)('SELECT id, password_hash FROM users WHERE id = $1', [req.user.userId]);
+    const userResult = await (0, database_1.query)('SELECT id, password_hash FROM users WHERE id = $1', [req.user.id]);
     if (userResult.rows.length === 0) {
         throw (0, errorHandler_1.createUnauthorizedError)('User not found');
     }

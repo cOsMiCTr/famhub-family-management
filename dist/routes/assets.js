@@ -116,9 +116,19 @@ router.post('/', [
             }
         }
     }
-    const initialValue = current_value || amount;
-    await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, date, initialValue, currency, valuation_method || 'Manual', req.user.id]);
+    if (purchase_price && purchase_date) {
+        await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, purchase_date, purchase_price, currency, valuation_method || 'Manual', req.user.id]);
+        const currentValue = current_value || amount;
+        await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, new Date().toISOString().split('T')[0], currentValue, currency, valuation_method || 'Manual', req.user.id]);
+    }
+    else {
+        const initialValue = current_value || amount;
+        const valuationDate = purchase_date || date;
+        await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`, [asset.id, valuationDate, initialValue, currency, valuation_method || 'Manual', req.user.id]);
+    }
     const [categoryNameResult, memberNameResult] = await Promise.all([
         (0, database_1.query)('SELECT name_en, name_de, name_tr FROM asset_categories WHERE id = $1', [category_id]),
         household_member_id ? (0, database_1.query)('SELECT name FROM household_members WHERE id = $1', [household_member_id]) : Promise.resolve({ rows: [] })
@@ -506,16 +516,63 @@ router.put('/:id', [
     else if (updateData.ownership_type && updateData.ownership_type !== 'shared') {
         await (0, database_1.query)('DELETE FROM shared_ownership_distribution WHERE asset_id = $1', [id]);
     }
-    if (updateData.current_value !== undefined) {
-        await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)`, [
-            id,
-            new Date().toISOString().split('T')[0],
-            updateData.current_value,
-            updateData.currency || existingAsset.currency,
-            updateData.valuation_method || 'Manual',
-            req.user.id
-        ]);
+    const hasHistory = await (0, database_1.query)('SELECT COUNT(*) as count FROM asset_valuation_history WHERE asset_id = $1', [id]);
+    const historyCount = parseInt(hasHistory.rows[0].count);
+    if (updateData.purchase_price !== undefined || updateData.purchase_date !== undefined || updateData.current_value !== undefined || updateData.amount !== undefined) {
+        if (historyCount === 0) {
+            const purchasePrice = updateData.purchase_price !== undefined ? updateData.purchase_price : existingAsset.purchase_price;
+            const purchaseDate = updateData.purchase_date !== undefined ? updateData.purchase_date : existingAsset.purchase_date;
+            const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : existingAsset.current_value || existingAsset.amount);
+            const currency = updateData.currency || existingAsset.currency;
+            if (purchasePrice && purchaseDate) {
+                await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`, [id, purchaseDate, purchasePrice, currency, existingAsset.valuation_method || 'Manual', req.user.id]);
+                await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`, [id, new Date().toISOString().split('T')[0], currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]);
+            }
+            else {
+                await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`, [id, existingAsset.date, currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]);
+            }
+        }
+        else {
+            const valuations = await (0, database_1.query)('SELECT id FROM asset_valuation_history WHERE asset_id = $1 ORDER BY valuation_date ASC, created_at ASC', [id]);
+            if (historyCount === 1 && updateData.purchase_price && updateData.purchase_date) {
+                const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : existingAsset.current_value || existingAsset.amount);
+                const currency = updateData.currency || existingAsset.currency;
+                await (0, database_1.query)(`UPDATE asset_valuation_history SET value = $1, valuation_date = $2 WHERE id = $3`, [updateData.purchase_price, updateData.purchase_date, valuations.rows[0].id]);
+                await (0, database_1.query)(`INSERT INTO asset_valuation_history (asset_id, valuation_date, value, currency, valuation_method, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)`, [id, new Date().toISOString().split('T')[0], currentValue, currency, existingAsset.valuation_method || 'Manual', req.user.id]);
+            }
+            else {
+                const valuationDate = updateData.purchase_date || existingAsset.purchase_date || existingAsset.date || new Date().toISOString().split('T')[0];
+                const value = updateData.purchase_price !== undefined ? updateData.purchase_price : (updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : null));
+                if (value !== null && value !== undefined) {
+                    await (0, database_1.query)(`UPDATE asset_valuation_history 
+             SET value = $1, currency = $2, valuation_method = $3, valuation_date = $4
+             WHERE id = $5`, [
+                        value,
+                        updateData.currency || existingAsset.currency,
+                        existingAsset.valuation_method || 'Manual',
+                        valuationDate,
+                        valuations.rows[0].id
+                    ]);
+                }
+                if (valuations.rows.length === 2) {
+                    const currentValue = updateData.current_value !== undefined ? updateData.current_value : (updateData.amount !== undefined ? updateData.amount : null);
+                    if (currentValue !== null && currentValue !== undefined) {
+                        await (0, database_1.query)(`UPDATE asset_valuation_history 
+               SET value = $1, currency = $2, valuation_method = $3
+               WHERE id = $4`, [
+                            currentValue,
+                            updateData.currency || existingAsset.currency,
+                            existingAsset.valuation_method || 'Manual',
+                            valuations.rows[1].id
+                        ]);
+                    }
+                }
+            }
+        }
     }
     res.json({
         message: 'Asset updated successfully',
@@ -561,6 +618,28 @@ router.get('/:id/history', (0, errorHandler_1.asyncHandler)(async (req, res) => 
     res.json({
         asset_id: id,
         history: historyResult.rows
+    });
+}));
+router.delete('/valuation/:valuationId', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    if (!req.user) {
+        throw new Error('User not authenticated');
+    }
+    const { valuationId } = req.params;
+    const valuationResult = await (0, database_1.query)(`SELECT avh.*, a.user_id, a.household_id
+     FROM asset_valuation_history avh
+     JOIN assets a ON avh.asset_id = a.id
+     WHERE avh.id = $1`, [valuationId]);
+    if (valuationResult.rows.length === 0) {
+        throw (0, errorHandler_1.createNotFoundError)('Valuation entry');
+    }
+    const valuation = valuationResult.rows[0];
+    if (req.user.role !== 'admin' && valuation.user_id !== req.user.id) {
+        throw new Error('Access denied to this valuation');
+    }
+    await (0, database_1.query)('DELETE FROM asset_valuation_history WHERE id = $1', [valuationId]);
+    res.json({
+        message: 'Valuation entry deleted successfully',
+        deleted_id: valuationId
     });
 }));
 router.post('/:id/valuation', [
