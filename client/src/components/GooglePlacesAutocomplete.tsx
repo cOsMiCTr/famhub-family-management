@@ -59,15 +59,33 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.disabled = disabled;
         
         // Set proper background color immediately to prevent black/dark gray background
-        // Check if we're in dark mode by checking the document or className
-        const isDarkMode = document.documentElement.classList.contains('dark') || className.includes('dark:bg-gray-700');
-        inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff';
-        inputRef.current.style.color = isDarkMode ? '#ffffff' : '#111827';
+        // Check if we're in dark mode by checking the document, body, or className
+        const htmlHasDark = document.documentElement.classList.contains('dark');
+        const bodyHasDark = document.body.classList.contains('dark');
+        const classNameHasDark = className.includes('dark:bg-gray-700') || className.includes('dark:');
+        const isDarkMode = htmlHasDark || bodyHasDark || classNameHasDark;
+        
+        console.log('[GooglePlacesAutocomplete] 🌙 Dark mode detection:', {
+          htmlHasDark,
+          bodyHasDark,
+          classNameHasDark,
+          className,
+          isDarkMode
+        });
+        
+        // ALWAYS use white background in light mode (default)
+        const bgColor = isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff';
+        const textColor = isDarkMode ? '#ffffff' : '#111827';
+        const borderColor = isDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
+        
+        inputRef.current.style.backgroundColor = bgColor;
+        inputRef.current.style.color = textColor;
         inputRef.current.style.backgroundImage = 'none';
-        inputRef.current.style.borderColor = isDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
-        // Force remove any dark styling that Google Maps might add
-        inputRef.current.style.setProperty('background-color', isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff', 'important');
-        inputRef.current.style.setProperty('color', isDarkMode ? '#ffffff' : '#111827', 'important');
+        inputRef.current.style.borderColor = borderColor;
+        // Force remove any dark styling that Google Maps might add - ALWAYS white in light mode
+        inputRef.current.style.setProperty('background-color', bgColor, 'important');
+        inputRef.current.style.setProperty('color', textColor, 'important');
+        inputRef.current.style.setProperty('border-color', borderColor, 'important');
         
         // Clean up previous autocomplete if any
         if (autocompleteElementRef.current && window.google?.maps?.event) {
@@ -78,11 +96,22 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Use multiple timeouts to catch when Google Maps applies styles
         const overrideStyles = () => {
           if (inputRef.current) {
+            // Re-check dark mode each time (in case theme changed)
+            const currentDarkMode = document.documentElement.classList.contains('dark') || 
+                                   document.body.classList.contains('dark') || 
+                                   className.includes('dark:bg-gray-700') || 
+                                   className.includes('dark:');
+            
+            // ALWAYS white background in light mode - this is the key fix
+            const bgColor = currentDarkMode ? 'rgb(55, 65, 81)' : '#ffffff';
+            const textColor = currentDarkMode ? '#ffffff' : '#111827';
+            const borderColor = currentDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
+            
             // Force proper styling with !important to override Google Maps
-            inputRef.current.style.setProperty('background-color', isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff', 'important');
-            inputRef.current.style.setProperty('color', isDarkMode ? '#ffffff' : '#111827', 'important');
+            inputRef.current.style.setProperty('background-color', bgColor, 'important');
+            inputRef.current.style.setProperty('color', textColor, 'important');
             inputRef.current.style.setProperty('background-image', 'none', 'important');
-            inputRef.current.style.setProperty('border-color', isDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)', 'important');
+            inputRef.current.style.setProperty('border-color', borderColor, 'important');
             // Ensure className is still applied
             if (!inputRef.current.className.includes(className.split(' ')[0])) {
               inputRef.current.className = className;
