@@ -64,16 +64,14 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     // Only fetch data if user is authenticated
     if (!user) {
-      console.log('🔴 No user found, skipping dashboard data fetch');
       return;
     }
     
     // Load last sync timestamp from localStorage first
-    const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
-    if (storedLastSync) {
-      console.log('🕐 Loaded last sync time from localStorage:', storedLastSync);
-      setLastUpdated(storedLastSync);
-    }
+      const storedLastSync = localStorage.getItem('exchange_rates_last_sync');
+      if (storedLastSync) {
+        setLastUpdated(storedLastSync);
+      }
     
     fetchDashboardData();
     
@@ -83,19 +81,12 @@ const DashboardPage: React.FC = () => {
     
     if (savedExchangeRates) {
       const parsed = JSON.parse(savedExchangeRates);
-      console.log('📋 Loaded saved exchange rates from localStorage:', parsed);
       
       // Filter out the user's main currency from saved selection
       const userMainCurrency = user?.main_currency || 'USD';
       const filtered = parsed.filter((c: string) => c !== userMainCurrency);
       
-      if (filtered.length !== parsed.length) {
-        console.log(`📋 Filtered out main currency ${userMainCurrency} from selection. New selection:`, filtered);
-      }
-      
       setSelectedExchangeRates(filtered);
-    } else {
-      console.log('📋 No saved exchange rates, using default:', ['USD', 'GBP', 'TRY']);
     }
     
     if (savedShowConversions) {
@@ -127,25 +118,9 @@ const DashboardPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log('🔵 FETCHING DASHBOARD DATA...');
-      
-      // Fetch dashboard summary from API
+      // Fetch dashboard summary from API (only reads from database, no API calls)
       const response = await apiService.get('/dashboard/summary');
       const dashboardData = response.data;
-      
-      console.log('📊 Dashboard data received:', {
-        exchangeRatesCount: dashboardData.exchange_rates?.length || 0,
-        rates: dashboardData.exchange_rates?.slice(0, 3),
-        fullRates: dashboardData.exchange_rates
-      });
-      
-      // Log each rate to see if values changed
-      if (dashboardData.exchange_rates) {
-        console.log('🔵 Individual exchange rates:');
-        dashboardData.exchange_rates.forEach((rate: any) => {
-          console.log(`  ${rate.from_currency} → ${rate.to_currency} = ${rate.rate} (updated_at: ${rate.updated_at})`);
-        });
-      }
       
       setStats({
         totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
@@ -155,8 +130,6 @@ const DashboardPage: React.FC = () => {
         totalMembers: dashboardData.summary?.member_count || 0,
         currency: dashboardData.summary?.main_currency || 'USD'
       });
-      
-      console.log('🔵 Setting exchangeRates with', dashboardData.exchange_rates?.length || 0, 'rates');
       
       // Store previous rates for comparison
       setPreviousRates(exchangeRates);
@@ -169,12 +142,9 @@ const DashboardPage: React.FC = () => {
         setLastUpdated(storedLastSync || dashboardData.timestamp || new Date().toISOString());
       }
       
-      console.log('✅ Updated exchange rates:', dashboardData.exchange_rates?.length || 0);
-      
       // Fetch active assets
       await fetchActiveAssets();
     } catch (err: any) {
-      console.error('Dashboard fetch error:', err);
       setError('Failed to load dashboard data');
       
       // Set mock data for demonstration
@@ -191,30 +161,25 @@ const DashboardPage: React.FC = () => {
   };
 
   const syncExchangeRates = async () => {
+    // Prevent double-click/double-call
+    if (isSyncing) {
+      return;
+    }
+    
     try {
       setIsSyncing(true);
       setError(null);
       
-      console.log('🔵 SYNC BUTTON CLICKED - Starting sync...');
-      console.log('🔵 Current exchangeRates before sync:', exchangeRates);
-      
+      // Trigger API call to sync rates
       const response = await apiService.syncExchangeRates();
       
-      console.log('🔵 Sync API response:', response);
-      
       if (response.success) {
-        console.log('✅ Sync successful, fetching updated rates...');
-        
         // Store sync timestamp in localStorage
         const syncTimestamp = new Date().toISOString();
         localStorage.setItem('exchange_rates_last_sync', syncTimestamp);
         
-        console.log('🔵 Before fetchDashboardData - current exchangeRates:', exchangeRates);
-        
         // Refresh dashboard data to get updated rates
         await fetchDashboardData();
-        
-        console.log('🔵 After fetchDashboardData - new exchangeRates:', exchangeRates);
         
         setLastUpdated(syncTimestamp);
         
@@ -224,11 +189,9 @@ const DashboardPage: React.FC = () => {
           setLastUpdateHighlight(false);
         }, 3000);
       } else {
-        console.error('❌ Sync failed:', response.message);
         setError(response.message || 'Failed to sync exchange rates');
       }
     } catch (err: any) {
-      console.error('Sync error:', err);
       setError('Failed to sync exchange rates');
     } finally {
       setIsSyncing(false);
@@ -284,9 +247,6 @@ const DashboardPage: React.FC = () => {
     // Filter out user's main currency before saving
     const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
     const filtered = selectedCurrencies.filter(c => c !== userMainCurrency);
-    
-    console.log('💾 Saving exchange rates to localStorage:', filtered);
-    console.log(`💾 Filtered out main currency ${userMainCurrency}`);
     
     setSelectedExchangeRates(filtered);
     localStorage.setItem('dashboard_exchange_rates', JSON.stringify(filtered));
@@ -569,9 +529,15 @@ const DashboardPage: React.FC = () => {
                 >
                   <Cog6ToothIcon className="h-4 w-4" />
                 </button>
-                <button
-                  onClick={syncExchangeRates}
-                  disabled={isSyncing}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!isSyncing) {
+                        syncExchangeRates();
+                      }
+                    }}
+                    disabled={isSyncing}
                   className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowPathIcon className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -600,27 +566,7 @@ const DashboardPage: React.FC = () => {
                     const isSelected = selectedExchangeRates.includes(rate.to_currency);
                     const matchesMain = rate.from_currency === userMainCurrency;
                     
-                    console.log(`Filtering ${rate.from_currency}→${rate.to_currency}:`, {
-                      isActive,
-                      isSelected,
-                      matchesMain,
-                      willShow: isActive && isSelected && matchesMain,
-                      activeCurrenciesEmpty: activeCurrencies.length === 0
-                    });
-                    
                     return isActive && isSelected && matchesMain;
-                  });
-                  
-                  console.log('🔵 Exchange rates debug:', {
-                    totalRates: exchangeRates.length,
-                    filteredCount: filteredRates.length,
-                    userMainCurrency,
-                    selectedExchangeRates,
-                    allRatesList: exchangeRates.map(r => `${r.from_currency}→${r.to_currency}`),
-                    filteredRatesList: filteredRates.map(r => `${r.from_currency}→${r.to_currency}`),
-                    activeCurrenciesCount: activeCurrencies.length,
-                    activeCurrenciesList: activeCurrencies.map(c => `${c.code}(${c.is_active})`),
-                    activeCurrenciesCodes: activeCurrencies.filter(c => c.is_active).map(c => c.code)
                   });
                   
                   return filteredRates;

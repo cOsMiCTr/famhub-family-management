@@ -33,13 +33,11 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       // Don't fetch if there's no token
       if (!token) {
-        console.log('⚠️ CurrencyContext: No token found, skipping currency fetch');
         setAllCurrencies([]);
         setLoading(false);
         return;
       }
       
-      console.log('🔍 CurrencyContext: Fetching currencies from /api/currencies');
       const response = await fetch('/api/currencies', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -47,22 +45,16 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
       });
       
-      console.log('🔍 CurrencyContext: Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('🔍 CurrencyContext: Received currencies:', data.length, data);
         setAllCurrencies(data);
       } else if (response.status === 401) {
-        console.log('⚠️ CurrencyContext: 401 Unauthorized');
         // Token is invalid, clear currencies
         setAllCurrencies([]);
       } else {
-        console.error('⚠️ CurrencyContext: Unexpected status:', response.status);
         setAllCurrencies([]);
       }
     } catch (error) {
-      console.error('❌ CurrencyContext: Failed to fetch currencies:', error);
       setAllCurrencies([]);
     } finally {
       setLoading(false);
