@@ -27,6 +27,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import type { Asset, AssetCategory, HouseholdMember } from '../utils/assetUtils';
 import { formatCurrency, calculateROI, getCategoryName, getStatusColor, getOwnershipColor, filterAssets } from '../utils/assetUtils';
 import { formatCurrencyValue } from '../utils/currencyHelpers';
@@ -43,8 +44,16 @@ interface AssetSummary {
   assets_with_roi: number;
 }
 
+interface ExchangeRate {
+  from_currency: string;
+  to_currency: string;
+  rate: number;
+  updated_at?: string;
+}
+
 const AssetsPage: React.FC = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   
   // Helper to get icon component from icon name
   const getCategoryIcon = (iconName: string | undefined) => {
@@ -104,6 +113,7 @@ const AssetsPage: React.FC = () => {
   const [summary, setSummary] = useState<AssetSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -218,6 +228,24 @@ const AssetsPage: React.FC = () => {
     }
   };
 
+  const fetchExchangeRates = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/exchange', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch exchange rates');
+      
+      const data = await response.json();
+      setExchangeRates(data.rates || []);
+    } catch (err) {
+      console.error('Failed to fetch exchange rates:', err);
+    }
+  };
+
   useEffect(() => {
     fetchSummary();
   }, [householdView]);
@@ -230,7 +258,68 @@ const AssetsPage: React.FC = () => {
     fetchCategories();
     fetchMembers();
     fetchSummary();
+    fetchExchangeRates();
   }, []);
+
+  // Helper function to get converted value in main currency
+  const getConvertedValue = (amount: number, fromCurrency: string, toCurrency: string): number | null => {
+    if (fromCurrency === toCurrency) return amount;
+    
+    // First try direct conversion
+    let rate = exchangeRates.find(r => 
+      r.from_currency === fromCurrency && r.to_currency === toCurrency
+    );
+    
+    if (rate) {
+      return amount * rate.rate;
+    }
+    
+    // If no direct rate, try through USD as intermediate
+    const toUSDRate = exchangeRates.find(r => 
+      r.from_currency === fromCurrency && r.to_currency === 'USD'
+    );
+    const fromUSDRate = exchangeRates.find(r => 
+      r.from_currency === 'USD' && r.to_currency === toCurrency
+    );
+    
+    if (toUSDRate && fromUSDRate) {
+      const usdAmount = amount * toUSDRate.rate;
+      return usdAmount * fromUSDRate.rate;
+    }
+    
+    return null;
+  };
+
+  // Format asset value: show in main currency, original currency as sub-text if different
+  const formatAssetValue = (asset: Asset) => {
+    const mainCurrency = user?.main_currency || summary?.main_currency || 'EUR';
+    const assetValue = asset.current_value || asset.amount;
+    const assetCurrency = asset.currency;
+    
+    // If asset currency is same as main currency, just show it
+    if (assetCurrency === mainCurrency) {
+      return {
+        main: formatCurrency(assetValue, mainCurrency),
+        sub: null
+      };
+    }
+    
+    // Convert to main currency
+    const convertedValue = getConvertedValue(assetValue, assetCurrency, mainCurrency);
+    
+    if (convertedValue !== null) {
+      return {
+        main: formatCurrency(convertedValue, mainCurrency),
+        sub: formatCurrency(assetValue, assetCurrency)
+      };
+    }
+    
+    // If conversion failed, show original
+    return {
+      main: formatCurrency(assetValue, assetCurrency),
+      sub: null
+    };
+  };
 
   // Filter assets based on search term and other criteria
   const filteredAssets = filterAssets(assets, searchTerm, selectedCategory, selectedStatus, selectedMember, selectedCurrency);
@@ -678,9 +767,21 @@ const AssetsPage: React.FC = () => {
                       <div className="grid grid-cols-2 gap-2 mb-2">
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400">Value</p>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {formatCurrency(asset.current_value || asset.amount, asset.currency)}
-                          </p>
+                          {(() => {
+                            const valueDisplay = formatAssetValue(asset);
+                            return (
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {valueDisplay.main}
+                                </p>
+                                {valueDisplay.sub && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {valueDisplay.sub}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-500 dark:text-gray-400">ROI</p>
@@ -879,9 +980,21 @@ const AssetsPage: React.FC = () => {
 
                       {/* Value Column */}
                       <div className="col-span-1.5 text-right">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {formatCurrency(asset.current_value || asset.amount, asset.currency)}
-                        </p>
+                        {(() => {
+                          const valueDisplay = formatAssetValue(asset);
+                          return (
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {valueDisplay.main}
+                              </p>
+                              {valueDisplay.sub && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {valueDisplay.sub}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* ROI Column */}
