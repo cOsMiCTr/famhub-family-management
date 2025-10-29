@@ -59,8 +59,12 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   handlePlaceSelectRef.current = handlePlaceSelect;
 
   const initializeAutocomplete = useCallback(() => {
+    console.log('[GooglePlacesAutocomplete] 🔄 Initializing autocomplete...');
+    console.log('[GooglePlacesAutocomplete] 📊 Current fallback state:', fallbackUsedRef.current);
+    
     if (!containerRef.current || !inputRef.current || !window.google?.maps?.places) {
       // No Google Maps API, use regular input
+      console.log('[GooglePlacesAutocomplete] ❌ Google Maps API not loaded, using regular input');
       if (inputRef.current) {
         inputRef.current.style.display = 'block';
         fallbackUsedRef.current = 'regular';
@@ -71,7 +75,12 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     // Step 1: Try the new PlaceAutocompleteElement (requires Places API New)
     // But first check if we've already detected that it's not working
     const hasDetectedError = sessionStorage.getItem('placesApiError') === 'true';
+    console.log('[GooglePlacesAutocomplete] 🆕 Tier 1: PlaceAutocompleteElement (New API)');
+    console.log('[GooglePlacesAutocomplete] - Has detected error:', hasDetectedError);
+    console.log('[GooglePlacesAutocomplete] - PlaceAutocompleteElement available:', !!window.google.maps.places.PlaceAutocompleteElement);
+    
     if (!hasDetectedError && fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
+      console.log('[GooglePlacesAutocomplete] ✅ Attempting Tier 1: PlaceAutocompleteElement...');
       try {
         // Clear any previous attempts
         if (autocompleteElementRef.current) {
@@ -100,7 +109,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         
         // Fallback function to switch to legacy
         const switchToLegacy = () => {
-          console.warn('PlaceAutocompleteElement API error detected, switching to legacy Autocomplete');
+          console.warn('[GooglePlacesAutocomplete] ⚠️ Tier 1 FAILED: PlaceAutocompleteElement API error detected');
+          console.log('[GooglePlacesAutocomplete] 🔄 Switching to Tier 2: Legacy Autocomplete');
           fallbackUsedRef.current = 'legacy';
           // Remove failed element
           try {
@@ -126,16 +136,20 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
             const response = await originalFetch(...args);
             // Check if this is a Places API request that failed
             if (args[0]?.toString().includes('places.googleapis.com')) {
+              console.log('[GooglePlacesAutocomplete] 🌐 Fetch request to Places API:', args[0]);
+              console.log('[GooglePlacesAutocomplete] - Response status:', response.status, response.statusText);
               if (!response.ok && (response.status === 403 || response.status === 404)) {
-                console.warn('Places API (New) fetch returned error, switching to legacy');
+                console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Fetch returned', response.status);
                 switchToLegacy();
                 window.fetch = originalFetch; // Restore
+              } else {
+                console.log('[GooglePlacesAutocomplete] ✅ Fetch request successful');
               }
             }
             return response;
           } catch (error: any) {
             if (args[0]?.toString().includes('places.googleapis.com')) {
-              console.warn('Places API (New) fetch failed, switching to legacy');
+              console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Fetch error', error);
               switchToLegacy();
               window.fetch = originalFetch; // Restore
             }
@@ -163,11 +177,15 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
               XMLHttpRequest.prototype.send = originalXHRSend;
             });
             this.addEventListener('load', function() {
+              console.log('[GooglePlacesAutocomplete] 🌐 XHR request to Places API:', currentXHRUrl);
+              console.log('[GooglePlacesAutocomplete] - Response status:', this.status, this.statusText);
               if (this.status === 403 || this.status === 404) {
-                console.warn('Places API (New) XHR returned 403/404, switching to legacy');
+                console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: XHR returned', this.status);
                 switchToLegacy();
                 XMLHttpRequest.prototype.open = originalXHROpen;
                 XMLHttpRequest.prototype.send = originalXHRSend;
+              } else if (this.status >= 200 && this.status < 300) {
+                console.log('[GooglePlacesAutocomplete] ✅ XHR request successful');
               }
             });
           }
@@ -182,8 +200,10 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
             // Check console for recent errors
             const hadError = sessionStorage.getItem('placesApiError');
             if (hadError === 'true') {
-              console.warn('Detected Places API (New) errors, switching to legacy');
+              console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Detected previous errors in sessionStorage');
               switchToLegacy();
+            } else {
+              console.log('[GooglePlacesAutocomplete] ⏱️ Timeout check: No errors detected, Tier 1 still active');
             }
           }
         }, 2000);
@@ -227,6 +247,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         
         autocompleteElementRef.current = autocompleteElement;
         fallbackUsedRef.current = 'new';
+        console.log('[GooglePlacesAutocomplete] ✅ Tier 1 SUCCESS: PlaceAutocompleteElement initialized');
+        console.log('[GooglePlacesAutocomplete] 📊 Current fallback state: NEW API');
         
         // Monitor for API call failures by intercepting console errors
         const originalConsoleError = console.error;
@@ -236,7 +258,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
               (errorMessage.includes('403') || errorMessage.includes('Forbidden') ||
                errorMessage.includes('not been used') || errorMessage.includes('disabled') ||
                errorMessage.includes('Places API (New) has not been used'))) {
-            console.warn('Intercepted Places API (New) error in console, switching to legacy');
+            console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Intercepted error in console:', errorMessage);
             sessionStorage.setItem('placesApiError', 'true');
             switchToLegacy();
             console.error = originalConsoleError; // Restore
@@ -252,7 +274,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
           if (reason.includes('places.googleapis.com') && 
               (reason.includes('403') || reason.includes('Forbidden') ||
                reason.includes('not been used') || reason.includes('disabled'))) {
-            console.warn('Unhandled rejection from Places API (New), switching to legacy');
+            console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Unhandled rejection from Places API:', reason);
             sessionStorage.setItem('placesApiError', 'true');
             switchToLegacy();
           }
@@ -270,14 +292,20 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         
         return;
       } catch (error) {
-        console.warn('Failed to initialize PlaceAutocompleteElement, falling back to legacy Autocomplete:', error);
+        console.warn('[GooglePlacesAutocomplete] ❌ Tier 1 FAILED: Exception during initialization:', error);
         fallbackUsedRef.current = 'legacy';
         // Continue to legacy fallback below
       }
     }
     
     // Step 2: Fallback to legacy Autocomplete API (works with older Places API)
+    console.log('[GooglePlacesAutocomplete] 🔄 Tier 2: Legacy Autocomplete');
+    console.log('[GooglePlacesAutocomplete] - Current fallback state:', fallbackUsedRef.current);
+    console.log('[GooglePlacesAutocomplete] - Autocomplete available:', !!window.google.maps.places.Autocomplete);
+    console.log('[GooglePlacesAutocomplete] - Input ref available:', !!inputRef.current);
+    
     if (fallbackUsedRef.current === 'legacy' && window.google.maps.places.Autocomplete && inputRef.current) {
+      console.log('[GooglePlacesAutocomplete] ✅ Attempting Tier 2: Legacy Autocomplete...');
       try {
         // Show our input for legacy autocomplete
         inputRef.current.style.display = 'block';
@@ -315,18 +343,23 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
 
         autocompleteElementRef.current = autocomplete;
         fallbackUsedRef.current = 'legacy';
+        console.log('[GooglePlacesAutocomplete] ✅ Tier 2 SUCCESS: Legacy Autocomplete initialized');
+        console.log('[GooglePlacesAutocomplete] 📊 Current fallback state: LEGACY API');
         return;
       } catch (error) {
-        console.warn('Failed to initialize legacy Autocomplete, using regular input:', error);
+        console.warn('[GooglePlacesAutocomplete] ❌ Tier 2 FAILED: Exception during initialization:', error);
         fallbackUsedRef.current = 'regular';
         // Continue to regular input fallback below
       }
     }
     
     // Step 3: Final fallback - use regular classic input field
+    console.log('[GooglePlacesAutocomplete] 🔄 Tier 3: Regular Input Field');
     if (inputRef.current) {
       inputRef.current.style.display = 'block';
       fallbackUsedRef.current = 'regular';
+      console.log('[GooglePlacesAutocomplete] ✅ Tier 3 ACTIVE: Using regular input field (no autocomplete)');
+      console.log('[GooglePlacesAutocomplete] 📊 Current fallback state: REGULAR INPUT');
     }
   }, [className, placeholder, disabled, value, onChange]);
 
