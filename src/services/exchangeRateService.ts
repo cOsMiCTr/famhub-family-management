@@ -222,11 +222,11 @@ class ExchangeRateService {
     try {
       // Fetch rates for each active fiat currency as base
       for (const baseFiat of activeFiats) {
+        let apiUrl: string = '';
         try {
           // Use API key if available (v6 endpoint), otherwise use free v4 endpoint
           const timestamp = Date.now();
           const random = Math.random().toString(36).substring(7);
-          let apiUrl: string;
           
           if (this.currencyApiKey) {
             // Use v6 endpoint with API key for more frequent updates
