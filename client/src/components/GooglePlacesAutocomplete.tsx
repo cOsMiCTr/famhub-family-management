@@ -36,6 +36,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   const autocompleteElementRef = useRef<any>(null);
   const scriptLoadedRef = useRef(false);
   const handlePlaceSelectRef = useRef<((event: any) => void) | null>(null);
+  const fallbackUsedRef = useRef<'new' | 'legacy' | 'regular'>('new');
 
   // Handle place selection
   const handlePlaceSelect = (event: any) => {
@@ -59,20 +60,30 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
 
   const initializeAutocomplete = useCallback(() => {
     if (!containerRef.current || !inputRef.current || !window.google?.maps?.places) {
+      // No Google Maps API, use regular input
+      if (inputRef.current) {
+        inputRef.current.style.display = 'block';
+        fallbackUsedRef.current = 'regular';
+      }
       return;
     }
 
-    // First try the new PlaceAutocompleteElement (requires Places API New)
-    if (window.google.maps.places.PlaceAutocompleteElement) {
+    // Step 1: Try the new PlaceAutocompleteElement (requires Places API New)
+    if (fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
       try {
+        // Clear any previous attempts
+        if (autocompleteElementRef.current) {
+          try {
+            containerRef.current?.removeChild(autocompleteElementRef.current);
+          } catch (e) {
+            // Element may have already been removed
+          }
+        }
+
         // Create the PlaceAutocompleteElement instance
-        // PlaceAutocompleteElement constructor takes no options - it's configured via attributes
         const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement();
 
         // PlaceAutocompleteElement is a web component, it has its own input
-        // We need to replace our input with the autocomplete element
-        // The element itself contains the input
-        
         // Hide our dummy input
         inputRef.current.style.display = 'none';
         
@@ -85,8 +96,24 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Apply custom styling via shadow DOM or wrapper
         autocompleteElement.setAttribute('style', `width: 100%; ${className.includes('dark:') ? '' : ''}`);
         
+        // Listen for API errors - if it fails, fall back to legacy
+        const errorHandler = (event: any) => {
+          console.warn('PlaceAutocompleteElement API error, falling back to legacy:', event);
+          fallbackUsedRef.current = 'legacy';
+          // Remove failed element and try legacy
+          try {
+            containerRef.current?.removeChild(autocompleteElement);
+          } catch (e) {
+            // Element may have already been removed
+          }
+          // Retry with legacy
+          setTimeout(() => initializeAutocomplete(), 100);
+        };
+        
+        autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
+        autocompleteElement.addEventListener('error', errorHandler);
+        
         // Get the actual input from within the element (might be in shadow DOM)
-        // We'll need to wait for the element to be attached to access its input
         setTimeout(() => {
           const autocompleteInput = autocompleteElement.shadowRoot?.querySelector('input') as HTMLInputElement || 
                                   autocompleteElement.querySelector('input') as HTMLInputElement;
@@ -112,22 +139,31 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
           }
         }, 0);
         
-        // Listen for place selection
-        autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
-        
         // Append autocomplete element to container
         containerRef.current.appendChild(autocompleteElement);
         
         autocompleteElementRef.current = autocompleteElement;
+        fallbackUsedRef.current = 'new';
         return;
       } catch (error) {
         console.warn('Failed to initialize PlaceAutocompleteElement, falling back to legacy Autocomplete:', error);
+        fallbackUsedRef.current = 'legacy';
+        // Continue to legacy fallback below
       }
     }
     
-    // Fallback to legacy Autocomplete API (works with older Places API)
-    if (window.google.maps.places.Autocomplete && inputRef.current) {
+    // Step 2: Fallback to legacy Autocomplete API (works with older Places API)
+    if (fallbackUsedRef.current === 'legacy' && window.google.maps.places.Autocomplete && inputRef.current) {
       try {
+        // Show our input for legacy autocomplete
+        inputRef.current.style.display = 'block';
+        
+        // Clean up previous autocomplete if any
+        if (autocompleteElementRef.current && typeof autocompleteElementRef.current.setBounds === 'undefined') {
+          // This was a legacy autocomplete, we'll recreate it
+          google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+        }
+
         // Create legacy Autocomplete instance
         const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
           types: ['geocode', 'establishment'],
@@ -145,21 +181,26 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         });
 
         // Sync input value changes
-        inputRef.current.addEventListener('input', (e: Event) => {
+        const inputHandler = (e: Event) => {
           const target = e.target as HTMLInputElement;
           onChange(target.value);
-        });
+        };
+        inputRef.current.addEventListener('input', inputHandler);
 
         autocompleteElementRef.current = autocomplete;
+        fallbackUsedRef.current = 'legacy';
         return;
       } catch (error) {
         console.warn('Failed to initialize legacy Autocomplete, using regular input:', error);
+        fallbackUsedRef.current = 'regular';
+        // Continue to regular input fallback below
       }
     }
     
-    // Final fallback: use regular input
+    // Step 3: Final fallback - use regular classic input field
     if (inputRef.current) {
       inputRef.current.style.display = 'block';
+      fallbackUsedRef.current = 'regular';
     }
   }, [className, placeholder, disabled, value, onChange]);
 
