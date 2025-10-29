@@ -62,13 +62,16 @@ class ExchangeRateService {
   // Update exchange rates from external API
   async updateExchangeRates(): Promise<void> {
     if (this.isUpdating) {
+      console.log('⏳ Sync already in progress, skipping...');
       return;
     }
 
     this.isUpdating = true;
+    console.log('🔄 Starting exchange rate sync...');
 
     try {
       await this.updateRatesFromExchangeRatesData();
+      console.log('✅ Exchange rate sync completed successfully');
     } catch (apiError) {
       console.error('❌ ExchangeRate-API.com failed:', apiError);
       throw new Error('Failed to sync exchange rates - API error');
@@ -85,6 +88,8 @@ class ExchangeRateService {
     const activeFiats = await this.getActiveCurrenciesByType('fiat');
     const activeCryptos = await this.getActiveCurrenciesByType('cryptocurrency');
     const activeMetals = await this.getActiveCurrenciesByType('precious_metal');
+    
+    console.log(`📊 Fetching rates for ${activeFiats.length} fiats, ${activeCryptos.length} cryptos, ${activeMetals.length} metals`);
     
     // First, fetch crypto prices once (in USD) from Yahoo Finance
     const cryptoPricesInUSD: Record<string, number> = {};
@@ -213,11 +218,20 @@ class ExchangeRateService {
             }
           );
           
-          // KEEP ONLY THIS LOG - API response
+          // API Response Log
           console.log(`📥 API Response ${baseFiat}:`, {
+            url: apiUrl.includes('v6') ? 'v6 (with API key)' : 'v4 (free tier)',
             status: response.status,
+            statusText: response.statusText,
+            base: response.data?.base || 'N/A',
+            date: response.data?.date || 'N/A',
             hasRates: !!(response.data && response.data.rates),
             ratesCount: response.data?.rates ? Object.keys(response.data.rates).length : 0,
+            sampleRates: response.data?.rates ? {
+              USD: response.data.rates.USD || 'N/A',
+              EUR: response.data.rates.EUR || 'N/A',
+              GBP: response.data.rates.GBP || 'N/A'
+            } : 'No rates'
           });
           
           if (response.data && response.data.rates) {
@@ -294,7 +308,9 @@ class ExchangeRateService {
     
     // Store all rates
     if (allRates.length > 0) {
+      console.log(`💾 Storing ${allRates.length} exchange rates to database...`);
       await this.storeExchangeRates(allRates);
+      console.log(`✅ Successfully stored ${allRates.length} rates`);
     } else {
       throw new Error('No rates fetched from ExchangeRate-API.com');
     }
