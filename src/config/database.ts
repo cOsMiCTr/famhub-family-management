@@ -20,11 +20,16 @@ export async function initializeDatabase(): Promise<void> {
     console.log('📊 Database connection established');
     client.release();
 
-    // Run Knex migrations
-    const { db } = await import('../database/connection');
-    console.log('🔄 Running database migrations...');
-    await db.migrate.latest();
-    console.log('✅ Database migrations completed');
+    // Run Knex migrations (only in development, production uses release phase)
+    // Skip migration validation on app startup in production to avoid file mismatch issues
+    if (process.env.NODE_ENV !== 'production') {
+      const { db } = await import('../database/connection');
+      console.log('🔄 Running database migrations...');
+      await db.migrate.latest();
+      console.log('✅ Database migrations completed');
+    } else {
+      console.log('✅ Skipping migrations (handled by release phase in production)');
+    }
     
     // Seed translations if table is empty or corrupted
     const seedClient = await pool.connect();
