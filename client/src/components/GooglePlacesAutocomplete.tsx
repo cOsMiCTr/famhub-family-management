@@ -354,9 +354,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     onChange(e.target.value);
   };
 
-  // Generate a unique ID for this input to target it specifically in CSS
-  const inputIdRef = useRef<string>(`google-places-input-${Math.random().toString(36).substr(2, 9)}`);
-
   return (
     <div ref={containerRef} className="w-full">
       <input
