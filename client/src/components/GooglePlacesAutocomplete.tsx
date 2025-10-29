@@ -30,11 +30,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   const inputIdRef = useRef<string>(`google-places-input-${Math.random().toString(36).substr(2, 9)}`);
 
   const initializeAutocomplete = useCallback(() => {
-    console.log('[GooglePlacesAutocomplete] 🔄 Initializing autocomplete...');
-    
     if (!containerRef.current || !inputRef.current || !window.google?.maps?.places) {
       // No Google Maps API, use regular input
-      console.log('[GooglePlacesAutocomplete] ❌ Google Maps API not loaded, using regular input');
       if (inputRef.current) {
         inputRef.current.style.display = 'block';
         fallbackUsedRef.current = 'regular';
@@ -43,12 +40,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     }
 
     // Try Legacy Autocomplete API (works with standard Places API)
-    console.log('[GooglePlacesAutocomplete] 🔄 Attempting Legacy Autocomplete...');
-    console.log('[GooglePlacesAutocomplete] - Autocomplete available:', !!window.google.maps.places.Autocomplete);
-    console.log('[GooglePlacesAutocomplete] - Input ref available:', !!inputRef.current);
-    
     if (window.google.maps.places.Autocomplete && inputRef.current) {
-      console.log('[GooglePlacesAutocomplete] ✅ Initializing Legacy Autocomplete...');
       try {
         // Show our input for legacy autocomplete
         inputRef.current.style.display = 'block';
@@ -130,14 +122,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
             // If we detect dark background in light mode, FORCE white
             const finalBgColor = (hasDarkBg && !currentDarkMode) ? '#ffffff' : bgColor;
             const finalTextColor = (hasDarkBg && !currentDarkMode) ? '#111827' : textColor;
-            
-            console.log('[GooglePlacesAutocomplete] 🎨 Override styles:', {
-              currentDarkMode,
-              computedBg,
-              hasDarkBg,
-              finalBgColor,
-              finalTextColor
-            });
             
             // Force proper styling with !important to override Google Maps
             inputRef.current.style.setProperty('background-color', finalBgColor, 'important');
@@ -320,8 +304,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.addEventListener('input', inputHandler);
 
         fallbackUsedRef.current = 'legacy';
-        console.log('[GooglePlacesAutocomplete] ✅ Legacy Autocomplete initialized successfully');
-        console.log('[GooglePlacesAutocomplete] 📊 Current state: LEGACY API');
         
         // One more style override after everything is set up
         setTimeout(() => {
@@ -332,19 +314,15 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         
         return;
       } catch (error) {
-        console.warn('[GooglePlacesAutocomplete] ❌ Legacy Autocomplete failed:', error);
         fallbackUsedRef.current = 'regular';
         // Continue to regular input fallback below
       }
     }
     
     // Fallback - use regular classic input field
-    console.log('[GooglePlacesAutocomplete] 🔄 Falling back to Regular Input Field');
     if (inputRef.current) {
       inputRef.current.style.display = 'block';
       fallbackUsedRef.current = 'regular';
-      console.log('[GooglePlacesAutocomplete] ✅ Using regular input field (no autocomplete)');
-      console.log('[GooglePlacesAutocomplete] 📊 Current state: REGULAR INPUT');
     }
   }, [className, placeholder, disabled, value, onChange]);
 
