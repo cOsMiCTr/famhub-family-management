@@ -79,9 +79,14 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     console.log('[GooglePlacesAutocomplete] - Has detected error:', hasDetectedError);
     console.log('[GooglePlacesAutocomplete] - PlaceAutocompleteElement available:', !!window.google.maps.places.PlaceAutocompleteElement);
     
+    // If previous error detected, force legacy mode
     if (hasDetectedError) {
-      console.log('[GooglePlacesAutocomplete] ⏭️ Skipping Tier 1 (previous error detected), going to Tier 2');
+      console.log('[GooglePlacesAutocomplete] ⏭️ Skipping Tier 1 (previous error detected), forcing legacy mode');
       fallbackUsedRef.current = 'legacy';
+    } else if (fallbackUsedRef.current === 'regular') {
+      // Reset to new if we're starting fresh
+      console.log('[GooglePlacesAutocomplete] 🔄 Resetting fallback state to new');
+      fallbackUsedRef.current = 'new';
     }
     
     if (!hasDetectedError && fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
