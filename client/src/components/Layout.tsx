@@ -19,7 +19,9 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
   BanknotesIcon,
-  UsersIcon
+  UsersIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -30,6 +32,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  
+  // Desktop sidebar collapse state (persisted in localStorage)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
+  const toggleSidebar = () => {
+    const newState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -82,45 +96,65 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* Desktop Layout Container */}
       <div className="lg:flex lg:min-h-screen">
         {/* Sidebar */}
-        <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex-shrink-0 ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        <div id="sidebar" className={`fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out lg:relative lg:flex-shrink-0 ${
+          isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'
+        } ${
+          isSidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
         }`}>
           <div id="sidebar-content" className="flex h-full flex-col bg-white dark:bg-gray-800 shadow-xl lg:shadow-none">
             {/* Logo */}
-            <div id="sidebar-logo" className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+            <div id="sidebar-logo" className="flex h-16 items-center justify-between px-4 lg:px-6 border-b border-gray-200 dark:border-gray-700">
+              <div className={`flex items-center space-x-3 ${isSidebarCollapsed ? 'lg:justify-center lg:space-x-0' : ''}`}>
+                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-sm">FH</span>
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-white">FamHub</span>
+                <span className={`text-xl font-bold text-gray-900 dark:text-white ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>FamHub</span>
               </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <XMarkIcon className="h-5 w-5 text-gray-500" />
-              </button>
+              <div className="flex items-center space-x-2">
+                {/* Desktop collapse button */}
+                <button
+                  onClick={toggleSidebar}
+                  className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  title={isSidebarCollapsed ? t('navigation.expandSidebar') : t('navigation.collapseSidebar')}
+                >
+                  {isSidebarCollapsed ? (
+                    <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <ChevronLeftIcon className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+                {/* Mobile close button */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <XMarkIcon className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
             </div>
 
             {/* Navigation */}
-            <nav id="sidebar-nav" className="flex-1 px-4 py-6 space-y-2">
+            <nav id="sidebar-nav" className="flex-1 px-2 lg:px-4 py-6 space-y-2">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    className={`group flex items-center px-2 lg:px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                       isActive
                         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                    }`}
+                    } ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}`}
                     onClick={() => setIsMobileMenuOpen(false)}
+                    title={isSidebarCollapsed ? item.name : ''}
                   >
-                    <item.icon className={`mr-3 h-5 w-5 ${
+                    <item.icon className={`h-5 w-5 flex-shrink-0 ${
+                      isSidebarCollapsed ? 'lg:mr-0' : 'mr-3'
+                    } ${
                       isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
                     }`} />
-                    {item.name}
+                    <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
                   </Link>
                 );
               })}
@@ -129,7 +163,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {user?.role === 'admin' && (
                 <>
                   <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-                  <div className="px-3 py-2">
+                  <div className={`px-2 lg:px-3 py-2 ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>
                     <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Admin
                     </h3>
@@ -140,17 +174,20 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       <Link
                         key={item.name}
                         to={item.href}
-                        className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        className={`group flex items-center px-2 lg:px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                           isActive
                             ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                        }`}
+                        } ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : ''}`}
                         onClick={() => setIsMobileMenuOpen(false)}
+                        title={isSidebarCollapsed ? item.name : ''}
                       >
-                        <item.icon className={`mr-3 h-5 w-5 ${
+                        <item.icon className={`h-5 w-5 flex-shrink-0 ${
+                          isSidebarCollapsed ? 'lg:mr-0' : 'mr-3'
+                        } ${
                           isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
                         }`} />
-                        {item.name}
+                        <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
                       </Link>
                     );
                   })}
@@ -159,12 +196,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </nav>
 
             {/* User section */}
-            <div id="sidebar-user-section" className="border-t border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="h-10 w-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+            <div id="sidebar-user-section" className="border-t border-gray-200 dark:border-gray-700 p-2 lg:p-4">
+              <div className={`flex items-center space-x-3 mb-4 ${isSidebarCollapsed ? 'lg:justify-center lg:space-x-0' : ''}`}>
+                <div className="h-10 w-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                   <UserIcon className="h-5 w-5 text-white" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className={`flex-1 min-w-0 ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {user?.email}
                   </p>
@@ -175,20 +212,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
               
               {/* Controls */}
-              <div className="flex items-center space-x-2">
+              <div className={`flex items-center space-x-2 ${isSidebarCollapsed ? 'lg:flex-col lg:space-x-0 lg:space-y-2' : ''}`}>
                 {/* Language selector */}
-                <div className="relative flex-1">
+                <div className={`relative ${isSidebarCollapsed ? 'lg:w-full' : 'flex-1'}`}>
                   <button
                     onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                    className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    className={`flex items-center justify-center w-full px-2 lg:px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ${
+                      isSidebarCollapsed ? 'lg:justify-center lg:px-2' : ''
+                    }`}
+                    title={isSidebarCollapsed ? currentLanguage.name : ''}
                   >
-                    <LanguageIcon className="h-4 w-4 mr-2" />
-                    <span className="mr-1">{currentLanguage.flag}</span>
-                    <span className="truncate">{currentLanguage.name}</span>
+                    <LanguageIcon className="h-4 w-4 flex-shrink-0" />
+                    <span className={`${isSidebarCollapsed ? 'lg:hidden' : ''} ml-2 lg:mr-1`}>{currentLanguage.flag}</span>
+                    <span className={`truncate ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>{currentLanguage.name}</span>
                   </button>
                   
                   {isLanguageMenuOpen && (
-                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className={`absolute bottom-full mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden ${
+                      isSidebarCollapsed ? 'lg:left-0 lg:right-auto lg:ml-2 lg:min-w-[150px]' : 'left-0 right-0'
+                    }`}>
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
@@ -206,16 +248,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </div>
                 
                 {/* Theme toggle */}
-                <ThemeToggle />
+                <div className={isSidebarCollapsed ? 'lg:w-full' : ''}>
+                  <ThemeToggle />
+                </div>
               </div>
               
               {/* Logout button */}
               <button
                 onClick={handleLogout}
-                className="w-full mt-3 flex items-center justify-center px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                className={`w-full mt-3 flex items-center justify-center px-2 lg:px-3 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors ${
+                  isSidebarCollapsed ? 'lg:px-2' : ''
+                }`}
+                title={isSidebarCollapsed ? t('auth.logout') : ''}
               >
-                <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-                {t('auth.logout')}
+                <ArrowRightOnRectangleIcon className="h-4 w-4 flex-shrink-0" />
+                <span className={isSidebarCollapsed ? 'lg:hidden ml-2' : 'ml-2'}>{t('auth.logout')}</span>
               </button>
             </div>
           </div>

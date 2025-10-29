@@ -135,8 +135,10 @@
   "navigation": {
     "admin": "Yönetici",
     "assets": "Varlıklar",
+    "collapseSidebar": "Kenar Çubuğunu Daralt",
     "contracts": "Sözleşmeler",
     "dashboard": "Kontrol Panelim",
+    "expandSidebar": "Kenar Çubuğunu Genişlet",
     "households": "Hane",
     "settings": "Ayarlar",
     "users": "Kullanıcılar"

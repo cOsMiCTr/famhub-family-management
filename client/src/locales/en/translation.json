@@ -135,8 +135,10 @@
   "navigation": {
     "admin": "Admin",
     "assets": "Assets",
+    "collapseSidebar": "Collapse Sidebar",
     "contracts": "Contracts",
     "dashboard": "Dashboard",
+    "expandSidebar": "Expand Sidebar",
     "households": "Households",
     "settings": "Settings",
     "users": "Users"

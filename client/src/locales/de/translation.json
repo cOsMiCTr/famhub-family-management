@@ -135,8 +135,10 @@
   "navigation": {
     "admin": "Admin",
     "assets": "Vermögen",
+    "collapseSidebar": "Seitenleiste einklappen",
     "contracts": "Verträge",
     "dashboard": "Dashboard",
+    "expandSidebar": "Seitenleiste ausklappen",
     "households": "Haushalte",
     "settings": "Einstellungen",
     "users": "Benutzer"
