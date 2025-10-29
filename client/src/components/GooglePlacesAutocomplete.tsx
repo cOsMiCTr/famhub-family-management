@@ -57,12 +57,16 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.placeholder = placeholder;
         inputRef.current.disabled = disabled;
         
-        // Set proper background color immediately to prevent black background
-        const isDarkMode = className.includes('dark:bg-gray-700');
-        inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#fff';
-        inputRef.current.style.color = isDarkMode ? '#fff' : '#000';
+        // Set proper background color immediately to prevent black/dark gray background
+        // Check if we're in dark mode by checking the document or className
+        const isDarkMode = document.documentElement.classList.contains('dark') || className.includes('dark:bg-gray-700');
+        inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff';
+        inputRef.current.style.color = isDarkMode ? '#ffffff' : '#111827';
         inputRef.current.style.backgroundImage = 'none';
-        inputRef.current.style.borderColor = className.includes('dark:border-gray-600') ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
+        inputRef.current.style.borderColor = isDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
+        // Force remove any dark styling that Google Maps might add
+        inputRef.current.style.setProperty('background-color', isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff', 'important');
+        inputRef.current.style.setProperty('color', isDarkMode ? '#ffffff' : '#111827', 'important');
         
         // Clean up previous autocomplete if any
         if (autocompleteElementRef.current && window.google?.maps?.event) {
@@ -73,12 +77,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Use multiple timeouts to catch when Google Maps applies styles
         const overrideStyles = () => {
           if (inputRef.current) {
-            // Force proper styling
-            inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#fff';
-            inputRef.current.style.color = isDarkMode ? '#fff' : '#000';
-            inputRef.current.style.backgroundImage = 'none';
+            // Force proper styling with !important to override Google Maps
+            inputRef.current.style.setProperty('background-color', isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff', 'important');
+            inputRef.current.style.setProperty('color', isDarkMode ? '#ffffff' : '#111827', 'important');
+            inputRef.current.style.setProperty('background-image', 'none', 'important');
+            inputRef.current.style.setProperty('border-color', isDarkMode ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)', 'important');
             // Ensure className is still applied
-            if (!inputRef.current.className.includes(className)) {
+            if (!inputRef.current.className.includes(className.split(' ')[0])) {
               inputRef.current.className = className;
             }
           }
