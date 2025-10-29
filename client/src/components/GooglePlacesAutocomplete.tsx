@@ -120,27 +120,52 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.addEventListener('keyup', overrideStyles);
         
         // Inject a style tag to force white background with highest specificity
+        // Target all possible Google Maps classes and attributes
         if (!document.getElementById('google-places-autocomplete-override')) {
           const style = document.createElement('style');
           style.id = 'google-places-autocomplete-override';
           style.textContent = `
             input[type="text"].pac-target-input,
             input.pac-target-input,
-            input[autocomplete="off"] {
+            input[autocomplete="off"],
+            input[placeholder*="address"],
+            input[placeholder*="location"],
+            input[placeholder*="Location"],
+            input[class*="pac"],
+            input[id*="pac"] {
               background-color: #ffffff !important;
               color: #111827 !important;
               background-image: none !important;
+              border-color: rgb(209, 213, 219) !important;
             }
             .dark input[type="text"].pac-target-input,
             .dark input.pac-target-input,
-            .dark input[autocomplete="off"] {
+            .dark input[autocomplete="off"],
+            .dark input[placeholder*="address"],
+            .dark input[placeholder*="location"],
+            .dark input[class*="pac"],
+            .dark input[id*="pac"] {
               background-color: rgb(55, 65, 81) !important;
               color: #ffffff !important;
               background-image: none !important;
+              border-color: rgb(75, 85, 99) !important;
             }
           `;
           document.head.appendChild(style);
         }
+        
+        // Wait for Google Maps to add its classes, then reapply our className
+        setTimeout(() => {
+          if (inputRef.current) {
+            // Add our className to whatever Google Maps added
+            const currentClasses = inputRef.current.className || '';
+            const ourClasses = className.split(' ').filter(c => c && !currentClasses.includes(c));
+            if (ourClasses.length > 0) {
+              inputRef.current.className = `${currentClasses} ${ourClasses.join(' ')}`.trim();
+            }
+            overrideStyles();
+          }
+        }, 50);
         
         // Use MutationObserver to watch for style attribute changes and override them
         const observer = new MutationObserver((mutations) => {
