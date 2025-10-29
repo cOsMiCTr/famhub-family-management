@@ -71,7 +71,7 @@ const config: { [key: string]: Knex.Config } = {
     migrations: {
       directory: migrationsDir,
       extension: 'js', // Use .js in production since files are compiled
-      loadExtensions: ['.js', '.ts'], // Prefer .js, fallback to .ts for ts-node
+      loadExtensions: ['.js'], // Only load .js files, ignore .d.ts files
     },
     seeds: {
       directory: seedsDir,
