@@ -57,15 +57,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         const classNameHasDark = className.includes('dark:bg-gray-700') || className.includes('dark:');
         const isDarkMode = htmlHasDark || bodyHasDark || classNameHasDark;
         
-        console.log('[GooglePlacesAutocomplete] 🌙 Dark mode detection:', {
-          htmlHasDark,
-          bodyHasDark,
-          classNameHasDark,
-          className,
-          isDarkMode,
-          computedBackground: window.getComputedStyle(inputRef.current).backgroundColor
-        });
-        
         // FORCE white background in light mode - assume light mode unless explicitly dark
         // Google Maps might apply dark styles, so we need to be very aggressive
         const bgColor = isDarkMode ? 'rgb(55, 65, 81)' : '#ffffff';

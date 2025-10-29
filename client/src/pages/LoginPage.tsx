@@ -96,7 +96,6 @@ const LoginPage: React.FC = () => {
       setError('');
       
       // Check if password change is required
-      console.log('Checking must_change_password:', response.must_change_password);
       if (response.must_change_password === true) {
         console.log('Opening password change modal - BEFORE setState');
         setShowPasswordChangeModal(true);
@@ -221,7 +220,7 @@ const LoginPage: React.FC = () => {
             {/* Logo */}
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center justify-center">
-                <FamHubLogo size={80} src="/FamHub_Logo.png" className="text-gray-900 dark:text-white" />
+                <FamHubLogo size={80} src="/FamHub_Logo.png" className="text-gray-900 dark:text-white rounded-md" />
               </div>
               
               <div>
