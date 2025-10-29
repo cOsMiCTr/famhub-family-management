@@ -27,6 +27,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   const autocompleteElementRef = useRef<any>(null);
   const scriptLoadedRef = useRef(false);
   const fallbackUsedRef = useRef<'legacy' | 'regular'>('legacy');
+  const inputIdRef = useRef<string>(`google-places-input-${Math.random().toString(36).substr(2, 9)}`);
 
   const initializeAutocomplete = useCallback(() => {
     console.log('[GooglePlacesAutocomplete] 🔄 Initializing autocomplete...');
@@ -120,17 +121,25 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.addEventListener('keyup', overrideStyles);
         
         // Inject a style tag to force white background with highest specificity
-        // Target all possible Google Maps classes and attributes
+        // Target all possible Google Maps classes, attributes, and our specific input ID
+        const inputId = inputRef.current?.id || inputIdRef.current;
         if (!document.getElementById('google-places-autocomplete-override')) {
           const style = document.createElement('style');
           style.id = 'google-places-autocomplete-override';
           style.textContent = `
+            /* Target our specific input by ID first (highest specificity) */
+            input#${inputId},
+            input#${inputId}[class*="pac"],
+            input#${inputId}.pac-target-input {
+              background-color: #ffffff !important;
+              color: #111827 !important;
+              background-image: none !important;
+              border-color: rgb(209, 213, 219) !important;
+            }
+            /* Target Google Maps classes */
             input[type="text"].pac-target-input,
             input.pac-target-input,
             input[autocomplete="off"],
-            input[placeholder*="address"],
-            input[placeholder*="location"],
-            input[placeholder*="Location"],
             input[class*="pac"],
             input[id*="pac"] {
               background-color: #ffffff !important;
@@ -138,11 +147,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
               background-image: none !important;
               border-color: rgb(209, 213, 219) !important;
             }
+            /* Dark mode variants */
+            .dark input#${inputId},
+            .dark input#${inputId}[class*="pac"],
+            .dark input#${inputId}.pac-target-input,
             .dark input[type="text"].pac-target-input,
             .dark input.pac-target-input,
             .dark input[autocomplete="off"],
-            .dark input[placeholder*="address"],
-            .dark input[placeholder*="location"],
             .dark input[class*="pac"],
             .dark input[id*="pac"] {
               background-color: rgb(55, 65, 81) !important;
@@ -152,6 +163,31 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
             }
           `;
           document.head.appendChild(style);
+        } else {
+          // Update existing style to include this input's ID
+          const existingStyle = document.getElementById('google-places-autocomplete-override') as HTMLStyleElement;
+          if (existingStyle && !existingStyle.textContent?.includes(`input#${inputId}`)) {
+            // Add this specific input ID to the existing styles
+            const newRules = `
+              input#${inputId},
+              input#${inputId}[class*="pac"],
+              input#${inputId}.pac-target-input {
+                background-color: #ffffff !important;
+                color: #111827 !important;
+                background-image: none !important;
+                border-color: rgb(209, 213, 219) !important;
+              }
+              .dark input#${inputId},
+              .dark input#${inputId}[class*="pac"],
+              .dark input#${inputId}.pac-target-input {
+                background-color: rgb(55, 65, 81) !important;
+                color: #ffffff !important;
+                background-image: none !important;
+                border-color: rgb(75, 85, 99) !important;
+              }
+            `;
+            existingStyle.textContent += newRules;
+          }
         }
         
         // Wait for Google Maps to add its classes, then reapply our className
@@ -318,9 +354,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     onChange(e.target.value);
   };
 
+  // Generate a unique ID for this input to target it specifically in CSS
+  const inputIdRef = useRef<string>(`google-places-input-${Math.random().toString(36).substr(2, 9)}`);
+
   return (
     <div ref={containerRef} className="w-full">
       <input
+        id={inputIdRef.current}
         ref={inputRef}
         type="text"
         value={value}
