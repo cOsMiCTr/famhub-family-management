@@ -66,9 +66,9 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     if (window.google.maps.places.PlaceAutocompleteElement) {
       try {
         // Create the PlaceAutocompleteElement instance
+        // PlaceAutocompleteElement has simpler options - just request place details
         const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement({
-          requestedResultTypes: ['geocode', 'establishment'],
-          requestedFields: ['formattedAddress', 'displayName', 'geometry', 'addressComponents']
+          requestPlaceDetails: true
         });
 
         // Get the input element from the autocomplete element
