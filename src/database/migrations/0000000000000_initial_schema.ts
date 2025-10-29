@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
   // Check if tables already exist (for migration from old system)

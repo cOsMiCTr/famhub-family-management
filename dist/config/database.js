@@ -56,9 +56,14 @@ async function initializeDatabase() {
         console.log('📊 Database connection established');
         client.release();
         const { db } = await Promise.resolve().then(() => __importStar(require('../database/connection')));
-        console.log('🔄 Running database migrations...');
-        await db.migrate.latest();
-        console.log('✅ Database migrations completed');
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('🔄 Running database migrations...');
+            await db.migrate.latest();
+            console.log('✅ Database migrations completed');
+        }
+        else {
+            console.log('✅ Skipping migrations (handled by release phase in production)');
+        }
         const seedClient = await exports.pool.connect();
         try {
             const translationCount = await seedClient.query('SELECT COUNT(*) as count FROM translations');
