@@ -102,26 +102,32 @@ const ExchangeRateConfigModal: React.FC<ExchangeRateConfigModalProps> = ({
           </p>
 
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {availableCurrencies.sort().map(currency => (
-              <label
-                key={currency}
-                className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCurrencies.includes(currency)}
-                  onChange={() => handleCurrencyToggle(currency)}
-                  disabled={!selectedCurrencies.includes(currency) && selectedCurrencies.length >= 6}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
-                />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {currency} - {currencyNames[currency] || currency}
-                </span>
-                {selectedCurrencies.includes(currency) && (
-                  <CheckIcon className="h-4 w-4 text-green-500" />
-                )}
-              </label>
-            ))}
+            {availableCurrencies.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                {t('dashboard.noCurrenciesAvailable') || 'No currencies available. Please add currencies in Currency Management.'}
+              </p>
+            ) : (
+              availableCurrencies.sort().map(currency => (
+                <label
+                  key={currency}
+                  className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedCurrencies.includes(currency)}
+                    onChange={() => handleCurrencyToggle(currency)}
+                    disabled={!selectedCurrencies.includes(currency) && selectedCurrencies.length >= 6}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+                  />
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {currency} - {currencyNames[currency] || currency}
+                  </span>
+                  {selectedCurrencies.includes(currency) && (
+                    <CheckIcon className="h-4 w-4 text-green-500" />
+                  )}
+                </label>
+              ))
+            )}
           </div>
 
           <div className="flex justify-end space-x-3 mt-6">
