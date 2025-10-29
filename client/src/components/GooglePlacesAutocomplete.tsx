@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 
 interface GooglePlacesAutocompleteProps {
   value: string;
@@ -13,6 +13,15 @@ declare global {
     google: any;
     initGooglePlaces: () => void;
   }
+  
+  namespace JSX {
+    interface IntrinsicElements {
+      'gmp-places-autocomplete': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        'placeholder'?: string;
+        'types'?: string;
+      }, HTMLElement>;
+    }
+  }
 }
 
 const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
@@ -22,9 +31,88 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   className = '',
   disabled = false
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<any>(null);
+  const autocompleteElementRef = useRef<any>(null);
   const scriptLoadedRef = useRef(false);
+  const handlePlaceSelectRef = useRef<((event: any) => void) | null>(null);
+
+  // Handle place selection
+  const handlePlaceSelect = (event: any) => {
+    const place = event.detail.place;
+    
+    if (place.formattedAddress) {
+      onChange(place.formattedAddress);
+      if (inputRef.current) {
+        inputRef.current.value = place.formattedAddress;
+      }
+    } else if (place.displayName) {
+      onChange(place.displayName);
+      if (inputRef.current) {
+        inputRef.current.value = place.displayName;
+      }
+    }
+  };
+
+  // Store handler in ref for cleanup
+  handlePlaceSelectRef.current = handlePlaceSelect;
+
+  const initializeAutocomplete = useCallback(() => {
+    if (!containerRef.current || !inputRef.current || !window.google?.maps?.places) {
+      return;
+    }
+
+    // Use the new PlaceAutocompleteElement (web component)
+    if (window.google.maps.places.PlaceAutocompleteElement) {
+      try {
+        // Create the PlaceAutocompleteElement instance
+        const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement({
+          requestedResultTypes: ['geocode', 'establishment'],
+          requestedFields: ['formattedAddress', 'displayName', 'geometry', 'addressComponents']
+        });
+
+        // Get the input element from the autocomplete element
+        const autocompleteInput = autocompleteElement.querySelector('input') as HTMLInputElement;
+        
+        if (autocompleteInput) {
+          // Apply custom styling to the input
+          autocompleteInput.className = className;
+          autocompleteInput.placeholder = placeholder;
+          autocompleteInput.disabled = disabled;
+          
+          // Hide our dummy input and use the autocomplete's input
+          inputRef.current.style.display = 'none';
+          
+          // Copy value to autocomplete input
+          if (value) {
+            autocompleteInput.value = value;
+          }
+          
+          // Listen for place selection
+          autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
+          
+          // Sync input value changes
+          autocompleteInput.addEventListener('input', (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            onChange(target.value);
+          });
+          
+          // Append autocomplete element to container
+          containerRef.current.appendChild(autocompleteElement);
+          
+          autocompleteElementRef.current = autocompleteElement;
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to initialize PlaceAutocompleteElement, falling back to regular input:', error);
+      }
+    }
+    
+    // Fallback: use regular input if PlaceAutocompleteElement is not available
+    if (inputRef.current) {
+      inputRef.current.style.display = 'block';
+    }
+  }, [className, placeholder, disabled, value, onChange]);
 
   // Load Google Maps script
   useEffect(() => {
@@ -62,50 +150,28 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
 
     return () => {
       // Cleanup
-      if (autocompleteRef.current) {
-        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      if (autocompleteElementRef.current && handlePlaceSelectRef.current) {
+        autocompleteElementRef.current.removeEventListener('gmp-placeselect', handlePlaceSelectRef.current);
       }
     };
-  }, []);
+  }, [initializeAutocomplete]);
 
-  // Initialize autocomplete when input ref is ready and Google is loaded
+  // Initialize autocomplete when container ref is ready and Google is loaded
   useEffect(() => {
-    if (inputRef.current && scriptLoadedRef.current && window.google?.maps?.places && !autocompleteRef.current) {
+    if (containerRef.current && inputRef.current && scriptLoadedRef.current && window.google?.maps?.places && !autocompleteElementRef.current) {
       initializeAutocomplete();
     }
-  }, [inputRef.current, scriptLoadedRef.current]);
+  }, [initializeAutocomplete]);
 
-  const initializeAutocomplete = () => {
-    if (!inputRef.current || !window.google?.maps?.places) {
-      return;
-    }
-
-    // Note: Google recommends PlaceAutocompleteElement for new implementations,
-    // but Autocomplete still works and is fully supported (no deprecation date yet).
-    // We'll keep using Autocomplete for now as it's simpler and works with our React setup.
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ['geocode', 'establishment'], // Can search for addresses and establishments
-      fields: ['formatted_address', 'name', 'geometry', 'address_components']
-    });
-
-    autocompleteRef.current = autocomplete;
-
-    // Listen for place selection
-    autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace();
-      
-      if (place.formatted_address) {
-        onChange(place.formatted_address);
-      } else if (place.name) {
-        onChange(place.name);
-      }
-    });
-  };
-
-  // Update autocomplete value when external value changes
+  // Update input value when external value changes
   useEffect(() => {
-    if (inputRef.current && value !== inputRef.current.value) {
-      inputRef.current.value = value;
+    if (inputRef.current) {
+      const autocompleteInput = autocompleteElementRef.current?.querySelector('input') as HTMLInputElement;
+      const targetInput = autocompleteInput || inputRef.current;
+      
+      if (value !== targetInput.value) {
+        targetInput.value = value;
+      }
     }
   }, [value]);
 
@@ -114,15 +180,17 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   };
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={handleInputChange}
-      placeholder={placeholder}
-      className={className}
-      disabled={disabled}
-    />
+    <div ref={containerRef} className="w-full">
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        className={className}
+        disabled={disabled}
+      />
+    </div>
   );
 };
 
