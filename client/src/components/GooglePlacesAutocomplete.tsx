@@ -66,43 +66,60 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     if (window.google.maps.places.PlaceAutocompleteElement) {
       try {
         // Create the PlaceAutocompleteElement instance
-        // PlaceAutocompleteElement has simpler options - just request place details
-        const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement({
-          requestPlaceDetails: true
-        });
+        // PlaceAutocompleteElement constructor takes no options - it's configured via attributes
+        const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement();
 
-        // Get the input element from the autocomplete element
-        const autocompleteInput = autocompleteElement.querySelector('input') as HTMLInputElement;
+        // PlaceAutocompleteElement is a web component, it has its own input
+        // We need to replace our input with the autocomplete element
+        // The element itself contains the input
         
-        if (autocompleteInput) {
-          // Apply custom styling to the input
-          autocompleteInput.className = className;
-          autocompleteInput.placeholder = placeholder;
-          autocompleteInput.disabled = disabled;
-          
-          // Hide our dummy input and use the autocomplete's input
-          inputRef.current.style.display = 'none';
-          
-          // Copy value to autocomplete input
-          if (value) {
-            autocompleteInput.value = value;
-          }
-          
-          // Listen for place selection
-          autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
-          
-          // Sync input value changes
-          autocompleteInput.addEventListener('input', (e: Event) => {
-            const target = e.target as HTMLInputElement;
-            onChange(target.value);
-          });
-          
-          // Append autocomplete element to container
-          containerRef.current.appendChild(autocompleteElement);
-          
-          autocompleteElementRef.current = autocompleteElement;
-          return;
+        // Hide our dummy input
+        inputRef.current.style.display = 'none';
+        
+        // Set attributes on the autocomplete element
+        autocompleteElement.setAttribute('placeholder', placeholder);
+        if (disabled) {
+          autocompleteElement.setAttribute('disabled', '');
         }
+        
+        // Apply custom styling via shadow DOM or wrapper
+        autocompleteElement.setAttribute('style', `width: 100%; ${className.includes('dark:') ? '' : ''}`);
+        
+        // Get the actual input from within the element (might be in shadow DOM)
+        // We'll need to wait for the element to be attached to access its input
+        setTimeout(() => {
+          const autocompleteInput = autocompleteElement.shadowRoot?.querySelector('input') as HTMLInputElement || 
+                                  autocompleteElement.querySelector('input') as HTMLInputElement;
+          
+          if (autocompleteInput) {
+            // Apply custom styling
+            autocompleteInput.className = className;
+            if (!autocompleteInput.placeholder) {
+              autocompleteInput.placeholder = placeholder;
+            }
+            autocompleteInput.disabled = disabled;
+            
+            // Copy value
+            if (value) {
+              autocompleteInput.value = value;
+            }
+            
+            // Sync input value changes
+            autocompleteInput.addEventListener('input', (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              onChange(target.value);
+            });
+          }
+        }, 0);
+        
+        // Listen for place selection
+        autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
+        
+        // Append autocomplete element to container
+        containerRef.current.appendChild(autocompleteElement);
+        
+        autocompleteElementRef.current = autocompleteElement;
+        return;
       } catch (error) {
         console.warn('Failed to initialize PlaceAutocompleteElement, falling back to regular input:', error);
       }
