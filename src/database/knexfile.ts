@@ -70,13 +70,13 @@ const config: { [key: string]: Knex.Config } = {
     },
     migrations: {
       directory: migrationsDir,
-      extension: 'ts',
-      loadExtensions: ['.ts', '.js'],
+      extension: 'js', // Use .js in production since files are compiled
+      loadExtensions: ['.js', '.ts'], // Prefer .js, fallback to .ts for ts-node
     },
     seeds: {
       directory: seedsDir,
-      extension: 'ts',
-      loadExtensions: ['.ts', '.js'],
+      extension: 'js', // Use .js in production since files are compiled
+      loadExtensions: ['.js', '.ts'], // Prefer .js, fallback to .ts for ts-node
     },
   },
 };
