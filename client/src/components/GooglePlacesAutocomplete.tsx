@@ -69,7 +69,9 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     }
 
     // Step 1: Try the new PlaceAutocompleteElement (requires Places API New)
-    if (fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
+    // But first check if we've already detected that it's not working
+    const hasDetectedError = sessionStorage.getItem('placesApiError') === 'true';
+    if (!hasDetectedError && fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
       try {
         // Clear any previous attempts
         if (autocompleteElementRef.current) {
@@ -96,13 +98,15 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Apply custom styling via shadow DOM or wrapper
         autocompleteElement.setAttribute('style', `width: 100%; ${className.includes('dark:') ? '' : ''}`);
         
-        // Listen for API errors - if it fails, fall back to legacy
-        const errorHandler = (event: any) => {
-          console.warn('PlaceAutocompleteElement API error, falling back to legacy:', event);
+        // Fallback function to switch to legacy
+        const switchToLegacy = () => {
+          console.warn('PlaceAutocompleteElement API error detected, switching to legacy Autocomplete');
           fallbackUsedRef.current = 'legacy';
-          // Remove failed element and try legacy
+          // Remove failed element
           try {
-            containerRef.current?.removeChild(autocompleteElement);
+            if (containerRef.current && autocompleteElement.parentNode) {
+              containerRef.current.removeChild(autocompleteElement);
+            }
           } catch (e) {
             // Element may have already been removed
           }
@@ -110,8 +114,87 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
           setTimeout(() => initializeAutocomplete(), 100);
         };
         
+        // Listen for various error events
         autocompleteElement.addEventListener('gmp-placeselect', handlePlaceSelectRef.current!);
-        autocompleteElement.addEventListener('error', errorHandler);
+        autocompleteElement.addEventListener('error', switchToLegacy);
+        autocompleteElement.addEventListener('gmp-error', switchToLegacy);
+        
+        // Intercept fetch requests to detect API failures
+        const originalFetch = window.fetch;
+        const fetchInterceptor = async (...args: Parameters<typeof fetch>) => {
+          try {
+            const response = await originalFetch(...args);
+            // Check if this is a Places API request that failed
+            if (args[0]?.toString().includes('places.googleapis.com')) {
+              if (!response.ok && (response.status === 403 || response.status === 404)) {
+                console.warn('Places API (New) fetch returned error, switching to legacy');
+                switchToLegacy();
+                window.fetch = originalFetch; // Restore
+              }
+            }
+            return response;
+          } catch (error: any) {
+            if (args[0]?.toString().includes('places.googleapis.com')) {
+              console.warn('Places API (New) fetch failed, switching to legacy');
+              switchToLegacy();
+              window.fetch = originalFetch; // Restore
+            }
+            throw error;
+          }
+        };
+        window.fetch = fetchInterceptor;
+        
+        // Also intercept XMLHttpRequest
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        let currentXHRUrl = '';
+        
+        XMLHttpRequest.prototype.open = function(...args: any[]) {
+          currentXHRUrl = args[1]?.toString() || '';
+          return originalXHROpen.apply(this, args as any);
+        };
+        
+        XMLHttpRequest.prototype.send = function(...args: any[]) {
+          if (currentXHRUrl.includes('places.googleapis.com')) {
+            this.addEventListener('error', () => {
+              console.warn('Places API (New) XHR error, switching to legacy');
+              switchToLegacy();
+              XMLHttpRequest.prototype.open = originalXHROpen;
+              XMLHttpRequest.prototype.send = originalXHRSend;
+            });
+            this.addEventListener('load', function() {
+              if (this.status === 403 || this.status === 404) {
+                console.warn('Places API (New) XHR returned 403/404, switching to legacy');
+                switchToLegacy();
+                XMLHttpRequest.prototype.open = originalXHROpen;
+                XMLHttpRequest.prototype.send = originalXHRSend;
+              }
+            });
+          }
+          return originalXHRSend.apply(this, args);
+        };
+        
+        // Fallback: Set a short timeout to detect if API calls are failing
+        const timeoutId = setTimeout(() => {
+          // After 2 seconds, check if user tried to interact but got errors
+          // This catches cases where the element loads but API calls fail
+          if (fallbackUsedRef.current === 'new' && autocompleteElement.parentNode) {
+            // Check console for recent errors
+            const hadError = sessionStorage.getItem('placesApiError');
+            if (hadError === 'true') {
+              console.warn('Detected Places API (New) errors, switching to legacy');
+              switchToLegacy();
+            }
+          }
+        }, 2000);
+        
+        // Store cleanup function
+        autocompleteElement._cleanup = () => {
+          clearTimeout(timeoutId);
+          window.fetch = originalFetch;
+          XMLHttpRequest.prototype.open = originalXHROpen;
+          XMLHttpRequest.prototype.send = originalXHRSend;
+        };
         
         // Get the actual input from within the element (might be in shadow DOM)
         setTimeout(() => {
@@ -144,6 +227,47 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         
         autocompleteElementRef.current = autocompleteElement;
         fallbackUsedRef.current = 'new';
+        
+        // Monitor for API call failures by intercepting console errors
+        const originalConsoleError = console.error;
+        const consoleErrorInterceptor = (...args: any[]) => {
+          const errorMessage = args.join(' ');
+          if (errorMessage.includes('places.googleapis.com') && 
+              (errorMessage.includes('403') || errorMessage.includes('Forbidden') ||
+               errorMessage.includes('not been used') || errorMessage.includes('disabled') ||
+               errorMessage.includes('Places API (New) has not been used'))) {
+            console.warn('Intercepted Places API (New) error in console, switching to legacy');
+            sessionStorage.setItem('placesApiError', 'true');
+            switchToLegacy();
+            console.error = originalConsoleError; // Restore
+            return;
+          }
+          originalConsoleError.apply(console, args);
+        };
+        console.error = consoleErrorInterceptor;
+        
+        // Also listen for unhandled promise rejections
+        const unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
+          const reason = event.reason?.toString() || '';
+          if (reason.includes('places.googleapis.com') && 
+              (reason.includes('403') || reason.includes('Forbidden') ||
+               reason.includes('not been used') || reason.includes('disabled'))) {
+            console.warn('Unhandled rejection from Places API (New), switching to legacy');
+            sessionStorage.setItem('placesApiError', 'true');
+            switchToLegacy();
+          }
+        };
+        window.addEventListener('unhandledrejection', unhandledRejectionHandler);
+        
+        // Store additional cleanup
+        const oldCleanup = autocompleteElement._cleanup;
+        autocompleteElement._cleanup = () => {
+          if (oldCleanup) oldCleanup();
+          console.error = originalConsoleError;
+          window.removeEventListener('unhandledrejection', unhandledRejectionHandler);
+          sessionStorage.removeItem('placesApiError');
+        };
+        
         return;
       } catch (error) {
         console.warn('Failed to initialize PlaceAutocompleteElement, falling back to legacy Autocomplete:', error);
