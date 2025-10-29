@@ -77,15 +77,20 @@ class ExchangeRateService {
     this.isUpdating = true;
 
     try {
-      console.log('📈 Fetching exchange rates from scraping sources...');
+      if (this.currencyApiKey) {
+        console.log(`[${new Date().toISOString()}] 📈 Fetching exchange rates using API key (v6 endpoint - updates every 60 min with Pro plan)`);
+      } else {
+        console.log(`[${new Date().toISOString()}] 📈 Fetching exchange rates using FREE tier (v4 endpoint - updates once per day)`);
+        console.log(`[${new Date().toISOString()}] ⚠️  Note: Free tier updates once per 24 hours. To get more frequent updates, set CURRENCY_API_KEY in Heroku config vars.`);
+      }
 
-      // Use ExchangeRates-Data API for fiat, crypto, and metals
+      // Use ExchangeRate-API.com for fiat, crypto, and metals
       try {
-        console.log('🔄 Starting ExchangeRates-Data API sync...');
+        console.log('🔄 Starting ExchangeRate-API.com sync...');
         await this.updateRatesFromExchangeRatesData();
-        console.log('✅ Exchange rates updated successfully from ExchangeRates-Data API');
+        console.log('✅ Exchange rates updated successfully from ExchangeRate-API.com');
       } catch (apiError) {
-        console.error('❌ ExchangeRates-Data API failed with error:', apiError);
+        console.error('❌ ExchangeRate-API.com failed with error:', apiError);
         throw new Error('Failed to sync exchange rates - API error');
       }
 
