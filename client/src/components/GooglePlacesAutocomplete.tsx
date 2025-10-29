@@ -161,7 +161,9 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Clean up previous autocomplete if any
         if (autocompleteElementRef.current && typeof autocompleteElementRef.current.setBounds === 'undefined') {
           // This was a legacy autocomplete, we'll recreate it
-          google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+          if (window.google?.maps?.event) {
+            window.google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+          }
         }
 
         // Create legacy Autocomplete instance
