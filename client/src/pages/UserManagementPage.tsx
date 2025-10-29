@@ -19,7 +19,8 @@ import {
   KeyIcon,
   ClockIcon,
   UserMinusIcon,
-  ShieldExclamationIcon
+  ShieldExclamationIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
 interface User {
@@ -36,6 +37,7 @@ interface User {
   failed_login_attempts: number;
   account_locked_until?: string;
   must_change_password: boolean;
+  two_factor_enabled?: boolean;
   created_at: string;
   updated_at?: string;
 }
@@ -212,6 +214,35 @@ const UserManagementPage: React.FC = () => {
       loadData();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to force password change');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleToggle2FA = async (userId: number, currentStatus: boolean) => {
+    try {
+      setIsSaving(true);
+      setError('');
+      const action = currentStatus ? 'disable' : 'enable';
+      
+      if (!currentStatus) {
+        // If trying to enable, show info message (can't enable remotely)
+        setMessage('2FA cannot be enabled remotely. The user must enable it through their Settings page with their authenticator app.');
+        setIsSaving(false);
+        return;
+      }
+      
+      await apiService.toggleUser2FA(userId.toString(), action);
+      setMessage('2FA disabled successfully');
+      loadData();
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || 'Failed to toggle 2FA';
+      // If it's the "cannot enable remotely" error, show as info message
+      if (errorMsg.includes('cannot be enabled remotely') || err.response?.data?.code === 'CANNOT_ENABLE_2FA_REMOTELY') {
+        setMessage('2FA cannot be enabled remotely. The user must enable it through their Settings page with their authenticator app.');
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -530,6 +561,9 @@ const UserManagementPage: React.FC = () => {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      2FA
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Last Login
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -573,6 +607,15 @@ const UserManagementPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(user.account_status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.two_factor_enabled
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                          {user.two_factor_enabled ? 'Enabled' : 'Disabled'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {formatLastLogin(user.last_login_at)}
@@ -625,6 +668,17 @@ const UserManagementPage: React.FC = () => {
                             disabled={isSaving}
                           >
                             <ShieldExclamationIcon className="h-4 w-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleToggle2FA(user.id, user.two_factor_enabled || false)}
+                            className={user.two_factor_enabled 
+                              ? "text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" 
+                              : "text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"}
+                            title={user.two_factor_enabled ? 'Disable 2FA' : 'Enable 2FA (user must set up)'}
+                            disabled={isSaving}
+                          >
+                            <ShieldCheckIcon className="h-4 w-4" />
                           </button>
                           
                           {user.role !== 'admin' && (

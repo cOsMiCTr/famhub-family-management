@@ -248,6 +248,11 @@ class ApiService {
     return response.data;
   }
 
+  async toggleUser2FA(userId: string, action: 'enable' | 'disable') {
+    const response = await this.api.post(`/admin/users/${userId}/toggle-2fa`, { action });
+    return response.data;
+  }
+
   async unlockUser(userId: string) {
     const response = await this.api.post(`/admin/users/${userId}/unlock`);
     return response.data;

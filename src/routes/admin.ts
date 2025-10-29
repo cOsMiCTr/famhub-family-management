@@ -136,6 +136,7 @@ router.get('/users', asyncHandler(async (req, res) => {
     `SELECT u.id, u.email, u.role, u.household_id, u.preferred_language, u.main_currency, 
             u.account_status, u.last_login_at, u.last_activity_at, u.failed_login_attempts,
             u.account_locked_until, u.must_change_password, u.created_at, u.updated_at,
+            u.two_factor_enabled,
             h.name as household_name
      FROM users u
      LEFT JOIN households h ON u.household_id = h.id
@@ -362,6 +363,56 @@ router.post('/users/:id/unlock', asyncHandler(async (req, res) => {
   res.json({
     message: 'Account unlocked successfully'
   });
+}));
+
+// Toggle 2FA for a user
+router.post('/users/:id/toggle-2fa', asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { action } = req.body; // 'enable' or 'disable'
+
+  // Check if user exists
+  const userResult = await query(
+    'SELECT id, email, two_factor_enabled FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw createNotFoundError('User');
+  }
+
+  const user = userResult.rows[0];
+
+  // Handle disable action
+  if (action === 'disable' || (!action && user.two_factor_enabled)) {
+    if (!user.two_factor_enabled) {
+      throw new CustomError('2FA is already disabled.', 400, '2FA_ALREADY_DISABLED');
+    }
+
+    // Disable 2FA and clear secret/backup codes
+    await query(
+      `UPDATE users 
+       SET two_factor_enabled = false,
+           two_factor_secret = NULL,
+           backup_codes = NULL,
+           updated_at = NOW()
+       WHERE id = $1`,
+      [id]
+    );
+
+    res.json({
+      message: '2FA disabled successfully',
+      two_factor_enabled: false
+    });
+  } 
+  // Handle enable action (only provides message - can't actually enable remotely)
+  else if (action === 'enable' || (!action && !user.two_factor_enabled)) {
+    if (user.two_factor_enabled) {
+      throw new CustomError('2FA is already enabled.', 400, '2FA_ALREADY_ENABLED');
+    }
+
+    // Can't enable remotely - user must set it up through settings
+    throw new CustomError('2FA cannot be enabled remotely. The user must enable it through their Settings page with their authenticator app.', 400, 'CANNOT_ENABLE_2FA_REMOTELY');
+  }
 }));
 
 // Toggle user account status
