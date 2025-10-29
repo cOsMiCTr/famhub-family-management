@@ -412,8 +412,19 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
 
     return () => {
       // Cleanup
-      if (autocompleteElementRef.current && handlePlaceSelectRef.current) {
-        autocompleteElementRef.current.removeEventListener('gmp-placeselect', handlePlaceSelectRef.current);
+      if (autocompleteElementRef.current) {
+        // Check if it's a PlaceAutocompleteElement (has removeEventListener) or legacy Autocomplete
+        if (typeof autocompleteElementRef.current.removeEventListener === 'function' && handlePlaceSelectRef.current) {
+          autocompleteElementRef.current.removeEventListener('gmp-placeselect', handlePlaceSelectRef.current);
+        }
+        // For legacy Autocomplete, use Google Maps event system
+        if (window.google?.maps?.event && typeof autocompleteElementRef.current.setBounds !== 'undefined') {
+          window.google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+        }
+        // Call custom cleanup if it exists
+        if (typeof autocompleteElementRef.current._cleanup === 'function') {
+          autocompleteElementRef.current._cleanup();
+        }
       }
     };
   }, [initializeAutocomplete]);
@@ -428,7 +439,14 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
   // Update input value when external value changes
   useEffect(() => {
     if (inputRef.current) {
-      const autocompleteInput = autocompleteElementRef.current?.querySelector('input') as HTMLInputElement;
+      // Check if autocompleteElementRef is a PlaceAutocompleteElement (has querySelector)
+      let autocompleteInput: HTMLInputElement | null = null;
+      if (autocompleteElementRef.current && typeof autocompleteElementRef.current.querySelector === 'function') {
+        autocompleteInput = autocompleteElementRef.current.querySelector('input') as HTMLInputElement;
+      } else if (autocompleteElementRef.current?.shadowRoot && typeof autocompleteElementRef.current.shadowRoot.querySelector === 'function') {
+        autocompleteInput = autocompleteElementRef.current.shadowRoot.querySelector('input') as HTMLInputElement;
+      }
+      
       const targetInput = autocompleteInput || inputRef.current;
       
       if (value !== targetInput.value) {
