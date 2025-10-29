@@ -47,9 +47,9 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
       return;
     }
 
-    // Load the script
+    // Load the script with loading=async for best practices
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGooglePlaces`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initGooglePlaces`;
     script.async = true;
     script.defer = true;
 
@@ -80,6 +80,9 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
       return;
     }
 
+    // Note: Google recommends PlaceAutocompleteElement for new implementations,
+    // but Autocomplete still works and is fully supported (no deprecation date yet).
+    // We'll keep using Autocomplete for now as it's simpler and works with our React setup.
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ['geocode', 'establishment'], // Can search for addresses and establishments
       fields: ['formatted_address', 'name', 'geometry', 'address_components']
