@@ -221,7 +221,7 @@ const LoginPage: React.FC = () => {
             {/* Logo */}
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center justify-center">
-                <FamHubLogo size={80} className="text-gray-900 dark:text-white" />
+                <FamHubLogo size={80} src="/FamHub_Logo.png" className="text-gray-900 dark:text-white" />
               </div>
               
               <div>

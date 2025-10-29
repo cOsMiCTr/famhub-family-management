@@ -105,9 +105,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {/* Logo */}
             <div id="sidebar-logo" className="flex h-16 items-center justify-between px-4 lg:px-6 border-b border-gray-200 dark:border-gray-700">
               <div className={`flex items-center space-x-3 ${isSidebarCollapsed ? 'lg:justify-center lg:space-x-0' : ''}`}>
-                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-sm">FH</span>
-                </div>
+                <img 
+                  src="/FamHub_Logo_Small.png" 
+                  alt="FamHub Logo" 
+                  className={`h-8 w-8 flex-shrink-0 ${isSidebarCollapsed ? 'lg:mx-auto' : ''}`}
+                  style={{ objectFit: 'contain' }}
+                />
                 <span className={`text-xl font-bold text-gray-900 dark:text-white ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>FamHub</span>
               </div>
               <div className="flex items-center space-x-2">
