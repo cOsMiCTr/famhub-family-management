@@ -218,10 +218,18 @@ class ExchangeRateService {
       // Fetch rates for each active fiat currency as base
       for (const baseFiat of activeFiats) {
         try {
+          // Use a random query parameter to bypass caching
           const timestamp = Date.now();
+          const random = Math.random().toString(36).substring(7);
           const response = await axios.get(
-            `https://api.exchangerate-api.com/v4/latest/${baseFiat}?timestamp=${timestamp}`,
-            { timeout: 10000 }
+            `https://api.exchangerate-api.com/v4/latest/${baseFiat}?t=${timestamp}&r=${random}`,
+            { 
+              timeout: 15000,
+              headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+              }
+            }
           );
           
           console.log(`[${new Date().toISOString()}] 📥 Fetched rates for ${baseFiat}`);
@@ -713,33 +721,30 @@ class ExchangeRateService {
 
   // Force update exchange rates (for manual refresh)
   async forceUpdate(): Promise<void> {
-    console.log('🔄 Force updating exchange rates...');
+    console.log(`[${new Date().toISOString()}] 🔄 Force updating exchange rates...`);
     
-    // For manual sync, try scraping first even if APIs are not configured
-    if (!this.currencyApiKey) {
-      console.log('🔄 Manual sync: Attempting scraping without API keys...');
-      
-      try {
-        const scrapedRates = await this.scrapeAllRates();
-        
-        if (scrapedRates.length > 0) {
-          console.log(`✅ Manual sync: Scraped ${scrapedRates.length} rates successfully`);
-          await this.storeExchangeRates(scrapedRates);
-          console.log(`✅ Stored ${scrapedRates.length} rates in database`);
-        } else {
-          console.warn('⚠️ No rates scraped, falling back to updateExchangeRates...');
-          await this.updateExchangeRates();
-        }
-      } catch (error) {
-        console.error('❌ Error during force update scraping:', error);
-        // Fallback to updateExchangeRates even on error
-        await this.updateExchangeRates();
-      }
-    } else {
+    // Always use updateExchangeRates for force updates
+    try {
       await this.updateExchangeRates();
+      
+      // Verify rates were actually updated by checking a sample rate
+      const sampleRate = await query(
+        'SELECT rate, updated_at FROM exchange_rates WHERE from_currency = $1 AND to_currency = $2 ORDER BY updated_at DESC LIMIT 1',
+        ['EUR', 'USD']
+      );
+      
+      if (sampleRate.rows.length > 0) {
+        const lastUpdate = new Date(sampleRate.rows[0].updated_at);
+        const now = new Date();
+        const minutesAgo = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000 / 60);
+        console.log(`[${new Date().toISOString()}] ✅ Force update completed. Sample rate (EUR/USD) updated ${minutesAgo} minute(s) ago`);
+      } else {
+        console.warn(`[${new Date().toISOString()}] ⚠️ Force update completed but no sample rate found`);
+      }
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] ❌ Force update failed:`, error);
+      throw error;
     }
-    
-    console.log('✅ Force update completed');
   }
 
   // Scrape gold prices (deprecated - not used)
