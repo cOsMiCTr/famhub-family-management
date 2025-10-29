@@ -412,7 +412,7 @@ const DashboardPage: React.FC = () => {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {statsCards.map((card, index) => (
           <Link
             key={index}
@@ -423,8 +423,8 @@ const DashboardPage: React.FC = () => {
             <div className="card-body">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className={`w-12 h-12 ${card.color} rounded-xl flex items-center justify-center shadow-lg`}>
-                    <card.icon className="h-6 w-6 text-white" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 ${card.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                    <card.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
                   </div>
                 </div>
                 <div className="ml-2 sm:ml-4 flex-1 min-w-0">
@@ -441,18 +441,18 @@ const DashboardPage: React.FC = () => {
                       <LoadingSpinner size="sm" />
                     ) : (
                       <div className="min-w-0 flex-1">
-                        <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${card.textColor} break-words`}>
+                        <p className={`text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold ${card.textColor} break-words leading-tight`} style={{ fontSize: 'clamp(0.75rem, 2.5vw + 0.5rem, 1.5rem)' }}>
                           {card.value}
                         </p>
                         {/* Show converted value if temporary conversion is active */}
                         {tempConversionCurrency && card.convertedValue && (
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 break-words leading-tight">
                             ≈ {card.convertedValue} ({tempConversionCurrency})
                           </p>
                         )}
                         {/* Show conversion toggle if enabled and no temp conversion */}
                         {showConversions && !tempConversionCurrency && card.isFinancial && (
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 break-words leading-tight">
                             {t('dashboard.inYourCurrency')}
                           </p>
                         )}
@@ -626,14 +626,14 @@ const DashboardPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-center mt-3">
-                        <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-1 break-words">
+                        <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-bold text-gray-900 dark:text-white mb-1 break-words leading-tight" style={{ fontSize: 'clamp(0.75rem, 2vw + 0.5rem, 1.25rem)' }}>
                           <span className="break-all">{rate.rate.toFixed(4)}</span> <span className="whitespace-nowrap">{toCurrency.symbol}</span>
                           {/* Show visual indicator if rate changed */}
                           {previousRates.find(pr => pr.from_currency === rate.from_currency && pr.to_currency === rate.to_currency && Math.abs(pr.rate - rate.rate) > 0.00000001) && (
-                            <span className="ml-2 text-green-500 animate-pulse inline-block">📈</span>
+                            <span className="ml-1 sm:ml-2 text-green-500 animate-pulse inline-block">📈</span>
                           )}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 break-words">
+                        <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 break-words leading-tight">
                           {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
                         </div>
                       </div>
