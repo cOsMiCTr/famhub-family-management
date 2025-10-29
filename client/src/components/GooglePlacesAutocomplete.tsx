@@ -101,14 +101,52 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         autocompleteElementRef.current._overrideStyles = overrideStyles;
         
         // Override immediately and multiple times to catch late style applications
+        // More frequent overrides to catch Google Maps style application
         setTimeout(overrideStyles, 0);
+        setTimeout(overrideStyles, 10);
+        setTimeout(overrideStyles, 25);
         setTimeout(overrideStyles, 50);
+        setTimeout(overrideStyles, 75);
         setTimeout(overrideStyles, 100);
+        setTimeout(overrideStyles, 150);
         setTimeout(overrideStyles, 200);
+        setTimeout(overrideStyles, 300);
+        setTimeout(overrideStyles, 400);
         
         // Also override on focus (when user starts typing)
         inputRef.current.addEventListener('focus', overrideStyles);
         inputRef.current.addEventListener('input', overrideStyles);
+        inputRef.current.addEventListener('keydown', overrideStyles);
+        inputRef.current.addEventListener('keyup', overrideStyles);
+        
+        // Use MutationObserver to watch for style attribute changes and override them
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style' && inputRef.current) {
+              const currentBg = window.getComputedStyle(inputRef.current).backgroundColor;
+              const currentColor = window.getComputedStyle(inputRef.current).color;
+              // Check if Google Maps has applied dark colors
+              if (currentBg.includes('54') || currentBg.includes('59') || currentBg === 'rgb(54, 59, 71)' || currentBg.includes('36, 59, 71')) {
+                overrideStyles();
+              }
+              // Also check for dark text colors
+              if (currentColor === 'rgb(255, 255, 255)' && !isDarkMode) {
+                overrideStyles();
+              }
+            }
+          });
+        });
+        
+        // Start observing the input for style changes
+        if (inputRef.current) {
+          observer.observe(inputRef.current, {
+            attributes: true,
+            attributeFilter: ['style', 'class']
+          });
+        }
+        
+        // Store observer for cleanup
+        autocompleteElementRef.current._styleObserver = observer;
 
         // Listen for place selection
         autocomplete.addListener('place_changed', () => {
@@ -201,6 +239,12 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         if (inputRef.current && autocompleteElementRef.current._overrideStyles) {
           inputRef.current.removeEventListener('focus', autocompleteElementRef.current._overrideStyles);
           inputRef.current.removeEventListener('input', autocompleteElementRef.current._overrideStyles);
+          inputRef.current.removeEventListener('keydown', autocompleteElementRef.current._overrideStyles);
+          inputRef.current.removeEventListener('keyup', autocompleteElementRef.current._overrideStyles);
+        }
+        // Disconnect MutationObserver
+        if (autocompleteElementRef.current._styleObserver) {
+          autocompleteElementRef.current._styleObserver.disconnect();
         }
       }
     };
