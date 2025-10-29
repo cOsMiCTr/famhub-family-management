@@ -1,6 +1,15 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
+  // Check if tables already exist (for migration from old system)
+  const usersTableExists = await knex.schema.hasTable('users');
+  
+  if (usersTableExists) {
+    console.log('⚠️  Tables already exist. Skipping schema creation.');
+    console.log('✅ Assuming migrations were already applied by old system.');
+    return;
+  }
+
   // Create users table (no dependencies)
   await knex.schema.createTable('users', (table) => {
     table.increments('id').primary();
