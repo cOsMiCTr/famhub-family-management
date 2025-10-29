@@ -342,22 +342,22 @@ const DashboardPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fadeIn">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white break-words">
               {t('dashboard.title')}
             </h1>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
+            <p className="mt-2 text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-300 break-words">
               Welcome to your family management dashboard
             </p>
           </div>
           
           {/* Currency Conversion Controls */}
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
             {/* Show/Hide Conversions Toggle */}
             <button
               onClick={toggleConversions}
-              className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors min-h-[44px] ${
                 showConversions 
                   ? 'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/20' 
                   : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -365,27 +365,29 @@ const DashboardPage: React.FC = () => {
             >
               {showConversions ? (
                 <>
-                  <EyeSlashIcon className="h-4 w-4" />
-                  <span>{t('dashboard.hideConversions')}</span>
+                  <EyeSlashIcon className="h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('dashboard.hideConversions')}</span>
+                  <span className="sm:hidden">Hide</span>
                 </>
               ) : (
                 <>
-                  <EyeIcon className="h-4 w-4" />
-                  <span>{t('dashboard.showConversions')}</span>
+                  <EyeIcon className="h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('dashboard.showConversions')}</span>
+                  <span className="sm:hidden">Show</span>
                 </>
               )}
             </button>
             
             {/* Temporary Currency Conversion Dropdown - Only show when conversions are active */}
             {showConversions && (
-              <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                   {t('dashboard.viewIn')}:
                 </label>
                 <select
                   value={tempConversionCurrency || ''}
                   onChange={(e) => setTempConversionCurrency(e.target.value || null)}
-                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                 >
                   <option value="">{t('dashboard.convertTo')}</option>
                   {getAvailableCurrencies().map(currency => {
@@ -404,13 +406,13 @@ const DashboardPage: React.FC = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 animate-fadeIn">
-          <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 sm:p-4 animate-fadeIn">
+          <p className="text-red-600 dark:text-red-400 text-xs sm:text-sm break-words">{error}</p>
         </div>
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {statsCards.map((card, index) => (
           <Link
             key={index}
@@ -425,32 +427,32 @@ const DashboardPage: React.FC = () => {
                     <card.icon className="h-6 w-6 text-white" />
                   </div>
                 </div>
-                <div className="ml-4 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                <div className="ml-2 sm:ml-4 flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                       {card.title}
                     </p>
                     {card.showArrow && card.linkTo && (
-                      <ArrowRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                      <ArrowRightIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                     )}
                   </div>
                   <div className="flex items-center mt-1">
                     {isLoading ? (
                       <LoadingSpinner size="sm" />
                     ) : (
-                      <div>
-                        <p className={`text-2xl font-bold ${card.textColor}`}>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${card.textColor} break-words`}>
                           {card.value}
                         </p>
                         {/* Show converted value if temporary conversion is active */}
                         {tempConversionCurrency && card.convertedValue && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
                             ≈ {card.convertedValue} ({tempConversionCurrency})
                           </p>
                         )}
                         {/* Show conversion toggle if enabled and no temp conversion */}
                         {showConversions && !tempConversionCurrency && card.isFinancial && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
                             {t('dashboard.inYourCurrency')}
                           </p>
                         )}
@@ -469,32 +471,32 @@ const DashboardPage: React.FC = () => {
         {/* Recent Activity */}
         <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.4s' }}>
           <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <CalendarIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Recent Activity
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-500 flex-shrink-0" />
+              <span className="break-words">Recent Activity</span>
             </h3>
           </div>
           <div className="card-body">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">New income entry added</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">2 hours ago</p>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-words">New income entry added</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">2 hours ago</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Contract updated</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">1 day ago</p>
+              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-words">Contract updated</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">1 day ago</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">New family member added</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">3 days ago</p>
+              <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-words">New family member added</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">3 days ago</p>
                 </div>
               </div>
             </div>
@@ -504,27 +506,27 @@ const DashboardPage: React.FC = () => {
         {/* Exchange Rates */}
         <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.5s' }}>
           <div className="card-header">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <ChartBarIcon className="h-5 w-5 mr-2 text-green-500" />
-                  {t('dashboard.exchangeRates')}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <ChartBarIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-green-500 flex-shrink-0" />
+                  <span className="break-words">{t('dashboard.exchangeRates')}</span>
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
                   {t('dashboard.basedOn')} {stats?.currency || 'EUR'}
                 </p>
                 {lastUpdated && (
-                  <p className={`text-xs text-gray-400 dark:text-gray-500 mt-1 ${
+                  <p className={`text-xs text-gray-400 dark:text-gray-500 mt-1 break-words ${
                     lastUpdateHighlight ? 'highlight-animation' : ''
                   }`}>
                     {t('dashboard.lastUpdated')}: {new Date(lastUpdated).toLocaleString()}
                   </p>
                 )}
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
                 <button
                   onClick={() => setShowRateConfig(true)}
-                  className="flex items-center space-x-1 px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  className="flex items-center justify-center space-x-1 px-2 py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors min-h-[44px] min-w-[44px]"
                   title={t('dashboard.configureRates')}
                 >
                   <Cog6ToothIcon className="h-4 w-4" />
@@ -538,10 +540,11 @@ const DashboardPage: React.FC = () => {
                       }
                     }}
                     disabled={isSyncing}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                 >
-                  <ArrowPathIcon className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>{isSyncing ? t('dashboard.syncing') : t('dashboard.sync')}</span>
+                  <ArrowPathIcon className={`h-4 w-4 flex-shrink-0 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">{isSyncing ? t('dashboard.syncing') : t('dashboard.sync')}</span>
+                  <span className="sm:hidden">{isSyncing ? '...' : 'Sync'}</span>
                 </button>
               </div>
             </div>
@@ -550,12 +553,12 @@ const DashboardPage: React.FC = () => {
             {isLoading ? (
               <LoadingSpinner size="sm" />
             ) : exchangeRates.length > 0 ? (
-              <div className={`grid gap-3 ${
-                selectedExchangeRates.length === 3 ? 'grid-cols-3' :
-                selectedExchangeRates.length === 4 ? 'grid-cols-2' :
-                selectedExchangeRates.length === 5 ? 'grid-cols-3' :
-                selectedExchangeRates.length === 6 ? 'grid-cols-3' :
-                'grid-cols-2'
+              <div className={`grid gap-2 sm:gap-3 ${
+                selectedExchangeRates.length === 3 ? 'grid-cols-1 sm:grid-cols-3' :
+                selectedExchangeRates.length === 4 ? 'grid-cols-1 sm:grid-cols-2' :
+                selectedExchangeRates.length === 5 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                selectedExchangeRates.length === 6 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                'grid-cols-1 sm:grid-cols-2'
               }`}>
                 {(() => {
                   // Use user.main_currency first, fallback to stats.currency if not available
@@ -611,26 +614,26 @@ const DashboardPage: React.FC = () => {
                   };
                   
                   return (
-                    <div key={index} className={`border-2 ${toCurrency.color} rounded-xl p-4 transition-all hover:scale-105`}>
+                    <div key={index} className={`border-2 ${toCurrency.color} rounded-xl p-3 sm:p-4 transition-all hover:scale-105`}>
                       <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">
                             {toCurrency.name}
                           </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400 uppercase">
+                          <div className="text-xs text-gray-600 dark:text-gray-400 uppercase truncate">
                             {rate.to_currency}
                           </div>
                         </div>
                       </div>
                       <div className="text-center mt-3">
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                          {rate.rate.toFixed(4)} {toCurrency.symbol}
+                        <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-1 break-words">
+                          <span className="break-all">{rate.rate.toFixed(4)}</span> <span className="whitespace-nowrap">{toCurrency.symbol}</span>
                           {/* Show visual indicator if rate changed */}
                           {previousRates.find(pr => pr.from_currency === rate.from_currency && pr.to_currency === rate.to_currency && Math.abs(pr.rate - rate.rate) > 0.00000001) && (
-                            <span className="ml-2 text-green-500 animate-pulse">📈</span>
+                            <span className="ml-2 text-green-500 animate-pulse inline-block">📈</span>
                           )}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                        <div className="text-xs text-gray-600 dark:text-gray-400 break-words">
                           {t('dashboard.perUnit')} {stats?.currency || 'EUR'}
                         </div>
                       </div>
@@ -650,28 +653,28 @@ const DashboardPage: React.FC = () => {
       {/* Coming Soon Features */}
       <div className="card hover-lift animate-fadeIn" style={{ animationDelay: '0.7s' }}>
         <div className="card-header">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white break-words">
             Upcoming Features
           </h3>
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h4 className="font-medium text-gray-900 dark:text-white">Analytics & Reports</h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                <li>• Income vs Expense charts</li>
-                <li>• Monthly financial reports</li>
-                <li>• Contract renewal alerts</li>
-                <li>• Multi-currency conversion tracking</li>
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white break-words">Analytics & Reports</h4>
+              <ul className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                <li className="break-words">• Income vs Expense charts</li>
+                <li className="break-words">• Monthly financial reports</li>
+                <li className="break-words">• Contract renewal alerts</li>
+                <li className="break-words">• Multi-currency conversion tracking</li>
               </ul>
             </div>
             <div className="space-y-2">
-              <h4 className="font-medium text-gray-900 dark:text-white">Advanced Features</h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                <li>• Automated bill reminders</li>
-                <li>• Family budget planning</li>
-                <li>• Investment tracking</li>
-                <li>• Export financial data</li>
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white break-words">Advanced Features</h4>
+              <ul className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                <li className="break-words">• Automated bill reminders</li>
+                <li className="break-words">• Family budget planning</li>
+                <li className="break-words">• Investment tracking</li>
+                <li className="break-words">• Export financial data</li>
               </ul>
             </div>
           </div>
