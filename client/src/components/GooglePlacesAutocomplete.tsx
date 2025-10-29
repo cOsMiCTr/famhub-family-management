@@ -69,12 +69,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
           window.google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
         }
 
-        // Create legacy Autocomplete instance
-        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-          types: ['geocode', 'establishment'],
-          fields: ['formatted_address', 'name', 'geometry']
-        });
-        
         // Continuously override Google Maps default styling that causes black background
         // Use multiple timeouts to catch when Google Maps applies styles
         const overrideStyles = () => {
@@ -89,6 +83,17 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
             }
           }
         };
+
+        // Create legacy Autocomplete instance
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['geocode', 'establishment'],
+          fields: ['formatted_address', 'name', 'geometry']
+        });
+        
+        // Store autocomplete instance first
+        autocompleteElementRef.current = autocomplete;
+        // Now we can safely set the override function
+        autocompleteElementRef.current._overrideStyles = overrideStyles;
         
         // Override immediately and multiple times to catch late style applications
         setTimeout(overrideStyles, 0);
@@ -99,9 +104,6 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         // Also override on focus (when user starts typing)
         inputRef.current.addEventListener('focus', overrideStyles);
         inputRef.current.addEventListener('input', overrideStyles);
-        
-        // Store cleanup
-        autocompleteElementRef.current._overrideStyles = overrideStyles;
 
         // Listen for place selection
         autocomplete.addListener('place_changed', () => {
@@ -120,14 +122,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         };
         inputRef.current.addEventListener('input', inputHandler);
 
-        autocompleteElementRef.current = autocomplete;
         fallbackUsedRef.current = 'legacy';
         console.log('[GooglePlacesAutocomplete] ✅ Legacy Autocomplete initialized successfully');
         console.log('[GooglePlacesAutocomplete] 📊 Current state: LEGACY API');
         
         // One more style override after everything is set up
         setTimeout(() => {
-          if (inputRef.current && autocompleteElementRef.current._overrideStyles) {
+          if (inputRef.current && autocompleteElementRef.current && autocompleteElementRef.current._overrideStyles) {
             autocompleteElementRef.current._overrideStyles();
           }
         }, 500);
