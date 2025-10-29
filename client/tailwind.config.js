@@ -7,6 +7,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      screens: {
+        'wide': '1980px', // Custom breakpoint for wide screens
+      },
       colors: {
         primary: {
           50: '#eff6ff',
