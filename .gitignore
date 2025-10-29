@@ -85,6 +85,10 @@ dist
 # Gatsby files
 .cache/
 public
+# But allow logo files in client/public
+!client/public/FamHub_Logo.png
+!client/public/FamHub_Logo_Small.png
+!client/public/FamHub_favicon.svg
 
 # Storybook build outputs
 .out
