@@ -934,18 +934,11 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
 
             {/* Footer with Navigation */}
             <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              {/* Debug info */}
-              {(() => {
-                console.log(`🔍 DEBUG: currentStep=${currentStep}, totalSteps=${totalSteps}, showSubmit=${currentStep === totalSteps}`);
-                return null;
-              })()}
-              
               {currentStep >= totalSteps ? (
                 <button
                   type="button"
                   disabled={loading}
                   onClick={(e) => {
-                    console.log('🔍 DEBUG: Submit button clicked', { currentStep, totalSteps });
                     e.preventDefault();
                     const form = e.currentTarget.closest('form');
                     if (form) {
@@ -960,7 +953,6 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    console.log('🔍 DEBUG: Next button clicked', { currentStep, totalSteps });
                     nextStep();
                   }}
                   disabled={!canProceedToNext()}
