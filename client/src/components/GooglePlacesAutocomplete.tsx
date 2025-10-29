@@ -62,7 +62,7 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
       return;
     }
 
-    // Use the new PlaceAutocompleteElement (web component)
+    // First try the new PlaceAutocompleteElement (requires Places API New)
     if (window.google.maps.places.PlaceAutocompleteElement) {
       try {
         // Create the PlaceAutocompleteElement instance
@@ -121,11 +121,43 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         autocompleteElementRef.current = autocompleteElement;
         return;
       } catch (error) {
-        console.warn('Failed to initialize PlaceAutocompleteElement, falling back to regular input:', error);
+        console.warn('Failed to initialize PlaceAutocompleteElement, falling back to legacy Autocomplete:', error);
       }
     }
     
-    // Fallback: use regular input if PlaceAutocompleteElement is not available
+    // Fallback to legacy Autocomplete API (works with older Places API)
+    if (window.google.maps.places.Autocomplete && inputRef.current) {
+      try {
+        // Create legacy Autocomplete instance
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          types: ['geocode', 'establishment'],
+          fields: ['formatted_address', 'name', 'geometry']
+        });
+
+        // Listen for place selection
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) {
+            onChange(place.formatted_address);
+          } else if (place.name) {
+            onChange(place.name);
+          }
+        });
+
+        // Sync input value changes
+        inputRef.current.addEventListener('input', (e: Event) => {
+          const target = e.target as HTMLInputElement;
+          onChange(target.value);
+        });
+
+        autocompleteElementRef.current = autocomplete;
+        return;
+      } catch (error) {
+        console.warn('Failed to initialize legacy Autocomplete, using regular input:', error);
+      }
+    }
+    
+    // Final fallback: use regular input
     if (inputRef.current) {
       inputRef.current.style.display = 'block';
     }
