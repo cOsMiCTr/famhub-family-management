@@ -56,9 +56,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         inputRef.current.className = className;
         inputRef.current.placeholder = placeholder;
         inputRef.current.disabled = disabled;
-        // Force background color to prevent Google Maps black background
-        inputRef.current.style.backgroundColor = '';
-        inputRef.current.style.backgroundImage = '';
+        
+        // Set proper background color immediately to prevent black background
+        const isDarkMode = className.includes('dark:bg-gray-700');
+        inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#fff';
+        inputRef.current.style.color = isDarkMode ? '#fff' : '#000';
+        inputRef.current.style.backgroundImage = 'none';
+        inputRef.current.style.borderColor = className.includes('dark:border-gray-600') ? 'rgb(75, 85, 99)' : 'rgb(209, 213, 219)';
         
         // Clean up previous autocomplete if any
         if (autocompleteElementRef.current && window.google?.maps?.event) {
@@ -71,22 +75,33 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
           fields: ['formatted_address', 'name', 'geometry']
         });
         
-        // Override Google Maps default styling that causes black background
-        // Wait a bit for Google Maps to attach its styling, then override
-        setTimeout(() => {
+        // Continuously override Google Maps default styling that causes black background
+        // Use multiple timeouts to catch when Google Maps applies styles
+        const overrideStyles = () => {
           if (inputRef.current) {
-            // Remove any inline styles Google Maps might have added
-            const googleStyles = inputRef.current.getAttribute('style');
-            if (googleStyles && googleStyles.includes('background')) {
-              // Reapply our className which should have proper background
+            // Force proper styling
+            inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#fff';
+            inputRef.current.style.color = isDarkMode ? '#fff' : '#000';
+            inputRef.current.style.backgroundImage = 'none';
+            // Ensure className is still applied
+            if (!inputRef.current.className.includes(className)) {
               inputRef.current.className = className;
-              // Ensure we have the proper background
-              const isDarkMode = className.includes('dark:bg-gray-700');
-              inputRef.current.style.backgroundColor = isDarkMode ? 'rgb(55, 65, 81)' : '#fff';
-              inputRef.current.style.color = isDarkMode ? '#fff' : '#000';
             }
           }
-        }, 100);
+        };
+        
+        // Override immediately and multiple times to catch late style applications
+        setTimeout(overrideStyles, 0);
+        setTimeout(overrideStyles, 50);
+        setTimeout(overrideStyles, 100);
+        setTimeout(overrideStyles, 200);
+        
+        // Also override on focus (when user starts typing)
+        inputRef.current.addEventListener('focus', overrideStyles);
+        inputRef.current.addEventListener('input', overrideStyles);
+        
+        // Store cleanup
+        autocompleteElementRef.current._overrideStyles = overrideStyles;
 
         // Listen for place selection
         autocomplete.addListener('place_changed', () => {
@@ -109,6 +124,14 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         fallbackUsedRef.current = 'legacy';
         console.log('[GooglePlacesAutocomplete] ✅ Legacy Autocomplete initialized successfully');
         console.log('[GooglePlacesAutocomplete] 📊 Current state: LEGACY API');
+        
+        // One more style override after everything is set up
+        setTimeout(() => {
+          if (inputRef.current && autocompleteElementRef.current._overrideStyles) {
+            autocompleteElementRef.current._overrideStyles();
+          }
+        }, 500);
+        
         return;
       } catch (error) {
         console.warn('[GooglePlacesAutocomplete] ❌ Legacy Autocomplete failed:', error);
@@ -163,10 +186,15 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
 
     return () => {
       // Cleanup
-      if (autocompleteElementRef.current && window.google?.maps?.event) {
+      if (autocompleteElementRef.current) {
         // For legacy Autocomplete, use Google Maps event system
-        if (typeof autocompleteElementRef.current.setBounds !== 'undefined') {
+        if (window.google?.maps?.event && typeof autocompleteElementRef.current.setBounds !== 'undefined') {
           window.google.maps.event.clearInstanceListeners(autocompleteElementRef.current);
+        }
+        // Remove style override event listeners
+        if (inputRef.current && autocompleteElementRef.current._overrideStyles) {
+          inputRef.current.removeEventListener('focus', autocompleteElementRef.current._overrideStyles);
+          inputRef.current.removeEventListener('input', autocompleteElementRef.current._overrideStyles);
         }
       }
     };
