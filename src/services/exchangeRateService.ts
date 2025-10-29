@@ -249,7 +249,16 @@ class ExchangeRateService {
             }
           );
           
-          console.log(`[${new Date().toISOString()}] 📥 Fetched rates for ${baseFiat}`);
+          console.log(`[${new Date().toISOString()}] 📥 API Response for ${baseFiat}:`, {
+            status: response.status,
+            statusText: response.statusText,
+            hasData: !!response.data,
+            hasRates: !!(response.data && response.data.rates),
+            base: response.data?.base,
+            date: response.data?.date,
+            ratesCount: response.data?.rates ? Object.keys(response.data.rates).length : 0,
+            sampleRate: response.data?.rates?.USD || 'N/A'
+          });
           
           if (response.data && response.data.rates) {
             const fiatToUSD = response.data.rates.USD || 1;
@@ -325,8 +334,15 @@ class ExchangeRateService {
               });
             }
           }
-        } catch (error) {
-          console.error(`[${new Date().toISOString()}] ❌ Failed to fetch rates for ${baseFiat}:`, error);
+        } catch (error: any) {
+          console.error(`[${new Date().toISOString()}] ❌ Failed to fetch rates for ${baseFiat}:`, {
+            message: error.message,
+            code: error.code,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            url: apiUrl
+          });
           // Continue with next currency - don't throw, allow other currencies to be fetched
         }
       }
