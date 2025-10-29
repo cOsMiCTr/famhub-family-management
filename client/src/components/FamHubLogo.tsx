@@ -1,11 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface FamHubLogoProps {
   className?: string;
   size?: number;
+  src?: string;
 }
 
-const FamHubLogo: React.FC<FamHubLogoProps> = ({ className = '', size = 80 }) => {
+const FamHubLogo: React.FC<FamHubLogoProps> = ({ className = '', size = 80, src }) => {
+  // State to track if logo image failed to load
+  const [logoError, setLogoError] = useState(false);
+  
+  // If a custom logo source is provided, use it
+  if (src) {
+    return (
+      <img 
+        src={src} 
+        alt="FamHub Logo" 
+        width={size} 
+        height={size}
+        className={className}
+        style={{ objectFit: 'contain' }}
+      />
+    );
+  }
+
+  // Otherwise, try to load logo from public folder
+  const logoPath = '/logo.png'; // Primary logo path - add your logo file to client/public/logo.png
+
+  // Try to load custom logo from public folder
+  if (!logoError) {
+    return (
+      <img 
+        src={logoPath} 
+        alt="FamHub Logo" 
+        width={size} 
+        height={size}
+        className={className}
+        style={{ objectFit: 'contain' }}
+        onError={() => setLogoError(true)}
+      />
+    );
+  }
+
+  // Fallback to default SVG logo if no image is found
   return (
     <svg 
       width={size} 
