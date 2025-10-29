@@ -79,6 +79,11 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     console.log('[GooglePlacesAutocomplete] - Has detected error:', hasDetectedError);
     console.log('[GooglePlacesAutocomplete] - PlaceAutocompleteElement available:', !!window.google.maps.places.PlaceAutocompleteElement);
     
+    if (hasDetectedError) {
+      console.log('[GooglePlacesAutocomplete] ⏭️ Skipping Tier 1 (previous error detected), going to Tier 2');
+      fallbackUsedRef.current = 'legacy';
+    }
+    
     if (!hasDetectedError && fallbackUsedRef.current === 'new' && window.google.maps.places.PlaceAutocompleteElement) {
       console.log('[GooglePlacesAutocomplete] ✅ Attempting Tier 1: PlaceAutocompleteElement...');
       try {
@@ -304,7 +309,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     console.log('[GooglePlacesAutocomplete] - Autocomplete available:', !!window.google.maps.places.Autocomplete);
     console.log('[GooglePlacesAutocomplete] - Input ref available:', !!inputRef.current);
     
-    if (fallbackUsedRef.current === 'legacy' && window.google.maps.places.Autocomplete && inputRef.current) {
+    // Attempt Tier 2 if we're in legacy mode OR if Tier 1 was skipped
+    if ((fallbackUsedRef.current === 'legacy' || hasDetectedError) && window.google.maps.places.Autocomplete && inputRef.current) {
       console.log('[GooglePlacesAutocomplete] ✅ Attempting Tier 2: Legacy Autocomplete...');
       try {
         // Show our input for legacy autocomplete
@@ -345,6 +351,8 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         fallbackUsedRef.current = 'legacy';
         console.log('[GooglePlacesAutocomplete] ✅ Tier 2 SUCCESS: Legacy Autocomplete initialized');
         console.log('[GooglePlacesAutocomplete] 📊 Current fallback state: LEGACY API');
+        // Clear the error flag since legacy is working
+        sessionStorage.removeItem('placesApiError');
         return;
       } catch (error) {
         console.warn('[GooglePlacesAutocomplete] ❌ Tier 2 FAILED: Exception during initialization:', error);
