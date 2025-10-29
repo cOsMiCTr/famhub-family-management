@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PasswordChangeModal from '../components/PasswordChangeModal';
+import FamHubLogo from '../components/FamHubLogo';
 import { EyeIcon, EyeSlashIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const LoginPage: React.FC = () => {
@@ -217,29 +218,14 @@ const LoginPage: React.FC = () => {
         <div className="w-full max-w-md">
           <div className="animate-fadeIn text-center space-y-8">
             
-            {/* New Logo Design */}
+            {/* Logo */}
             <div className="flex flex-col items-center space-y-4">
-              <div className="h-20 w-20 bg-gradient-to-br from-emerald-400 via-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden hover:scale-105 transition-transform duration-300">
-                {/* Modern geometric logo */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-300 via-blue-400 to-purple-500 opacity-90"></div>
-                <div className="relative z-10">
-                  <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    {/* Family tree/house design */}
-                    <path d="M12 2L3 7L12 12L21 7L12 2Z" fill="currentColor" opacity="0.8"/>
-                    <path d="M12 12L6 15L12 18L18 15L12 12Z" fill="currentColor" opacity="0.6"/>
-                    <path d="M12 18L8 20L12 22L16 20L12 18Z" fill="currentColor" opacity="0.4"/>
-                    <circle cx="12" cy="7" r="1.5" fill="white"/>
-                    <circle cx="8" cy="15" r="1" fill="white"/>
-                    <circle cx="16" cy="15" r="1" fill="white"/>
-                    <circle cx="12" cy="18" r="1" fill="white"/>
-                  </svg>
-                </div>
-                <div className="absolute -top-1 -right-1 h-2 w-2 bg-yellow-300 rounded-full animate-pulse"></div>
-                <div className="absolute -bottom-1 -left-1 h-1.5 w-1.5 bg-emerald-300 rounded-full animate-bounce"></div>
+              <div className="flex items-center justify-center">
+                <FamHubLogo size={80} className="text-gray-900 dark:text-white" />
               </div>
               
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                   FamHub
                 </h1>
                 <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">Family Management System</p>
