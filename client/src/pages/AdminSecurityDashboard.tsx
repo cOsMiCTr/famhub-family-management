@@ -208,7 +208,10 @@ const AdminSecurityDashboard: React.FC = () => {
         alertsData
       ] = await Promise.all([
         apiService.getSecurityDashboard(),
-        apiService.getAdminNotifications(1, 10, false),
+        apiService.getAdminNotifications(1, 10, false).catch((err) => {
+          console.error('Error fetching notifications:', err);
+          return { notifications: [], total: 0 };
+        }),
         apiService.getSecurityMetrics().catch(() => null),
         apiService.getSecurityEvents(currentPage, eventsPerPage, filters).catch(() => ({ events: [], total: 0 })),
         apiService.getSecurityAnalytics(30).catch(() => null),
@@ -221,7 +224,12 @@ const AdminSecurityDashboard: React.FC = () => {
       setRecentFailedAttempts(dashboardData.recent_failed_attempts);
       setLockedAccounts(dashboardData.locked_accounts);
       setPendingPasswordChanges(dashboardData.pending_password_changes);
-      setNotifications(notificationsData.notifications);
+      setNotifications(notificationsData.notifications || []);
+      
+      // Debug logging
+      console.log('Dashboard data:', dashboardData);
+      console.log('Notifications data:', notificationsData);
+      console.log('Notification counts:', dashboardData.notifications);
 
       // Enhanced data
       setMetrics(metricsData);
@@ -1119,9 +1127,19 @@ const AdminSecurityDashboard: React.FC = () => {
                     </div>
                   ))}
                   {notifications.length === 0 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                      No notifications
-                    </p>
+                    <div className="text-center py-8">
+                      <div className="text-gray-400 dark:text-gray-500 mb-2">
+                        <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-15 0v5h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0 15 0v5z" />
+                        </svg>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        No notifications available
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        System notifications and security alerts will appear here
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
