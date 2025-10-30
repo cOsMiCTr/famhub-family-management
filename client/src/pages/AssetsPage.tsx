@@ -4,8 +4,6 @@ import {
   PlusIcon, 
   MagnifyingGlassIcon, 
   FunnelIcon, 
-  EyeIcon, 
-  EyeSlashIcon,
   PencilIcon,
   TrashIcon,
   PhotoIcon,
@@ -112,9 +110,7 @@ const AssetsPage: React.FC = () => {
   const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [summary, setSummary] = useState<AssetSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [switchingView, setSwitchingView] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialMount, setIsInitialMount] = useState(true);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   
   // Filters
@@ -124,7 +120,6 @@ const AssetsPage: React.FC = () => {
   const [selectedMember, setSelectedMember] = useState<string>('');
   const [selectedCurrency, setSelectedCurrency] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
-  const [householdView, setHouseholdView] = useState(false);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -139,23 +134,19 @@ const AssetsPage: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Fetch data
-  const fetchAssets = async (viewType?: boolean, skipLoadingState = false) => {
+  const fetchAssets = async () => {
     try {
-      if (!skipLoadingState && !switchingView) {
-        setLoading(true);
-      }
+      setLoading(true);
       const token = localStorage.getItem('token');
-      const view = viewType !== undefined ? viewType : householdView;
+      // Always use Personal View (no household_view parameter means personal view)
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20',
         ...(selectedCategory && { category_id: selectedCategory }),
         ...(selectedStatus && { status: selectedStatus }),
-        ...(selectedCurrency && { currency: selectedCurrency }),
-        ...(view && { household_view: 'true' })
+        ...(selectedCurrency && { currency: selectedCurrency })
       });
 
-      console.log('📋 Fetching assets - viewType:', viewType, 'householdView:', householdView, 'view:', view, 'params:', params.toString());
       const response = await fetch(`/api/assets?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -165,18 +156,14 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
-      console.log('📋 Assets received:', data.assets?.length, 'assets');
       setAssets(data.assets || []);
       setTotalPages(data.pagination?.pages || 1);
       setTotalAssets(data.pagination?.total || 0);
     } catch (err) {
       console.error('❌ Error fetching assets:', err);
       setError(err instanceof Error ? err.message : t('assets.failedToFetch'));
-      throw err;
     } finally {
-      if (!skipLoadingState) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -216,16 +203,11 @@ const AssetsPage: React.FC = () => {
     }
   };
 
-  const fetchSummary = async (viewType?: boolean) => {
+  const fetchSummary = async () => {
     try {
       const token = localStorage.getItem('token');
-      const view = viewType !== undefined ? viewType : householdView;
-      const params = new URLSearchParams({
-        ...(view && { household_view: 'true' })
-      });
-      
-      console.log('📊 Fetching summary - viewType:', viewType, 'householdView:', householdView, 'view:', view, 'params:', params.toString());
-      const response = await fetch(`/api/assets/summary?${params}`, {
+      // Always use Personal View (no household_view parameter means personal view)
+      const response = await fetch(`/api/assets/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -234,11 +216,9 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetchSummary'));
       
       const data = await response.json();
-      console.log('📊 Summary received:', data.summary);
       setSummary(data.summary);
     } catch (err) {
       console.error('Failed to fetch summary:', err);
-      throw err;
     }
   };
 
@@ -260,38 +240,8 @@ const AssetsPage: React.FC = () => {
     }
   };
 
-  // Refetch data when householdView changes (but skip on initial mount)
+  // Refetch assets when filters or pagination changes
   useEffect(() => {
-    console.log('🔄 useEffect triggered - householdView:', householdView, 'isInitialMount:', isInitialMount);
-    if (isInitialMount) {
-      setIsInitialMount(false);
-      console.log('⏭️ Skipping initial mount');
-      return; // Skip initial mount - data already fetched by initial useEffect
-    }
-    
-    const fetchData = async () => {
-      try {
-        console.log('🔄 Fetching data for view:', householdView ? 'Household' : 'Personal');
-        // Use skipLoadingState to prevent flicker when switching views
-        await Promise.all([
-          fetchSummary(householdView),
-          fetchAssets(householdView, true) // Skip loading state to prevent flicker
-        ]);
-        console.log('✅ Data fetch completed');
-      } catch (err) {
-        console.error('❌ Error fetching data:', err);
-      } finally {
-        setSwitchingView(false);
-        console.log('🔄 switchingView set to false');
-      }
-    };
-    
-    fetchData();
-  }, [householdView]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Refetch assets when filters or pagination changes (but not when householdView changes)
-  useEffect(() => {
-    if (switchingView) return; // Don't fetch if switching view (handled by above effect)
     fetchAssets();
   }, [currentPage, selectedCategory, selectedStatus, selectedCurrency]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -301,9 +251,9 @@ const AssetsPage: React.FC = () => {
         await Promise.all([
           fetchCategories(),
           fetchMembers(),
-          fetchSummary(householdView),
+          fetchSummary(),
           fetchExchangeRates(),
-          fetchAssets(householdView)
+          fetchAssets()
         ]);
       } catch (err) {
         console.error('Error fetching initial data:', err);
@@ -525,33 +475,6 @@ const AssetsPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('assets.title')}</h1>
         </div>
         <div className="flex space-x-3">
-          <button
-            onClick={() => {
-              console.log('🔄 Button clicked - Current householdView:', householdView);
-              setSwitchingView(true);
-              const newView = !householdView;
-              console.log('🔄 Setting householdView to:', newView);
-              setHouseholdView(newView);
-            }}
-            disabled={switchingView}
-            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              householdView 
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' 
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
-            } ${switchingView ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {switchingView ? (
-              <span className="inline-flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-            ) : (
-              householdView ? <EyeIcon className="h-4 w-4" /> : <EyeSlashIcon className="h-4 w-4" />
-            )}
-            {householdView ? t('assets.householdView') : t('assets.personalView')}
-          </button>
           <button
             onClick={() => setShowAddModal(true)}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

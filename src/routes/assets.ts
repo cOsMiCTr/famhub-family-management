@@ -223,19 +223,15 @@ router.get('/summary', asyncHandler(async (req, res) => {
     household_view = false
   } = req.query;
 
-  console.log('📊 GET /api/assets/summary - household_view:', household_view, 'user_id:', req.user.id, 'household_id:', req.user.household_id);
-
   const conditions = ['a.status = $1'];
   const params = [status];
   let paramCount = 2;
 
   // Build query conditions
   if (household_view === 'true' && req.user.household_id) {
-    console.log('📊 Using household view - filtering by household_id:', req.user.household_id);
     conditions.push(`a.household_id = $${paramCount++}`);
     params.push(req.user.household_id);
   } else {
-    console.log('📊 Using personal view - filtering by user ownership');
     // Personal view: show assets where user is owner OR user is in shared ownership
     // Get user's household member ID
     const userMemberResult = await query(
@@ -509,8 +505,6 @@ router.get('/', asyncHandler(async (req, res) => {
     household_view = false 
   } = req.query;
 
-  console.log('📋 GET /api/assets - household_view:', household_view, 'user_id:', req.user.id, 'household_id:', req.user.household_id);
-
   const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
   const conditions = [];
   const params = [];
@@ -518,11 +512,9 @@ router.get('/', asyncHandler(async (req, res) => {
 
   // Build query conditions
   if (household_view === 'true' && req.user.household_id) {
-    console.log('📋 Using household view - filtering by household_id:', req.user.household_id);
     conditions.push(`a.household_id = $${paramCount++}`);
     params.push(req.user.household_id);
   } else {
-    console.log('📋 Using personal view - filtering by user ownership');
     // Personal view: show assets where user is owner OR user is in shared ownership
     // Get user's household member ID
     const userMemberResult = await query(
