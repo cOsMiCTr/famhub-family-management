@@ -155,6 +155,7 @@ const AssetsPage: React.FC = () => {
         ...(view && { household_view: 'true' })
       });
 
+      console.log('📋 Fetching assets - viewType:', viewType, 'householdView:', householdView, 'view:', view, 'params:', params.toString());
       const response = await fetch(`/api/assets?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -164,6 +165,7 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
+      console.log('📋 Assets received:', data.assets?.length, 'assets');
       setAssets(data.assets || []);
       setTotalPages(data.pagination?.pages || 1);
       setTotalAssets(data.pagination?.total || 0);
@@ -222,6 +224,7 @@ const AssetsPage: React.FC = () => {
         ...(view && { household_view: 'true' })
       });
       
+      console.log('📊 Fetching summary - viewType:', viewType, 'householdView:', householdView, 'view:', view, 'params:', params.toString());
       const response = await fetch(`/api/assets/summary?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -231,6 +234,7 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetchSummary'));
       
       const data = await response.json();
+      console.log('📊 Summary received:', data.summary);
       setSummary(data.summary);
     } catch (err) {
       console.error('Failed to fetch summary:', err);
@@ -258,22 +262,27 @@ const AssetsPage: React.FC = () => {
 
   // Refetch data when householdView changes (but skip on initial mount)
   useEffect(() => {
+    console.log('🔄 useEffect triggered - householdView:', householdView, 'isInitialMount:', isInitialMount);
     if (isInitialMount) {
       setIsInitialMount(false);
+      console.log('⏭️ Skipping initial mount');
       return; // Skip initial mount - data already fetched by initial useEffect
     }
     
     const fetchData = async () => {
       try {
+        console.log('🔄 Fetching data for view:', householdView ? 'Household' : 'Personal');
         // Use skipLoadingState to prevent flicker when switching views
         await Promise.all([
           fetchSummary(householdView),
           fetchAssets(householdView, true) // Skip loading state to prevent flicker
         ]);
+        console.log('✅ Data fetch completed');
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('❌ Error fetching data:', err);
       } finally {
         setSwitchingView(false);
+        console.log('🔄 switchingView set to false');
       }
     };
     
@@ -518,8 +527,11 @@ const AssetsPage: React.FC = () => {
         <div className="flex space-x-3">
           <button
             onClick={() => {
+              console.log('🔄 Button clicked - Current householdView:', householdView);
               setSwitchingView(true);
-              setHouseholdView(!householdView);
+              const newView = !householdView;
+              console.log('🔄 Setting householdView to:', newView);
+              setHouseholdView(newView);
             }}
             disabled={switchingView}
             className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${

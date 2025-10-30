@@ -149,14 +149,17 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         throw new Error('User not authenticated');
     }
     const { start_date, end_date, category_id, status = 'active', household_view = false } = req.query;
+    console.log('📊 GET /api/assets/summary - household_view:', household_view, 'user_id:', req.user.id, 'household_id:', req.user.household_id);
     const conditions = ['a.status = $1'];
     const params = [status];
     let paramCount = 2;
     if (household_view === 'true' && req.user.household_id) {
+        console.log('📊 Using household view - filtering by household_id:', req.user.household_id);
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
     }
     else {
+        console.log('📊 Using personal view - filtering by user ownership');
         const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
         if (userMemberResult.rows.length > 0) {
             const userMemberId = userMemberResult.rows[0].id;
@@ -348,15 +351,18 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         throw new Error('User not authenticated');
     }
     const { page = 1, limit = 50, category_id, currency, start_date, end_date, status, ownership_type, household_view = false } = req.query;
+    console.log('📋 GET /api/assets - household_view:', household_view, 'user_id:', req.user.id, 'household_id:', req.user.household_id);
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const conditions = [];
     const params = [];
     let paramCount = 1;
     if (household_view === 'true' && req.user.household_id) {
+        console.log('📋 Using household view - filtering by household_id:', req.user.household_id);
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
     }
     else {
+        console.log('📋 Using personal view - filtering by user ownership');
         const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
         if (userMemberResult.rows.length > 0) {
             const userMemberId = userMemberResult.rows[0].id;
