@@ -777,9 +777,6 @@ const SettingsPage: React.FC = () => {
             </div>
             <div className="card-body">
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('settings.twoFactorDescription')}
-                </p>
                 {twoFactorEnabled ? (
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <div className="flex items-center justify-between mb-3">
@@ -812,7 +809,7 @@ const SettingsPage: React.FC = () => {
                       onClick={() => setShow2FAModal(true)}
                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-{t('settings.enable2FA')}
+                      {t('settings.enable2FA')}
                     </button>
                   </div>
                 )}

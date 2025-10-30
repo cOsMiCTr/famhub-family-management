@@ -232,7 +232,17 @@
     "allActions": "Alle Aktionen",
     "showLast": "Zeige Letzte",
     "noActivityFound": "Keine Aktivität gefunden",
-    "noActivityDescription": "Ihre Kontaktaktivitäten werden hier angezeigt, sobald sie verfügbar sind."
+    "noActivityDescription": "Ihre Kontaktaktivitäten werden hier angezeigt, sobald sie verfügbar sind.",
+    "twoFactorAuth": "Zwei-Faktor-Authentifizierung",
+    "twoFactorDescription": "Fügen Sie Ihrer Account-Sicherheit eine zusätzliche Ebene hinzu, indem Sie die Zwei-Faktor-Authentifizierung aktivieren.",
+    "twoFactorDisabled": "Zwei-Faktor-Authentifizierung ist deaktiviert",
+    "twoFactorEnabled": "Zwei-Faktor-Authentifizierung ist aktiviert",
+    "twoFactorEnabledDescription": "Ihr Konto ist durch Zwei-Faktor-Authentifizierung geschützt",
+    "twoFactorEnableDescription": "Klicken Sie auf die Schaltfläche unten, um die Zwei-Faktor-Authentifizierung für Ihr Konto einzurichten.",
+    "enable2FA": "2FA aktivieren",
+    "disable2FA": "2FA deaktivieren",
+    "2FAEnabledSuccess": "Zwei-Faktor-Authentifizierung erfolgreich aktiviert!",
+    "twoFactorDisableError": "Die Zwei-Faktor-Authentifizierung konnte nicht deaktiviert werden"
   },
   "translations": {
     "allCategories": "Alle Kategorien",

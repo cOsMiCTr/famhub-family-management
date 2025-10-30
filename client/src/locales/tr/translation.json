@@ -250,7 +250,7 @@
     "twoFactorDisabled": "İki Faktörlü Kimlik Doğrulama devre dışı",
     "twoFactorEnabled": "İki Faktörlü Kimlik Doğrulama etkin",
     "twoFactorEnabledDescription": "Hesabınız iki faktörlü kimlik doğrulama ile korunuyor",
-    "twoFactorEnableDescription": "Hesabınızı ikinci bir doğrulama adımıyla güvence altına almak için iki faktörlü kimlik doğrulamayı etkinleştirin.",
+    "twoFactorEnableDescription": "Hesabınız için iki faktörlü kimlik doğrulamayı ayarlamak üzere aşağıdaki düğmeye tıklayın.",
     "enable2FA": "2FA'yı Etkinleştir",
     "disable2FA": "2FA'yı Devre Dışı Bırak",
     "activity": "Aktivite",
