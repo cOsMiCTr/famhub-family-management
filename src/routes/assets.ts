@@ -542,13 +542,15 @@ router.get('/', asyncHandler(async (req, res) => {
     //    - User is primary owner (user_id), OR
     //    - User's household member is primary owner (household_member_id), OR
     //    - User has shared ownership
+    const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
+      SELECT 1 FROM shared_ownership_distribution 
+      WHERE asset_id = a.id 
+      AND household_member_id = $${paramCount++}
+      AND ownership_percentage >= 1
+    ))`;
+    
     if (userMemberId) {
-      const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id 
-        AND household_member_id = $${paramCount++}
-        AND ownership_percentage >= 1
-      ))`;
+      // User has a household member record - check all ownership types
       const userCondition = `(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
         OR EXISTS (
@@ -563,20 +565,31 @@ router.get('/', asyncHandler(async (req, res) => {
       params.push(req.user.id); // user filter: user is primary owner
       params.push(userMemberId); // user filter: user's member is primary owner
       params.push(userMemberId); // user filter: user has shared ownership
-      console.log('🔍 DEBUG: Member filter condition added');
+      console.log('🔍 DEBUG: Member filter condition added (with userMemberId)');
       console.log('🔍 DEBUG: Member condition:', memberCondition);
       console.log('🔍 DEBUG: User condition:', userCondition);
     } else {
-      // Fallback: user has no household member record
-      conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id 
-        AND household_member_id = $${paramCount++}
-        AND ownership_percentage >= 1
-      )) AND a.user_id = $${paramCount++}`);
-      params.push(memberId);
-      params.push(memberId);
-      params.push(req.user.id);
+      // User has no household member record - only check user_id and shared ownership via user_id
+      // But we still need to check shared ownership, so we need to find user's household member ID
+      // OR check if asset.user_id matches, OR if user has shared ownership
+      // Since userMemberId is null, we can't check household_member_id or shared_ownership_distribution by member_id
+      // So we only check: user is primary owner OR user is in household and has shared ownership
+      const userCondition = `(a.user_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          JOIN household_members hm ON sod.household_member_id = hm.id
+          WHERE sod.asset_id = a.id 
+          AND hm.user_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`;
+      conditions.push(`${memberCondition} AND ${userCondition}`);
+      params.push(memberId); // member filter: member is primary owner
+      params.push(memberId); // member filter: member has shared ownership
+      params.push(req.user.id); // user filter: user is primary owner
+      params.push(req.user.id); // user filter: user has shared ownership (via user_id lookup)
+      console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking shared via user_id)');
+      console.log('🔍 DEBUG: Member condition:', memberCondition);
+      console.log('🔍 DEBUG: User condition:', userCondition);
     }
   } else {
     // Personal view: show assets where user is owner OR user is in shared ownership

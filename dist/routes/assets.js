@@ -368,13 +368,13 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     else if (memberId && !isNaN(memberId)) {
         console.log('🔍 DEBUG: Filtering by member, memberId:', memberId);
+        const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
+      SELECT 1 FROM shared_ownership_distribution 
+      WHERE asset_id = a.id 
+      AND household_member_id = $${paramCount++}
+      AND ownership_percentage >= 1
+    ))`;
         if (userMemberId) {
-            const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id 
-        AND household_member_id = $${paramCount++}
-        AND ownership_percentage >= 1
-      ))`;
             const userCondition = `(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
         OR EXISTS (
@@ -389,20 +389,27 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
-            console.log('🔍 DEBUG: Member filter condition added');
+            console.log('🔍 DEBUG: Member filter condition added (with userMemberId)');
             console.log('🔍 DEBUG: Member condition:', memberCondition);
             console.log('🔍 DEBUG: User condition:', userCondition);
         }
         else {
-            conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id 
-        AND household_member_id = $${paramCount++}
-        AND ownership_percentage >= 1
-      )) AND a.user_id = $${paramCount++}`);
+            const userCondition = `(a.user_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          JOIN household_members hm ON sod.household_member_id = hm.id
+          WHERE sod.asset_id = a.id 
+          AND hm.user_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`;
+            conditions.push(`${memberCondition} AND ${userCondition}`);
             params.push(memberId);
             params.push(memberId);
             params.push(req.user.id);
+            params.push(req.user.id);
+            console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking shared via user_id)');
+            console.log('🔍 DEBUG: Member condition:', memberCondition);
+            console.log('🔍 DEBUG: User condition:', userCondition);
         }
     }
     else {
