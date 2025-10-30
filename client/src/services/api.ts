@@ -266,7 +266,7 @@ class ApiService {
   async getAdminNotifications(page: number = 1, limit: number = 20, readFilter?: boolean) {
     const params: any = { page, limit };
     if (readFilter !== undefined) {
-      params.read = readFilter;
+      params.read = readFilter.toString(); // Convert boolean to string
     }
     const response = await this.api.get('/admin/notifications', { params });
     return response.data;

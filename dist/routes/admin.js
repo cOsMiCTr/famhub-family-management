@@ -410,7 +410,13 @@ router.get('/notifications', (0, errorHandler_1.asyncHandler)(async (req, res) =
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const readFilter = req.query.read ? req.query.read === 'true' : undefined;
+    console.log('Notifications API called with params:', { page, limit, readFilter, query: req.query });
     const result = await notificationService_1.NotificationService.getAllNotifications(page, limit, readFilter);
+    console.log('Notifications result:', {
+        count: result.notifications.length,
+        total: result.total,
+        notifications: result.notifications.map(n => ({ id: n.id, title: n.title, read: n.read, severity: n.severity }))
+    });
     res.json({
         notifications: result.notifications,
         total: result.total,
@@ -457,6 +463,7 @@ router.get('/security-dashboard', (0, errorHandler_1.asyncHandler)(async (req, r
        WHERE u.account_status = 'pending_password_change'
        ORDER BY u.created_at DESC`)
     ]);
+    console.log('Security dashboard notification counts:', notificationCounts);
     res.json({
         statistics: loginStats,
         notifications: notificationCounts,

@@ -60,3 +60,4 @@ createTestNotifications().then(() => {
   console.log('Done');
   process.exit(0);
 });
+

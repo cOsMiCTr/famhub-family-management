@@ -633,7 +633,15 @@ router.get('/notifications', asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit as string) || 20;
   const readFilter = req.query.read ? req.query.read === 'true' : undefined;
 
+  console.log('Notifications API called with params:', { page, limit, readFilter, query: req.query });
+
   const result = await NotificationService.getAllNotifications(page, limit, readFilter);
+
+  console.log('Notifications result:', { 
+    count: result.notifications.length, 
+    total: result.total,
+    notifications: result.notifications.map(n => ({ id: n.id, title: n.title, read: n.read, severity: n.severity }))
+  });
 
   res.json({
     notifications: result.notifications,
@@ -702,6 +710,8 @@ router.get('/security-dashboard', asyncHandler(async (req, res) => {
        ORDER BY u.created_at DESC`
     )
   ]);
+
+  console.log('Security dashboard notification counts:', notificationCounts);
 
   res.json({
     statistics: loginStats,
