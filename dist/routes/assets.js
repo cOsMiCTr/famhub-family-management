@@ -361,19 +361,29 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      ORDER BY a.id`, [req.user.id]);
     console.log('🔍 DEBUG: All assets user has access to (by user_id or household):', allAssetsDebug.rows.length);
     allAssetsDebug.rows.forEach((asset) => {
-        console.log(`  Asset ${asset.id}: ${asset.name}, user_id=${asset.user_id}, member_id=${asset.household_member_id}, type=${asset.ownership_type}`);
+        console.log(`  Asset ${asset.id}: "${asset.name}", user_id=${asset.user_id}, member_id=${asset.household_member_id}, type=${asset.ownership_type}, household_id=${asset.household_id}`);
     });
     const userHousehold = await (0, database_1.query)('SELECT household_id FROM users WHERE id = $1', [req.user.id]);
     const householdId = userHousehold.rows[0]?.household_id;
+    console.log('🔍 DEBUG: User household_id:', householdId);
     if (householdId) {
-        const sharedOwnershipDebug = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.user_id, hm.name, a.user_id as asset_user_id
+        const sharedOwnershipDebug = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.user_id, hm.name, a.user_id as asset_user_id, a.name as asset_name
        FROM shared_ownership_distribution sod
        JOIN household_members hm ON sod.household_member_id = hm.id
        JOIN assets a ON sod.asset_id = a.id
        WHERE a.household_id = $1`, [householdId]);
         console.log('🔍 DEBUG: Shared ownership in user household:', sharedOwnershipDebug.rows.length);
         sharedOwnershipDebug.rows.forEach((row) => {
-            console.log(`  Asset ${row.asset_id}: member_id=${row.household_member_id} (user_id=${row.user_id}, name=${row.name}), ${row.ownership_percentage}%, asset_user_id=${row.asset_user_id}`);
+            console.log(`  Asset ${row.asset_id} "${row.asset_name}": member_id=${row.household_member_id} (user_id=${row.user_id}, name="${row.name}"), ${row.ownership_percentage}%, asset_user_id=${row.asset_user_id}`);
+        });
+        const userSharedAssets = await (0, database_1.query)(`SELECT DISTINCT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type
+       FROM assets a
+       JOIN shared_ownership_distribution sod ON sod.asset_id = a.id
+       JOIN household_members hm ON sod.household_member_id = hm.id
+       WHERE hm.user_id = $1 AND sod.ownership_percentage > 0`, [req.user.id]);
+        console.log('🔍 DEBUG: Assets where user has shared ownership (via household_members.user_id):', userSharedAssets.rows.length);
+        userSharedAssets.rows.forEach((asset) => {
+            console.log(`  Asset ${asset.id}: "${asset.name}", user_id=${asset.user_id}, member_id=${asset.household_member_id}, type=${asset.ownership_type}`);
         });
     }
     const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
@@ -383,7 +393,12 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         const allMembersDebug = await (0, database_1.query)(`SELECT id, name, user_id FROM household_members WHERE household_id = $1`, [householdId]);
         console.log('🔍 DEBUG: All household members:', allMembersDebug.rows.length);
         allMembersDebug.rows.forEach((member) => {
-            console.log(`  Member ${member.id}: ${member.name}, user_id=${member.user_id}`);
+            console.log(`  Member ${member.id}: "${member.name}", user_id=${member.user_id}${member.user_id === req.user.id ? ' <-- THIS IS THE USER' : ''}`);
+        });
+        const userAsMember = await (0, database_1.query)(`SELECT id, name, user_id FROM household_members WHERE user_id = $1`, [req.user.id]);
+        console.log('🔍 DEBUG: User as household_member records:', userAsMember.rows.length);
+        userAsMember.rows.forEach((member) => {
+            console.log(`  Member ${member.id}: "${member.name}", user_id=${member.user_id}`);
         });
     }
     const memberId = household_member_id ? parseInt(household_member_id) : null;
