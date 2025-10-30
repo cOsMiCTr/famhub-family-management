@@ -352,17 +352,17 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const conditions = [];
     const params = [];
     let paramCount = 1;
+    const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
+    const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
     if (household_view === 'true' && req.user.household_id) {
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
     }
     else {
-        const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
-        if (userMemberResult.rows.length > 0) {
-            const userMemberId = userMemberResult.rows[0].id;
+        if (userMemberId) {
             conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
         SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id AND household_member_id = $${paramCount}
+        WHERE asset_id = a.id AND household_member_id = $${paramCount++}
       ))`);
             params.push(req.user.id);
             params.push(userMemberId);

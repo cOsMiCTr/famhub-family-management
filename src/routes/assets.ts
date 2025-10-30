@@ -511,26 +511,26 @@ router.get('/', asyncHandler(async (req, res) => {
   const params = [];
   let paramCount = 1;
 
+  // Get user's household member ID for Personal View and member filtering
+  const userMemberResult = await query(
+    'SELECT id FROM household_members WHERE user_id = $1',
+    [req.user.id]
+  );
+  const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
+
   // Build query conditions
   if (household_view === 'true' && req.user.household_id) {
     conditions.push(`a.household_id = $${paramCount++}`);
     params.push(req.user.household_id);
   } else {
     // Personal view: show assets where user is owner OR user is in shared ownership
-    // Get user's household member ID
-    const userMemberResult = await query(
-      'SELECT id FROM household_members WHERE user_id = $1',
-      [req.user.id]
-    );
-    
-    if (userMemberResult.rows.length > 0) {
-      const userMemberId = userMemberResult.rows[0].id;
+    if (userMemberId) {
       // Include assets where:
       // 1. User is the primary owner, OR
       // 2. User is part of shared ownership distribution
       conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
         SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id AND household_member_id = $${paramCount}
+        WHERE asset_id = a.id AND household_member_id = $${paramCount++}
       ))`);
       params.push(req.user.id);
       params.push(userMemberId);
@@ -571,15 +571,20 @@ router.get('/', asyncHandler(async (req, res) => {
     params.push(ownership_type);
   }
 
-  // Filter by household member - show assets where member is primary owner OR has at least 1% share
+  // Filter by household member - show assets where member has ownership (primary or shared)
+  // Note: Personal View filter above already ensures user has ownership
+  // So we just need to ensure the selected member also has ownership
   if (household_member_id) {
     const memberId = parseInt(household_member_id as string);
     if (isNaN(memberId)) {
       throw createValidationError('Invalid household_member_id');
     }
-    // Include assets where:
-    // 1. Member is the primary owner (a.household_member_id = memberId), OR
-    // 2. Member has shared ownership with at least 1% (in shared_ownership_distribution)
+    
+    // When filtering by member, add condition that member must have ownership:
+    // 1. Member is the primary owner, OR
+    // 2. Member has shared ownership with at least 1%
+    // This is ANDed with Personal View filter (user has ownership), so result shows
+    // assets where BOTH user and selected member have ownership
     conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
       SELECT 1 FROM shared_ownership_distribution 
       WHERE asset_id = a.id 
