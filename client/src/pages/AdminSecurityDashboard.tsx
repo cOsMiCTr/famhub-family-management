@@ -289,7 +289,7 @@ const AdminSecurityDashboard: React.FC = () => {
 
   const markNotificationAsRead = async (notificationId: number) => {
     try {
-      await apiService.markNotificationRead(notificationId);
+      await apiService.markNotificationRead(notificationId.toString());
       setNotifications(prev => 
         prev.map(notification => 
           notification.id === notificationId 
