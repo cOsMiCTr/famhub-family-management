@@ -194,18 +194,19 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [userId]
   );
 
-  // Get quick stats (filter by module access)
+  // Get quick stats (filter by module access - return 0 if module revoked)
   let quickStatsQuery = '';
-  const queryParams: any[] = [userId, req.user.household_id];
+  let queryParams: any[] = [];
   
   if (hasIncomeModule && hasAssetsModule) {
     quickStatsQuery = `SELECT 
        COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
-       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
+       COUNT(CASE WHEN ac.type = если 'expense' THEN 1 END) as expense_entries,
        0 as active_contracts
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
      WHERE a.user_id = $1`;
+    queryParams = [userId];
   } else if (hasIncomeModule) {
     quickStatsQuery = `SELECT 
        COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
@@ -214,6 +215,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
      WHERE a.user_id = $1 AND ac.type = 'income'`;
+    queryParams = [userId];
   } else if (hasAssetsModule) {
     quickStatsQuery = `SELECT 
        0 as income_entries,
@@ -222,8 +224,11 @@ router.get('/summary', asyncHandler(async (req, res) => {
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
      WHERE a.user_id = $1 AND ac.type != 'income'`;
+    queryParams = [userId];
   } else {
+    // No modules - return all zeros
     quickStatsQuery = `SELECT 0 as income_entries, 0 as expense_entries, 0 as active_contracts`;
+    queryParams = [];
   }
   
   const quickStatsResult = await query(quickStatsQuery, queryParams);
@@ -302,12 +307,21 @@ router.get('/summary', asyncHandler(async (req, res) => {
   if (hasAssetsModule) {
     summary.total_assets_main_currency = totalInMainCurrency;
     summary.currency_breakdown = currencyBreakdown;
+  } else {
+    // Module revoked - set to 0
+    summary.total_assets_main_currency = 0;
+    summary.currency_breakdown = [];
   }
 
   if (hasIncomeModule) {
     summary.total_income_main_currency = totalIncomeInMainCurrency;
     summary.income_breakdown = incomeBreakdown;
     summary.quick_stats.monthly_income = monthlyIncomeInMainCurrency;
+  } else {
+    // Module revoked - set to 0
+    summary.total_income_main_currency = 0;
+    summary.income_breakdown = [];
+    summary.quick_stats.monthly_income = 0;
   }
 
   const response: any = {
