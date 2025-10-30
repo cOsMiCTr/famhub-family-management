@@ -244,7 +244,7 @@ const AssetsPage: React.FC = () => {
   // Refetch assets when filters or pagination changes
   useEffect(() => {
     fetchAssets();
-  }, [currentPage, selectedCategory, selectedStatus, selectedCurrency]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentPage, selectedCategory, selectedStatus, selectedCurrency, selectedMember]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const fetchInitialData = async () => {
