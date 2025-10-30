@@ -100,7 +100,7 @@ export class EnhancedSecurityService {
         activityStats,
         tokenStats,
         systemStats
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         this.getLoginSecurityMetrics(),
         this.getAccountSecurityMetrics(),
         this.getActivitySecurityMetrics(),
@@ -110,35 +110,63 @@ export class EnhancedSecurityService {
 
       return {
         // Login Security
-        totalLogins24h: loginStats.totalLogins24h || 0,
-        failedLogins24h: loginStats.failedLogins24h || 0,
-        uniqueIpAddresses24h: loginStats.uniqueIpAddresses24h || 0,
-        suspiciousLoginPatterns: loginStats.suspiciousLoginPatterns || 0,
+        totalLogins24h: loginStats.status === 'fulfilled' ? (loginStats.value.totalLogins24h || 0) : 0,
+        failedLogins24h: loginStats.status === 'fulfilled' ? (loginStats.value.failedLogins24h || 0) : 0,
+        uniqueIpAddresses24h: loginStats.status === 'fulfilled' ? (loginStats.value.uniqueIpAddresses24h || 0) : 0,
+        suspiciousLoginPatterns: loginStats.status === 'fulfilled' ? (loginStats.value.suspiciousLoginPatterns || 0) : 0,
         
         // Account Security
-        lockedAccounts: accountStats.lockedAccounts || 0,
-        accountsPendingPasswordChange: accountStats.accountsPendingPasswordChange || 0,
-        accountsWith2FA: accountStats.accountsWith2FA || 0,
-        accountsWithout2FA: accountStats.accountsWithout2FA || 0,
+        lockedAccounts: accountStats.status === 'fulfilled' ? (accountStats.value.lockedAccounts || 0) : 0,
+        accountsPendingPasswordChange: accountStats.status === 'fulfilled' ? (accountStats.value.accountsPendingPasswordChange || 0) : 0,
+        accountsWith2FA: accountStats.status === 'fulfilled' ? (accountStats.value.accountsWith2FA || 0) : 0,
+        accountsWithout2FA: accountStats.status === 'fulfilled' ? (accountStats.value.accountsWithout2FA || 0) : 0,
         
         // Activity Security
-        totalActivities24h: activityStats.totalActivities24h || 0,
-        criticalActivities24h: activityStats.criticalActivities24h || 0,
-        unusualActivityPatterns: activityStats.unusualActivityPatterns || 0,
+        totalActivities24h: activityStats.status === 'fulfilled' ? (activityStats.value.totalActivities24h || 0) : 0,
+        criticalActivities24h: activityStats.status === 'fulfilled' ? (activityStats.value.criticalActivities24h || 0) : 0,
+        unusualActivityPatterns: activityStats.status === 'fulfilled' ? (activityStats.value.unusualActivityPatterns || 0) : 0,
         
         // Token Security
-        tokenTransactions24h: tokenStats.tokenTransactions24h || 0,
-        suspiciousTokenActivity: tokenStats.suspiciousTokenActivity || 0,
-        voucherAbuseAttempts: tokenStats.voucherAbuseAttempts || 0,
+        tokenTransactions24h: tokenStats.status === 'fulfilled' ? (tokenStats.value.tokenTransactions24h || 0) : 0,
+        suspiciousTokenActivity: tokenStats.status === 'fulfilled' ? (tokenStats.value.suspiciousTokenActivity || 0) : 0,
+        voucherAbuseAttempts: tokenStats.status === 'fulfilled' ? (tokenStats.value.voucherAbuseAttempts || 0) : 0,
         
         // System Security
-        systemHealthScore: systemStats.systemHealthScore || 0,
-        securityAlerts: systemStats.securityAlerts || 0,
-        dataIntegrityIssues: systemStats.dataIntegrityIssues || 0
+        systemHealthScore: systemStats.status === 'fulfilled' ? (systemStats.value.systemHealthScore || 0) : 0,
+        securityAlerts: systemStats.status === 'fulfilled' ? (systemStats.value.securityAlerts || 0) : 0,
+        dataIntegrityIssues: systemStats.status === 'fulfilled' ? (systemStats.value.dataIntegrityIssues || 0) : 0
       };
     } catch (error) {
       console.error('Error getting security metrics:', error);
-      throw error;
+      // Return default metrics if there's an error
+      return {
+        // Login Security
+        totalLogins24h: 0,
+        failedLogins24h: 0,
+        uniqueIpAddresses24h: 0,
+        suspiciousLoginPatterns: 0,
+        
+        // Account Security
+        lockedAccounts: 0,
+        accountsPendingPasswordChange: 0,
+        accountsWith2FA: 0,
+        accountsWithout2FA: 0,
+        
+        // Activity Security
+        totalActivities24h: 0,
+        criticalActivities24h: 0,
+        unusualActivityPatterns: 0,
+        
+        // Token Security
+        tokenTransactions24h: 0,
+        suspiciousTokenActivity: 0,
+        voucherAbuseAttempts: 0,
+        
+        // System Security
+        systemHealthScore: 0,
+        securityAlerts: 0,
+        dataIntegrityIssues: 0
+      };
     }
   }
 
@@ -146,151 +174,198 @@ export class EnhancedSecurityService {
    * Get login security metrics
    */
   private static async getLoginSecurityMetrics(): Promise<Partial<SecurityMetrics>> {
-    const [
-      totalLogins,
-      failedLogins,
-      uniqueIps,
-      suspiciousPatterns
-    ] = await Promise.all([
-      query(`SELECT COUNT(*) as count FROM login_attempts 
-             WHERE success = true AND created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(*) as count FROM login_attempts 
-             WHERE success = false AND created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(DISTINCT ip_address) as count FROM login_attempts 
-             WHERE created_at > NOW() - INTERVAL '24 hours' AND ip_address IS NOT NULL`),
-      query(`SELECT COUNT(*) as count FROM (
-               SELECT ip_address, COUNT(*) as attempts
-               FROM login_attempts 
-               WHERE success = false AND created_at > NOW() - INTERVAL '1 hour'
-               GROUP BY ip_address 
-               HAVING COUNT(*) > 10
-             ) as suspicious`)
-    ]);
+    try {
+      const [
+        totalLogins,
+        failedLogins,
+        uniqueIps,
+        suspiciousPatterns
+      ] = await Promise.all([
+        query(`SELECT COUNT(*) as count FROM login_attempts 
+               WHERE success = true AND created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(*) as count FROM login_attempts 
+               WHERE success = false AND created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(DISTINCT ip_address) as count FROM login_attempts 
+               WHERE created_at > NOW() - INTERVAL '24 hours' AND ip_address IS NOT NULL`),
+        query(`SELECT COUNT(*) as count FROM (
+                 SELECT ip_address, COUNT(*) as attempts
+                 FROM login_attempts 
+                 WHERE success = false AND created_at > NOW() - INTERVAL '1 hour'
+                 GROUP BY ip_address 
+                 HAVING COUNT(*) > 10
+               ) as suspicious`)
+      ]);
 
-    return {
-      totalLogins24h: parseInt(totalLogins.rows[0]?.count || '0'),
-      failedLogins24h: parseInt(failedLogins.rows[0]?.count || '0'),
-      uniqueIpAddresses24h: parseInt(uniqueIps.rows[0]?.count || '0'),
-      suspiciousLoginPatterns: parseInt(suspiciousPatterns.rows[0]?.count || '0')
-    };
+      return {
+        totalLogins24h: parseInt(totalLogins.rows[0]?.count || '0'),
+        failedLogins24h: parseInt(failedLogins.rows[0]?.count || '0'),
+        uniqueIpAddresses24h: parseInt(uniqueIps.rows[0]?.count || '0'),
+        suspiciousLoginPatterns: parseInt(suspiciousPatterns.rows[0]?.count || '0')
+      };
+    } catch (error) {
+      console.error('Error getting login security metrics:', error);
+      return {
+        totalLogins24h: 0,
+        failedLogins24h: 0,
+        uniqueIpAddresses24h: 0,
+        suspiciousLoginPatterns: 0
+      };
+    }
   }
 
   /**
    * Get account security metrics
    */
   private static async getAccountSecurityMetrics(): Promise<Partial<SecurityMetrics>> {
-    const [
-      lockedAccounts,
-      pendingPasswordChange,
-      accountsWith2FA,
-      accountsWithout2FA
-    ] = await Promise.all([
-      query(`SELECT COUNT(*) as count FROM users 
-             WHERE account_status = 'locked' OR 
-             (account_locked_until IS NOT NULL AND account_locked_until > NOW())`),
-      query(`SELECT COUNT(*) as count FROM users 
-             WHERE account_status = 'pending_password_change'`),
-      query(`SELECT COUNT(*) as count FROM users 
-             WHERE two_factor_enabled = true`),
-      query(`SELECT COUNT(*) as count FROM users 
-             WHERE two_factor_enabled = false OR two_factor_enabled IS NULL`)
-    ]);
+    try {
+      const [
+        lockedAccounts,
+        pendingPasswordChange,
+        accountsWith2FA,
+        accountsWithout2FA
+      ] = await Promise.all([
+        query(`SELECT COUNT(*) as count FROM users 
+               WHERE account_status = 'locked' OR 
+               (account_locked_until IS NOT NULL AND account_locked_until > NOW())`),
+        query(`SELECT COUNT(*) as count FROM users 
+               WHERE account_status = 'pending_password_change'`),
+        query(`SELECT COUNT(*) as count FROM users 
+               WHERE two_factor_enabled = true`),
+        query(`SELECT COUNT(*) as count FROM users 
+               WHERE two_factor_enabled = false OR two_factor_enabled IS NULL`)
+      ]);
 
-    return {
-      lockedAccounts: parseInt(lockedAccounts.rows[0]?.count || '0'),
-      accountsPendingPasswordChange: parseInt(pendingPasswordChange.rows[0]?.count || '0'),
-      accountsWith2FA: parseInt(accountsWith2FA.rows[0]?.count || '0'),
-      accountsWithout2FA: parseInt(accountsWithout2FA.rows[0]?.count || '0')
-    };
+      return {
+        lockedAccounts: parseInt(lockedAccounts.rows[0]?.count || '0'),
+        accountsPendingPasswordChange: parseInt(pendingPasswordChange.rows[0]?.count || '0'),
+        accountsWith2FA: parseInt(accountsWith2FA.rows[0]?.count || '0'),
+        accountsWithout2FA: parseInt(accountsWithout2FA.rows[0]?.count || '0')
+      };
+    } catch (error) {
+      console.error('Error getting account security metrics:', error);
+      return {
+        lockedAccounts: 0,
+        accountsPendingPasswordChange: 0,
+        accountsWith2FA: 0,
+        accountsWithout2FA: 0
+      };
+    }
   }
 
   /**
    * Get activity security metrics
    */
   private static async getActivitySecurityMetrics(): Promise<Partial<SecurityMetrics>> {
-    const [
-      totalActivities,
-      criticalActivities,
-      unusualPatterns
-    ] = await Promise.all([
-      query(`SELECT COUNT(*) as count FROM user_activity 
-             WHERE created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(*) as count FROM user_activity 
-             WHERE action_type IN ('password_change', 'account_deletion', 'admin_action', 'sensitive_data_access')
-             AND created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(*) as count FROM (
-               SELECT user_id, COUNT(*) as activities
-               FROM user_activity 
-               WHERE created_at > NOW() - INTERVAL '1 hour'
-               GROUP BY user_id 
-               HAVING COUNT(*) > 50
-             ) as unusual`)
-    ]);
+    try {
+      const [
+        totalActivities,
+        criticalActivities,
+        unusualPatterns
+      ] = await Promise.all([
+        query(`SELECT COUNT(*) as count FROM user_activity 
+               WHERE created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(*) as count FROM user_activity 
+               WHERE action_type IN ('password_change', 'account_deletion', 'admin_action', 'sensitive_data_access')
+               AND created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(*) as count FROM (
+                 SELECT user_id, COUNT(*) as activities
+                 FROM user_activity 
+                 WHERE created_at > NOW() - INTERVAL '1 hour'
+                 GROUP BY user_id 
+                 HAVING COUNT(*) > 50
+               ) as unusual`)
+      ]);
 
-    return {
-      totalActivities24h: parseInt(totalActivities.rows[0]?.count || '0'),
-      criticalActivities24h: parseInt(criticalActivities.rows[0]?.count || '0'),
-      unusualActivityPatterns: parseInt(unusualPatterns.rows[0]?.count || '0')
-    };
+      return {
+        totalActivities24h: parseInt(totalActivities.rows[0]?.count || '0'),
+        criticalActivities24h: parseInt(criticalActivities.rows[0]?.count || '0'),
+        unusualActivityPatterns: parseInt(unusualPatterns.rows[0]?.count || '0')
+      };
+    } catch (error) {
+      console.error('Error getting activity security metrics:', error);
+      return {
+        totalActivities24h: 0,
+        criticalActivities24h: 0,
+        unusualActivityPatterns: 0
+      };
+    }
   }
 
   /**
    * Get token security metrics
    */
   private static async getTokenSecurityMetrics(): Promise<Partial<SecurityMetrics>> {
-    const [
-      tokenTransactions,
-      suspiciousTokenActivity,
-      voucherAbuse
-    ] = await Promise.all([
-      query(`SELECT COUNT(*) as count FROM token_transactions 
-             WHERE created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(*) as count FROM token_transactions 
-             WHERE amount > 100 AND created_at > NOW() - INTERVAL '24 hours'`),
-      query(`SELECT COUNT(*) as count FROM voucher_usages vu
-             JOIN voucher_codes vc ON vu.voucher_id = vc.id
-             WHERE vu.created_at > NOW() - INTERVAL '24 hours'
-             AND vc.usage_count > vc.max_uses * 0.8`)
-    ]);
+    try {
+      const [
+        tokenTransactions,
+        suspiciousTokenActivity,
+        voucherAbuse
+      ] = await Promise.all([
+        query(`SELECT COUNT(*) as count FROM token_transactions 
+               WHERE created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(*) as count FROM token_transactions 
+               WHERE amount > 100 AND created_at > NOW() - INTERVAL '24 hours'`),
+        query(`SELECT COUNT(*) as count FROM voucher_usages vu
+               JOIN voucher_codes vc ON vu.voucher_id = vc.id
+               WHERE vu.used_at > NOW() - INTERVAL '24 hours'
+               AND vc.used_count > vc.max_uses * 0.8`)
+      ]);
 
-    return {
-      tokenTransactions24h: parseInt(tokenTransactions.rows[0]?.count || '0'),
-      suspiciousTokenActivity: parseInt(suspiciousTokenActivity.rows[0]?.count || '0'),
-      voucherAbuseAttempts: parseInt(voucherAbuse.rows[0]?.count || '0')
-    };
+      return {
+        tokenTransactions24h: parseInt(tokenTransactions.rows[0]?.count || '0'),
+        suspiciousTokenActivity: parseInt(suspiciousTokenActivity.rows[0]?.count || '0'),
+        voucherAbuseAttempts: parseInt(voucherAbuse.rows[0]?.count || '0')
+      };
+    } catch (error) {
+      console.error('Error getting token security metrics:', error);
+      return {
+        tokenTransactions24h: 0,
+        suspiciousTokenActivity: 0,
+        voucherAbuseAttempts: 0
+      };
+    }
   }
 
   /**
    * Get system security metrics
    */
   private static async getSystemSecurityMetrics(): Promise<Partial<SecurityMetrics>> {
-    const [
-      securityAlerts,
-      dataIntegrity
-    ] = await Promise.all([
-      query(`SELECT COUNT(*) as count FROM admin_notifications 
-             WHERE read = false AND type IN ('warning', 'error')`),
-      query(`SELECT COUNT(*) as count FROM (
-               SELECT 'orphaned_assets' as issue FROM assets a
-               LEFT JOIN households h ON a.household_id = h.id
-               WHERE a.household_id IS NOT NULL AND h.id IS NULL
-               UNION ALL
-               SELECT 'orphaned_activities' as issue FROM user_activity ua
-               LEFT JOIN users u ON ua.user_id = u.id
-               WHERE u.id IS NULL
-             ) as integrity_issues`)
-    ]);
+    try {
+      const [
+        securityAlerts,
+        dataIntegrity
+      ] = await Promise.all([
+        query(`SELECT COUNT(*) as count FROM admin_notifications 
+               WHERE read = false AND type IN ('warning', 'error')`),
+        query(`SELECT COUNT(*) as count FROM (
+                 SELECT 'orphaned_assets' as issue FROM assets a
+                 LEFT JOIN households h ON a.household_id = h.id
+                 WHERE a.household_id IS NOT NULL AND h.id IS NULL
+                 UNION ALL
+                 SELECT 'orphaned_activities' as issue FROM user_activity ua
+                 LEFT JOIN users u ON ua.user_id = u.id
+                 WHERE u.id IS NULL
+               ) as integrity_issues`)
+      ]);
 
-    // Calculate system health score (0-100)
-    const alertsCount = parseInt(securityAlerts.rows[0]?.count || '0');
-    const integrityCount = parseInt(dataIntegrity.rows[0]?.count || '0');
-    const systemHealthScore = Math.max(0, 100 - (alertsCount * 5) - (integrityCount * 10));
+      // Calculate system health score (0-100)
+      const alertsCount = parseInt(securityAlerts.rows[0]?.count || '0');
+      const integrityCount = parseInt(dataIntegrity.rows[0]?.count || '0');
+      const systemHealthScore = Math.max(0, 100 - (alertsCount * 5) - (integrityCount * 10));
 
-    return {
-      systemHealthScore,
-      securityAlerts: alertsCount,
-      dataIntegrityIssues: integrityCount
-    };
+      return {
+        systemHealthScore,
+        securityAlerts: alertsCount,
+        dataIntegrityIssues: integrityCount
+      };
+    } catch (error) {
+      console.error('Error getting system security metrics:', error);
+      return {
+        systemHealthScore: 100,
+        securityAlerts: 0,
+        dataIntegrityIssues: 0
+      };
+    }
   }
 
   /**
@@ -450,7 +525,7 @@ export class EnhancedSecurityService {
         topIpAddresses,
         topUsers,
         securityThreats
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         this.getLoginTrends(days),
         this.getActivityTrends(days),
         this.getTopIpAddresses(days),
@@ -459,15 +534,22 @@ export class EnhancedSecurityService {
       ]);
 
       return {
-        loginTrends,
-        activityTrends,
-        topIpAddresses,
-        topUsers,
-        securityThreats
+        loginTrends: loginTrends.status === 'fulfilled' ? loginTrends.value : [],
+        activityTrends: activityTrends.status === 'fulfilled' ? activityTrends.value : [],
+        topIpAddresses: topIpAddresses.status === 'fulfilled' ? topIpAddresses.value : [],
+        topUsers: topUsers.status === 'fulfilled' ? topUsers.value : [],
+        securityThreats: securityThreats.status === 'fulfilled' ? securityThreats.value : []
       };
     } catch (error) {
       console.error('Error getting security analytics:', error);
-      throw error;
+      // Return empty analytics if there's an error
+      return {
+        loginTrends: [],
+        activityTrends: [],
+        topIpAddresses: [],
+        topUsers: [],
+        securityThreats: []
+      };
     }
   }
 
@@ -501,30 +583,35 @@ export class EnhancedSecurityService {
   }
 
   private static async getTopIpAddresses(days: number): Promise<any[]> {
-    const result = await query(`
-      SELECT 
-        ip_address,
-        COUNT(*) as count,
-        MAX(created_at) as last_seen,
-        CASE 
-          WHEN COUNT(*) > 100 THEN 'high'
-          WHEN COUNT(*) > 20 THEN 'medium'
-          ELSE 'low'
-        END as risk_level
-      FROM login_attempts
-      WHERE created_at > NOW() - INTERVAL '${days} days'
-        AND ip_address IS NOT NULL
-        AND ip_address != 'unknown'
-      GROUP BY ip_address
-      ORDER BY count DESC
-      LIMIT 20
-    `);
-    
-    // Clean IP addresses to remove IPv4-mapped IPv6 prefixes
-    return result.rows.map(row => ({
-      ...row,
-      ip_address: cleanIPAddress(row.ip_address)
-    }));
+    try {
+      const result = await query(`
+        SELECT 
+          ip_address,
+          COUNT(*) as count,
+          MAX(created_at) as last_seen,
+          CASE 
+            WHEN COUNT(*) > 100 THEN 'high'
+            WHEN COUNT(*) > 20 THEN 'medium'
+            ELSE 'low'
+          END as risk_level
+        FROM login_attempts
+        WHERE created_at > NOW() - INTERVAL '${days} days'
+          AND ip_address IS NOT NULL
+          AND ip_address != 'unknown'
+        GROUP BY ip_address
+        ORDER BY count DESC
+        LIMIT 20
+      `);
+      
+      // Clean IP addresses to remove IPv4-mapped IPv6 prefixes
+      return result.rows.map(row => ({
+        ...row,
+        ip_address: cleanIPAddress(row.ip_address)
+      }));
+    } catch (error) {
+      console.error('Error getting top IP addresses:', error);
+      return [];
+    }
   }
 
   private static async getTopUsers(days: number): Promise<any[]> {
