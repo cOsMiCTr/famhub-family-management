@@ -65,7 +65,8 @@
     "search": "Search",
     "success": "Success",
     "warning": "Warning",
-    "yes": "Yes"
+    "yes": "Yes",
+    "refresh": "Refresh"
   },
   "currencies": {
     "active": "Active",
@@ -221,7 +222,18 @@
     "preferences": "Preferences",
     "profile": "Profile",
     "theme": "Theme",
-    "title": "Settings"
+    "title": "Settings",
+    "activity": "Activity",
+    "activityLog": "Activity Log",
+    "activityDescription": "View your recent account activity and actions",
+    "activityComingSoon": "Activity tracking coming soon",
+    "activityWillBeLogged": "Your account activity will be logged here automatically.",
+    "activityLoadError": "Failed to load activity",
+    "filterByAction": "Filter by Action",
+    "allActions": "All Actions",
+    "showLast": "Show Last",
+    "noActivityFound": "No activity found",
+    "noActivityDescription": "Your account activity will appear here when available."
   },
   "translations": {
     "allCategories": "All Categories",

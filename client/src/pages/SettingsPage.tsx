@@ -10,6 +10,7 @@ import DeleteAccountModal from '../components/DeleteAccountModal';
 import TwoFactorSetupModal from '../components/TwoFactorSetupModal';
 import FamilyMembersTab from '../components/FamilyMembersTab';
 import TokenTab from '../components/TokenTab';
+import ActivityTab from '../components/ActivityTab';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
@@ -848,28 +849,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Activity Tab */}
       {activeTab === 'activity' && (
-        <div className="card hover-lift animate-fadeIn">
-          <div className="card-header">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-purple-500" />
-              {t('settings.activityLog')}
-            </h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {t('settings.activityDescription')}
-            </p>
-          </div>
-          <div className="card-body">
-            <div className="p-8 text-center">
-              <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                {t('settings.activityComingSoon')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {t('settings.activityWillBeLogged')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <ActivityTab />
       )}
 
       {/* Two-Factor Authentication Modal */}

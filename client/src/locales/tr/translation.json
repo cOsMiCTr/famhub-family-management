@@ -73,7 +73,8 @@
     "search": "Ara",
     "success": "Başarılı",
     "warning": "Uyarı",
-    "yes": "Evet"
+    "yes": "Evet",
+    "refresh": "Yenile"
   },
   "currencies": {
     "active": "Aktif",
@@ -251,7 +252,18 @@
     "twoFactorEnabledDescription": "Hesabınız iki faktörlü kimlik doğrulama ile korunuyor",
     "twoFactorEnableDescription": "Hesabınızı ikinci bir doğrulama adımıyla güvence altına almak için iki faktörlü kimlik doğrulamayı etkinleştirin.",
     "enable2FA": "2FA'yı Etkinleştir",
-    "disable2FA": "2FA'yı Devre Dışı Bırak"
+    "disable2FA": "2FA'yı Devre Dışı Bırak",
+    "activity": "Aktivite",
+    "activityLog": "Aktivite Kaydı",
+    "activityDescription": "Son hesap aktivitelerinizi ve işlemlerinizi görüntüleyin",
+    "activityComingSoon": "Aktivite takibi yakında",
+    "activityWillBeLogged": "Hesap aktiviteleriniz burada otomatik olarak kaydedilecektir.",
+    "activityLoadError": "Aktivite yüklenemedi",
+    "filterByAction": "Aksiyona Göre Filtrele",
+    "allActions": "Tüm Aksiyonlar",
+    "showLast": "Son Göster",
+    "noActivityFound": "Aktivite bulunamadı",
+    "noActivityDescription": "Hesap aktiviteleriniz mevcut olduğunda burada görünecektir."
   },
   "translations": {
     "allCategories": "Tüm Kategoriler",

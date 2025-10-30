@@ -143,8 +143,16 @@ router.get('/activity', asyncHandler(async (req, res) => {
 
   const userId = req.user.id;
   const limit = parseInt(req.query.limit as string) || 50;
+  const filter = req.query.filter as string;
 
-  const activities = await getUserActivity(userId, limit);
+  let activities = await getUserActivity(userId, limit);
+  
+  // Filter by action type if provided
+  if (filter && filter !== 'all') {
+    activities = activities.filter(activity => 
+      activity.action_type.toLowerCase() === filter.toLowerCase()
+    );
+  }
 
   res.json({
     activities

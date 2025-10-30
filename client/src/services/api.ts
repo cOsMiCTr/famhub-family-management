@@ -334,6 +334,15 @@ class ApiService {
     return response.data;
   }
 
+  async getUserActivity(limit: number = 50, filter?: string) {
+    const params: any = { limit };
+    if (filter && filter !== 'all') {
+      params.filter = filter;
+    }
+    const response = await this.api.get('/user/activity', { params });
+    return response.data;
+  }
+
   async createHousehold(data: any) {
     const response = await this.api.post('/admin/households', data);
     return response.data;

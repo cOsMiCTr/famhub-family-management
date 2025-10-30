@@ -65,7 +65,8 @@
     "search": "Suchen",
     "success": "Erfolg",
     "warning": "Warnung",
-    "yes": "Ja"
+    "yes": "Ja",
+    "refresh": "Aktualisieren"
   },
   "currencies": {
     "active": "Aktiv",
@@ -220,7 +221,18 @@
     "preferences": "Einstellungen",
     "profile": "Profil",
     "theme": "Design",
-    "title": "Einstellungen"
+    "title": "Einstellungen",
+    "activity": "Aktivität",
+    "activityLog": "Aktivitätsprotokoll",
+    "activityDescription": "Sehen Sie Ihre letzten Kontaktaktivitäten und Aktionen",
+    "activityComingSoon": "Aktivitätsverfolgung kommt bald",
+    "activityWillBeLogged": "Ihre Kontaktaktivitäten werden hier automatisch protokolliert.",
+    "activityLoadError": "Aktivität konnte nicht geladen werden",
+    "filterByAction": "Nach Aktion filtern",
+    "allActions": "Alle Aktionen",
+    "showLast": "Zeige Letzte",
+    "noActivityFound": "Keine Aktivität gefunden",
+    "noActivityDescription": "Ihre Kontaktaktivitäten werden hier angezeigt, sobald sie verfügbar sind."
   },
   "translations": {
     "allCategories": "Alle Kategorien",
