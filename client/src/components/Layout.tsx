@@ -24,7 +24,8 @@ import {
   UsersIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  TicketIcon
+  TicketIcon,
+  ArrowDownCircleIcon
 } from '@heroicons/react/24/outline';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -62,6 +63,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigation = [
     { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon, module: null }, // Always show
     { name: t('navigation.income'), href: '/income', icon: BanknotesIcon, module: 'income' },
+    { name: t('navigation.expenses'), href: '/expenses', icon: ArrowDownCircleIcon, module: 'expenses' },
     { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon, module: 'assets' },
     { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon, module: null }, // Always show
   ].filter(item => !item.module || hasModule(item.module));
@@ -74,6 +76,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('admin.translations'), href: '/admin/translations', icon: LanguageIcon },
     { name: t('admin.currencyManagement'), href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: t('incomeCategories.title'), href: '/admin/income-categories', icon: DocumentTextIcon },
+    { name: t('expenseCategories.title'), href: '/admin/expense-categories', icon: DocumentTextIcon },
     { name: t('assetCategories.title'), href: '/admin/asset-categories', icon: CurrencyDollarIcon },
     { name: 'Voucher Management', href: '/admin/vouchers', icon: TicketIcon },
   ];

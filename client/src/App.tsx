@@ -22,6 +22,8 @@ import AdminSecurityDashboard from './pages/AdminSecurityDashboard';
 import TranslationManagementPage from './pages/TranslationManagementPage';
 import IncomeCategoriesPage from './pages/IncomeCategoriesPage';
 import AssetCategoriesPage from './pages/AssetCategoriesPage';
+import ExpenseCategoriesPage from './pages/ExpenseCategoriesPage';
+import ExpensesPage from './pages/ExpensesPage';
 import CurrencyManagementPage from './pages/CurrencyManagementPage';
 import VoucherManagementPage from './pages/VoucherManagementPage';
 import Layout from './components/Layout';
@@ -140,6 +142,18 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute>
+              <ModuleProtectedRoute requiredModule="expenses">
+                <Layout>
+                  <ExpensesPage />
+                </Layout>
+              </ModuleProtectedRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/family-members"
           element={
             <ProtectedRoute>
@@ -215,6 +229,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <IncomeCategoriesPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/expense-categories"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <ExpenseCategoriesPage />
               </Layout>
             </ProtectedRoute>
           }

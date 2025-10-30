@@ -629,6 +629,7 @@ const TokenTab: React.FC = () => {
                       <div className="flex items-center">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                           {module.module_key === 'income' ? t('modules.incomeManagement') : 
+                           module.module_key === 'expenses' ? t('modules.expensesManagement') :
                            module.module_key === 'assets' ? t('modules.assetsManagement') : 
                            module.name}
                         </h4>
@@ -637,7 +638,8 @@ const TokenTab: React.FC = () => {
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {module.module_key === 'income' ? t('modules.incomeManagementDescription') : 
+                        {module.module_key === 'income' ? t('modules.incomeManagementDescription') :
+                         module.module_key === 'expenses' ? t('modules.expensesManagementDescription') : 
                          module.module_key === 'assets' ? t('modules.assetsManagementDescription') : 
                          module.description || ''}
                       </p>

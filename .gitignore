@@ -104,6 +104,7 @@ temp/
 *.swp
 *.swo
 *~
+.cursor/environment.json
 
 # OS generated files
 .DS_Store

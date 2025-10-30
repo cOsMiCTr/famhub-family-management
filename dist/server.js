@@ -23,6 +23,8 @@ const household_members_1 = __importDefault(require("./routes/household-members"
 const income_categories_1 = __importDefault(require("./routes/income-categories"));
 const income_1 = __importDefault(require("./routes/income"));
 const asset_categories_1 = __importDefault(require("./routes/asset-categories"));
+const expense_categories_1 = __importDefault(require("./routes/expense-categories"));
+const expenses_1 = __importDefault(require("./routes/expenses"));
 const currencies_1 = __importDefault(require("./routes/currencies"));
 const export_1 = __importDefault(require("./routes/export"));
 const twoFactor_1 = __importDefault(require("./routes/twoFactor"));
@@ -72,6 +74,8 @@ app.use('/api/household-members', household_members_1.default);
 app.use('/api/income-categories', income_categories_1.default);
 app.use('/api/income', income_1.default);
 app.use('/api/asset-categories', asset_categories_1.default);
+app.use('/api/expense-categories', expense_categories_1.default);
+app.use('/api/expenses', expenses_1.default);
 app.use('/api/currencies', currencies_1.default);
 app.use('/api/users/export', export_1.default);
 app.use('/api/two-factor', twoFactor_1.default);

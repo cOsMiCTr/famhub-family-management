@@ -22,13 +22,16 @@ import {
   EyeIcon,
   EyeSlashIcon,
   ArrowRightIcon,
-  Squares2X2Icon
+  Squares2X2Icon,
+  ArrowDownCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
   totalAssets?: number;
   totalIncome?: number;
   monthlyIncome?: number;
+  totalExpenses?: number;
+  monthlyExpenses?: number;
   activeContracts?: number;
   totalMembers?: number;
   currency?: string;
@@ -128,6 +131,8 @@ const DashboardPage: React.FC = () => {
         totalAssets: dashboardData.summary?.total_assets_main_currency || 0,
         totalIncome: dashboardData.summary?.total_income_main_currency || 0,
         monthlyIncome: dashboardData.summary?.quick_stats?.monthly_income || 0,
+        totalExpenses: dashboardData.summary?.total_expenses_main_currency || 0,
+        monthlyExpenses: dashboardData.summary?.quick_stats?.monthly_expenses || 0,
         activeContracts: dashboardData.summary?.quick_stats?.active_contracts || 0,
         totalMembers: dashboardData.summary?.member_count || 0,
         currency: dashboardData.summary?.main_currency || 'USD'
@@ -307,6 +312,34 @@ const DashboardPage: React.FC = () => {
       linkTo: '/income',
       showArrow: true,
       module: 'income' as string | null
+    },
+    {
+      title: t('dashboard.totalExpenses'),
+      value: stats ? formatCurrency(stats.totalExpenses || 0, stats.currency || 'USD') : 'Loading...',
+      convertedValue: tempConversionCurrency && stats ? 
+        getConvertedValue(stats.totalExpenses || 0, stats.currency || 'USD', tempConversionCurrency) : '',
+      icon: ArrowDownCircleIcon,
+      color: 'bg-red-500',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      textColor: 'text-red-600 dark:text-red-400',
+      isFinancial: true,
+      linkTo: '/expenses',
+      showArrow: true,
+      module: 'expenses' as string | null
+    },
+    {
+      title: t('dashboard.monthlyExpenses'),
+      value: stats ? formatCurrency(stats.monthlyExpenses || 0, stats.currency || 'USD') : 'Loading...',
+      convertedValue: tempConversionCurrency && stats ? 
+        getConvertedValue(stats.monthlyExpenses || 0, stats.currency || 'USD', tempConversionCurrency) : '',
+      icon: ArrowDownCircleIcon,
+      color: 'bg-orange-500',
+      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+      textColor: 'text-orange-600 dark:text-orange-400',
+      isFinancial: true,
+      linkTo: '/expenses',
+      showArrow: true,
+      module: 'expenses' as string | null
     },
     {
       title: t('dashboard.activeContracts'),

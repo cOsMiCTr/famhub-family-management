@@ -22,6 +22,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
   // Check module access
   const hasIncomeModule = await ModuleService.hasModuleAccess(userId, 'income');
   const hasAssetsModule = await ModuleService.hasModuleAccess(userId, 'assets');
+  const hasExpensesModule = await ModuleService.hasModuleAccess(userId, 'expenses');
 
   // Get total assets by currency (only if user has assets module)
   let assetsResult = { rows: [] };
@@ -66,6 +67,19 @@ router.get('/summary', asyncHandler(async (req, res) => {
        JOIN users u ON i.household_id = u.household_id
        WHERE u.id = $1
        GROUP BY i.currency`,
+      [userId]
+    );
+  }
+
+  // Get total expenses by currency (only if user has expenses module)
+  let expensesResult = { rows: [] };
+  if (hasExpensesModule) {
+    expensesResult = await query(
+      `SELECT e.currency, SUM(e.amount) as total_amount, COUNT(*) as count
+       FROM expenses e
+       JOIN users u ON e.household_id = u.household_id
+       WHERE u.id = $1
+       GROUP BY e.currency`,
       [userId]
     );
   }
@@ -117,6 +131,31 @@ router.get('/summary', asyncHandler(async (req, res) => {
       totalIncomeInMainCurrency += convertedAmount;
     } catch (error) {
       console.error(`Error converting income ${income.currency} to ${mainCurrency}:`, error);
+    }
+  }
+
+  // Convert expenses to main currency
+  const expensesBreakdown = [];
+  let totalExpensesInMainCurrency = 0;
+
+  for (const expense of expensesResult.rows) {
+    try {
+      const convertedAmount = await exchangeRateService.convertCurrency(
+        parseFloat(expense.total_amount),
+        expense.currency,
+        mainCurrency
+      );
+
+      expensesBreakdown.push({
+        currency: expense.currency,
+        amount: parseFloat(expense.total_amount),
+        converted_amount: convertedAmount,
+        count: parseInt(expense.count)
+      });
+
+      totalExpensesInMainCurrency += convertedAmount;
+    } catch (error) {
+      console.error(`Error converting expenses ${expense.currency} to ${mainCurrency}:`, error);
     }
   }
 
@@ -195,43 +234,37 @@ router.get('/summary', asyncHandler(async (req, res) => {
   );
 
   // Get quick stats (filter by module access - return 0 if module revoked)
-  let quickStatsQuery = '';
-  let queryParams: any[] = [];
+  // Get quick stats for income and expenses entries
+  let incomeEntriesCount = 0;
+  let expenseEntriesCount = 0;
   
-  if (hasIncomeModule && hasAssetsModule) {
-    quickStatsQuery = `SELECT 
-       COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
-       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
-       0 as active_contracts
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1`;
-    queryParams = [userId];
-  } else if (hasIncomeModule) {
-    quickStatsQuery = `SELECT 
-       COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
-       0 as expense_entries,
-       0 as active_contracts
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'`;
-    queryParams = [userId];
-  } else if (hasAssetsModule) {
-    quickStatsQuery = `SELECT 
-       0 as income_entries,
-       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
-       0 as active_contracts
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type != 'income'`;
-    queryParams = [userId];
-  } else {
-    // No modules - return all zeros
-    quickStatsQuery = `SELECT 0 as income_entries, 0 as expense_entries, 0 as active_contracts`;
-    queryParams = [];
+  if (hasIncomeModule) {
+    const incomeCountResult = await query(
+      `SELECT COUNT(*) as count
+       FROM income i
+       JOIN users u ON i.household_id = u.household_id
+       WHERE u.id = $1`,
+      [userId]
+    );
+    incomeEntriesCount = parseInt(incomeCountResult.rows[0]?.count || '0');
   }
   
-  const quickStatsResult = await query(quickStatsQuery, queryParams);
+  if (hasExpensesModule) {
+    const expenseCountResult = await query(
+      `SELECT COUNT(*) as count
+       FROM expenses e
+       JOIN users u ON e.household_id = u.household_id
+       WHERE u.id = $1`,
+      [userId]
+    );
+    expenseEntriesCount = parseInt(expenseCountResult.rows[0]?.count || '0');
+  }
+  
+  const quickStats = {
+    income_entries: incomeEntriesCount,
+    expense_entries: expenseEntriesCount,
+    active_contracts: 0 // Contracts removed
+  };
 
   // Get household members count (total family members, not just users)
   const membersResult = await query(
@@ -275,7 +308,40 @@ router.get('/summary', asyncHandler(async (req, res) => {
     }
   }
 
-  const quickStats = quickStatsResult.rows[0];
+  // Calculate monthly expenses (only if user has expenses module)
+  let monthlyExpensesInMainCurrency = 0;
+  if (hasExpensesModule) {
+    const monthlyExpensesResult_RAW = await query(
+      `SELECT 
+         SUM(CASE 
+           WHEN e.is_recurring = true AND e.frequency = 'monthly' THEN e.amount
+           WHEN e.is_recurring = true AND e.frequency = 'weekly' THEN e.amount * 4.33
+           WHEN e.is_recurring = true AND e.frequency = 'yearly' THEN e.amount / 12
+           ELSE 0 
+         END) as monthly_amount,
+         e.currency
+       FROM expenses e
+       JOIN users u ON e.household_id = u.household_id
+       WHERE u.id = $1 AND e.is_recurring = true
+         AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE)
+       GROUP BY e.currency`,
+      [userId]
+    );
+
+    for (const expense of monthlyExpensesResult_RAW.rows) {
+      try {
+        const convertedAmount = await exchangeRateService.convertCurrency(
+          parseFloat(expense.monthly_amount || 0),
+          expense.currency,
+          mainCurrency
+        );
+        monthlyExpensesInMainCurrency += convertedAmount;
+      } catch (error) {
+        console.error(`Error converting monthly expenses ${expense.currency} to ${mainCurrency}:`, error);
+      }
+    }
+  }
+
 
   // Get exchange rates for user's main currency
   const exchangeRates = await exchangeRateService.getAllExchangeRates();
@@ -298,8 +364,8 @@ router.get('/summary', asyncHandler(async (req, res) => {
     main_currency: mainCurrency,
     member_count: parseInt(membersResult.rows[0].member_count) || 0,
     quick_stats: {
-      income_entries: parseInt(quickStats.income_entries) || 0,
-      expense_entries: parseInt(quickStats.expense_entries) || 0,
+      income_entries: quickStats.income_entries || 0,
+      expense_entries: quickStats.expense_entries || 0,
       active_contracts: 0, // Contracts removed
     }
   };
@@ -322,6 +388,17 @@ router.get('/summary', asyncHandler(async (req, res) => {
     summary.total_income_main_currency = 0;
     summary.income_breakdown = [];
     summary.quick_stats.monthly_income = 0;
+  }
+
+  if (hasExpensesModule) {
+    summary.total_expenses_main_currency = totalExpensesInMainCurrency;
+    summary.expenses_breakdown = expensesBreakdown;
+    summary.quick_stats.monthly_expenses = monthlyExpensesInMainCurrency;
+  } else {
+    // Module revoked - set to 0
+    summary.total_expenses_main_currency = 0;
+    summary.expenses_breakdown = [];
+    summary.quick_stats.monthly_expenses = 0;
   }
 
   const response: any = {

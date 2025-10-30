@@ -25,6 +25,14 @@ const modules: ModuleData[] = [
     category: 'premium',
     display_order: 2,
     is_active: true
+  },
+  {
+    module_key: 'expenses',
+    name: 'Expenses Management',
+    description: 'Track and manage household expenses',
+    category: 'premium',
+    display_order: 3,
+    is_active: true
   }
 ];
 
