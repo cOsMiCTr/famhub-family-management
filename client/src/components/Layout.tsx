@@ -71,7 +71,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('admin.adminDashboard'), href: '/admin/dashboard', icon: ChartBarIcon },
     { name: t('admin.userManagement'), href: '/admin/users', icon: UserGroupIcon },
     { name: t('admin.securityDashboard'), href: '/admin/security', icon: ShieldCheckIcon },
-    { name: t('admin.enhancedSecurity'), href: '/admin/security-enhanced', icon: ShieldExclamationIcon },
     { name: t('admin.translations'), href: '/admin/translations', icon: LanguageIcon },
     { name: t('admin.currencyManagement'), href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: t('incomeCategories.title'), href: '/admin/income-categories', icon: DocumentTextIcon },
