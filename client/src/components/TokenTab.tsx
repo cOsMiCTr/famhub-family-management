@@ -40,7 +40,13 @@ const TokenTab: React.FC = () => {
       setIsLoading(true);
       const response = await apiService.get('/modules');
       if (response.data && response.data.modules) {
-        setModules(response.data.modules);
+        // Map modules to include isActive and expiresAt from the response
+        const modulesWithStatus = response.data.modules.map((module: any) => ({
+          ...module,
+          isActive: module.isActive || false,
+          expiresAt: module.expiresAt || null
+        }));
+        setModules(modulesWithStatus);
       }
     } catch (error: any) {
       console.error('Error loading modules:', error);
