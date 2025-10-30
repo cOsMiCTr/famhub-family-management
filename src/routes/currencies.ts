@@ -9,6 +9,7 @@ import { validationResult } from 'express-validator';
 const router = express.Router();
 
 // GET /api/currencies - List all currencies (with optional filters)
+// Returns all currencies (active and inactive) for authenticated users
 router.get('/', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const { type, active } = req.query;
   
@@ -22,9 +23,15 @@ router.get('/', authenticateToken, asyncHandler(async (req: Request, res: Respon
     paramIndex++;
   }
   
+  // Default to active=true if not specified, so all users see active currencies
   if (active !== undefined) {
     query += ` AND is_active = $${paramIndex}`;
     params.push(active === 'true');
+    paramIndex++;
+  } else {
+    // By default, show active currencies for regular listing
+    query += ` AND is_active = $${paramIndex}`;
+    params.push(true);
     paramIndex++;
   }
   

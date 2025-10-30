@@ -38,7 +38,7 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
         return;
       }
       
-      const response = await fetch('/api/currencies', {
+      const response = await fetch('/api/currencies?active=true', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -47,14 +47,17 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       if (response.ok) {
         const data = await response.json();
-        setAllCurrencies(data);
+        setAllCurrencies(data || []);
       } else if (response.status === 401) {
         // Token is invalid, clear currencies
+        console.error('Currency fetch: Unauthorized (401)');
         setAllCurrencies([]);
       } else {
+        console.error(`Currency fetch failed: ${response.status} ${response.statusText}`);
         setAllCurrencies([]);
       }
     } catch (error) {
+      console.error('Error fetching currencies:', error);
       setAllCurrencies([]);
     } finally {
       setLoading(false);

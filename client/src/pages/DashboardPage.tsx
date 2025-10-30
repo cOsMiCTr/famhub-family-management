@@ -231,14 +231,14 @@ const DashboardPage: React.FC = () => {
     return '';
   };
   
-  // Helper function to get available currencies (all types: fiat, crypto, metals) excluding user's main currency
+  // Helper function to get available FIAT currencies only (for exchange rates) excluding user's main currency
   const getAvailableCurrencies = (): string[] => {
     // Get user's main currency (user.main_currency takes priority)
     const userMainCurrency = user?.main_currency || stats?.currency || 'USD';
     
-    // Get all active currencies (fiat, crypto, metals) excluding user's main currency
+    // Get only active FIAT currencies excluding user's main currency
     const availableCurrencies = activeCurrencies
-      .filter(c => c.is_active && c.code !== userMainCurrency)
+      .filter(c => c.is_active && c.currency_type === 'fiat' && c.code !== userMainCurrency)
       .map(c => c.code);
     
     return availableCurrencies.sort();
