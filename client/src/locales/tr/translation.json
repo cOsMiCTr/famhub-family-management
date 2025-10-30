@@ -189,7 +189,18 @@
     "freeModules": "Ücretsiz Modüller",
     "grant": "Ver",
     "revoke": "İptal Et",
-    "expires": "Bitiş"
+    "expires": "Bitiş",
+    "tokenAccountDescription": "Premium modülleri etkinleştirmek için token kullanın. 1 token = 1 modül 1 ay için.",
+    "tokens": "token",
+    "purchaseTokens": "Token Satın Al",
+    "transactionHistory": "İşlem Geçmişi",
+    "premiumModulesDescription": "Tokenlarınızı kullanarak premium modülleri etkinleştirin. Her modül 1 token tutar ve 1 ay sürer.",
+    "incomeManagement": "Gelir Yönetimi",
+    "incomeManagementDescription": "Gelir kaynaklarını, işlemleri ve finansal kayıtları takip edin ve yönetin",
+    "assetsManagement": "Varlık Yönetimi",
+    "assetsManagementDescription": "Varlıklarınızı, değerlemeleri ve sahipliği yönetin ve takip edin",
+    "cost": "Maliyet",
+    "tokenPerMonth": "token/ay"
   },
   "notifications": {
     "failedLogin": "Başarısız Giriş Denemesi",

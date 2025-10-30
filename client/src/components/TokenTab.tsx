@@ -327,20 +327,20 @@ const TokenTab: React.FC = () => {
                 </h3>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Use tokens to activate premium modules. 1 token = 1 module for 1 month.
+                {t('modules.tokenAccountDescription')}
               </p>
               <div className="flex items-baseline space-x-6">
                 <div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">{t('modules.currentBalance')}</p>
                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                    {currentTokenAccount ? parseFloat(currentTokenAccount.balance.toString()).toFixed(2) : (tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : '0.00')} tokens
+                    {currentTokenAccount ? parseFloat(currentTokenAccount.balance.toString()).toFixed(2) : (tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : '0.00')} {t('modules.tokens')}
                   </p>
                 </div>
                 {(currentTokenAccount || tokenAccount) && (
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400">{t('modules.totalPurchased')}</p>
                     <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                      {parseFloat((currentTokenAccount || tokenAccount)!.totalPurchased.toString()).toFixed(2)} tokens
+                      {parseFloat((currentTokenAccount || tokenAccount)!.totalPurchased.toString()).toFixed(2)} {t('modules.tokens')}
                     </p>
                   </div>
                 )}
@@ -353,7 +353,7 @@ const TokenTab: React.FC = () => {
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center"
             >
               <ShoppingCartIcon className="h-4 w-4 mr-2" />
-              Purchase Tokens
+              {t('modules.purchaseTokens')}
             </button>
             <button
               onClick={() => {
@@ -365,7 +365,7 @@ const TokenTab: React.FC = () => {
               className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium flex items-center"
             >
               <ClockIcon className="h-4 w-4 mr-2" />
-              Transaction History
+              {t('modules.transactionHistory')}
             </button>
           </div>
         </div>
@@ -608,7 +608,7 @@ const TokenTab: React.FC = () => {
             </h3>
           </div>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Activate premium modules using your tokens. Each module costs 1 token and lasts 1 month.
+            {t('modules.premiumModulesDescription')}
           </p>
         </div>
         <div className="card-body">
@@ -628,17 +628,19 @@ const TokenTab: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                          {module.name}
+                          {module.module_key === 'income' ? t('modules.incomeManagement') : 
+                           module.module_key === 'assets' ? t('modules.assetsManagement') : 
+                           module.name}
                         </h4>
                         {status.isActive && (
                           <CheckCircleIcon className="h-5 w-5 text-green-500 ml-2" />
                         )}
                       </div>
-                      {module.description && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {module.description}
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {module.module_key === 'income' ? t('modules.incomeManagementDescription') : 
+                         module.module_key === 'assets' ? t('modules.assetsManagementDescription') : 
+                         module.description || ''}
+                      </p>
                       {status.isActive && status.expiresAt && (
                         <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center">
                           <ClockIcon className="h-3 w-3 mr-1" />
@@ -646,7 +648,7 @@ const TokenTab: React.FC = () => {
                         </p>
                       )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Cost: 1 token/month
+                        {t('modules.cost')}: 1 {t('modules.tokenPerMonth')}
                       </p>
                     </div>
                     <div className="ml-4">
