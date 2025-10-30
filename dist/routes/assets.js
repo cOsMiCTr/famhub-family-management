@@ -360,11 +360,12 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     else {
         if (userMemberId) {
-            conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+            conditions.push(`(a.user_id = $${paramCount++} OR a.household_member_id = $${paramCount++} OR EXISTS (
         SELECT 1 FROM shared_ownership_distribution 
         WHERE asset_id = a.id AND household_member_id = $${paramCount++}
       ))`);
             params.push(req.user.id);
+            params.push(userMemberId);
             params.push(userMemberId);
         }
         else {

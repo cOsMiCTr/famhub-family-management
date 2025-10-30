@@ -526,13 +526,15 @@ router.get('/', asyncHandler(async (req, res) => {
     // Personal view: show assets where user is owner OR user is in shared ownership
     if (userMemberId) {
       // Include assets where:
-      // 1. User is the primary owner, OR
-      // 2. User is part of shared ownership distribution
-      conditions.push(`(a.user_id = $${paramCount++} OR EXISTS (
+      // 1. User is the primary owner (by user_id), OR
+      // 2. User's household member is the primary owner (by household_member_id), OR
+      // 3. User is part of shared ownership distribution
+      conditions.push(`(a.user_id = $${paramCount++} OR a.household_member_id = $${paramCount++} OR EXISTS (
         SELECT 1 FROM shared_ownership_distribution 
         WHERE asset_id = a.id AND household_member_id = $${paramCount++}
       ))`);
       params.push(req.user.id);
+      params.push(userMemberId);
       params.push(userMemberId);
     } else {
       // Fallback if no household member record - only show assets user owns
@@ -581,7 +583,7 @@ router.get('/', asyncHandler(async (req, res) => {
     }
     
     // When filtering by member, add condition that member must have ownership:
-    // 1. Member is the primary owner, OR
+    // 1. Member is the primary owner (by household_member_id), OR
     // 2. Member has shared ownership with at least 1%
     // This is ANDed with Personal View filter (user has ownership), so result shows
     // assets where BOTH user and selected member have ownership
