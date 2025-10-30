@@ -437,22 +437,15 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             console.log('🔍 DEBUG: User condition:', userCondition);
         }
         else {
-            const userCondition = `(a.user_id = $${paramCount++} 
-        OR EXISTS (
-          SELECT 1 FROM shared_ownership_distribution sod 
-          JOIN household_members hm ON sod.household_member_id = hm.id
-          WHERE sod.asset_id = a.id 
-          AND hm.user_id = $${paramCount++}
-          AND sod.ownership_percentage > 0
-        ))`;
+            const userCondition = `a.user_id = $${paramCount++}`;
             conditions.push(`${memberCondition} AND ${userCondition}`);
             params.push(memberId);
             params.push(memberId);
             params.push(req.user.id);
-            params.push(req.user.id);
-            console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking shared via user_id)');
+            console.log('🔍 DEBUG: Member filter condition added (no userMemberId, user must be asset creator)');
             console.log('🔍 DEBUG: Member condition:', memberCondition);
             console.log('🔍 DEBUG: User condition:', userCondition);
+            console.log('🔍 DEBUG: NOTE - User has no household_member record, so we check a.user_id only');
         }
     }
     else {
@@ -473,18 +466,24 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             console.log('🔍 DEBUG: Personal View condition:', personalViewCondition);
         }
         else {
-            const personalViewCondition = `(a.user_id = $${paramCount++} 
-        OR EXISTS (
-          SELECT 1 FROM shared_ownership_distribution sod 
-          JOIN household_members hm ON sod.household_member_id = hm.id
-          WHERE sod.asset_id = a.id 
-          AND hm.user_id = $${paramCount++}
-          AND sod.ownership_percentage > 0
-        ))`;
-            conditions.push(personalViewCondition);
-            params.push(req.user.id);
-            params.push(req.user.id);
-            console.log('🔍 DEBUG: Personal View condition (no userMemberId):', personalViewCondition);
+            if (householdId) {
+                const personalViewCondition = `(a.user_id = $${paramCount++} 
+          OR (a.household_id = $${paramCount++} AND EXISTS (
+            SELECT 1 FROM shared_ownership_distribution sod 
+            WHERE sod.asset_id = a.id 
+            AND sod.ownership_percentage > 0
+          )))`;
+                conditions.push(personalViewCondition);
+                params.push(req.user.id);
+                params.push(householdId);
+                console.log('🔍 DEBUG: Personal View condition (no userMemberId, checking household_id for shared assets):', personalViewCondition);
+            }
+            else {
+                const personalViewCondition = `a.user_id = $${paramCount++}`;
+                conditions.push(personalViewCondition);
+                params.push(req.user.id);
+                console.log('🔍 DEBUG: Personal View condition (no userMemberId, no household_id):', personalViewCondition);
+            }
         }
     }
     if (category_id) {
