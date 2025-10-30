@@ -529,10 +529,15 @@ router.get('/', asyncHandler(async (req, res) => {
       // 1. User is the primary owner (by user_id), OR
       // 2. User's household member is the primary owner (by household_member_id), OR
       // 3. User is part of shared ownership distribution
-      conditions.push(`(a.user_id = $${paramCount++} OR a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id AND household_member_id = $${paramCount++}
-      ))`);
+      // Use LEFT JOIN approach to handle shared ownership more reliably
+      conditions.push(`(a.user_id = $${paramCount++} 
+        OR a.household_member_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          WHERE sod.asset_id = a.id 
+          AND sod.household_member_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`);
       params.push(req.user.id);
       params.push(userMemberId);
       params.push(userMemberId);
@@ -602,7 +607,10 @@ router.get('/', asyncHandler(async (req, res) => {
   // Debug: Log the query and parameters for troubleshooting
   console.log('📋 Assets query conditions:', conditions.length);
   console.log('📋 Assets query params count:', params.length);
-  console.log('📋 Assets query where clause:', whereClause.substring(0, 200));
+  console.log('📋 Assets query where clause:', whereClause.substring(0, 300));
+  console.log('📋 User ID:', req.user.id);
+  console.log('📋 User Member ID:', userMemberId);
+  console.log('📋 Filtering by member:', household_member_id);
 
   // Get assets with pagination
   let assetsResult;

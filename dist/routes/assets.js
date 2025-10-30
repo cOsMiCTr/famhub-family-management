@@ -360,10 +360,14 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     else {
         if (userMemberId) {
-            conditions.push(`(a.user_id = $${paramCount++} OR a.household_member_id = $${paramCount++} OR EXISTS (
-        SELECT 1 FROM shared_ownership_distribution 
-        WHERE asset_id = a.id AND household_member_id = $${paramCount++}
-      ))`);
+            conditions.push(`(a.user_id = $${paramCount++} 
+        OR a.household_member_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          WHERE sod.asset_id = a.id 
+          AND sod.household_member_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`);
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
@@ -414,7 +418,10 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     console.log('📋 Assets query conditions:', conditions.length);
     console.log('📋 Assets query params count:', params.length);
-    console.log('📋 Assets query where clause:', whereClause.substring(0, 200));
+    console.log('📋 Assets query where clause:', whereClause.substring(0, 300));
+    console.log('📋 User ID:', req.user.id);
+    console.log('📋 User Member ID:', userMemberId);
+    console.log('📋 Filtering by member:', household_member_id);
     let assetsResult;
     try {
         assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
