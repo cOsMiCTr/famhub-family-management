@@ -1098,7 +1098,7 @@ router.post('/users/:id/tokens/grant', asyncHandler(async (req, res) => {
     throw createValidationError('Amount must be greater than 0');
   }
 
- ana  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
+  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
   
   res.json({ account, message: `${amount} tokens granted to user` });
 }));

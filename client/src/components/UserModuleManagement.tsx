@@ -330,24 +330,26 @@ const UserModuleManagement: React.FC<UserModuleManagementProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={grantTokenAmount}
-                  onChange={(e) => setGrantTokenAmount(e.target.value)}
-                  placeholder="Token amount"
-                  className="flex-1 px-3 py-2 border border-blue-300 dark:border-blue-700 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-                <button
-                  onClick={handleGrantTokens}
-                  disabled={isSaving || !grantTokenAmount}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Grant Tokens
-                </button>
-              </div>
+              {!editBalance && (
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={grantTokenAmount}
+                    onChange={(e) => setGrantTokenAmount(e.target.value)}
+                    placeholder="Token amount to grant"
+                    className="flex-1 px-3 py-2 border border-blue-300 dark:border-blue-700 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <button
+                    onClick={handleGrantTokens}
+                    disabled={isSaving || !grantTokenAmount}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Grant Tokens
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Premium Modules */}
