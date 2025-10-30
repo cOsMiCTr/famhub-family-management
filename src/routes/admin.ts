@@ -10,6 +10,7 @@ import { NotificationService } from '../services/notificationService';
 import { LoginAttemptService } from '../services/loginAttemptService';
 import ModuleService from '../services/moduleService';
 import TokenAccountService from '../services/tokenAccountService';
+import VoucherCodeService from '../services/voucherCodeService';
 
 const router = express.Router();
 
@@ -1071,7 +1072,7 @@ router.put('/users/:id/tokens/balance', asyncHandler(async (req, res) => {
     throw createValidationError('Balance must be a non-negative number');
   }
 
-  const account = await TokenAccountService.setTokenBalance(userId, balanceNum, reason);
+  const account = await TokenAccountService.setTokenBalance(userId, balanceNum, reason, req.user!.id);
   
   res.json({ 
     account: {
@@ -1098,9 +1099,132 @@ router.post('/users/:id/tokens/grant', asyncHandler(async (req, res) => {
     throw createValidationError('Amount must be greater than 0');
   }
 
-  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
+  const account = await TokenAccountService.addTokens(
+    userId, 
+    amount, 
+    'admin_grant', 
+    reason || 'Admin grant',
+    {
+      processedBy: req.user!.id
+    }
+  );
   
   res.json({ account, message: `${amount} tokens granted to user` });
+}));
+
+// ==================== Voucher Code Management Routes ====================
+
+/**
+ * GET /api/admin/vouchers
+ * Get all voucher codes (admin only)
+ */
+router.get('/vouchers', asyncHandler(async (req, res) => {
+  const { isActive, search } = req.query;
+  const filters: any = {};
+  
+  if (isActive !== undefined) {
+    filters.isActive = isActive === 'true';
+  }
+  
+  if (search) {
+    filters.search = search as string;
+  }
+
+  const vouchers = await VoucherCodeService.getAllVoucherCodes(filters);
+  res.json(vouchers);
+}));
+
+/**
+ * POST /api/admin/vouchers
+ * Create new voucher code (admin only)
+ */
+router.post('/vouchers', asyncHandler(async (req, res) => {
+  const {
+    code,
+    description,
+    discount_percentage,
+    discount_amount,
+    minimum_purchase,
+    max_uses,
+    valid_from,
+    valid_until
+  } = req.body;
+
+  if (!code) {
+    throw createValidationError('Voucher code is required');
+  }
+
+  if (!valid_from) {
+    throw createValidationError('Valid from date is required');
+  }
+
+  const voucher = await VoucherCodeService.createVoucherCode({
+    code,
+    description,
+    discount_percentage,
+    discount_amount,
+    minimum_purchase,
+    max_uses,
+    valid_from: new Date(valid_from),
+    valid_until: valid_until ? new Date(valid_until) : undefined,
+    created_by: req.user!.id
+  });
+
+  res.json({ voucher, message: `Voucher code ${code} created successfully` });
+}));
+
+/**
+ * PUT /api/admin/vouchers/:id
+ * Update voucher code (admin only)
+ */
+router.put('/vouchers/:id', asyncHandler(async (req, res) => {
+  const voucherId = parseInt(req.params.id);
+  const updateData = req.body;
+
+  if (isNaN(voucherId)) {
+    throw createValidationError('Invalid voucher ID');
+  }
+
+  if (updateData.valid_from) {
+    updateData.valid_from = new Date(updateData.valid_from);
+  }
+
+  if (updateData.valid_until) {
+    updateData.valid_until = new Date(updateData.valid_until);
+  }
+
+  const voucher = await VoucherCodeService.updateVoucherCode(voucherId, updateData);
+  res.json({ voucher, message: `Voucher code updated successfully` });
+}));
+
+/**
+ * DELETE /api/admin/vouchers/:id
+ * Delete/deactivate voucher code (admin only)
+ */
+router.delete('/vouchers/:id', asyncHandler(async (req, res) => {
+  const voucherId = parseInt(req.params.id);
+
+  if (isNaN(voucherId)) {
+    throw createValidationError('Invalid voucher ID');
+  }
+
+  await VoucherCodeService.deleteVoucherCode(voucherId);
+  res.json({ message: `Voucher code deactivated successfully` });
+}));
+
+/**
+ * GET /api/admin/vouchers/:id/stats
+ * Get voucher code usage statistics (admin only)
+ */
+router.get('/vouchers/:id/stats', asyncHandler(async (req, res) => {
+  const voucherId = parseInt(req.params.id);
+
+  if (isNaN(voucherId)) {
+    throw createValidationError('Invalid voucher ID');
+  }
+
+  const stats = await VoucherCodeService.getVoucherUsageStats(voucherId);
+  res.json(stats);
 }));
 
 export default router;

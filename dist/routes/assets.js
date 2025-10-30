@@ -9,12 +9,14 @@ const database_1 = require("../config/database");
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
+const moduleAuth_1 = require("../middleware/moduleAuth");
 const currencyHelpers_1 = require("../utils/currencyHelpers");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const router = express_1.default.Router();
 router.use(auth_1.authenticateToken);
+router.use((0, moduleAuth_1.requireModule)('assets'));
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path_1.default.join(__dirname, '../../public/uploads/assets');

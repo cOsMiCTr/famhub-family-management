@@ -9,7 +9,11 @@ import {
   XCircleIcon,
   SparklesIcon,
   ClockIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ShoppingCartIcon,
+  TicketIcon,
+  ArrowUpCircleIcon,
+  ArrowDownCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface Module {
@@ -38,10 +42,26 @@ const TokenTab: React.FC = () => {
   const [moduleToDeactivate, setModuleToDeactivate] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  
+  // Purchase section state
+  const [showPurchaseSection, setShowPurchaseSection] = useState(false);
+  const [tokenAmount, setTokenAmount] = useState<number>(1);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherDiscount, setVoucherDiscount] = useState<number | null>(null);
+  const [validatingVoucher, setValidatingVoucher] = useState(false);
+  const [tokenPrice, setTokenPrice] = useState<number>(10);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  
+  // Transaction history state
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
 
   // Refresh token balance and modules whenever the tab is opened
   useEffect(() => {
     refreshBalanceAndModules();
+    loadTokenPrice();
   }, []); // Run once when component mounts (when tab is opened)
 
   const refreshBalanceAndModules = async () => {
@@ -160,6 +180,96 @@ const TokenTab: React.FC = () => {
     }
   };
 
+  const loadTokenPrice = async () => {
+    try {
+      const response = await apiService.get('/modules/token-price');
+      if (response.data?.price) {
+        setTokenPrice(response.data.price);
+      }
+    } catch (error) {
+      console.error('Error loading token price:', error);
+    }
+  };
+
+  const loadTransactions = async (page: number = 1) => {
+    try {
+      setTransactionsLoading(true);
+      const response = await apiService.get(`/modules/transactions?page=${page}&limit=20`);
+      if (response.data) {
+        setTransactions(response.data.transactions || []);
+        setTransactionsPage(page);
+      }
+    } catch (error: any) {
+      console.error('Error loading transactions:', error);
+      setError(error.response?.data?.error || 'Failed to load transaction history');
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
+
+  const handleValidateVoucher = async () => {
+    if (!voucherCode.trim()) {
+      setVoucherDiscount(null);
+      return;
+    }
+
+    try {
+      setValidatingVoucher(true);
+      const originalPrice = tokenAmount * tokenPrice;
+      const response = await apiService.post('/vouchers/validate', {
+        code: voucherCode.trim(),
+        purchaseAmount: originalPrice
+      });
+
+      if (response.data?.valid) {
+        setVoucherDiscount(response.data.discount || 0);
+      } else {
+        setError(response.data?.error || 'Invalid voucher code');
+        setVoucherDiscount(null);
+      }
+    } catch (error: any) {
+      console.error('Error validating voucher:', error);
+      setError(error.response?.data?.error || 'Failed to validate voucher code');
+      setVoucherDiscount(null);
+    } finally {
+      setValidatingVoucher(false);
+    }
+  };
+
+  const handlePurchaseTokens = async () => {
+    if (tokenAmount <= 0) {
+      setError('Please select a valid number of tokens');
+      return;
+    }
+
+    try {
+      setIsPurchasing(true);
+      setError('');
+      setMessage('');
+
+      const response = await apiService.post('/modules/purchase', {
+        tokens: tokenAmount,
+        voucherCode: voucherCode.trim() || null
+      });
+
+      if (response.data?.success) {
+        setMessage(
+          `Successfully purchased ${tokenAmount} tokens${response.data.discount > 0 ? ` (saved ${response.data.discount.toFixed(2)} with voucher)` : ''}`
+        );
+        setTokenAmount(1);
+        setVoucherCode('');
+        setVoucherDiscount(null);
+        setShowPurchaseSection(false);
+        await refreshBalanceAndModules();
+      }
+    } catch (error: any) {
+      console.error('Error purchasing tokens:', error);
+      setError(error.response?.data?.error || 'Failed to purchase tokens');
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return '';
     try {
@@ -237,8 +347,240 @@ const TokenTab: React.FC = () => {
               </div>
             </div>
           </div>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => setShowPurchaseSection(!showPurchaseSection)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center"
+            >
+              <ShoppingCartIcon className="h-4 w-4 mr-2" />
+              Purchase Tokens
+            </button>
+            <button
+              onClick={() => {
+                setShowTransactions(!showTransactions);
+                if (!showTransactions && transactions.length === 0) {
+                  loadTransactions(1);
+                }
+              }}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md text-sm font-medium flex items-center"
+            >
+              <ClockIcon className="h-4 w-4 mr-2" />
+              Transaction History
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Purchase Tokens Section */}
+      {showPurchaseSection && (
+        <div className="card hover-lift animate-fadeIn border-blue-200 dark:border-blue-800">
+          <div className="card-header">
+            <div className="flex items-center">
+              <ShoppingCartIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Purchase Tokens
+              </h3>
+            </div>
+          </div>
+          <div className="card-body">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Number of Tokens
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setTokenAmount(Math.max(1, tokenAmount - 1))}
+                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={tokenAmount}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 1;
+                      setTokenAmount(Math.max(1, value));
+                      if (voucherCode) handleValidateVoucher();
+                    }}
+                    className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-center text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  />
+                  <button
+                    onClick={() => {
+                      setTokenAmount(tokenAmount + 1);
+                      if (voucherCode) handleValidateVoucher();
+                    }}
+                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-md text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Voucher Code (Optional)
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <TicketIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={voucherCode}
+                      onChange={(e) => {
+                        setVoucherCode(e.target.value.toUpperCase());
+                        setVoucherDiscount(null);
+                      }}
+                      onBlur={handleValidateVoucher}
+                      placeholder="Enter voucher code"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <button
+                    onClick={handleValidateVoucher}
+                    disabled={!voucherCode.trim() || validatingVoucher}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md text-sm font-medium disabled:opacity-50"
+                  >
+                    {validatingVoucher ? <LoadingSpinner size="sm" /> : 'Validate'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Base Price:</span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    ${(tokenAmount * tokenPrice).toFixed(2)}
+                  </span>
+                </div>
+                {voucherDiscount !== null && voucherDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 dark:text-green-400">Discount:</span>
+                    <span className="font-medium text-green-600 dark:text-green-400">
+                      -${voucherDiscount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                <div className="border-t border-gray-300 dark:border-gray-600 pt-2 flex justify-between">
+                  <span className="font-semibold text-gray-900 dark:text-white">Total:</span>
+                  <span className="font-bold text-lg text-blue-600 dark:text-blue-400">
+                    ${(tokenAmount * tokenPrice - (voucherDiscount || 0)).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handlePurchaseTokens}
+                disabled={isPurchasing || tokenAmount <= 0}
+                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isPurchasing ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Processing Purchase...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                    Purchase {tokenAmount} Token{tokenAmount !== 1 ? 's' : ''} for ${(tokenAmount * tokenPrice - (voucherDiscount || 0)).toFixed(2)}
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                Token price: ${tokenPrice.toFixed(2)} per token
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction History Section */}
+      {showTransactions && (
+        <div className="card hover-lift animate-fadeIn">
+          <div className="card-header">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <ClockIcon className="h-5 w-5 text-gray-600 dark:text-gray-400 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Transaction History
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div className="card-body">
+            {transactionsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <LoadingSpinner size="lg" />
+              </div>
+            ) : transactions.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
+                No transaction history available.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {transactions.map((transaction: any) => {
+                  const amount = parseFloat(transaction.amount);
+                  const isPositive = amount > 0;
+                  const typeLabels: { [key: string]: string } = {
+                    purchase: 'Purchase',
+                    admin_grant: 'Admin Grant',
+                    refund: 'Refund',
+                    deduction: 'Deduction',
+                    balance_adjustment: 'Balance Adjustment'
+                  };
+
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                    >
+                      <div className="flex items-center flex-1">
+                        {isPositive ? (
+                          <ArrowUpCircleIcon className="h-5 w-5 text-green-500 mr-3" />
+                        ) : (
+                          <ArrowDownCircleIcon className="h-5 w-5 text-red-500 mr-3" />
+                        )}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {typeLabels[transaction.transaction_type] || transaction.transaction_type}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {transaction.description || 'No description'}
+                          </p>
+                          {transaction.voucher_code && (
+                            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                              Voucher: {transaction.voucher_code}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            {new Date(transaction.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`text-sm font-semibold ${
+                            isPositive
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}
+                        >
+                          {isPositive ? '+' : ''}{amount.toFixed(2)} tokens
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Balance: {parseFloat(transaction.balance_after).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       {error && (

@@ -22,7 +22,8 @@ import {
   BanknotesIcon,
   UsersIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -73,6 +74,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: t('admin.currencyManagement'), href: '/admin/currencies', icon: CurrencyDollarIcon },
     { name: t('incomeCategories.title'), href: '/admin/income-categories', icon: DocumentTextIcon },
     { name: t('assetCategories.title'), href: '/admin/asset-categories', icon: CurrencyDollarIcon },
+    { name: 'Voucher Management', href: '/admin/vouchers', icon: TicketIcon },
   ];
 
   const languages = [

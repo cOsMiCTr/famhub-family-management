@@ -1,5 +1,6 @@
 import { db } from '../database/connection';
 import { query } from '../config/database';
+import TokenAccountService from './tokenAccountService';
 
 interface Module {
   module_key: string;
@@ -160,12 +161,24 @@ class ModuleService {
       [userId, moduleKey, expiresAt, nextOrder]
     );
 
-    // Deduct token from account
-    await query(
-      `UPDATE user_token_account 
-       SET balance = balance - 1, updated_at = NOW()
-       WHERE id = $1 AND balance >= 1`,
+    // Deduct token from account and log transaction
+    const account = await query(
+      'SELECT * FROM user_token_account WHERE id = $1',
       [tokenAccountId]
+    );
+
+    if (account.rows.length === 0 || account.rows[0].balance < 1) {
+      throw new Error('Insufficient token balance');
+    }
+
+    await TokenAccountService.deductTokens(
+      userId,
+      1,
+      `Module ${moduleKey} activation`,
+      {
+        referenceType: 'module_activation',
+        referenceId: result.rows[0].id
+      }
     );
 
     return result.rows[0];
@@ -212,11 +225,14 @@ class ModuleService {
 
     // Refund if < 15 days
     if (daysSinceActivation < 15) {
-      await query(
-        `UPDATE user_token_account 
-         SET balance = balance + 0.5, updated_at = NOW()
-         WHERE id = $1`,
-        [tokenAccountId]
+      await TokenAccountService.refundTokens(
+        userId,
+        0.5,
+        `Early deactivation refund for ${moduleKey}`,
+        {
+          referenceType: 'module_deactivation',
+          referenceId: activation.id
+        }
       );
       return { refunded: true, refundAmount: 0.5 };
     }

@@ -5,7 +5,8 @@ import {
   UserGroupIcon, 
   ShieldCheckIcon,
   ChartBarIcon,
-  LanguageIcon
+  LanguageIcon,
+  TicketIcon
 } from '@heroicons/react/24/outline';
 
 const AdminPage: React.FC = () => {
@@ -43,6 +44,14 @@ const AdminPage: React.FC = () => {
       href: '/admin/translations',
       gradient: 'from-green-500 to-emerald-600',
       iconBg: 'bg-gradient-to-r from-green-500 to-emerald-600'
+    },
+    {
+      title: 'Voucher Management',
+      description: 'Create and manage voucher codes',
+      icon: TicketIcon,
+      href: '/admin/vouchers',
+      gradient: 'from-purple-500 to-pink-600',
+      iconBg: 'bg-gradient-to-r from-purple-500 to-pink-600'
     }
   ];
 

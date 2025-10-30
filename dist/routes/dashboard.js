@@ -8,6 +8,7 @@ const database_1 = require("../config/database");
 const exchangeRateService_1 = require("../services/exchangeRateService");
 const errorHandler_1 = require("../middleware/errorHandler");
 const auth_1 = require("../middleware/auth");
+const moduleService_1 = __importDefault(require("../services/moduleService"));
 const router = express_1.default.Router();
 router.use(auth_1.authenticateToken);
 router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
@@ -16,29 +17,36 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     const userId = req.user.id;
     const mainCurrency = req.user.main_currency || 'USD';
-    const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [userId]);
-    let assetsResult;
-    if (userMemberResult.rows.length > 0) {
-        const userMemberId = userMemberResult.rows[0].id;
-        assetsResult = await (0, database_1.query)(`SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
-       FROM assets a
-       WHERE (a.user_id = $1 OR EXISTS (
-         SELECT 1 FROM shared_ownership_distribution 
-         WHERE asset_id = a.id AND household_member_id = $2
-       )) AND status = 'active'
-       GROUP BY currency`, [userId, userMemberId]);
+    const hasIncomeModule = await moduleService_1.default.hasModuleAccess(userId, 'income');
+    const hasAssetsModule = await moduleService_1.default.hasModuleAccess(userId, 'assets');
+    let assetsResult = { rows: [] };
+    if (hasAssetsModule) {
+        const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [userId]);
+        if (userMemberResult.rows.length > 0) {
+            const userMemberId = userMemberResult.rows[0].id;
+            assetsResult = await (0, database_1.query)(`SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+         FROM assets a
+         WHERE (a.user_id = $1 OR EXISTS (
+           SELECT 1 FROM shared_ownership_distribution 
+           WHERE asset_id = a.id AND household_member_id = $2
+         )) AND status = 'active'
+         GROUP BY currency`, [userId, userMemberId]);
+        }
+        else {
+            assetsResult = await (0, database_1.query)(`SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+         FROM assets
+         WHERE user_id = $1 AND status = 'active'
+         GROUP BY currency`, [userId]);
+        }
     }
-    else {
-        assetsResult = await (0, database_1.query)(`SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
-       FROM assets
-       WHERE user_id = $1 AND status = 'active'
-       GROUP BY currency`, [userId]);
+    let incomeResult = { rows: [] };
+    if (hasIncomeModule) {
+        incomeResult = await (0, database_1.query)(`SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
+       FROM income i
+       JOIN users u ON i.household_id = u.household_id
+       WHERE u.id = $1
+       GROUP BY i.currency`, [userId]);
     }
-    const incomeResult = await (0, database_1.query)(`SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
-     FROM income i
-     JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1
-     GROUP BY i.currency`, [userId]);
     const currencyBreakdown = [];
     let totalInMainCurrency = 0;
     for (const asset of assetsResult.rows) {
@@ -73,36 +81,41 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             console.error(`Error converting income ${income.currency} to ${mainCurrency}:`, error);
         }
     }
-    const recentIncomeResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-     ORDER BY a.date DESC, a.created_at DESC
-     LIMIT 10`, [userId]);
-    const monthlyIncomeResult = await (0, database_1.query)(`SELECT 
-       DATE_TRUNC('month', a.date) as month,
-       SUM(a.amount) as total_amount,
-       a.currency,
-       COUNT(*) as count
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-       AND a.date >= CURRENT_DATE - INTERVAL '12 months'
-     GROUP BY DATE_TRUNC('month', a.date), a.currency
-     ORDER BY month DESC`, [userId]);
-    const categoryIncomeResult = await (0, database_1.query)(`SELECT 
-       ac.name_en as category_name_en,
-       ac.name_de as category_name_de,
-       ac.name_tr as category_name_tr,
-       SUM(a.amount) as total_amount,
-       a.currency,
-       COUNT(*) as count
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-       AND a.date >= CURRENT_DATE - INTERVAL '6 months'
-     GROUP BY ac.id, ac.name_en, ac.name_de, ac.name_tr, a.currency
-     ORDER BY total_amount DESC`, [userId]);
+    let recentIncomeResult = { rows: [] };
+    let monthlyIncomeResult = { rows: [] };
+    let categoryIncomeResult = { rows: [] };
+    if (hasIncomeModule) {
+        recentIncomeResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+       ORDER BY a.date DESC, a.created_at DESC
+       LIMIT 10`, [userId]);
+        monthlyIncomeResult = await (0, database_1.query)(`SELECT 
+         DATE_TRUNC('month', a.date) as month,
+         SUM(a.amount) as total_amount,
+         a.currency,
+         COUNT(*) as count
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+         AND a.date >= CURRENT_DATE - INTERVAL '12 months'
+       GROUP BY DATE_TRUNC('month', a.date), a.currency
+       ORDER BY month DESC`, [userId]);
+        categoryIncomeResult = await (0, database_1.query)(`SELECT 
+         ac.name_en as category_name_en,
+         ac.name_de as category_name_de,
+         ac.name_tr as category_name_tr,
+         SUM(a.amount) as total_amount,
+         a.currency,
+         COUNT(*) as count
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+         AND a.date >= CURRENT_DATE - INTERVAL '6 months'
+       GROUP BY ac.id, ac.name_en, ac.name_de, ac.name_tr, a.currency
+       ORDER BY total_amount DESC`, [userId]);
+    }
     const upcomingRenewalsResult = await (0, database_1.query)(`SELECT c.*, cc.name_en as category_name_en, cc.name_de as category_name_de, cc.name_tr as category_name_tr
      FROM contracts c
      JOIN contract_categories cc ON c.category_id = cc.id
@@ -116,38 +129,69 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      WHERE user_id = $1 AND read = false
      ORDER BY created_at DESC
      LIMIT 5`, [userId]);
-    const quickStatsResult = await (0, database_1.query)(`SELECT 
+    let quickStatsQuery = '';
+    let queryParams = [];
+    if (hasIncomeModule && hasAssetsModule) {
+        quickStatsQuery = `SELECT 
        COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
        COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
-       COUNT(CASE WHEN c.status = 'active' THEN 1 END) as active_contracts
+       0 as active_contracts
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
-     LEFT JOIN contracts c ON c.household_id = $2
-     WHERE a.user_id = $1`, [userId, req.user.household_id]);
+     WHERE a.user_id = $1`;
+        queryParams = [userId];
+    }
+    else if (hasIncomeModule) {
+        quickStatsQuery = `SELECT 
+       COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
+       0 as expense_entries,
+       0 as active_contracts
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     WHERE a.user_id = $1 AND ac.type = 'income'`;
+        queryParams = [userId];
+    }
+    else if (hasAssetsModule) {
+        quickStatsQuery = `SELECT 
+       0 as income_entries,
+       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
+       0 as active_contracts
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     WHERE a.user_id = $1 AND ac.type != 'income'`;
+        queryParams = [userId];
+    }
+    else {
+        quickStatsQuery = `SELECT 0 as income_entries, 0 as expense_entries, 0 as active_contracts`;
+        queryParams = [];
+    }
+    const quickStatsResult = await (0, database_1.query)(quickStatsQuery, queryParams);
     const membersResult = await (0, database_1.query)(`SELECT COUNT(*) as member_count
      FROM household_members hm
      WHERE hm.household_id = $1`, [req.user.household_id]);
-    const monthlyIncomeResult_RAW = await (0, database_1.query)(`SELECT 
-       SUM(CASE 
-         WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
-         WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
-         WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
-         ELSE 0 
-       END) as monthly_amount,
-       i.currency
-     FROM income i
-     JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1 AND i.is_recurring = true
-       AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
-     GROUP BY i.currency`, [userId]);
     let monthlyIncomeInMainCurrency = 0;
-    for (const income of monthlyIncomeResult_RAW.rows) {
-        try {
-            const convertedAmount = await exchangeRateService_1.exchangeRateService.convertCurrency(parseFloat(income.monthly_amount || 0), income.currency, mainCurrency);
-            monthlyIncomeInMainCurrency += convertedAmount;
-        }
-        catch (error) {
-            console.error(`Error converting monthly income ${income.currency} to ${mainCurrency}:`, error);
+    if (hasIncomeModule) {
+        const monthlyIncomeResult_RAW = await (0, database_1.query)(`SELECT 
+         SUM(CASE 
+           WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
+           WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
+           WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
+           ELSE 0 
+         END) as monthly_amount,
+         i.currency
+       FROM income i
+       JOIN users u ON i.household_id = u.household_id
+       WHERE u.id = $1 AND i.is_recurring = true
+         AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
+       GROUP BY i.currency`, [userId]);
+        for (const income of monthlyIncomeResult_RAW.rows) {
+            try {
+                const convertedAmount = await exchangeRateService_1.exchangeRateService.convertCurrency(parseFloat(income.monthly_amount || 0), income.currency, mainCurrency);
+                monthlyIncomeInMainCurrency += convertedAmount;
+            }
+            catch (error) {
+                console.error(`Error converting monthly income ${income.currency} to ${mainCurrency}:`, error);
+            }
         }
     }
     const quickStats = quickStatsResult.rows[0];
@@ -157,29 +201,45 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const relevantRates = exchangeRates.filter(rate => rate.from_currency === mainCurrency &&
         activeCurrencyCodes.includes(rate.to_currency) &&
         rate.to_currency !== mainCurrency);
-    res.json({
-        summary: {
-            total_assets_main_currency: totalInMainCurrency,
-            total_income_main_currency: totalIncomeInMainCurrency,
-            main_currency: mainCurrency,
-            currency_breakdown: currencyBreakdown,
-            income_breakdown: incomeBreakdown,
-            member_count: parseInt(membersResult.rows[0].member_count) || 0,
-            quick_stats: {
-                income_entries: parseInt(quickStats.income_entries) || 0,
-                expense_entries: parseInt(quickStats.expense_entries) || 0,
-                active_contracts: parseInt(quickStats.active_contracts) || 0,
-                monthly_income: monthlyIncomeInMainCurrency
-            }
-        },
+    const summary = {
+        main_currency: mainCurrency,
+        member_count: parseInt(membersResult.rows[0].member_count) || 0,
+        quick_stats: {
+            income_entries: parseInt(quickStats.income_entries) || 0,
+            expense_entries: parseInt(quickStats.expense_entries) || 0,
+            active_contracts: 0,
+        }
+    };
+    if (hasAssetsModule) {
+        summary.total_assets_main_currency = totalInMainCurrency;
+        summary.currency_breakdown = currencyBreakdown;
+    }
+    else {
+        summary.total_assets_main_currency = 0;
+        summary.currency_breakdown = [];
+    }
+    if (hasIncomeModule) {
+        summary.total_income_main_currency = totalIncomeInMainCurrency;
+        summary.income_breakdown = incomeBreakdown;
+        summary.quick_stats.monthly_income = monthlyIncomeInMainCurrency;
+    }
+    else {
+        summary.total_income_main_currency = 0;
+        summary.income_breakdown = [];
+        summary.quick_stats.monthly_income = 0;
+    }
+    const response = {
+        summary,
         exchange_rates: relevantRates,
-        recent_income: recentIncomeResult.rows,
-        monthly_income: monthlyIncomeResult.rows,
-        category_income: categoryIncomeResult.rows,
-        upcoming_renewals: upcomingRenewalsResult.rows,
         notifications: notificationsResult.rows,
         timestamp: new Date().toISOString()
-    });
+    };
+    if (hasIncomeModule) {
+        response.recent_income = recentIncomeResult.rows;
+        response.monthly_income = monthlyIncomeResult.rows;
+        response.category_income = categoryIncomeResult.rows;
+    }
+    res.json(response);
 }));
 router.get('/stats', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (!req.user) {

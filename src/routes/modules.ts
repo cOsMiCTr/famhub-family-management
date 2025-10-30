@@ -2,6 +2,8 @@ import express from 'express';
 import { authenticateToken } from '../middleware/auth';
 import ModuleService from '../services/moduleService';
 import TokenAccountService from '../services/tokenAccountService';
+import VoucherCodeService from '../services/voucherCodeService';
+import { asyncHandler, createValidationError } from '../middleware/errorHandler';
 
 const router = express.Router();
 
@@ -187,5 +189,99 @@ router.get('/token-price', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+/**
+ * GET /api/modules/transactions
+ * Get user's token transaction history
+ */
+router.get('/transactions', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = (page - 1) * limit;
+
+    const [transactions, totalCount] = await Promise.all([
+      TokenAccountService.getTokenTransactions(userId, limit, offset),
+      TokenAccountService.getTransactionCount(userId)
+    ]);
+
+    res.json({
+      transactions,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching token transactions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/modules/purchase
+ * Purchase tokens (with optional voucher code)
+ */
+router.post('/purchase', authenticateToken, asyncHandler(async (req, res) => {
+  const { tokens, voucherCode } = req.body;
+  const userId = req.user!.id;
+
+  if (!tokens || tokens <= 0) {
+    throw createValidationError('Number of tokens must be greater than 0');
+  }
+
+  const tokenPrice = await TokenAccountService.getTokenPrice();
+  const originalPrice = tokens * tokenPrice;
+  let discount = 0;
+  let finalPrice = originalPrice;
+  let voucherId = null;
+
+  // Apply voucher if provided
+  if (voucherCode) {
+    const voucherResult = await VoucherCodeService.applyVoucherCode(
+      voucherCode,
+      userId,
+      tokens,
+      tokenPrice
+    );
+
+    if (!voucherResult.success) {
+      throw createValidationError(voucherResult.error || 'Invalid voucher code');
+    }
+
+    discount = voucherResult.discount;
+    finalPrice = voucherResult.finalPrice;
+    voucherId = voucherResult.voucher?.id || null;
+  }
+
+  // Add tokens to account (transaction is logged automatically)
+  const account = await TokenAccountService.addTokens(
+    userId,
+    tokens,
+    'purchase',
+    `Purchased ${tokens} tokens${voucherCode ? ` with voucher ${voucherCode}` : ''}`,
+    {
+      voucherId,
+      voucherDiscount: discount,
+      referenceType: 'purchase'
+    }
+  );
+
+  res.json({
+    success: true,
+    tokens,
+    originalPrice,
+    discount,
+    finalPrice,
+    tokenAccount: {
+      balance: parseFloat(account.balance.toString()),
+      totalPurchased: parseFloat(account.total_tokens_purchased.toString())
+    },
+    message: `Successfully purchased ${tokens} tokens`
+  });
+}));
 
 export default router;

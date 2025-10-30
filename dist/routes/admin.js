@@ -11,6 +11,9 @@ const auth_1 = require("../middleware/auth");
 const passwordService_1 = require("../services/passwordService");
 const notificationService_1 = require("../services/notificationService");
 const loginAttemptService_1 = require("../services/loginAttemptService");
+const moduleService_1 = __importDefault(require("../services/moduleService"));
+const tokenAccountService_1 = __importDefault(require("../services/tokenAccountService"));
+const voucherCodeService_1 = __importDefault(require("../services/voucherCodeService"));
 const router = express_1.default.Router();
 router.use(auth_1.authenticateToken);
 router.use(auth_1.requireAdmin);
@@ -562,6 +565,179 @@ router.get('/dashboard-stats', (0, errorHandler_1.asyncHandler)(async (req, res)
             hasNextPage: recentActivity.rows.length === itemsPerPage
         }
     });
+}));
+router.get('/modules', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const modules = await moduleService_1.default.getAllModules();
+    res.json(modules);
+}));
+router.get('/users/:id/modules', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    const modules = await moduleService_1.default.getUserModules(userId);
+    const activeModules = await moduleService_1.default.getUserActiveModulesWithExpiration(userId);
+    res.json({
+        modules,
+        activeModules
+    });
+}));
+router.put('/users/:id/modules', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { modules } = req.body;
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    if (!Array.isArray(modules)) {
+        throw (0, errorHandler_1.createValidationError)('Modules must be an array');
+    }
+    const grantedBy = req.user.id;
+    const results = [];
+    for (const moduleUpdate of modules) {
+        const { moduleKey, action, reason } = moduleUpdate;
+        if (action === 'grant') {
+            await moduleService_1.default.grantModule(userId, moduleKey, grantedBy, reason);
+            results.push({ moduleKey, action: 'granted' });
+        }
+        else if (action === 'revoke') {
+            await moduleService_1.default.revokeModule(userId, moduleKey);
+            results.push({ moduleKey, action: 'revoked' });
+        }
+    }
+    res.json({ results });
+}));
+router.post('/users/:id/modules/:moduleKey/grant', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const moduleKey = req.params.moduleKey;
+    const { reason } = req.body;
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    const grantedBy = req.user.id;
+    const activation = await moduleService_1.default.grantModule(userId, moduleKey, grantedBy, reason);
+    res.json({ activation, message: `Module ${moduleKey} granted to user` });
+}));
+router.post('/users/:id/modules/:moduleKey/revoke', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const moduleKey = req.params.moduleKey;
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    await moduleService_1.default.revokeModule(userId, moduleKey);
+    res.json({ message: `Module ${moduleKey} revoked from user` });
+}));
+router.get('/users/:id/tokens', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    const account = await tokenAccountService_1.default.getUserTokenAccount(userId);
+    const price = await tokenAccountService_1.default.getTokenPrice();
+    res.json({
+        balance: parseFloat(account.balance.toString()),
+        totalPurchased: parseFloat(account.total_tokens_purchased.toString()),
+        tokenPrice: price
+    });
+}));
+router.put('/users/:id/tokens/balance', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { balance, reason } = req.body;
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    if (balance === undefined || balance === null) {
+        throw (0, errorHandler_1.createValidationError)('Balance is required');
+    }
+    const balanceNum = parseFloat(balance);
+    if (isNaN(balanceNum) || balanceNum < 0) {
+        throw (0, errorHandler_1.createValidationError)('Balance must be a non-negative number');
+    }
+    const account = await tokenAccountService_1.default.setTokenBalance(userId, balanceNum, reason, req.user.id);
+    res.json({
+        account: {
+            balance: parseFloat(account.balance.toString()),
+            totalPurchased: parseFloat(account.total_tokens_purchased.toString())
+        },
+        message: `Token balance set to ${balanceNum}`
+    });
+}));
+router.post('/users/:id/tokens/grant', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { amount, reason } = req.body;
+    if (isNaN(userId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid user ID');
+    }
+    if (!amount || amount <= 0) {
+        throw (0, errorHandler_1.createValidationError)('Amount must be greater than 0');
+    }
+    const account = await tokenAccountService_1.default.addTokens(userId, amount, 'admin_grant', reason || 'Admin grant', {
+        processedBy: req.user.id
+    });
+    res.json({ account, message: `${amount} tokens granted to user` });
+}));
+router.get('/vouchers', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { isActive, search } = req.query;
+    const filters = {};
+    if (isActive !== undefined) {
+        filters.isActive = isActive === 'true';
+    }
+    if (search) {
+        filters.search = search;
+    }
+    const vouchers = await voucherCodeService_1.default.getAllVoucherCodes(filters);
+    res.json(vouchers);
+}));
+router.post('/vouchers', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { code, description, discount_percentage, discount_amount, minimum_purchase, max_uses, valid_from, valid_until } = req.body;
+    if (!code) {
+        throw (0, errorHandler_1.createValidationError)('Voucher code is required');
+    }
+    if (!valid_from) {
+        throw (0, errorHandler_1.createValidationError)('Valid from date is required');
+    }
+    const voucher = await voucherCodeService_1.default.createVoucherCode({
+        code,
+        description,
+        discount_percentage,
+        discount_amount,
+        minimum_purchase,
+        max_uses,
+        valid_from: new Date(valid_from),
+        valid_until: valid_until ? new Date(valid_until) : undefined,
+        created_by: req.user.id
+    });
+    res.json({ voucher, message: `Voucher code ${code} created successfully` });
+}));
+router.put('/vouchers/:id', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    const updateData = req.body;
+    if (isNaN(voucherId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid voucher ID');
+    }
+    if (updateData.valid_from) {
+        updateData.valid_from = new Date(updateData.valid_from);
+    }
+    if (updateData.valid_until) {
+        updateData.valid_until = new Date(updateData.valid_until);
+    }
+    const voucher = await voucherCodeService_1.default.updateVoucherCode(voucherId, updateData);
+    res.json({ voucher, message: `Voucher code updated successfully` });
+}));
+router.delete('/vouchers/:id', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    if (isNaN(voucherId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid voucher ID');
+    }
+    await voucherCodeService_1.default.deleteVoucherCode(voucherId);
+    res.json({ message: `Voucher code deactivated successfully` });
+}));
+router.get('/vouchers/:id/stats', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    if (isNaN(voucherId)) {
+        throw (0, errorHandler_1.createValidationError)('Invalid voucher ID');
+    }
+    const stats = await voucherCodeService_1.default.getVoucherUsageStats(voucherId);
+    res.json(stats);
 }));
 exports.default = router;
 //# sourceMappingURL=admin.js.map
