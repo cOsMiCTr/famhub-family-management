@@ -19,17 +19,58 @@ interface Module {
   category: 'free' | 'premium';
   isActive?: boolean;
   expiresAt?: string | null;
+ …}
+
+interface TokenAccount {
+  balance: number;
+  totalPurchased: number;
 }
 
 const TokenTab: React.FC = () => {
   const { t } = useTranslation();
   const { tokenAccount, availableModules, refreshModules, hasModule } = useModuleContext();
   const [modules, setModules] = useState<Module[]>([]);
+  const [currentTokenAccount, setCurrentTokenAccount] = useState<TokenAccount | null>(tokenAccount);
   const [isLoading, setIsLoading] = useState(true);
   const [isActivating, setIsActivating] = useState<string | null>(null);
   const [isDeactivating, setIsDeactivating] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+
+  // Refresh token balance and modules whenever the tab is opened
+  useEffect(() => {
+    refreshBalanceAndModules();
+  }, []); // Run once when component mounts (when tab is opened)
+
+  const refreshBalanceAndModules = async () => {
+    try {
+      // Refresh modules context (this also updates token account in context)
+      await refreshModules();
+      
+      // Also directly fetch token account to ensure it's always fresh
+      const tokenResponse = await apiService.get('/modules/token-account');
+      if (tokenResponse.data) {
+        setCurrentTokenAccount({
+          balance: tokenResponse.data.balance || 0,
+          totalPurchased: tokenResponse.data.totalPurchased || 0
+        });
+      }
+      
+      // Load modules list
+      await loadModules();
+    } catch (error: any) {
+      console.error('Error refreshing balance:', error);
+      // Still try to load modules even if balance fetch fails
+      await loadModules();
+    }
+  };
+
+  useEffect(() => {
+    // Update local state when context tokenAccount changes
+    if (tokenAccount) {
+      setCurrentTokenAccount(tokenAccount);
+    }
+  }, [tokenAccount]);
 
   useEffect(() => {
     loadModules();
@@ -67,8 +108,7 @@ const TokenTab: React.FC = () => {
       
       if (response.data) {
         setMessage(`${moduleKey} module activated successfully!`);
-        await refreshModules();
-        await loadModules();
+        await refreshBalanceAndModules();
       }
     } catch (error: any) {
       console.error('Error activating module:', error);
@@ -101,8 +141,7 @@ const TokenTab: React.FC = () => {
         } else {
           setMessage(`${moduleKey} deactivated. No refund (used for 15+ days).`);
         }
-        await refreshModules();
-        await loadModules();
+        await refreshBalanceAndModules();
       }
     } catch (error: any) {
       console.error('Error deactivating module:', error);
@@ -175,14 +214,14 @@ const TokenTab: React.FC = () => {
                 <div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">{t('modules.currentBalance')}</p>
                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                    {tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : '0.00'} tokens
+                    {currentTokenAccount ? parseFloat(currentTokenAccount.balance.toString()).toFixed(2) : (tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : '0.00')} tokens
                   </p>
                 </div>
-                {tokenAccount && (
+                {(currentTokenAccount || tokenAccount) && (
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400">{t('modules.totalPurchased')}</p>
                     <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                      {parseFloat(tokenAccount.totalPurchased.toString()).toFixed(2)} tokens
+                      {parseFloat((currentTokenAccount || tokenAccount)!.totalPurchased.toString()).toFixed(2)} tokens
                     </p>
                   </div>
                 )}
@@ -263,7 +302,7 @@ const TokenTab: React.FC = () => {
                       {status.canActivate ? (
                         <button
                           onClick={() => handleActivateModule(module.module_key)}
-                          disabled={isActivating !== null || !tokenAccount || parseFloat(tokenAccount.balance.toString()) < 1}
+                          disabled={isActivating !== null || (!currentTokenAccount && !tokenAccount) || parseFloat((currentTokenAccount || tokenAccount)!.balance.toString()) < 1}
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isActivating === module.module_key ? (
