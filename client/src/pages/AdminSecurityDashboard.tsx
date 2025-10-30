@@ -232,6 +232,8 @@ const AdminSecurityDashboard: React.FC = () => {
       console.log('Notification counts:', dashboardData.notifications);
       console.log('Notifications array:', notificationsData.notifications);
       console.log('Notifications length:', notificationsData.notifications?.length || 0);
+      console.log('Show notifications state:', showNotifications);
+      console.log('Notifications state:', notifications);
 
       // Enhanced data
       setMetrics(metricsData);
@@ -1074,6 +1076,10 @@ const AdminSecurityDashboard: React.FC = () => {
 
               {showNotifications && (
                 <div className="space-y-3">
+                  {/* Debug info */}
+                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded text-xs">
+                    Debug: {notifications.length} notifications, showNotifications: {showNotifications.toString()}
+                  </div>
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
