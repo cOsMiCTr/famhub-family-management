@@ -352,65 +352,16 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const conditions = [];
     const params = [];
     let paramCount = 1;
-    console.log('🔍 DEBUG: Starting asset query');
-    console.log('🔍 DEBUG: User ID:', req.user.id);
-    console.log('🔍 DEBUG: Query params:', { page, limit, category_id, currency, start_date, end_date, status, ownership_type, household_member_id, household_view });
-    const allAssetsDebug = await (0, database_1.query)(`SELECT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type, a.household_id
-     FROM assets a
-     WHERE a.user_id = $1 OR a.household_id IN (SELECT household_id FROM users WHERE id = $1)
-     ORDER BY a.id`, [req.user.id]);
-    console.log('🔍 DEBUG: All assets user has access to (by user_id or household):', allAssetsDebug.rows.length);
-    allAssetsDebug.rows.forEach((asset) => {
-        console.log(`  Asset ${asset.id}: "${asset.name}", user_id=${asset.user_id}, member_id=${asset.household_member_id}, type=${asset.ownership_type}, household_id=${asset.household_id}`);
-    });
     const userHousehold = await (0, database_1.query)('SELECT household_id FROM users WHERE id = $1', [req.user.id]);
     const householdId = userHousehold.rows[0]?.household_id;
-    console.log('🔍 DEBUG: User household_id:', householdId);
-    if (householdId) {
-        const sharedOwnershipDebug = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.user_id, hm.name, a.user_id as asset_user_id, a.name as asset_name
-       FROM shared_ownership_distribution sod
-       JOIN household_members hm ON sod.household_member_id = hm.id
-       JOIN assets a ON sod.asset_id = a.id
-       WHERE a.household_id = $1`, [householdId]);
-        console.log('🔍 DEBUG: Shared ownership in user household:', sharedOwnershipDebug.rows.length);
-        sharedOwnershipDebug.rows.forEach((row) => {
-            console.log(`  Asset ${row.asset_id} "${row.asset_name}": member_id=${row.household_member_id} (user_id=${row.user_id}, name="${row.name}"), ${row.ownership_percentage}%, asset_user_id=${row.asset_user_id}`);
-        });
-        const userSharedAssets = await (0, database_1.query)(`SELECT DISTINCT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type
-       FROM assets a
-       JOIN shared_ownership_distribution sod ON sod.asset_id = a.id
-       JOIN household_members hm ON sod.household_member_id = hm.id
-       WHERE hm.user_id = $1 AND sod.ownership_percentage > 0`, [req.user.id]);
-        console.log('🔍 DEBUG: Assets where user has shared ownership (via household_members.user_id):', userSharedAssets.rows.length);
-        userSharedAssets.rows.forEach((asset) => {
-            console.log(`  Asset ${asset.id}: "${asset.name}", user_id=${asset.user_id}, member_id=${asset.household_member_id}, type=${asset.ownership_type}`);
-        });
-    }
     const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
     const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
-    console.log('🔍 DEBUG: User Member ID:', userMemberId);
-    if (householdId) {
-        const allMembersDebug = await (0, database_1.query)(`SELECT id, name, user_id FROM household_members WHERE household_id = $1`, [householdId]);
-        console.log('🔍 DEBUG: All household members:', allMembersDebug.rows.length);
-        allMembersDebug.rows.forEach((member) => {
-            console.log(`  Member ${member.id}: "${member.name}", user_id=${member.user_id}${member.user_id === req.user.id ? ' <-- THIS IS THE USER' : ''}`);
-        });
-        const userAsMember = await (0, database_1.query)(`SELECT id, name, user_id FROM household_members WHERE user_id = $1`, [req.user.id]);
-        console.log('🔍 DEBUG: User as household_member records:', userAsMember.rows.length);
-        userAsMember.rows.forEach((member) => {
-            console.log(`  Member ${member.id}: "${member.name}", user_id=${member.user_id}`);
-        });
-    }
     const memberId = household_member_id ? parseInt(household_member_id) : null;
-    console.log('🔍 DEBUG: Filtering by member ID:', memberId);
-    console.log('🔍 DEBUG: Building conditions, household_view:', household_view);
     if (household_view === 'true' && req.user.household_id) {
-        console.log('🔍 DEBUG: Using household view');
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
     }
     else if (memberId && !isNaN(memberId)) {
-        console.log('🔍 DEBUG: Filtering by member, memberId:', memberId);
         const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
       SELECT 1 FROM shared_ownership_distribution 
       WHERE asset_id = a.id 
@@ -432,9 +383,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
-            console.log('🔍 DEBUG: Member filter condition added (with userMemberId)');
-            console.log('🔍 DEBUG: Member condition:', memberCondition);
-            console.log('🔍 DEBUG: User condition:', userCondition);
         }
         else {
             if (householdId) {
@@ -444,9 +392,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                 params.push(memberId);
                 params.push(req.user.id);
                 params.push(householdId);
-                console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking user_id OR household_id)');
-                console.log('🔍 DEBUG: Member condition:', memberCondition);
-                console.log('🔍 DEBUG: User condition:', userCondition);
             }
             else {
                 const userCondition = `a.user_id = $${paramCount++}`;
@@ -454,14 +399,10 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                 params.push(memberId);
                 params.push(memberId);
                 params.push(req.user.id);
-                console.log('🔍 DEBUG: Member filter condition added (no userMemberId, no household_id, user must be creator)');
-                console.log('🔍 DEBUG: Member condition:', memberCondition);
-                console.log('🔍 DEBUG: User condition:', userCondition);
             }
         }
     }
     else {
-        console.log('🔍 DEBUG: Using Personal View (no member filter)');
         if (userMemberId) {
             const personalViewCondition = `(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
@@ -475,7 +416,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
-            console.log('🔍 DEBUG: Personal View condition:', personalViewCondition);
         }
         else {
             if (householdId) {
@@ -490,13 +430,11 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                 conditions.push(personalViewCondition);
                 params.push(req.user.id);
                 params.push(householdId);
-                console.log('🔍 DEBUG: Personal View condition (no userMemberId, checking household_id for shared assets):', personalViewCondition);
             }
             else {
                 const personalViewCondition = `a.user_id = $${paramCount++}`;
                 conditions.push(personalViewCondition);
                 params.push(req.user.id);
-                console.log('🔍 DEBUG: Personal View condition (no userMemberId, no household_id):', personalViewCondition);
             }
         }
     }
@@ -525,16 +463,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         params.push(ownership_type);
     }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    console.log('📋 Assets query conditions count:', conditions.length);
-    console.log('📋 Assets query params:', params);
-    console.log('📋 Assets query params count:', params.length);
-    console.log('📋 Full WHERE clause:', whereClause);
-    console.log('📋 User ID:', req.user.id);
-    console.log('📋 User Member ID:', userMemberId);
-    console.log('📋 Filtering by member:', household_member_id);
-    conditions.forEach((condition, index) => {
-        console.log(`📋 Condition ${index + 1}:`, condition.substring(0, 200));
-    });
     let assetsResult;
     try {
         const finalParams = [...params, parseInt(limit), offset];
@@ -621,14 +549,12 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const total = parseInt(countResult.rows[0].total);
     const assetIds = assetsResult.rows.map(a => a.id);
     let sharedOwnershipMap = {};
-    console.log('📋 Asset IDs to fetch shared ownership for:', assetIds);
     if (assetIds.length > 0) {
         try {
             const sharedOwnershipResult = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
          FROM shared_ownership_distribution sod
          JOIN household_members hm ON sod.household_member_id = hm.id
          WHERE sod.asset_id = ANY($1::int[])`, [assetIds]);
-            console.log('📋 Shared ownership records found:', sharedOwnershipResult.rows.length);
             sharedOwnershipResult.rows.forEach(row => {
                 if (!sharedOwnershipMap[row.asset_id]) {
                     sharedOwnershipMap[row.asset_id] = [];
@@ -640,7 +566,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                     relationship: row.relationship
                 });
             });
-            console.log('📋 Shared ownership map:', Object.keys(sharedOwnershipMap).length, 'assets with shared ownership');
         }
         catch (error) {
             console.error('Error fetching shared ownership:', error);

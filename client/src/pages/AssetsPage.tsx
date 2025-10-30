@@ -148,16 +148,6 @@ const AssetsPage: React.FC = () => {
         ...(selectedMember && { household_member_id: selectedMember })
       });
 
-      console.log('🔵 CLIENT: Fetching assets with params:', {
-        page: currentPage.toString(),
-        limit: '20',
-        category_id: selectedCategory,
-        status: selectedStatus,
-        currency: selectedCurrency,
-        household_member_id: selectedMember
-      });
-      console.log('🔵 CLIENT: Full API URL:', `/api/assets?${params}`);
-
       const response = await fetch(`/api/assets?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -167,57 +157,6 @@ const AssetsPage: React.FC = () => {
       if (!response.ok) throw new Error(t('assets.failedToFetch'));
       
       const data = await response.json();
-      console.log('🔵 CLIENT: Assets API response:', {
-        assetsCount: data.assets?.length || 0,
-        totalAssets: data.pagination?.total || 0,
-        pages: data.pagination?.pages || 1,
-        currentPage: data.pagination?.page || 1,
-        assetIds: data.assets?.map((a: any) => a.id) || [],
-        assetsWithSharedOwnership: data.assets?.filter((a: any) => a.shared_ownership && a.shared_ownership.length > 0).length || 0
-      });
-      
-      // Log each asset's ownership details
-      if (data.assets && data.assets.length > 0) {
-        console.log('🔵 CLIENT: Asset ownership details:');
-        data.assets.forEach((asset: any, index: number) => {
-          const sharedOwnershipDetails = asset.shared_ownership || [];
-          console.log(`  Asset ${index + 1} (ID: ${asset.id}): "${asset.name}"`, {
-            user_id: asset.user_id,
-            household_member_id: asset.household_member_id,
-            ownership_type: asset.ownership_type,
-            has_shared_ownership: sharedOwnershipDetails.length > 0,
-            shared_ownership_count: sharedOwnershipDetails.length,
-            shared_ownership_members: sharedOwnershipDetails.map((so: any) => ({
-              member_id: so.household_member_id,
-              member_name: so.member_name,
-              percentage: so.ownership_percentage
-            }))
-          });
-          
-          // Special log for shared assets
-          if (asset.ownership_type === 'shared' && sharedOwnershipDetails.length > 0) {
-            console.log(`    🔵 SHARED ASSET: "${asset.name}" has ${sharedOwnershipDetails.length} owners:`, 
-              sharedOwnershipDetails.map((so: any) => 
-                `${so.member_name} (member_id=${so.household_member_id}): ${so.ownership_percentage}%`
-              ).join(', ')
-            );
-            
-            // Check if filtered member has ownership
-            if (selectedMember) {
-              const memberHasShare = sharedOwnershipDetails.some((so: any) => 
-                so.household_member_id === parseInt(selectedMember)
-              );
-              console.log(`    🔵 Filtered member (${selectedMember}) has share:`, memberHasShare);
-              if (!memberHasShare && asset.household_member_id !== parseInt(selectedMember)) {
-                console.warn(`    ⚠️ WARNING: Filtered member ${selectedMember} does NOT have ownership in this shared asset!`);
-              }
-            }
-          }
-        });
-      } else {
-        console.log('🔵 CLIENT: ⚠️ NO ASSETS RETURNED - Check server logs for why');
-      }
-      
       setAssets(data.assets || []);
       setTotalPages(data.pagination?.pages || 1);
       setTotalAssets(data.pagination?.total || 0);
