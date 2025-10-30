@@ -518,10 +518,52 @@ router.get('/', asyncHandler(async (req, res) => {
   );
   const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
 
+  // Check if filtering by a specific member
+  const memberId = household_member_id ? parseInt(household_member_id as string) : null;
+
   // Build query conditions
   if (household_view === 'true' && req.user.household_id) {
     conditions.push(`a.household_id = $${paramCount++}`);
     params.push(req.user.household_id);
+  } else if (memberId && !isNaN(memberId)) {
+    // When filtering by a specific member, show assets where:
+    // 1. The selected member is the primary owner (household_member_id), OR
+    // 2. The selected member has shared ownership (in shared_ownership_distribution)
+    // AND the user also has ownership (for Personal View):
+    //    - User is primary owner (user_id), OR
+    //    - User's household member is primary owner (household_member_id), OR
+    //    - User has shared ownership
+    if (userMemberId) {
+      conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id 
+        AND household_member_id = $${paramCount++}
+        AND ownership_percentage >= 1
+      )) AND (a.user_id = $${paramCount++} 
+        OR a.household_member_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          WHERE sod.asset_id = a.id 
+          AND sod.household_member_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`);
+      params.push(memberId); // member filter: member is primary owner
+      params.push(memberId); // member filter: member has shared ownership
+      params.push(req.user.id); // user filter: user is primary owner
+      params.push(userMemberId); // user filter: user's member is primary owner
+      params.push(userMemberId); // user filter: user has shared ownership
+    } else {
+      // Fallback: user has no household member record
+      conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id 
+        AND household_member_id = $${paramCount++}
+        AND ownership_percentage >= 1
+      )) AND a.user_id = $${paramCount++}`);
+      params.push(memberId);
+      params.push(memberId);
+      params.push(req.user.id);
+    }
   } else {
     // Personal view: show assets where user is owner OR user is in shared ownership
     if (userMemberId) {
@@ -529,7 +571,6 @@ router.get('/', asyncHandler(async (req, res) => {
       // 1. User is the primary owner (by user_id), OR
       // 2. User's household member is the primary owner (by household_member_id), OR
       // 3. User is part of shared ownership distribution
-      // Use LEFT JOIN approach to handle shared ownership more reliably
       conditions.push(`(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
         OR EXISTS (
@@ -576,30 +617,6 @@ router.get('/', asyncHandler(async (req, res) => {
   if (ownership_type) {
     conditions.push(`a.ownership_type = $${paramCount++}`);
     params.push(ownership_type);
-  }
-
-  // Filter by household member - show assets where member has ownership (primary or shared)
-  // Note: Personal View filter above already ensures user has ownership
-  // So we just need to ensure the selected member also has ownership
-  if (household_member_id) {
-    const memberId = parseInt(household_member_id as string);
-    if (isNaN(memberId)) {
-      throw createValidationError('Invalid household_member_id');
-    }
-    
-    // When filtering by member, add condition that member must have ownership:
-    // 1. Member is the primary owner (by household_member_id), OR
-    // 2. Member has shared ownership with at least 1%
-    // This is ANDed with Personal View filter (user has ownership), so result shows
-    // assets where BOTH user and selected member have ownership
-    conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
-      SELECT 1 FROM shared_ownership_distribution 
-      WHERE asset_id = a.id 
-      AND household_member_id = $${paramCount++}
-      AND ownership_percentage >= 1
-    ))`);
-    params.push(memberId);
-    params.push(memberId);
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';

@@ -354,9 +354,43 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     let paramCount = 1;
     const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
     const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
+    const memberId = household_member_id ? parseInt(household_member_id) : null;
     if (household_view === 'true' && req.user.household_id) {
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
+    }
+    else if (memberId && !isNaN(memberId)) {
+        if (userMemberId) {
+            conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id 
+        AND household_member_id = $${paramCount++}
+        AND ownership_percentage >= 1
+      )) AND (a.user_id = $${paramCount++} 
+        OR a.household_member_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          WHERE sod.asset_id = a.id 
+          AND sod.household_member_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`);
+            params.push(memberId);
+            params.push(memberId);
+            params.push(req.user.id);
+            params.push(userMemberId);
+            params.push(userMemberId);
+        }
+        else {
+            conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+        SELECT 1 FROM shared_ownership_distribution 
+        WHERE asset_id = a.id 
+        AND household_member_id = $${paramCount++}
+        AND ownership_percentage >= 1
+      )) AND a.user_id = $${paramCount++}`);
+            params.push(memberId);
+            params.push(memberId);
+            params.push(req.user.id);
+        }
     }
     else {
         if (userMemberId) {
@@ -400,20 +434,6 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (ownership_type) {
         conditions.push(`a.ownership_type = $${paramCount++}`);
         params.push(ownership_type);
-    }
-    if (household_member_id) {
-        const memberId = parseInt(household_member_id);
-        if (isNaN(memberId)) {
-            throw (0, errorHandler_1.createValidationError)('Invalid household_member_id');
-        }
-        conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
-      SELECT 1 FROM shared_ownership_distribution 
-      WHERE asset_id = a.id 
-      AND household_member_id = $${paramCount++}
-      AND ownership_percentage >= 1
-    ))`);
-        params.push(memberId);
-        params.push(memberId);
     }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     console.log('📋 Assets query conditions:', conditions.length);
