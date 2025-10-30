@@ -333,7 +333,7 @@ const DashboardPage: React.FC = () => {
       showArrow: true
     },
     {
-      title: 'Active Assets',
+      title: t('dashboard.activeAssets'),
       value: activeAssets.length.toString(),
       icon: Squares2X2Icon,
       color: 'bg-indigo-500',

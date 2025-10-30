@@ -477,14 +477,14 @@ const SettingsPage: React.FC = () => {
                 <div className="card-header">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                     <LanguageIcon className="h-5 w-5 mr-2 text-green-500" />
-                    Language & Currency
+                    {t('settings.languageAndCurrency')}
                   </h3>
                 </div>
                 <div className="card-body">
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="preferred_language" className="form-label">
-                        Preferred Language
+                        {t('settings.preferredLanguage')}
                       </label>
                       <select
                         id="preferred_language"
@@ -771,23 +771,23 @@ const SettingsPage: React.FC = () => {
             <div className="card-header">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
                 <ShieldCheckIcon className="h-5 w-5 mr-2 text-blue-500" />
-                Two-Factor Authentication
+                {t('settings.twoFactorAuth')}
               </h3>
             </div>
             <div className="card-body">
               <div className="space-y-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Add an extra layer of security to your account by enabling two-factor authentication.
+                  {t('settings.twoFactorDescription')}
                 </p>
                 {twoFactorEnabled ? (
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                          Two-Factor Authentication is enabled
+                          {t('settings.twoFactorEnabled')}
                         </p>
                         <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                          Your account is protected with two-factor authentication
+                          {t('settings.twoFactorEnabledDescription')}
                         </p>
                       </div>
                       <CheckIcon className="h-6 w-6 text-green-600" />
@@ -796,22 +796,22 @@ const SettingsPage: React.FC = () => {
                       onClick={handleDisable2FA}
                       className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                     >
-                      Disable 2FA
+                      {t('settings.disable2FA')}
                     </button>
                   </div>
                 ) : (
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-                      Two-Factor Authentication is disabled
+                      {t('settings.twoFactorDisabled')}
                     </h4>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                      Enable two-factor authentication to secure your account with a second verification step.
+                      {t('settings.twoFactorEnableDescription')}
                     </p>
                     <button
                       onClick={() => setShow2FAModal(true)}
                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-                      Enable 2FA
+{t('settings.enable2FA')}
                     </button>
                   </div>
                 )}

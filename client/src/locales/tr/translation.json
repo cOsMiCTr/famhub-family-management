@@ -27,7 +27,15 @@
     "assetValue": "Varlık Değeri",
     "deleteAsset": "Varlık Sil",
     "editAsset": "Varlık Düzenle",
-    "title": "Varlıklar"
+    "title": "Varlıklar",
+    "totalAssets": "Toplam Varlık",
+    "totalValue": "Toplam Değer",
+    "averageROI": "Ortalama ROI",
+    "withROIData": "ROI Verisi Olan",
+    "searchPlaceholder": "Varlık ara...",
+    "filters": "Filtreler",
+    "noAssetsFound": "Varlık bulunamadı",
+    "startByAdding": "İlk varlığınızı ekleyerek başlayın."
   },
   "auth": {
     "completeRegistration": "Kayıt İşlemini Tamamla",
@@ -121,6 +129,10 @@
     "recentIncome": "Son Gelir",
     "title": "Kontrol Panelim",
     "totalAssets": "Toplam Varlık",
+    "totalValue": "Toplam Değer",
+    "averageROI": "Ortalama ROI",
+    "withROIData": "ROI Verisi Olan",
+    "activeAssets": "Aktif Varlıklar",
     "upcomingRenewals": "Yaklaşan Yenilemeler"
   },
   "households": {
@@ -128,9 +140,17 @@
     "deleteHousehold": "Hane Sil",
     "editHousehold": "Hane Düzenle",
     "householdMembers": "Hane Üyeleri",
+    "familyMembers": "Aile Üyeleri",
     "householdName": "Hane Adı",
     "memberCount": "Üye Sayısı",
-    "title": "Hane"
+    "title": "Hane",
+    "noMembersYet": "Henüz aile üyesi yok",
+    "noFamilyMembers": "Aile üyesi yok",
+    "addHouseholdMembers": "Gelir, varlık ve sözleşme atamak için hane üyeleri ekleyin.",
+    "addYourFirstMember": "İlk Üyenizi Ekleyin",
+    "addMember": "Üye Ekle",
+    "member": "üye",
+    "members": "üye"
   },
   "income": {
     "noMembersTitle": "Aile Üyesi Yok",
@@ -188,7 +208,18 @@
     "preferences": "Tercihler",
     "profile": "Profil",
     "theme": "Tema",
-    "title": "Ayarlar"
+    "title": "Ayarlar",
+    "languageAndCurrency": "Dil ve Para Birimi",
+    "preferredLanguage": "Tercih Edilen Dil",
+    "mainCurrency": "Ana Para Birimi",
+    "twoFactorAuth": "İki Faktörlü Kimlik Doğrulama",
+    "twoFactorDescription": "Hesabınıza ek güvenlik katmanı eklemek için iki faktörlü kimlik doğrulamayı etkinleştirin.",
+    "twoFactorDisabled": "İki Faktörlü Kimlik Doğrulama devre dışı",
+    "twoFactorEnabled": "İki Faktörlü Kimlik Doğrulama etkin",
+    "twoFactorEnabledDescription": "Hesabınız iki faktörlü kimlik doğrulama ile korunuyor",
+    "twoFactorEnableDescription": "Hesabınızı ikinci bir doğrulama adımıyla güvence altına almak için iki faktörlü kimlik doğrulamayı etkinleştirin.",
+    "enable2FA": "2FA'yı Etkinleştir",
+    "disable2FA": "2FA'yı Devre Dışı Bırak"
   },
   "translations": {
     "allCategories": "Tüm Kategoriler",

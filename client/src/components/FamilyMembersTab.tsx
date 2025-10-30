@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -24,6 +25,7 @@ interface FamilyMembersTabProps {
 }
 
 const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
+  const { t } = useTranslation();
   const [members, setMembers] = useState<HouseholdMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -181,12 +183,12 @@ const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Family Members
+                {t('households.familyMembers')}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 {members.length === 0 
-                  ? 'No family members yet'
-                  : `${members.length} family ${members.length === 1 ? 'member' : 'members'}`
+                  ? t('households.noMembersYet')
+                  : `${members.length} ${members.length === 1 ? t('households.member') : t('households.members')}`
                 }
               </p>
             </div>
@@ -196,7 +198,7 @@ const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Add Member
+                {t('households.addMember')}
               </button>
             )}
           </div>
@@ -205,10 +207,10 @@ const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
             <div className="text-center py-12">
               <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
-                No family members
+                {t('households.noFamilyMembers')}
               </h3>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Add household members to assign income, assets, and contracts.
+                {t('households.addHouseholdMembers')}
               </p>
               <div className="mt-6">
                 <button
@@ -216,7 +218,7 @@ const FamilyMembersTab: React.FC<FamilyMembersTabProps> = () => {
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
-                  Add Your First Member
+                  {t('households.addYourFirstMember')}
                 </button>
               </div>
             </div>
