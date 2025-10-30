@@ -284,6 +284,38 @@ router.get('/summary', asyncHandler(async (req, res) => {
     params
   );
 
+  // Get shared ownership distributions for personal view calculations
+  let userOwnershipMap: { [key: number]: number } = {};
+  let userMemberId: number | null = null;
+  
+  if (household_view !== 'true') {
+    // Get user's household member ID
+    const userMemberResult = await query(
+      'SELECT id FROM household_members WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    if (userMemberResult.rows.length > 0) {
+      userMemberId = userMemberResult.rows[0].id;
+      const assetIds = assetsResult.rows.map(a => a.id);
+      
+      if (assetIds.length > 0) {
+        // Fetch shared ownership for all assets
+        const sharedOwnershipResult = await query(
+          `SELECT asset_id, ownership_percentage
+           FROM shared_ownership_distribution
+           WHERE asset_id = ANY($1::int[]) AND household_member_id = $2`,
+          [assetIds, userMemberId]
+        );
+        
+        // Build ownership map: asset_id -> ownership_percentage
+        sharedOwnershipResult.rows.forEach(row => {
+          userOwnershipMap[row.asset_id] = parseFloat(row.ownership_percentage);
+        });
+      }
+    }
+  }
+
   // Get exchange rates
   const exchangeRates = await exchangeRateService.getAllExchangeRates();
   const userCurrency = req.user.main_currency || 'USD';
@@ -292,45 +324,97 @@ router.get('/summary', asyncHandler(async (req, res) => {
   const categoryTotals: { [key: string]: { [key: string]: number } } = {};
   const currencyTotals: { [key: string]: number } = {};
   let totalValueInMainCurrency = 0;
+  let assetsWithOwnership = 0;
 
   for (const asset of assetsResult.rows) {
+    let ownershipPercentage = 100; // Default: user owns 100%
+    let includeAsset = true;
+
+    // In Personal View, calculate actual ownership percentage
+    if (household_view !== 'true') {
+      if (asset.user_id === req.user.id) {
+        // User is primary owner - 100% ownership
+        ownershipPercentage = 100;
+      } else if (userMemberId && userOwnershipMap[asset.id]) {
+        // User has shared ownership - use their percentage
+        ownershipPercentage = userOwnershipMap[asset.id];
+      } else {
+        // User has no ownership - exclude this asset
+        includeAsset = false;
+      }
+    }
+
+    // Skip assets where user has no ownership in Personal View
+    if (!includeAsset) {
+      continue;
+    }
+
+    assetsWithOwnership++;
     const categoryName = asset.category_name_en;
     const assetCurrency = asset.currency;
-    const assetValue = parseFloat(asset.current_value || asset.amount);
+    const fullAssetValue = parseFloat(asset.current_value || asset.amount);
+    
+    // Calculate user's actual value based on ownership percentage
+    const userAssetValue = fullAssetValue * (ownershipPercentage / 100);
 
     // Initialize category totals
     if (!categoryTotals[categoryName]) {
       categoryTotals[categoryName] = {};
     }
 
-    // Add to category totals
+    // Add to category totals (user's portion)
     if (!categoryTotals[categoryName][assetCurrency]) {
       categoryTotals[categoryName][assetCurrency] = 0;
     }
-    categoryTotals[categoryName][assetCurrency] += assetValue;
+    categoryTotals[categoryName][assetCurrency] += userAssetValue;
 
-    // Add to currency totals
+    // Add to currency totals (user's portion)
     if (!currencyTotals[assetCurrency]) {
       currencyTotals[assetCurrency] = 0;
     }
-    currencyTotals[assetCurrency] += assetValue;
+    currencyTotals[assetCurrency] += userAssetValue;
 
-    // Convert to main currency
+    // Convert to main currency (user's portion)
     if (assetCurrency === userCurrency) {
-      totalValueInMainCurrency += assetValue;
+      totalValueInMainCurrency += userAssetValue;
     } else {
       const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
       if (rate) {
-        totalValueInMainCurrency += assetValue * rate.rate;
+        totalValueInMainCurrency += userAssetValue * rate.rate;
       }
     }
   }
 
-  // Calculate ROI for assets with purchase price
-  const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
-  const totalROI = assetsWithROI.reduce((sum, asset) => {
+  // Calculate ROI for assets with purchase price (only for assets user owns)
+  const assetsWithROI = [];
+  for (const asset of assetsResult.rows) {
+    if (!asset.purchase_price || parseFloat(asset.purchase_price) <= 0) {
+      continue;
+    }
+
+    let ownershipPercentage = 100;
+    let includeAsset = true;
+
+    // In Personal View, check ownership
+    if (household_view !== 'true') {
+      if (asset.user_id === req.user.id) {
+        ownershipPercentage = 100;
+      } else if (userMemberId && userOwnershipMap[asset.id]) {
+        ownershipPercentage = userOwnershipMap[asset.id];
+      } else {
+        includeAsset = false;
+      }
+    }
+
+    if (includeAsset) {
+      assetsWithROI.push({ asset, ownershipPercentage });
+    }
+  }
+
+  const totalROI = assetsWithROI.reduce((sum, { asset, ownershipPercentage }) => {
     const purchasePrice = parseFloat(asset.purchase_price);
     const currentValue = parseFloat(asset.current_value || asset.amount);
+    // ROI is the same percentage regardless of ownership share
     return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
   }, 0);
   const averageROI = assetsWithROI.length > 0 ? totalROI / assetsWithROI.length : 0;
@@ -345,19 +429,38 @@ router.get('/summary', asyncHandler(async (req, res) => {
     };
   }).sort((a, b) => b.total_value - a.total_value);
 
-  // Calculate allocation by category type
+  // Calculate allocation by category type (only user's portion)
   const typeTotals: { [key: string]: number } = {};
   for (const asset of assetsResult.rows) {
+    let ownershipPercentage = 100;
+    let includeAsset = true;
+
+    // In Personal View, calculate actual ownership percentage
+    if (household_view !== 'true') {
+      if (asset.user_id === req.user.id) {
+        ownershipPercentage = 100;
+      } else if (userMemberId && userOwnershipMap[asset.id]) {
+        ownershipPercentage = userOwnershipMap[asset.id];
+      } else {
+        includeAsset = false;
+      }
+    }
+
+    if (!includeAsset) {
+      continue;
+    }
+
     const categoryType = asset.category_type || 'other';
-    const assetValue = parseFloat(asset.current_value || asset.amount);
+    const fullAssetValue = parseFloat(asset.current_value || asset.amount);
+    const userAssetValue = fullAssetValue * (ownershipPercentage / 100);
     
-    // Convert to main currency
+    // Convert to main currency (user's portion)
     if (asset.currency === userCurrency) {
-      typeTotals[categoryType] = (typeTotals[categoryType] || 0) + assetValue;
+      typeTotals[categoryType] = (typeTotals[categoryType] || 0) + userAssetValue;
     } else {
       const rate = exchangeRates.find(r => r.from_currency === asset.currency && r.to_currency === userCurrency);
       if (rate) {
-        typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (assetValue * rate.rate);
+        typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (userAssetValue * rate.rate);
       }
     }
   }
@@ -370,7 +473,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
 
   res.json({
     summary: {
-      total_assets: assetsResult.rows.length,
+      total_assets: assetsWithOwnership, // Count only assets user owns
       total_value_main_currency: totalValueInMainCurrency,
       main_currency: userCurrency,
       average_roi: averageROI,

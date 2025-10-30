@@ -190,38 +190,95 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
      JOIN asset_categories ac ON a.category_id = ac.id
      ${whereClause}
      ORDER BY a.current_value DESC`, params);
+    let userOwnershipMap = {};
+    let userMemberId = null;
+    if (household_view !== 'true') {
+        const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
+        if (userMemberResult.rows.length > 0) {
+            userMemberId = userMemberResult.rows[0].id;
+            const assetIds = assetsResult.rows.map(a => a.id);
+            if (assetIds.length > 0) {
+                const sharedOwnershipResult = await (0, database_1.query)(`SELECT asset_id, ownership_percentage
+           FROM shared_ownership_distribution
+           WHERE asset_id = ANY($1::int[]) AND household_member_id = $2`, [assetIds, userMemberId]);
+                sharedOwnershipResult.rows.forEach(row => {
+                    userOwnershipMap[row.asset_id] = parseFloat(row.ownership_percentage);
+                });
+            }
+        }
+    }
     const exchangeRates = await exchangeRateService_1.exchangeRateService.getAllExchangeRates();
     const userCurrency = req.user.main_currency || 'USD';
     const categoryTotals = {};
     const currencyTotals = {};
     let totalValueInMainCurrency = 0;
+    let assetsWithOwnership = 0;
     for (const asset of assetsResult.rows) {
+        let ownershipPercentage = 100;
+        let includeAsset = true;
+        if (household_view !== 'true') {
+            if (asset.user_id === req.user.id) {
+                ownershipPercentage = 100;
+            }
+            else if (userMemberId && userOwnershipMap[asset.id]) {
+                ownershipPercentage = userOwnershipMap[asset.id];
+            }
+            else {
+                includeAsset = false;
+            }
+        }
+        if (!includeAsset) {
+            continue;
+        }
+        assetsWithOwnership++;
         const categoryName = asset.category_name_en;
         const assetCurrency = asset.currency;
-        const assetValue = parseFloat(asset.current_value || asset.amount);
+        const fullAssetValue = parseFloat(asset.current_value || asset.amount);
+        const userAssetValue = fullAssetValue * (ownershipPercentage / 100);
         if (!categoryTotals[categoryName]) {
             categoryTotals[categoryName] = {};
         }
         if (!categoryTotals[categoryName][assetCurrency]) {
             categoryTotals[categoryName][assetCurrency] = 0;
         }
-        categoryTotals[categoryName][assetCurrency] += assetValue;
+        categoryTotals[categoryName][assetCurrency] += userAssetValue;
         if (!currencyTotals[assetCurrency]) {
             currencyTotals[assetCurrency] = 0;
         }
-        currencyTotals[assetCurrency] += assetValue;
+        currencyTotals[assetCurrency] += userAssetValue;
         if (assetCurrency === userCurrency) {
-            totalValueInMainCurrency += assetValue;
+            totalValueInMainCurrency += userAssetValue;
         }
         else {
             const rate = exchangeRates.find(r => r.from_currency === assetCurrency && r.to_currency === userCurrency);
             if (rate) {
-                totalValueInMainCurrency += assetValue * rate.rate;
+                totalValueInMainCurrency += userAssetValue * rate.rate;
             }
         }
     }
-    const assetsWithROI = assetsResult.rows.filter(asset => asset.purchase_price && asset.purchase_price > 0);
-    const totalROI = assetsWithROI.reduce((sum, asset) => {
+    const assetsWithROI = [];
+    for (const asset of assetsResult.rows) {
+        if (!asset.purchase_price || parseFloat(asset.purchase_price) <= 0) {
+            continue;
+        }
+        let ownershipPercentage = 100;
+        let includeAsset = true;
+        if (household_view !== 'true') {
+            if (asset.user_id === req.user.id) {
+                ownershipPercentage = 100;
+            }
+            else if (userMemberId && userOwnershipMap[asset.id]) {
+                ownershipPercentage = userOwnershipMap[asset.id];
+            }
+            else {
+                includeAsset = false;
+            }
+        }
+        if (includeAsset) {
+            assetsWithROI.push({ asset, ownershipPercentage });
+        }
+    }
+    const totalROI = assetsWithROI.reduce((sum, { asset, ownershipPercentage }) => {
         const purchasePrice = parseFloat(asset.purchase_price);
         const currentValue = parseFloat(asset.current_value || asset.amount);
         return sum + ((currentValue - purchasePrice) / purchasePrice) * 100;
@@ -237,15 +294,32 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }).sort((a, b) => b.total_value - a.total_value);
     const typeTotals = {};
     for (const asset of assetsResult.rows) {
+        let ownershipPercentage = 100;
+        let includeAsset = true;
+        if (household_view !== 'true') {
+            if (asset.user_id === req.user.id) {
+                ownershipPercentage = 100;
+            }
+            else if (userMemberId && userOwnershipMap[asset.id]) {
+                ownershipPercentage = userOwnershipMap[asset.id];
+            }
+            else {
+                includeAsset = false;
+            }
+        }
+        if (!includeAsset) {
+            continue;
+        }
         const categoryType = asset.category_type || 'other';
-        const assetValue = parseFloat(asset.current_value || asset.amount);
+        const fullAssetValue = parseFloat(asset.current_value || asset.amount);
+        const userAssetValue = fullAssetValue * (ownershipPercentage / 100);
         if (asset.currency === userCurrency) {
-            typeTotals[categoryType] = (typeTotals[categoryType] || 0) + assetValue;
+            typeTotals[categoryType] = (typeTotals[categoryType] || 0) + userAssetValue;
         }
         else {
             const rate = exchangeRates.find(r => r.from_currency === asset.currency && r.to_currency === userCurrency);
             if (rate) {
-                typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (assetValue * rate.rate);
+                typeTotals[categoryType] = (typeTotals[categoryType] || 0) + (userAssetValue * rate.rate);
             }
         }
     }
@@ -256,7 +330,7 @@ router.get('/summary', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     })).sort((a, b) => b.total_value - a.total_value);
     res.json({
         summary: {
-            total_assets: assetsResult.rows.length,
+            total_assets: assetsWithOwnership,
             total_value_main_currency: totalValueInMainCurrency,
             main_currency: userCurrency,
             average_roi: averageROI,

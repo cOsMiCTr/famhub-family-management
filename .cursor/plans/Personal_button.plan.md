@@ -1,4 +1,3 @@
-<!-- 91466788-b2f4-40c7-8daa-264ce5e5998b a52cdd3e-9132-4e0a-b880-d93263f7399e -->
 # Fix Personal View Button Functionality
 
 ## Problem
@@ -6,10 +5,11 @@
 - Button click doesn't visually update (likely working but numbers don't reflect ownership)
 - Summary calculation includes full asset value even when user only owns a percentage share
 - Personal View should show user's actual valuation, not household totals
+- Assets where user has no ownership should be completely hidden in Personal View
 
 ## Solution
 
-Update the backend summary endpoint to calculate values based on actual ownership percentages when in Personal View. Assets where the user has no ownership (not primary owner AND not in shared ownership) must be completely hidden.
+Update the backend summary endpoint to calculate values based on actual ownership percentages when in Personal View. Assets without user ownership must be filtered out completely.
 
 ## Changes Required
 
@@ -29,11 +29,6 @@ Update the backend summary endpoint to calculate values based on actual ownershi
    - Ensure `/api/assets` GET endpoint (lines 388-586) also properly filters out assets with no user ownership in Personal View
    - The existing query logic should already do this, but verify it's working correctly
 
-### 2. Update Asset Listing Endpoint (`src/routes/assets.ts`)
-
-   - Modify `/api/assets` GET endpoint (lines 388-586)
-   - In Personal View, already filters correctly but consider adding ownership percentage to response for frontend display
-
 ### 3. Frontend Verification (`client/src/pages/AssetsPage.tsx`)
 
    - Verify button state updates properly (lines 476-486)
@@ -45,6 +40,7 @@ Update the backend summary endpoint to calculate values based on actual ownershi
 
    - Test with assets where user owns 100%
    - Test with shared ownership assets (e.g., user owns 30%)
+   - Test with assets where user has no ownership (should be hidden in Personal View)
    - Verify totals match expected percentage calculations
    - Ensure Household View still shows full totals
    - Verify button visual state updates correctly
@@ -58,9 +54,13 @@ IF household_view != 'true' THEN
   FOR EACH asset:
     IF user is primary owner (a.user_id = req.user.id):
       value = full_asset_value
+      include asset in results
     ELSE IF user has shared ownership:
       ownership_percentage = get from shared_ownership_distribution
       value = asset_value * (ownership_percentage / 100)
+      include asset in results
+    ELSE:
+      exclude asset completely (user has no ownership)
     ADD value to totals
 END IF
 ```
@@ -69,21 +69,3 @@ END IF
 
 - `src/routes/assets.ts` - Summary and listing endpoints
 - `client/src/pages/AssetsPage.tsx` - Verify frontend triggers updates
-
-### To-dos
-
-- [ ] Install knex and @types/knex packages, update package.json scripts
-- [ ] Create src/database/knexfile.ts with Heroku-compatible configuration for development, staging, and production environments
-- [ ] Create src/database/connection.ts to export Knex instance and maintain backward compatibility with existing pool export
-- [ ] Create 0000000000000_initial_schema.ts migration with all 21 tables, respecting foreign key dependencies and converting PostgreSQL-specific types (JSONB, ARRAY, CHECK constraints)
-- [ ] Create sequential migrations for all column additions (user security columns, asset enhancements, etc.) with proper down() functions
-- [ ] Create migration for all 17+ indexes with down() functions
-- [ ] Create migration for foreign key constraint updates (CASCADE changes) with rollback support
-- [ ] Move seed files from src/migrations/ to src/database/seeds/ and rename to Knex convention (01_currencies.ts, etc.)
-- [ ] Convert all 4 seed files to use Knex instance, make idempotent with existence checks before insert
-- [ ] Update initializeDatabase() to use knex.migrate.latest() instead of runMigrations(), preserve seed conditional logic with Knex seeds
-- [ ] Update Procfile with release phase for migrations or update heroku-postbuild script, verify DATABASE_URL usage
-- [ ] Test migrations on fresh database and existing database locally, verify all tables/indexes created correctly
-- [ ] Deploy to staging Heroku instance, run migrations in release phase, verify data integrity and functionality
-- [ ] Create database backup, deploy to production with migrations, monitor for errors, verify application functionality
-- [ ] Remove runMigrations() function from database.ts after successful production migration, keep query() helper and pool export
