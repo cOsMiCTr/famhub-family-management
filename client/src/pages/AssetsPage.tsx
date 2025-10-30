@@ -144,7 +144,8 @@ const AssetsPage: React.FC = () => {
         limit: '20',
         ...(selectedCategory && { category_id: selectedCategory }),
         ...(selectedStatus && { status: selectedStatus }),
-        ...(selectedCurrency && { currency: selectedCurrency })
+        ...(selectedCurrency && { currency: selectedCurrency }),
+        ...(selectedMember && { household_member_id: selectedMember })
       });
 
       const response = await fetch(`/api/assets?${params}`, {

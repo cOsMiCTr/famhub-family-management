@@ -347,7 +347,7 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (!req.user) {
         throw new Error('User not authenticated');
     }
-    const { page = 1, limit = 50, category_id, currency, start_date, end_date, status, ownership_type, household_view = false } = req.query;
+    const { page = 1, limit = 50, category_id, currency, start_date, end_date, status, ownership_type, household_member_id, household_view = false } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const conditions = [];
     const params = [];
@@ -395,6 +395,17 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (ownership_type) {
         conditions.push(`a.ownership_type = $${paramCount++}`);
         params.push(ownership_type);
+    }
+    if (household_member_id) {
+        const memberId = parseInt(household_member_id);
+        conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+      SELECT 1 FROM shared_ownership_distribution 
+      WHERE asset_id = a.id 
+      AND household_member_id = $${paramCount} 
+      AND ownership_percentage >= 1
+    ))`);
+        params.push(memberId);
+        params.push(memberId);
     }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,

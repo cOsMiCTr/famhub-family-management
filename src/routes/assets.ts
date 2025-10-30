@@ -502,6 +502,7 @@ router.get('/', asyncHandler(async (req, res) => {
     end_date,
     status,
     ownership_type,
+    household_member_id,
     household_view = false 
   } = req.query;
 
@@ -568,6 +569,22 @@ router.get('/', asyncHandler(async (req, res) => {
   if (ownership_type) {
     conditions.push(`a.ownership_type = $${paramCount++}`);
     params.push(ownership_type);
+  }
+
+  // Filter by household member - show assets where member is primary owner OR has at least 1% share
+  if (household_member_id) {
+    const memberId = parseInt(household_member_id as string);
+    // Include assets where:
+    // 1. Member is the primary owner (a.household_member_id = memberId), OR
+    // 2. Member has shared ownership with at least 1% (in shared_ownership_distribution)
+    conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+      SELECT 1 FROM shared_ownership_distribution 
+      WHERE asset_id = a.id 
+      AND household_member_id = $${paramCount} 
+      AND ownership_percentage >= 1
+    ))`);
+    params.push(memberId);
+    params.push(memberId);
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
