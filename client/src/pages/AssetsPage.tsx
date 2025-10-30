@@ -138,19 +138,20 @@ const AssetsPage: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Fetch data
-  const fetchAssets = async () => {
+  const fetchAssets = async (viewType?: boolean) => {
     try {
       if (!switchingView) {
         setLoading(true);
       }
       const token = localStorage.getItem('token');
+      const view = viewType !== undefined ? viewType : householdView;
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20',
         ...(selectedCategory && { category_id: selectedCategory }),
         ...(selectedStatus && { status: selectedStatus }),
         ...(selectedCurrency && { currency: selectedCurrency }),
-        ...(householdView && { household_view: 'true' })
+        ...(view && { household_view: 'true' })
       });
 
       const response = await fetch(`/api/assets?${params}`, {
@@ -168,9 +169,9 @@ const AssetsPage: React.FC = () => {
     } catch (err) {
       console.error('❌ Error fetching assets:', err);
       setError(err instanceof Error ? err.message : t('assets.failedToFetch'));
+      throw err;
     } finally {
       setLoading(false);
-      setSwitchingView(false);
     }
   };
 
@@ -210,11 +211,12 @@ const AssetsPage: React.FC = () => {
     }
   };
 
-  const fetchSummary = async () => {
+  const fetchSummary = async (viewType?: boolean) => {
     try {
       const token = localStorage.getItem('token');
+      const view = viewType !== undefined ? viewType : householdView;
       const params = new URLSearchParams({
-        ...(householdView && { household_view: 'true' })
+        ...(view && { household_view: 'true' })
       });
       
       const response = await fetch(`/api/assets/summary?${params}`, {
@@ -229,8 +231,7 @@ const AssetsPage: React.FC = () => {
       setSummary(data.summary);
     } catch (err) {
       console.error('Failed to fetch summary:', err);
-    } finally {
-      setSwitchingView(false);
+      throw err;
     }
   };
 
@@ -252,13 +253,29 @@ const AssetsPage: React.FC = () => {
     }
   };
 
+  // Refetch data when householdView changes
   useEffect(() => {
-    fetchSummary();
-  }, [householdView]);
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          fetchSummary(householdView),
+          fetchAssets(householdView)
+        ]);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      } finally {
+        setSwitchingView(false);
+      }
+    };
+    
+    fetchData();
+  }, [householdView]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Refetch assets when filters or pagination changes (but not when householdView changes)
   useEffect(() => {
+    if (switchingView) return; // Don't fetch if switching view (handled by above effect)
     fetchAssets();
-  }, [currentPage, selectedCategory, selectedStatus, selectedCurrency, householdView]);
+  }, [currentPage, selectedCategory, selectedStatus, selectedCurrency]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchCategories();
