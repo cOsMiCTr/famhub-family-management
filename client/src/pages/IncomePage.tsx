@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -7,7 +8,8 @@ import {
   CurrencyDollarIcon,
   CalendarIcon,
   UserIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SearchableCategorySelector from '../components/SearchableCategorySelector';
@@ -81,6 +83,7 @@ interface IncomeSummary {
 
 const IncomePage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
   const [categories, setCategories] = useState<IncomeCategory[]>([]);
   const [members, setMembers] = useState<HouseholdMember[]>([]);
@@ -92,6 +95,7 @@ const IncomePage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showNoMembersWarning, setShowNoMembersWarning] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<IncomeEntry | null>(null);
   const [filters, setFilters] = useState({
     start_date: '',
@@ -499,6 +503,11 @@ const IncomePage: React.FC = () => {
               </button>
               <button
                 onClick={() => {
+                  // Check if there are any family members
+                  if (members.length === 0) {
+                    setShowNoMembersWarning(true);
+                    return;
+                  }
                   setShowAddModal(true);
                   // Set currency to user's preference when opening add modal
                   if (userPreferences?.currency) {
@@ -1097,6 +1106,54 @@ const IncomePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* No Members Warning Modal */}
+      {showNoMembersWarning && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowNoMembersWarning(false)}></div>
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+                    <ExclamationTriangleIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    {t('income.noMembersTitle') || 'No Family Members'}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                    {t('income.noMembersMessage') || 'You need to add at least one family member before you can add income entries.'}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
+                    {t('income.noMembersQuestion') || 'Would you like to go to Family Members and add one now?'}
+                  </p>
+                </div>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNoMembersWarning(false);
+                    navigate('/settings?tab=family-members');
+                  }}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  {t('income.goToFamilyMembers') || 'Go to Family Members'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNoMembersWarning(false)}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 sm:mt-0 sm:w-auto sm:text-sm"
+                >
+                  {t('common.cancel') || 'Cancel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
