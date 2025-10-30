@@ -132,12 +132,9 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onClick, className = '' })
           <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
             asset.ownership_type === 'shared'
               ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-              : asset.ownership_type === 'household'
-              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
               : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
           }`}>
-            {asset.ownership_type === 'shared' ? 'Shared' :
-             asset.ownership_type === 'household' ? 'Household' : 'Individual'}
+            {asset.ownership_type === 'shared' ? 'Shared' : 'Individual'}
             {asset.ownership_percentage && asset.ownership_percentage < 100 && ` (${asset.ownership_percentage}%)`}
           </span>
         </div>

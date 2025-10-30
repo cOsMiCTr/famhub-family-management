@@ -157,7 +157,6 @@ export const getOwnershipColor = (type: string): string => {
   switch (type) {
     case 'single': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
     case 'shared': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-    case 'household': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
     default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
   }
 };
@@ -242,8 +241,6 @@ export const getOwnershipDisplayText = (type: string, percentage: number): strin
       return '100% Owned';
     case 'shared':
       return `${percentage}% Shared`;
-    case 'household':
-      return 'Household Shared';
     default:
       return 'Unknown';
   }
