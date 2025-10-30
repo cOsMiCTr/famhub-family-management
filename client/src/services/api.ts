@@ -292,6 +292,31 @@ class ApiService {
     return response.data;
   }
 
+  async getSecurityMetrics() {
+    const response = await this.api.get('/admin/security-metrics');
+    return response.data;
+  }
+
+  async getSecurityEvents(page: number = 1, limit: number = 50, filters: any = {}) {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...filters
+    });
+    const response = await this.api.get(`/admin/security-events?${params}`);
+    return response.data;
+  }
+
+  async getSecurityAnalytics(days: number = 30) {
+    const response = await this.api.get(`/admin/security-analytics?days=${days}`);
+    return response.data;
+  }
+
+  async getSecurityAlerts() {
+    const response = await this.api.get('/admin/security-alerts');
+    return response.data;
+  }
+
   async getAdminDashboardStats(page: number = 1, date: string = '', filter: string = 'all') {
     const response = await this.api.get('/admin/dashboard-stats', { 
       params: { page, date, filter } 

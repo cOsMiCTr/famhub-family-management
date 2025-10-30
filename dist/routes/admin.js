@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -431,6 +464,40 @@ router.get('/security-dashboard', (0, errorHandler_1.asyncHandler)(async (req, r
         locked_accounts: lockedAccounts.rows,
         pending_password_changes: pendingPasswordChanges.rows
     });
+}));
+router.get('/security-metrics', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { EnhancedSecurityService } = await Promise.resolve().then(() => __importStar(require('../services/enhancedSecurityService')));
+    const metrics = await EnhancedSecurityService.getSecurityMetrics();
+    res.json(metrics);
+}));
+router.get('/security-events', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { EnhancedSecurityService } = await Promise.resolve().then(() => __importStar(require('../services/enhancedSecurityService')));
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const filters = {
+        dateRange: req.query.startDate && req.query.endDate ? {
+            start: req.query.startDate,
+            end: req.query.endDate
+        } : undefined,
+        severity: req.query.severity ? req.query.severity.split(',') : undefined,
+        eventTypes: req.query.eventTypes ? req.query.eventTypes.split(',') : undefined,
+        userIds: req.query.userIds ? req.query.userIds.split(',').map(Number) : undefined,
+        ipAddresses: req.query.ipAddresses ? req.query.ipAddresses.split(',') : undefined,
+        searchTerm: req.query.search
+    };
+    const result = await EnhancedSecurityService.getSecurityEvents(page, limit, filters);
+    res.json(result);
+}));
+router.get('/security-analytics', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { EnhancedSecurityService } = await Promise.resolve().then(() => __importStar(require('../services/enhancedSecurityService')));
+    const days = parseInt(req.query.days) || 30;
+    const analytics = await EnhancedSecurityService.getSecurityAnalytics(days);
+    res.json(analytics);
+}));
+router.get('/security-alerts', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { EnhancedSecurityService } = await Promise.resolve().then(() => __importStar(require('../services/enhancedSecurityService')));
+    const alerts = await EnhancedSecurityService.getRealTimeAlerts();
+    res.json(alerts);
 }));
 router.get('/households', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const householdsResult = await (0, database_1.query)(`SELECT h.id, h.name, h.created_at, h.updated_at,

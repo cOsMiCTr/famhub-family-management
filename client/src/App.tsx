@@ -24,6 +24,7 @@ import IncomeCategoriesPage from './pages/IncomeCategoriesPage';
 import AssetCategoriesPage from './pages/AssetCategoriesPage';
 import CurrencyManagementPage from './pages/CurrencyManagementPage';
 import VoucherManagementPage from './pages/VoucherManagementPage';
+import EnhancedSecurityDashboard from './pages/EnhancedSecurityDashboard';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -245,6 +246,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute requireAdmin>
               <Layout>
                 <VoucherManagementPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/security-enhanced"
+          element={
+            <ProtectedRoute requireAdmin>
+              <Layout>
+                <EnhancedSecurityDashboard />
               </Layout>
             </ProtectedRoute>
           }

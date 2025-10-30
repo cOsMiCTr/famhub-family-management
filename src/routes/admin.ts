@@ -676,7 +676,7 @@ router.delete('/notifications/:id', asyncHandler(async (req, res) => {
   });
 }));
 
-// Security dashboard endpoint
+// Enhanced security dashboard endpoint
 router.get('/security-dashboard', asyncHandler(async (req, res) => {
   const [
     loginStats,
@@ -710,6 +710,51 @@ router.get('/security-dashboard', asyncHandler(async (req, res) => {
     locked_accounts: lockedAccounts.rows,
     pending_password_changes: pendingPasswordChanges.rows
   });
+}));
+
+// Enhanced security metrics endpoint
+router.get('/security-metrics', asyncHandler(async (req, res) => {
+  const { EnhancedSecurityService } = await import('../services/enhancedSecurityService');
+  const metrics = await EnhancedSecurityService.getSecurityMetrics();
+  res.json(metrics);
+}));
+
+// Security events endpoint with filtering
+router.get('/security-events', asyncHandler(async (req, res) => {
+  const { EnhancedSecurityService } = await import('../services/enhancedSecurityService');
+  
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 50;
+  
+  const filters = {
+    dateRange: req.query.startDate && req.query.endDate ? {
+      start: req.query.startDate as string,
+      end: req.query.endDate as string
+    } : undefined,
+    severity: req.query.severity ? (req.query.severity as string).split(',') : undefined,
+    eventTypes: req.query.eventTypes ? (req.query.eventTypes as string).split(',') : undefined,
+    userIds: req.query.userIds ? (req.query.userIds as string).split(',').map(Number) : undefined,
+    ipAddresses: req.query.ipAddresses ? (req.query.ipAddresses as string).split(',') : undefined,
+    searchTerm: req.query.search as string
+  };
+
+  const result = await EnhancedSecurityService.getSecurityEvents(page, limit, filters);
+  res.json(result);
+}));
+
+// Security analytics endpoint
+router.get('/security-analytics', asyncHandler(async (req, res) => {
+  const { EnhancedSecurityService } = await import('../services/enhancedSecurityService');
+  const days = parseInt(req.query.days as string) || 30;
+  const analytics = await EnhancedSecurityService.getSecurityAnalytics(days);
+  res.json(analytics);
+}));
+
+// Real-time security alerts endpoint
+router.get('/security-alerts', asyncHandler(async (req, res) => {
+  const { EnhancedSecurityService } = await import('../services/enhancedSecurityService');
+  const alerts = await EnhancedSecurityService.getRealTimeAlerts();
+  res.json(alerts);
 }));
 
 // Household management endpoints
