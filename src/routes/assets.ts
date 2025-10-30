@@ -669,8 +669,8 @@ router.get('/', asyncHandler(async (req, res) => {
   // Get assets with pagination
   let assetsResult;
   try {
-    const finalParams = [...params, parseInt(limit as string), offset];
-    const querySql = `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
+    assetsResult = await query(
+      `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
               ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
        FROM assets a
        JOIN asset_categories ac ON a.category_id = ac.id
@@ -678,85 +678,9 @@ router.get('/', asyncHandler(async (req, res) => {
        JOIN users u ON a.user_id = u.id
        ${whereClause}
        ORDER BY a.date DESC, a.created_at DESC
-       LIMIT $${paramCount++} OFFSET $${paramCount++}`;
-    console.log('📋 Final SQL Query:', querySql.substring(0, 500));
-    console.log('📋 Final Query Params:', finalParams);
-    
-    assetsResult = await query(querySql, finalParams);
-    
-    console.log('📋 Assets returned:', assetsResult.rows.length);
-    console.log('📋 All returned asset IDs:', assetsResult.rows.map((a: any) => a.id));
-    if (assetsResult.rows.length > 0) {
-      assetsResult.rows.forEach((asset: any, index: number) => {
-        console.log(`📋 Asset ${index + 1}:`, {
-          id: asset.id,
-          name: asset.name,
-          user_id: asset.user_id,
-          household_member_id: asset.household_member_id,
-          ownership_type: asset.ownership_type
-        });
-      });
-    } else {
-      console.log('📋 NO ASSETS RETURNED - This is the problem!');
-      
-      // Debug: Check what should be returned
-      console.log('📋 DEBUG: Checking what assets SHOULD be returned...');
-      
-      // Test member condition alone
-      if (memberId && !isNaN(memberId)) {
-        const memberOnlyTest = await query(
-          `SELECT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type
-           FROM assets a
-           WHERE (a.household_member_id = $1 OR EXISTS (
-             SELECT 1 FROM shared_ownership_distribution 
-             WHERE asset_id = a.id 
-             AND household_member_id = $1
-             AND ownership_percentage >= 1
-           ))`,
-          [memberId]
-        );
-        console.log(`📋 DEBUG: Assets where member ${memberId} has ownership (without user filter):`, memberOnlyTest.rows.length);
-        memberOnlyTest.rows.forEach((a: any) => {
-          console.log(`  - Asset ${a.id}: ${a.name}, user_id=${a.user_id}, member_id=${a.household_member_id}`);
-        });
-      }
-      
-      // Test user condition alone
-      if (userMemberId) {
-        const userOnlyTest = await query(
-          `SELECT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type
-           FROM assets a
-           WHERE (a.user_id = $1 OR a.household_member_id = $2 OR EXISTS (
-             SELECT 1 FROM shared_ownership_distribution sod 
-             WHERE sod.asset_id = a.id 
-             AND sod.household_member_id = $2
-             AND sod.ownership_percentage > 0
-           ))`,
-          [req.user.id, userMemberId]
-        );
-        console.log(`📋 DEBUG: Assets where user ${req.user.id} has ownership (with userMemberId):`, userOnlyTest.rows.length);
-        userOnlyTest.rows.forEach((a: any) => {
-          console.log(`  - Asset ${a.id}: ${a.name}, user_id=${a.user_id}, member_id=${a.household_member_id}`);
-        });
-      } else {
-        const userOnlyTest = await query(
-          `SELECT a.id, a.name, a.user_id, a.household_member_id, a.ownership_type
-           FROM assets a
-           WHERE (a.user_id = $1 OR EXISTS (
-             SELECT 1 FROM shared_ownership_distribution sod 
-             JOIN household_members hm ON sod.household_member_id = hm.id
-             WHERE sod.asset_id = a.id 
-             AND hm.user_id = $1
-             AND sod.ownership_percentage > 0
-           ))`,
-          [req.user.id]
-        );
-        console.log(`📋 DEBUG: Assets where user ${req.user.id} has ownership (no userMemberId):`, userOnlyTest.rows.length);
-        userOnlyTest.rows.forEach((a: any) => {
-          console.log(`  - Asset ${a.id}: ${a.name}, user_id=${a.user_id}, member_id=${a.household_member_id}`);
-        });
-      }
-    }
+       LIMIT $${paramCount++} OFFSET $${paramCount++}`,
+      [...params, parseInt(limit as string), offset]
+    );
   } catch (error) {
     console.error('❌ Error in assets query:', error);
     throw error;
