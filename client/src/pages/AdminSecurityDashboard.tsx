@@ -230,6 +230,8 @@ const AdminSecurityDashboard: React.FC = () => {
       console.log('Dashboard data:', dashboardData);
       console.log('Notifications data:', notificationsData);
       console.log('Notification counts:', dashboardData.notifications);
+      console.log('Notifications array:', notificationsData.notifications);
+      console.log('Notifications length:', notificationsData.notifications?.length || 0);
 
       // Enhanced data
       setMetrics(metricsData);
@@ -1093,11 +1095,11 @@ const AdminSecurityDashboard: React.FC = () => {
                               </span>
                             )}
                             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              notification.type === 'error' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
-                              notification.type === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
+                              notification.severity === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' :
+                              notification.severity === 'warning' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' :
                               'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                             }`}>
-                              {notification.type.toUpperCase()}
+                              {notification.severity?.toUpperCase() || notification.type?.toUpperCase() || 'INFO'}
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
