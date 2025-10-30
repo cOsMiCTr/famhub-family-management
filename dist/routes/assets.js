@@ -352,33 +352,46 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const conditions = [];
     const params = [];
     let paramCount = 1;
+    console.log('🔍 DEBUG: Starting asset query');
+    console.log('🔍 DEBUG: User ID:', req.user.id);
+    console.log('🔍 DEBUG: Query params:', { page, limit, category_id, currency, start_date, end_date, status, ownership_type, household_member_id, household_view });
     const userMemberResult = await (0, database_1.query)('SELECT id FROM household_members WHERE user_id = $1', [req.user.id]);
     const userMemberId = userMemberResult.rows.length > 0 ? userMemberResult.rows[0].id : null;
+    console.log('🔍 DEBUG: User Member ID:', userMemberId);
     const memberId = household_member_id ? parseInt(household_member_id) : null;
+    console.log('🔍 DEBUG: Filtering by member ID:', memberId);
+    console.log('🔍 DEBUG: Building conditions, household_view:', household_view);
     if (household_view === 'true' && req.user.household_id) {
+        console.log('🔍 DEBUG: Using household view');
         conditions.push(`a.household_id = $${paramCount++}`);
         params.push(req.user.household_id);
     }
     else if (memberId && !isNaN(memberId)) {
+        console.log('🔍 DEBUG: Filtering by member, memberId:', memberId);
         if (userMemberId) {
-            conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
+            const memberCondition = `(a.household_member_id = $${paramCount++} OR EXISTS (
         SELECT 1 FROM shared_ownership_distribution 
         WHERE asset_id = a.id 
         AND household_member_id = $${paramCount++}
         AND ownership_percentage >= 1
-      )) AND (a.user_id = $${paramCount++} 
+      ))`;
+            const userCondition = `(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
         OR EXISTS (
           SELECT 1 FROM shared_ownership_distribution sod 
           WHERE sod.asset_id = a.id 
           AND sod.household_member_id = $${paramCount++}
           AND sod.ownership_percentage > 0
-        ))`);
+        ))`;
+            conditions.push(`${memberCondition} AND ${userCondition}`);
             params.push(memberId);
             params.push(memberId);
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
+            console.log('🔍 DEBUG: Member filter condition added');
+            console.log('🔍 DEBUG: Member condition:', memberCondition);
+            console.log('🔍 DEBUG: User condition:', userCondition);
         }
         else {
             conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
@@ -393,20 +406,24 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         }
     }
     else {
+        console.log('🔍 DEBUG: Using Personal View (no member filter)');
         if (userMemberId) {
-            conditions.push(`(a.user_id = $${paramCount++} 
+            const personalViewCondition = `(a.user_id = $${paramCount++} 
         OR a.household_member_id = $${paramCount++} 
         OR EXISTS (
           SELECT 1 FROM shared_ownership_distribution sod 
           WHERE sod.asset_id = a.id 
           AND sod.household_member_id = $${paramCount++}
           AND sod.ownership_percentage > 0
-        ))`);
+        ))`;
+            conditions.push(personalViewCondition);
             params.push(req.user.id);
             params.push(userMemberId);
             params.push(userMemberId);
+            console.log('🔍 DEBUG: Personal View condition:', personalViewCondition);
         }
         else {
+            console.log('🔍 DEBUG: No userMemberId, using user_id only');
             conditions.push(`a.user_id = $${paramCount++}`);
             params.push(req.user.id);
         }
@@ -436,15 +453,20 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         params.push(ownership_type);
     }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    console.log('📋 Assets query conditions:', conditions.length);
+    console.log('📋 Assets query conditions count:', conditions.length);
+    console.log('📋 Assets query params:', params);
     console.log('📋 Assets query params count:', params.length);
-    console.log('📋 Assets query where clause:', whereClause.substring(0, 300));
+    console.log('📋 Full WHERE clause:', whereClause);
     console.log('📋 User ID:', req.user.id);
     console.log('📋 User Member ID:', userMemberId);
     console.log('📋 Filtering by member:', household_member_id);
+    conditions.forEach((condition, index) => {
+        console.log(`📋 Condition ${index + 1}:`, condition.substring(0, 200));
+    });
     let assetsResult;
     try {
-        assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
+        const finalParams = [...params, parseInt(limit), offset];
+        const querySql = `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
               ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
        FROM assets a
        JOIN asset_categories ac ON a.category_id = ac.id
@@ -452,7 +474,20 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
        JOIN users u ON a.user_id = u.id
        ${whereClause}
        ORDER BY a.date DESC, a.created_at DESC
-       LIMIT $${paramCount++} OFFSET $${paramCount++}`, [...params, parseInt(limit), offset]);
+       LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+        console.log('📋 Final SQL Query:', querySql.substring(0, 500));
+        console.log('📋 Final Query Params:', finalParams);
+        assetsResult = await (0, database_1.query)(querySql, finalParams);
+        console.log('📋 Assets returned:', assetsResult.rows.length);
+        if (assetsResult.rows.length > 0) {
+            console.log('📋 First asset sample:', {
+                id: assetsResult.rows[0].id,
+                name: assetsResult.rows[0].name,
+                user_id: assetsResult.rows[0].user_id,
+                household_member_id: assetsResult.rows[0].household_member_id,
+                ownership_type: assetsResult.rows[0].ownership_type
+            });
+        }
     }
     catch (error) {
         console.error('❌ Error in assets query:', error);
@@ -464,12 +499,14 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const total = parseInt(countResult.rows[0].total);
     const assetIds = assetsResult.rows.map(a => a.id);
     let sharedOwnershipMap = {};
+    console.log('📋 Asset IDs to fetch shared ownership for:', assetIds);
     if (assetIds.length > 0) {
         try {
             const sharedOwnershipResult = await (0, database_1.query)(`SELECT sod.asset_id, sod.household_member_id, sod.ownership_percentage, hm.name as member_name, hm.relationship
          FROM shared_ownership_distribution sod
          JOIN household_members hm ON sod.household_member_id = hm.id
          WHERE sod.asset_id = ANY($1::int[])`, [assetIds]);
+            console.log('📋 Shared ownership records found:', sharedOwnershipResult.rows.length);
             sharedOwnershipResult.rows.forEach(row => {
                 if (!sharedOwnershipMap[row.asset_id]) {
                     sharedOwnershipMap[row.asset_id] = [];
@@ -481,6 +518,7 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
                     relationship: row.relationship
                 });
             });
+            console.log('📋 Shared ownership map:', Object.keys(sharedOwnershipMap).length, 'assets with shared ownership');
         }
         catch (error) {
             console.error('Error fetching shared ownership:', error);
