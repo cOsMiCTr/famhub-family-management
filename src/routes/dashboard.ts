@@ -201,7 +201,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
   if (hasIncomeModule && hasAssetsModule) {
     quickStatsQuery = `SELECT 
        COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
-       COUNT(CASE WHEN ac.type = если 'expense' THEN 1 END) as expense_entries,
+       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
        0 as active_contracts
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
