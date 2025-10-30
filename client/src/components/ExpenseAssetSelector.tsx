@@ -34,7 +34,7 @@ const ExpenseAssetSelector: React.FC<ExpenseAssetSelectorProps> = ({
       try {
         setLoading(true);
         const response = await apiService.get('/expenses/linkable-assets');
-        setAssets(response);
+        setAssets(response.data || response);
         setErrorMessage(null);
       } catch (err: any) {
         console.error('Error fetching linkable assets:', err);

@@ -33,7 +33,7 @@ const ExpenseMemberMultiSelect: React.FC<ExpenseMemberMultiSelectProps> = ({
       try {
         setLoading(true);
         const response = await apiService.get('/expenses/linkable-members');
-        setMembers(response);
+        setMembers(response.data || response);
         setErrorMessage(null);
       } catch (err: any) {
         console.error('Error fetching linkable members:', err);

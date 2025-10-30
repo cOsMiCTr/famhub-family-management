@@ -250,7 +250,7 @@ const ExpensesPage: React.FC = () => {
         }
       });
       
-      const [expenseRes, categoriesRes, membersRes, summaryRes, settingsRes] = await Promise.all([
+      const [expenseRes, categoriesRes, membersRes, summaryRes, settingsRes, assetsRes] = await Promise.all([
         fetch(`/api/expenses?${expenseParams}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
@@ -264,6 +264,9 @@ const ExpensesPage: React.FC = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
         fetch('/api/settings', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('/api/expenses/linkable-assets', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -985,7 +988,8 @@ const ExpensesPage: React.FC = () => {
                         id: cat.id,
                         name_en: cat.name_en,
                         name_de: cat.name_de,
-                        name_tr: cat.name_tr
+                        name_tr: cat.name_tr,
+                        is_default: cat.is_default || false
                       }))}
                       selectedCategoryId={formData.category_id}
                       onCategoryChange={(categoryId) => setFormData({ ...formData, category_id: categoryId })}
