@@ -132,16 +132,10 @@ async function initializeDatabase() {
         }
         const modulesClient = await exports.pool.connect();
         try {
-            const modulesCount = await modulesClient.query('SELECT COUNT(*) as count FROM modules');
-            if (parseInt(modulesCount.rows[0].count) === 0) {
-                console.log('🌱 Seeding modules...');
-                const { seed: seedModules } = await Promise.resolve().then(() => __importStar(require('../database/seeds/05_modules')));
-                await seedModules(db);
-                console.log('✅ Modules seeded successfully');
-            }
-            else {
-                console.log('✅ Modules are intact');
-            }
+            console.log('🌱 Seeding modules...');
+            const { seed: seedModules } = await Promise.resolve().then(() => __importStar(require('../database/seeds/05_modules')));
+            await seedModules(db);
+            console.log('✅ Modules seeded successfully');
         }
         finally {
             modulesClient.release();

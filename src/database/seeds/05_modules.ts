@@ -47,15 +47,9 @@ export async function seed(knex: Knex): Promise<void> {
     return;
   }
 
-  // Check if modules already exist
-  const existingCount = await knex('modules').count('* as count').first();
-  
-  if (parseInt(existingCount?.count as string || '0') > 0) {
-    console.log('✅ Modules already seeded');
-    return;
-  }
-
   // Insert modules (idempotent: check before insert)
+  // This ensures all modules are present, even if some already exist
+  let insertedCount = 0;
   for (const module of modules) {
     const existing = await knex('modules').where('module_key', module.module_key).first();
     if (!existing) {
@@ -68,7 +62,15 @@ export async function seed(knex: Knex): Promise<void> {
         is_active: module.is_active,
         metadata: null
       });
+      insertedCount++;
+      console.log(`  ✓ Added module: ${module.module_key}`);
     }
+  }
+  
+  if (insertedCount === 0) {
+    console.log('✅ All modules already exist');
+  } else {
+    console.log(`✅ Inserted ${insertedCount} new module(s)`);
   }
 
   console.log(`✅ Seeded ${modules.length} modules`);
