@@ -382,8 +382,17 @@ export const filterAssets = (
     }
     
     // Member filter
-    if (memberId && asset.household_member_id?.toString() !== memberId) {
-      return false;
+    if (memberId) {
+      const memberIdNum = parseInt(memberId);
+      const isPrimaryOwner = asset.household_member_id?.toString() === memberId;
+      const hasSharedOwnership = asset.shared_ownership && asset.shared_ownership.some(
+        (so: SharedOwnership) => so.household_member_id === memberIdNum
+      );
+      
+      // Include asset if member is primary owner OR has shared ownership
+      if (!isPrimaryOwner && !hasSharedOwnership) {
+        return false;
+      }
     }
     
     // Currency filter
