@@ -73,12 +73,16 @@ export class NotificationService {
       let whereClause = '';
       let params: any[] = [];
 
+      console.log('getAllNotifications called with:', { page, limit, readFilter });
+
       if (readFilter !== undefined) {
         whereClause = 'WHERE an.read = $3';
         params = [limit, offset, readFilter];
       } else {
         params = [limit, offset];
       }
+
+      console.log('Query params:', { whereClause, params });
 
       const [notificationsResult, countResult] = await Promise.all([
         query(
@@ -95,6 +99,12 @@ export class NotificationService {
           readFilter !== undefined ? [readFilter] : []
         )
       ]);
+
+      console.log('Query results:', {
+        notificationsCount: notificationsResult.rows.length,
+        totalCount: countResult.rows[0]?.total,
+        notifications: notificationsResult.rows.map(n => ({ id: n.id, title: n.title, read: n.read }))
+      });
 
       return {
         notifications: notificationsResult.rows,
@@ -164,6 +174,8 @@ export class NotificationService {
     info: number;
   }> {
     try {
+      console.log('getNotificationCounts called');
+      
       const result = await query(
         `SELECT 
            COUNT(*) FILTER (WHERE read = false) as unread,
@@ -174,6 +186,12 @@ export class NotificationService {
       );
 
       const counts = result.rows[0];
+      console.log('Notification counts result:', counts);
+      
+      // Also get all notifications to see what's in the database
+      const allNotifications = await query('SELECT id, title, read, severity FROM admin_notifications ORDER BY created_at DESC');
+      console.log('All notifications in database:', allNotifications.rows);
+
       return {
         unread: parseInt(counts.unread || '0'),
         critical: parseInt(counts.critical || '0'),
