@@ -574,13 +574,16 @@ router.get('/', asyncHandler(async (req, res) => {
   // Filter by household member - show assets where member is primary owner OR has at least 1% share
   if (household_member_id) {
     const memberId = parseInt(household_member_id as string);
+    if (isNaN(memberId)) {
+      throw createValidationError('Invalid household_member_id');
+    }
     // Include assets where:
     // 1. Member is the primary owner (a.household_member_id = memberId), OR
     // 2. Member has shared ownership with at least 1% (in shared_ownership_distribution)
     conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
       SELECT 1 FROM shared_ownership_distribution 
       WHERE asset_id = a.id 
-      AND household_member_id = $${paramCount} 
+      AND household_member_id = $${paramCount++}
       AND ownership_percentage >= 1
     ))`);
     params.push(memberId);
@@ -589,19 +592,30 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
+  // Debug: Log the query and parameters for troubleshooting
+  console.log('📋 Assets query conditions:', conditions.length);
+  console.log('📋 Assets query params count:', params.length);
+  console.log('📋 Assets query where clause:', whereClause.substring(0, 200));
+
   // Get assets with pagination
-  const assetsResult = await query(
-    `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
-            ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     LEFT JOIN household_members hm ON a.household_member_id = hm.id
-     JOIN users u ON a.user_id = u.id
-     ${whereClause}
-     ORDER BY a.date DESC, a.created_at DESC
-     LIMIT $${paramCount++} OFFSET $${paramCount++}`,
-    [...params, parseInt(limit as string), offset]
-  );
+  let assetsResult;
+  try {
+    assetsResult = await query(
+      `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
+              ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       LEFT JOIN household_members hm ON a.household_member_id = hm.id
+       JOIN users u ON a.user_id = u.id
+       ${whereClause}
+       ORDER BY a.date DESC, a.created_at DESC
+       LIMIT $${paramCount++} OFFSET $${paramCount++}`,
+      [...params, parseInt(limit as string), offset]
+    );
+  } catch (error) {
+    console.error('❌ Error in assets query:', error);
+    throw error;
+  }
 
   // Get total count
   const countResult = await query(

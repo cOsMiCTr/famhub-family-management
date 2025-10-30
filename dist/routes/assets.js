@@ -398,25 +398,38 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     }
     if (household_member_id) {
         const memberId = parseInt(household_member_id);
+        if (isNaN(memberId)) {
+            throw (0, errorHandler_1.createValidationError)('Invalid household_member_id');
+        }
         conditions.push(`(a.household_member_id = $${paramCount++} OR EXISTS (
       SELECT 1 FROM shared_ownership_distribution 
       WHERE asset_id = a.id 
-      AND household_member_id = $${paramCount} 
+      AND household_member_id = $${paramCount++}
       AND ownership_percentage >= 1
     ))`);
         params.push(memberId);
         params.push(memberId);
     }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    const assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
-            ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     LEFT JOIN household_members hm ON a.household_member_id = hm.id
-     JOIN users u ON a.user_id = u.id
-     ${whereClause}
-     ORDER BY a.date DESC, a.created_at DESC
-     LIMIT $${paramCount++} OFFSET $${paramCount++}`, [...params, parseInt(limit), offset]);
+    console.log('📋 Assets query conditions:', conditions.length);
+    console.log('📋 Assets query params count:', params.length);
+    console.log('📋 Assets query where clause:', whereClause.substring(0, 200));
+    let assetsResult;
+    try {
+        assetsResult = await (0, database_1.query)(`SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr,
+              ac.category_type, ac.icon, hm.name as member_name, u.email as user_email
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       LEFT JOIN household_members hm ON a.household_member_id = hm.id
+       JOIN users u ON a.user_id = u.id
+       ${whereClause}
+       ORDER BY a.date DESC, a.created_at DESC
+       LIMIT $${paramCount++} OFFSET $${paramCount++}`, [...params, parseInt(limit), offset]);
+    }
+    catch (error) {
+        console.error('❌ Error in assets query:', error);
+        throw error;
+    }
     const countResult = await (0, database_1.query)(`SELECT COUNT(*) as total
      FROM assets a
      ${whereClause}`, params);
