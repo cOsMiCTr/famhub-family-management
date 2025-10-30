@@ -613,10 +613,19 @@ router.get('/', asyncHandler(async (req, res) => {
       params.push(userMemberId);
       console.log('🔍 DEBUG: Personal View condition:', personalViewCondition);
     } else {
-      // Fallback if no household member record - only show assets user owns
-      console.log('🔍 DEBUG: No userMemberId, using user_id only');
-      conditions.push(`a.user_id = $${paramCount++}`);
+      // User has no household member record - check user_id and shared ownership via user_id
+      const personalViewCondition = `(a.user_id = $${paramCount++} 
+        OR EXISTS (
+          SELECT 1 FROM shared_ownership_distribution sod 
+          JOIN household_members hm ON sod.household_member_id = hm.id
+          WHERE sod.asset_id = a.id 
+          AND hm.user_id = $${paramCount++}
+          AND sod.ownership_percentage > 0
+        ))`;
+      conditions.push(personalViewCondition);
       params.push(req.user.id);
+      params.push(req.user.id);
+      console.log('🔍 DEBUG: Personal View condition (no userMemberId):', personalViewCondition);
     }
   }
 
