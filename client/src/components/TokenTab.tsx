@@ -38,19 +38,20 @@ const TokenTab: React.FC = () => {
   const loadModules = async () => {
     try {
       setIsLoading(true);
-      const response = await apiService.get('/modules');
-      if (response.data && response.data.modules) {
-        // Map modules to include isActive and expiresAt from the response
-        const modulesWithStatus = response.data.modules.map((module: any) => ({
-          ...module,
-          isActive: module.isActive || false,
-          expiresAt: module.expiresAt || null
-        }));
-        setModules(modulesWithStatus);
+      // Use the available endpoint which returns full module details with status and expiration
+      const response = await apiService.get('/modules/available');
+      if (response.data && Array.isArray(response.data)) {
+        setModules(response.data);
+      } else {
+        setError('Failed to load module data');
       }
     } catch (error: any) {
       console.error('Error loading modules:', error);
       setError(error.response?.data?.error || 'Failed to load modules');
+      // Fallback to context modules if available
+      if (availableModules && availableModules.length > 0) {
+        setModules(availableModules);
+      }
     } finally {
       setIsLoading(false);
     }

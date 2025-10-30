@@ -34,19 +34,24 @@ router.get('/', authenticateToken, async (req, res) => {
 
 /**
  * GET /api/modules/available
- * Get list of available modules to activate
+ * Get list of available modules to activate with expiration info
  */
 router.get('/available', authenticateToken, async (req, res) => {
   try {
     const allModules = await ModuleService.getAllModules();
     const userId = req.user!.id;
     const userModules = await ModuleService.getUserModules(userId);
+    const activeModulesWithExpiration = await ModuleService.getUserActiveModulesWithExpiration(userId);
     
-    // Include activation status
-    const availableModules = allModules.map(module => ({
-      ...module,
-      isActive: userModules.includes(module.module_key)
-    }));
+    // Include activation status and expiration
+    const availableModules = allModules.map(module => {
+      const activeModule = activeModulesWithExpiration.find(am => am.module_key === module.module_key);
+      return {
+        ...module,
+        isActive: userModules.includes(module.module_key) && activeModule?.is_active,
+        expiresAt: activeModule?.expires_at || null
+      };
+    });
     
     res.json(availableModules);
   } catch (error) {
