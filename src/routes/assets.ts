@@ -640,20 +640,32 @@ router.get('/', asyncHandler(async (req, res) => {
     } else {
       // User has no household member record
       // For member filter: The selected member has ownership (via household_member_id or shared_ownership_distribution)
-      // AND the user has ownership:
+      // AND the user has access:
       //   1. User is primary owner (a.user_id), OR
-      //   2. Asset is in user's household and user created it (asset ownership via user_id is sufficient)
-      // Note: We can't check shared ownership via household_members.user_id because user has no member record
-      // So we rely on a.user_id being the creator/owner, which gives them access to household assets
-      const userCondition = `a.user_id = $${paramCount++}`;
-      conditions.push(`${memberCondition} AND ${userCondition}`);
-      params.push(memberId); // member filter: member is primary owner
-      params.push(memberId); // member filter: member has shared ownership
-      params.push(req.user.id); // user filter: user is primary owner (creator)
-      console.log('🔍 DEBUG: Member filter condition added (no userMemberId, user must be asset creator)');
-      console.log('🔍 DEBUG: Member condition:', memberCondition);
-      console.log('🔍 DEBUG: User condition:', userCondition);
-      console.log('🔍 DEBUG: NOTE - User has no household_member record, so we check a.user_id only');
+      //   2. Asset is in user's household (household_id) - user has access to all household assets
+      // This ensures user sees shared assets where the selected member has ownership,
+      // even if user didn't create the asset themselves
+      if (householdId) {
+        const userCondition = `(a.user_id = $${paramCount++} OR a.household_id = $${paramCount++})`;
+        conditions.push(`${memberCondition} AND ${userCondition}`);
+        params.push(memberId); // member filter: member is primary owner
+        params.push(memberId); // member filter: member has shared ownership
+        params.push(req.user.id); // user filter: user is primary owner
+        params.push(householdId); // user filter: asset is in user's household
+        console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking user_id OR household_id)');
+        console.log('🔍 DEBUG: Member condition:', memberCondition);
+        console.log('🔍 DEBUG: User condition:', userCondition);
+      } else {
+        // No household_id - only check user is primary owner
+        const userCondition = `a.user_id = $${paramCount++}`;
+        conditions.push(`${memberCondition} AND ${userCondition}`);
+        params.push(memberId);
+        params.push(memberId);
+        params.push(req.user.id);
+        console.log('🔍 DEBUG: Member filter condition added (no userMemberId, no household_id, user must be creator)');
+        console.log('🔍 DEBUG: Member condition:', memberCondition);
+        console.log('🔍 DEBUG: User condition:', userCondition);
+      }
     }
   } else {
     // Personal view: show assets where user is owner OR user is in shared ownership
@@ -679,23 +691,29 @@ router.get('/', asyncHandler(async (req, res) => {
     } else {
       // User has no household member record
       // Show assets where:
-      // 1. User is primary owner (a.user_id = user.id), OR
-      // 2. Asset is in user's household (via household_id) - this gives user access to household assets
-      //    AND asset has shared ownership (meaning it's a shared asset the user should see)
-      // Since user has no household_member record, we check household_id instead
+      // 1. User is primary owner (a.user_id = user.id) - covers both single AND shared assets user created
+      // 2. Asset is in user's household AND has shared ownership - user can see shared household assets
+      //    (even if user didn't create them, they're part of the household)
+      // Since user has no household_member record, we use household_id to find shared assets
       if (householdId) {
+        // User is primary owner OR asset is in household with shared ownership
+        // This ensures user sees:
+        // - All assets they created (single or shared)
+        // - All shared assets in their household (even if created by others)
         const personalViewCondition = `(a.user_id = $${paramCount++} 
-          OR (a.household_id = $${paramCount++} AND EXISTS (
-            SELECT 1 FROM shared_ownership_distribution sod 
-            WHERE sod.asset_id = a.id 
-            AND sod.ownership_percentage > 0
-          )))`;
+          OR (a.household_id = $${paramCount++} 
+            AND a.ownership_type = 'shared'
+            AND EXISTS (
+              SELECT 1 FROM shared_ownership_distribution sod 
+              WHERE sod.asset_id = a.id 
+              AND sod.ownership_percentage > 0
+            )))`;
         conditions.push(personalViewCondition);
         params.push(req.user.id);
         params.push(householdId);
         console.log('🔍 DEBUG: Personal View condition (no userMemberId, checking household_id for shared assets):', personalViewCondition);
       } else {
-        // No household_id either - only show assets user owns
+        // No household_id either - only show assets user owns directly
         const personalViewCondition = `a.user_id = $${paramCount++}`;
         conditions.push(personalViewCondition);
         params.push(req.user.id);

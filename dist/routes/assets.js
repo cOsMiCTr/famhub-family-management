@@ -437,15 +437,27 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             console.log('🔍 DEBUG: User condition:', userCondition);
         }
         else {
-            const userCondition = `a.user_id = $${paramCount++}`;
-            conditions.push(`${memberCondition} AND ${userCondition}`);
-            params.push(memberId);
-            params.push(memberId);
-            params.push(req.user.id);
-            console.log('🔍 DEBUG: Member filter condition added (no userMemberId, user must be asset creator)');
-            console.log('🔍 DEBUG: Member condition:', memberCondition);
-            console.log('🔍 DEBUG: User condition:', userCondition);
-            console.log('🔍 DEBUG: NOTE - User has no household_member record, so we check a.user_id only');
+            if (householdId) {
+                const userCondition = `(a.user_id = $${paramCount++} OR a.household_id = $${paramCount++})`;
+                conditions.push(`${memberCondition} AND ${userCondition}`);
+                params.push(memberId);
+                params.push(memberId);
+                params.push(req.user.id);
+                params.push(householdId);
+                console.log('🔍 DEBUG: Member filter condition added (no userMemberId, checking user_id OR household_id)');
+                console.log('🔍 DEBUG: Member condition:', memberCondition);
+                console.log('🔍 DEBUG: User condition:', userCondition);
+            }
+            else {
+                const userCondition = `a.user_id = $${paramCount++}`;
+                conditions.push(`${memberCondition} AND ${userCondition}`);
+                params.push(memberId);
+                params.push(memberId);
+                params.push(req.user.id);
+                console.log('🔍 DEBUG: Member filter condition added (no userMemberId, no household_id, user must be creator)');
+                console.log('🔍 DEBUG: Member condition:', memberCondition);
+                console.log('🔍 DEBUG: User condition:', userCondition);
+            }
         }
     }
     else {
@@ -468,11 +480,13 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         else {
             if (householdId) {
                 const personalViewCondition = `(a.user_id = $${paramCount++} 
-          OR (a.household_id = $${paramCount++} AND EXISTS (
-            SELECT 1 FROM shared_ownership_distribution sod 
-            WHERE sod.asset_id = a.id 
-            AND sod.ownership_percentage > 0
-          )))`;
+          OR (a.household_id = $${paramCount++} 
+            AND a.ownership_type = 'shared'
+            AND EXISTS (
+              SELECT 1 FROM shared_ownership_distribution sod 
+              WHERE sod.asset_id = a.id 
+              AND sod.ownership_percentage > 0
+            )))`;
                 conditions.push(personalViewCondition);
                 params.push(req.user.id);
                 params.push(householdId);
