@@ -13,6 +13,7 @@ const auth_1 = require("../middleware/auth");
 const passwordService_1 = require("../services/passwordService");
 const loginAttemptService_1 = require("../services/loginAttemptService");
 const twoFactorService_1 = require("../services/twoFactorService");
+const ipUtils_1 = require("../utils/ipUtils");
 const router = express_1.default.Router();
 router.post('/login', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Valid email required'),
@@ -23,7 +24,7 @@ router.post('/login', [
         throw (0, errorHandler_1.createValidationError)('Invalid input data');
     }
     const { email, password } = req.body;
-    const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+    const ipAddress = (0, ipUtils_1.getClientIP)(req);
     const userAgent = req.headers['user-agent'] || 'unknown';
     const userResult = await (0, database_1.query)(`SELECT u.id, u.email, u.password_hash, u.role, u.household_id, u.preferred_language, u.main_currency,
             u.must_change_password, u.account_status, u.failed_login_attempts, 

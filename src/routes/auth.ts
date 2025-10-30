@@ -11,6 +11,7 @@ import { LoginAttemptService } from '../services/loginAttemptService';
 import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 import { NotificationService } from '../services/notificationService';
 import { verifyTwoFactorToken } from '../services/twoFactorService';
+import { getClientIP } from '../utils/ipUtils';
 
 const router = express.Router();
 
@@ -26,8 +27,8 @@ router.post('/login', [
 
   const { email, password } = req.body;
   
-  // Get IP address and user agent
-  const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown';
+  // Get real client IP address (handle proxy/load balancer)
+  const ipAddress = getClientIP(req);
   const userAgent = req.headers['user-agent'] || 'unknown';
 
   // Find user by email

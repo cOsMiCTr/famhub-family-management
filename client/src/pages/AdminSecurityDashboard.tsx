@@ -663,40 +663,67 @@ const AdminSecurityDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Severity
                     </label>
-                    <select
-                      multiple
-                      value={filters.severity || []}
-                      onChange={(e) => handleFilterChange({
-                        severity: Array.from(e.target.selectedOptions, option => option.value)
-                      })}
-                      className="form-select text-sm"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                      <option value="critical">Critical</option>
-                    </select>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'low', label: 'Low', color: 'text-green-600 bg-green-100 dark:bg-green-900/20' },
+                        { value: 'medium', label: 'Medium', color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20' },
+                        { value: 'high', label: 'High', color: 'text-orange-600 bg-orange-100 dark:bg-orange-900/20' },
+                        { value: 'critical', label: 'Critical', color: 'text-red-600 bg-red-100 dark:bg-red-900/20' }
+                      ].map((severity) => (
+                        <label key={severity.value} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={filters.severity?.includes(severity.value) || false}
+                            onChange={(e) => {
+                              const currentSeverity = filters.severity || [];
+                              const newSeverity = e.target.checked
+                                ? [...currentSeverity, severity.value]
+                                : currentSeverity.filter(s => s !== severity.value);
+                              handleFilterChange({ severity: newSeverity });
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
+                          />
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${severity.color}`}>
+                            {severity.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Event Type
                     </label>
-                    <select
-                      multiple
-                      value={filters.eventTypes || []}
-                      onChange={(e) => handleFilterChange({
-                        eventTypes: Array.from(e.target.selectedOptions, option => option.value)
-                      })}
-                      className="form-select text-sm"
-                    >
-                      <option value="login_attempt">Login Attempts</option>
-                      <option value="user_activity">User Activity</option>
-                      <option value="token_transaction">Token Transactions</option>
-                    </select>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'login_attempt', label: 'Login Attempts', icon: KeyIcon },
+                        { value: 'user_activity', label: 'User Activity', icon: UserGroupIcon },
+                        { value: 'token_transaction', label: 'Token Transactions', icon: CpuChipIcon }
+                      ].map((eventType) => (
+                        <label key={eventType.value} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={filters.eventTypes?.includes(eventType.value) || false}
+                            onChange={(e) => {
+                              const currentEventTypes = filters.eventTypes || [];
+                              const newEventTypes = e.target.checked
+                                ? [...currentEventTypes, eventType.value]
+                                : currentEventTypes.filter(t => t !== eventType.value);
+                              handleFilterChange({ eventTypes: newEventTypes });
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
+                          />
+                          <eventType.icon className="h-4 w-4 mr-2 text-gray-500" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {eventType.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
@@ -766,7 +793,15 @@ const AdminSecurityDashboard: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex-shrink-0">
-                        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <button 
+                          onClick={() => {
+                            // Show event details in a modal or expand the event
+                            console.log('Event details:', event);
+                            // You can implement a modal here to show full event details
+                          }}
+                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                          title="View event details"
+                        >
                           <EyeIcon className="h-4 w-4" />
                         </button>
                       </div>
@@ -808,64 +843,88 @@ const AdminSecurityDashboard: React.FC = () => {
       )}
 
       {/* Analytics Tab */}
-      {activeTab === 'analytics' && analytics && (
+      {activeTab === 'analytics' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Login Trends */}
-            <div className="card">
-              <div className="card-body">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Login Trends (Last 30 Days)
-                </h3>
-                <div className="space-y-2">
-                  {analytics.loginTrends.slice(0, 7).map((trend) => (
-                    <div key={trend.date} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(trend.date).toLocaleDateString()}
-                      </span>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm text-green-600">
-                          {trend.successful} successful
+          {analytics ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Login Trends */}
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Login Trends (Last 30 Days)
+                  </h3>
+                  <div className="space-y-2">
+                    {analytics.loginTrends.slice(0, 7).map((trend) => (
+                      <div key={trend.date} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {new Date(trend.date).toLocaleDateString()}
                         </span>
-                        <span className="text-sm text-red-600">
-                          {trend.failed} failed
-                        </span>
-                        <span className="text-sm text-blue-600">
-                          {trend.unique_ips} IPs
-                        </span>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-sm text-green-600 font-medium">
+                            {trend.successful} ✓
+                          </span>
+                          <span className="text-sm text-red-600 font-medium">
+                            {trend.failed} ✗
+                          </span>
+                          <span className="text-sm text-blue-600 font-medium">
+                            {trend.unique_ips} IPs
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    {analytics.loginTrends.length === 0 && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                        No login data available
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Activity Trends */}
-            <div className="card">
-              <div className="card-body">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Activity Trends (Last 30 Days)
-                </h3>
-                <div className="space-y-2">
-                  {analytics.activityTrends.slice(0, 7).map((trend) => (
-                    <div key={trend.date} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(trend.date).toLocaleDateString()}
-                      </span>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm text-gray-600">
-                          {trend.total_activities} total
+              {/* Activity Trends */}
+              <div className="card">
+                <div className="card-body">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Activity Trends (Last 30 Days)
+                  </h3>
+                  <div className="space-y-2">
+                    {analytics.activityTrends.slice(0, 7).map((trend) => (
+                      <div key={trend.date} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {new Date(trend.date).toLocaleDateString()}
                         </span>
-                        <span className="text-sm text-orange-600">
-                          {trend.critical_activities} critical
-                        </span>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-sm text-gray-600 font-medium">
+                            {trend.total_activities} total
+                          </span>
+                          <span className="text-sm text-orange-600 font-medium">
+                            {trend.critical_activities} critical
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    {analytics.activityTrends.length === 0 && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                        No activity data available
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="card">
+              <div className="card-body text-center py-8">
+                <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Analytics Loading
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Loading security analytics data...
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Top IP Addresses */}
           <div className="card">
@@ -906,43 +965,68 @@ const AdminSecurityDashboard: React.FC = () => {
       )}
 
       {/* Threat Detection Tab */}
-      {activeTab === 'threats' && analytics && (
+      {activeTab === 'threats' && (
         <div className="space-y-6">
-          <div className="card">
-            <div className="card-body">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Security Threats Detected
-              </h3>
-              <div className="space-y-4">
-                {analytics.securityThreats.map((threat) => (
-                  <div key={threat.threat_type} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                          {threat.threat_type.replace('_', ' ').toUpperCase()}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Last detected: {new Date(threat.last_detected).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-2xl font-bold text-red-600">
-                          {threat.count}
-                        </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          threat.severity === 'high' ? 'text-red-600 bg-red-100 dark:bg-red-900/20' :
-                          threat.severity === 'medium' ? 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20' :
-                          'text-green-600 bg-green-100 dark:bg-green-900/20'
-                        }`}>
-                          {threat.severity.toUpperCase()}
-                        </span>
+          {analytics ? (
+            <div className="card">
+              <div className="card-body">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Security Threats Detected
+                </h3>
+                <div className="space-y-4">
+                  {analytics.securityThreats.map((threat) => (
+                    <div key={threat.threat_type} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                            {threat.threat_type.replace('_', ' ').toUpperCase()}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Last detected: {new Date(threat.last_detected).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-2xl font-bold text-red-600">
+                            {threat.count}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            threat.severity === 'high' ? 'text-red-600 bg-red-100 dark:bg-red-900/20' :
+                            threat.severity === 'medium' ? 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20' :
+                            'text-green-600 bg-green-100 dark:bg-green-900/20'
+                          }`}>
+                            {threat.severity.toUpperCase()}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                  {analytics.securityThreats.length === 0 && (
+                    <div className="text-center py-8">
+                      <ShieldExclamationIcon className="h-12 w-12 text-green-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        No Threats Detected
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Your system appears to be secure with no active threats.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="card">
+              <div className="card-body text-center py-8">
+                <ShieldExclamationIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Threat Detection Loading
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Loading threat detection data...
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -952,11 +1036,20 @@ const AdminSecurityDashboard: React.FC = () => {
           <div className="card">
             <div className="card-body">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Admin Notifications
-                </h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Admin Notifications
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Security alerts and system notifications
+                  </p>
+                </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    (notificationCounts?.unread || 0) > 0 
+                      ? 'text-red-600 bg-red-100 dark:bg-red-900/20' 
+                      : 'text-green-600 bg-green-100 dark:bg-green-900/20'
+                  }`}>
                     {notificationCounts?.unread || 0} unread
                   </span>
                   <button

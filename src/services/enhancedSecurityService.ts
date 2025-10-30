@@ -1,4 +1,5 @@
 import { query } from '../config/database';
+import { cleanIPAddress } from '../utils/ipUtils';
 
 export interface SecurityMetrics {
   // Login Security
@@ -513,11 +514,17 @@ export class EnhancedSecurityService {
       FROM login_attempts
       WHERE created_at > NOW() - INTERVAL '${days} days'
         AND ip_address IS NOT NULL
+        AND ip_address != 'unknown'
       GROUP BY ip_address
       ORDER BY count DESC
       LIMIT 20
     `);
-    return result.rows;
+    
+    // Clean IP addresses to remove IPv4-mapped IPv6 prefixes
+    return result.rows.map(row => ({
+      ...row,
+      ip_address: cleanIPAddress(row.ip_address)
+    }));
   }
 
   private static async getTopUsers(days: number): Promise<any[]> {
