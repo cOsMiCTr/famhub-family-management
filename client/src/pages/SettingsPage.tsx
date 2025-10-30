@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import DeleteAccountModal from '../components/DeleteAccountModal';
 import TwoFactorSetupModal from '../components/TwoFactorSetupModal';
 import FamilyMembersTab from '../components/FamilyMembersTab';
+import TokenTab from '../components/TokenTab';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
@@ -22,7 +23,8 @@ import {
   CheckIcon,
   XMarkIcon,
   ChartBarIcon,
-  UsersIcon
+  UsersIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 interface UserSettings {
@@ -287,6 +289,7 @@ const SettingsPage: React.FC = () => {
     { id: 'profile', name: t('settings.profile'), icon: UserIcon },
     { id: 'preferences', name: t('settings.preferences'), icon: LanguageIcon },
     { id: 'notifications', name: t('settings.notifications'), icon: BellIcon },
+    { id: 'token', name: t('modules.title'), icon: SparklesIcon },
     { id: 'family-members', name: t('navigation.familyMembers'), icon: UsersIcon },
     { id: 'security', name: t('settings.security'), icon: ShieldCheckIcon },
     { id: 'activity', name: t('settings.activity'), icon: ChartBarIcon },
@@ -628,6 +631,11 @@ const SettingsPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Token Tab */}
+      {activeTab === 'token' && (
+        <TokenTab />
       )}
 
       {/* Family Members Tab */}
