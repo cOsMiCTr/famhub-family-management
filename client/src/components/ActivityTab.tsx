@@ -50,7 +50,8 @@ const ActivityTab: React.FC = () => {
     try {
       // Fetch a small sample to get all action types
       const response = await apiService.getUserActivity(200, 'all');
-      const types = Array.from(new Set((response.activities || []).map((a: ActivityEntry) => a.action_type)));
+      const activities = (response.activities || []) as ActivityEntry[];
+      const types = Array.from(new Set(activities.map(a => a.action_type)));
       setAllActionTypes(types);
     } catch (err) {
       console.error('Error loading action types:', err);
