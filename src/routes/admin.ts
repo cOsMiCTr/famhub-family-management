@@ -1051,6 +1051,38 @@ router.get('/users/:id/tokens', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * PUT /api/admin/users/:id/tokens/balance
+ * Set token balance directly (admin only)
+ */
+router.put('/users/:id/tokens/balance', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { balance, reason } = req.body;
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  if (balance === undefined || balance === null) {
+    throw createValidationError('Balance is required');
+  }
+
+  const balanceNum = parseFloat(balance);
+  if (isNaN(balanceNum) || balanceNum < 0) {
+    throw createValidationError('Balance must be a non-negative number');
+  }
+
+  const account = await TokenAccountService.setTokenBalance(userId, balanceNum, reason);
+  
+  res.json({ 
+    account: {
+      balance: parseFloat(account.balance.toString()),
+      totalPurchased: parseFloat(account.total_tokens_purchased.toString())
+    },
+    message: `Token balance set to ${balanceNum}` 
+  });
+}));
+
+/**
  * POST /api/admin/users/:id/tokens/grant
  * Grant tokens to user (admin only)
  */
@@ -1066,7 +1098,7 @@ router.post('/users/:id/tokens/grant', asyncHandler(async (req, res) => {
     throw createValidationError('Amount must be greater than 0');
   }
 
-  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
+ ana  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
   
   res.json({ account, message: `${amount} tokens granted to user` });
 }));

@@ -139,6 +139,32 @@ class TokenAccountService {
   }
 
   /**
+   * Set token balance directly (admin only)
+   */
+  async setTokenBalance(
+    userId: number,
+    balance: number,
+    reason?: string
+  ): Promise<TokenAccount> {
+    const account = await this.getUserTokenAccount(userId);
+
+    if (balance < 0) {
+      throw new Error('Token balance cannot be negative');
+    }
+
+    const result = await query(
+      `UPDATE user_token_account 
+       SET balance = $1,
+           updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [balance, account.id]
+    );
+
+    return result.rows[0];
+  }
+
+  /**
    * Check if user has sufficient tokens
    */
   async hasSufficientTokens(userId: number, amount: number): Promise<boolean> {

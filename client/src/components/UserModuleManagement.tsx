@@ -56,6 +56,8 @@ const UserModuleManagement: React.FC<UserModuleManagementProps> = ({
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [grantTokenAmount, setGrantTokenAmount] = useState('');
+  const [editBalance, setEditBalance] = useState(false);
+  const [newBalance, setNewBalance] = useState('');
 
   useEffect(() => {
     loadData();
@@ -123,6 +125,33 @@ const UserModuleManagement: React.FC<UserModuleManagementProps> = ({
     } catch (error: any) {
       console.error('Error revoking module:', error);
       setError(error.response?.data?.error || 'Failed to revoke module');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSetBalance = async () => {
+    const balance = parseFloat(newBalance);
+    if (isNaN(balance) || balance < 0) {
+      setError('Please enter a valid non-negative balance');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setError('');
+      await apiService.put(`/admin/users/${userId}/tokens/balance`, {
+        balance,
+        reason: 'Admin balance adjustment'
+      });
+      setMessage(`Token balance set to ${balance}`);
+      setNewBalance('');
+      setEditBalance(false);
+      await loadData();
+      onUpdate?.();
+    } catch (error: any) {
+      console.error('Error setting token balance:', error);
+      setError(error.response?.data?.error || 'Failed to set token balance');
     } finally {
       setIsSaving(false);
     }
@@ -240,13 +269,59 @@ const UserModuleManagement: React.FC<UserModuleManagementProps> = ({
                   <BanknotesIcon className="h-5 w-5 mr-2" />
                   Token Account
                 </h4>
+                {!editBalance && (
+                  <button
+                    onClick={() => {
+                      setEditBalance(true);
+                      setNewBalance(tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : '0');
+                      setError('');
+                      setMessage('');
+                    }}
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                  >
+                    Edit Balance
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
                   <p className="text-xs text-blue-700 dark:text-blue-300">Current Balance</p>
-                  <p className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                    {tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : 'N/A'} tokens
-                  </p>
+                  {editBalance ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={newBalance}
+                        onChange={(e) => setNewBalance(e.target.value)}
+                        className="w-32 px-2 py-1 border border-blue-300 dark:border-blue-700 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="0.00"
+                        autoFocus
+                      />
+                      <span className="text-sm text-blue-900 dark:text-blue-100">tokens</span>
+                      <button
+                        onClick={handleSetBalance}
+                        disabled={isSaving || !newBalance}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium disabled:opacity-50"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditBalance(false);
+                          setNewBalance('');
+                        }}
+                        disabled={isSaving}
+                        className="px-3 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-xs font-medium"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                      {tokenAccount ? parseFloat(tokenAccount.balance.toString()).toFixed(2) : 'N/A'} tokens
+                    </p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-blue-700 dark:text-blue-300">Total Purchased</p>
