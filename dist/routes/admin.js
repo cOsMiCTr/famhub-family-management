@@ -326,8 +326,6 @@ router.post('/households', [
      VALUES ($1, $2)
      RETURNING *`, [name, req.user.id]);
     const household = householdResult.rows[0];
-    await (0, database_1.query)(`INSERT INTO household_members (household_id, name, relationship, is_shared, created_by_user_id)
-     VALUES ($1, $2, $3, $4, $5)`, [household.id, 'Household (Shared)', 'Shared', true, req.user.id]);
     res.status(201).json({
         message: 'Household created successfully',
         household: household

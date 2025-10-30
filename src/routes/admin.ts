@@ -558,13 +558,6 @@ router.post('/households', [
 
   const household = householdResult.rows[0];
 
-  // Auto-create the "Household (Shared)" member for family-level income/expenses
-  await query(
-    `INSERT INTO household_members (household_id, name, relationship, is_shared, created_by_user_id)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [household.id, 'Household (Shared)', 'Shared', true, req.user!.id]
-  );
-
   res.status(201).json({
     message: 'Household created successfully',
     household: household
