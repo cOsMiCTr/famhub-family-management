@@ -114,6 +114,7 @@ const AssetsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [switchingView, setSwitchingView] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialMount, setIsInitialMount] = useState(true);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
   
   // Filters
@@ -138,9 +139,9 @@ const AssetsPage: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   // Fetch data
-  const fetchAssets = async (viewType?: boolean) => {
+  const fetchAssets = async (viewType?: boolean, skipLoadingState = false) => {
     try {
-      if (!switchingView) {
+      if (!skipLoadingState && !switchingView) {
         setLoading(true);
       }
       const token = localStorage.getItem('token');
@@ -171,7 +172,9 @@ const AssetsPage: React.FC = () => {
       setError(err instanceof Error ? err.message : t('assets.failedToFetch'));
       throw err;
     } finally {
-      setLoading(false);
+      if (!skipLoadingState) {
+        setLoading(false);
+      }
     }
   };
 
@@ -253,13 +256,19 @@ const AssetsPage: React.FC = () => {
     }
   };
 
-  // Refetch data when householdView changes
+  // Refetch data when householdView changes (but skip on initial mount)
   useEffect(() => {
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      return; // Skip initial mount - data already fetched by initial useEffect
+    }
+    
     const fetchData = async () => {
       try {
+        // Use skipLoadingState to prevent flicker when switching views
         await Promise.all([
           fetchSummary(householdView),
-          fetchAssets(householdView)
+          fetchAssets(householdView, true) // Skip loading state to prevent flicker
         ]);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -278,11 +287,22 @@ const AssetsPage: React.FC = () => {
   }, [currentPage, selectedCategory, selectedStatus, selectedCurrency]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    fetchCategories();
-    fetchMembers();
-    fetchSummary();
-    fetchExchangeRates();
-  }, []);
+    const fetchInitialData = async () => {
+      try {
+        await Promise.all([
+          fetchCategories(),
+          fetchMembers(),
+          fetchSummary(householdView),
+          fetchExchangeRates(),
+          fetchAssets(householdView)
+        ]);
+      } catch (err) {
+        console.error('Error fetching initial data:', err);
+      }
+    };
+    
+    fetchInitialData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper function to get converted value in main currency
   const getConvertedValue = (amount: number, fromCurrency: string, toCurrency: string): number | null => {
