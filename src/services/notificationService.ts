@@ -77,7 +77,7 @@ export class NotificationService {
 
       if (readFilter !== undefined) {
         whereClause = 'WHERE an.read = $3';
-        params = [limit, offset, readFilter];
+        params = [limit, offset, Boolean(readFilter)]; // Ensure it's a proper boolean
       } else {
         params = [limit, offset];
       }

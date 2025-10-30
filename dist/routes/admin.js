@@ -409,7 +409,7 @@ router.get('/households/:id/members', (0, errorHandler_1.asyncHandler)(async (re
 router.get('/notifications', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const readFilter = req.query.read ? req.query.read === 'true' : undefined;
+    const readFilter = req.query.read !== undefined ? req.query.read === 'true' : undefined;
     console.log('Notifications API called with params:', { page, limit, readFilter, query: req.query });
     const result = await notificationService_1.NotificationService.getAllNotifications(page, limit, readFilter);
     console.log('Notifications result:', {
