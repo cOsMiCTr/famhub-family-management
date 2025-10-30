@@ -2,4 +2,12 @@
 alwaysApply: true
 ---
 
-- always add the newly added labels, texts to seedTranslation 
+- When adding new modules or updating modules with new UI or text labels, ensure every user-facing label, button text, tooltip, helper text, modal title/description, section heading, notification, and error message is also added to seedTranslation in relevant language files.
+- Follow tokenization practices for string IDs: keep translation keys descriptive, namespaced by module or feature (e.g., "login.emailPlaceholder", "dashboard.welcomeMessage").
+- For dynamic or compound-formatted tokens, add template examples in seedTranslation so translators see expected variables (e.g., "profile.greeting": "Hello, {name}!").
+- Upon adding or updating UI text/labels, check and update seedTranslation accordingly before merging or deploying.
+- All translations should be human-readable and context-aware; avoid ambiguous or unclear token names.
+- If a component uses a new label (e.g., the login page form updates a button label), ensure that exact string and translation key appears in the seedTranslation structure with an English (and other base) value set.
+- For critical user actions (authentication, dashboard, notifications), ensure all user-facing messages are covered in seedTranslation and reviewed periodically for completeness.
+
+

@@ -143,6 +143,28 @@
     "settings": "Einstellungen",
     "users": "Benutzer"
   },
+  "modules": {
+    "title": "Modulverwaltung",
+    "granted": "Gewährt",
+    "notGranted": "Nicht gewährt",
+    "required": "Modulzugriff erforderlich",
+    "missingAccess": "Sie haben keinen Zugriff auf dieses Modul",
+    "income": "Einkommensverwaltung",
+    "assets": "Vermögensverwaltung",
+    "active": "Aktiv",
+    "expired": "Abgelaufen",
+    "alwaysActive": "Immer aktiv",
+    "manageModules": "Module verwalten",
+    "tokenAccount": "Token-Konto",
+    "currentBalance": "Aktueller Saldo",
+    "totalPurchased": "Gesamt gekauft",
+    "grantTokens": "Tokens gewähren",
+    "premiumModules": "Premium-Module",
+    "freeModules": "Kostenlose Module",
+    "grant": "Gewähren",
+    "revoke": "Widerrufen",
+    "expires": "Läuft ab"
+  },
   "notifications": {
     "failedLogin": "Fehlgeschlagener Anmeldeversuch",
     "markAllAsRead": "Alle als gelesen markieren",

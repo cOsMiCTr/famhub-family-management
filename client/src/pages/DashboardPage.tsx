@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCurrencies } from '../contexts/CurrencyContext';
+import { useModuleContext } from '../contexts/ModuleContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ExchangeRateConfigModal from '../components/ExchangeRateConfigModal';
@@ -43,6 +44,7 @@ interface ExchangeRate {
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { hasModule } = useModuleContext();
   const activeCurrencies = useCurrencies();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
@@ -277,7 +279,8 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-blue-600 dark:text-blue-400',
       isFinancial: true,
       linkTo: '/assets',
-      showArrow: true
+      showArrow: true,
+      module: 'assets' as string | null
     },
     {
       title: t('dashboard.netIncome'),
@@ -288,7 +291,8 @@ const DashboardPage: React.FC = () => {
       color: 'bg-green-500',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
       textColor: 'text-green-600 dark:text-green-400',
-      isFinancial: true
+      isFinancial: true,
+      module: 'income' as string | null
     },
     {
       title: t('dashboard.monthlyIncome'),
@@ -301,7 +305,8 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-purple-600 dark:text-purple-400',
       isFinancial: true,
       linkTo: '/income',
-      showArrow: true
+      showArrow: true,
+      module: 'income' as string | null
     },
     {
       title: t('dashboard.activeContracts'),
@@ -312,7 +317,8 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-yellow-600 dark:text-yellow-400',
       isFinancial: false,
       linkTo: '/contracts',
-      showArrow: true
+      showArrow: true,
+      module: null // Contracts removed - always hide this card
     },
     {
       title: t('dashboard.familyMembers'),
@@ -322,6 +328,7 @@ const DashboardPage: React.FC = () => {
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
       textColor: 'text-purple-600 dark:text-purple-400',
       isFinancial: false,
+      module: null, // Always show
       linkTo: '/family-members',
       showArrow: true
     },
@@ -334,9 +341,10 @@ const DashboardPage: React.FC = () => {
       textColor: 'text-indigo-600 dark:text-indigo-400',
       isFinancial: false,
       linkTo: '/assets',
-      showArrow: true
+      showArrow: true,
+      module: 'assets' as string | null
     }
-  ];
+  ].filter(card => !card.module || hasModule(card.module));
 
   return (
     <div className="space-y-6">

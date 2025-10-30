@@ -102,6 +102,23 @@ export async function initializeDatabase(): Promise<void> {
     } finally {
       currencyClient.release();
     }
+
+    // Seed modules if table is empty
+    const modulesClient = await pool.connect();
+    try {
+      const modulesCount = await modulesClient.query('SELECT COUNT(*) as count FROM modules');
+      
+      if (parseInt(modulesCount.rows[0].count) === 0) {
+        console.log('🌱 Seeding modules...');
+        const { seed: seedModules } = await import('../database/seeds/05_modules');
+        await seedModules(db);
+        console.log('✅ Modules seeded successfully');
+      } else {
+        console.log('✅ Modules are intact');
+      }
+    } finally {
+      modulesClient.release();
+    }
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;

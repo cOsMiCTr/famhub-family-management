@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useModuleContext } from '../contexts/ModuleContext';
 import ThemeToggle from './ThemeToggle';
 import AdminNotificationBell from './AdminNotificationBell';
 import {
@@ -28,6 +29,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const { isDark } = useTheme();
+  const { hasModule } = useModuleContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,11 +58,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const navigation = [
-    { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon },
-    { name: t('navigation.income'), href: '/income', icon: BanknotesIcon },
-    { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon },
-    { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon },
-  ];
+    { name: t('navigation.dashboard'), href: '/dashboard', icon: HomeIcon, module: null }, // Always show
+    { name: t('navigation.income'), href: '/income', icon: BanknotesIcon, module: 'income' },
+    { name: t('navigation.assets'), href: '/assets', icon: CurrencyDollarIcon, module: 'assets' },
+    { name: t('navigation.settings'), href: '/settings', icon: Cog6ToothIcon, module: null }, // Always show
+  ].filter(item => !item.module || hasModule(item.module));
 
   // Admin-only navigation items
   const adminNavigation = [

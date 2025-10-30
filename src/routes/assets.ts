@@ -4,6 +4,7 @@ import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler, createValidationError, createNotFoundError } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
+import { requireModule } from '../middleware/moduleAuth';
 import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 import multer from 'multer';
 import path from 'path';
@@ -13,6 +14,8 @@ const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
+// Apply module protection - assets module required
+router.use(requireModule('assets'));
 
 // Configure multer for photo uploads
 const storage = multer.diskStorage({

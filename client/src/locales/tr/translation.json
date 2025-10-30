@@ -143,6 +143,28 @@
     "settings": "Ayarlar",
     "users": "Kullanıcılar"
   },
+  "modules": {
+    "title": "Modül Yönetimi",
+    "granted": "Verildi",
+    "notGranted": "Verilmedi",
+    "required": "Modül erişimi gerekli",
+    "missingAccess": "Bu modüle erişiminiz yok",
+    "income": "Gelir Yönetimi",
+    "assets": "Varlık Yönetimi",
+    "active": "Aktif",
+    "expired": "Süresi Doldu",
+    "alwaysActive": "Her Zaman Aktif",
+    "manageModules": "Modülleri Yönet",
+    "tokenAccount": "Token Hesabı",
+    "currentBalance": "Mevcut Bakiye",
+    "totalPurchased": "Toplam Satın Alınan",
+    "grantTokens": "Token Ver",
+    "premiumModules": "Premium Modüller",
+    "freeModules": "Ücretsiz Modüller",
+    "grant": "Ver",
+    "revoke": "İptal Et",
+    "expires": "Bitiş"
+  },
   "notifications": {
     "failedLogin": "Başarısız Giriş Denemesi",
     "markAllAsRead": "Tümünü Okundu Olarak İşaretle",

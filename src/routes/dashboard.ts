@@ -3,6 +3,7 @@ import { query } from '../config/database';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { asyncHandler } from '../middleware/errorHandler';
 import { authenticateToken } from '../middleware/auth';
+import ModuleService from '../services/moduleService';
 
 const router = express.Router();
 
@@ -18,47 +19,56 @@ router.get('/summary', asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const mainCurrency = req.user.main_currency || 'USD';
 
-  // Get total assets by currency (use current_value if available, otherwise amount)
-  // Show only personal assets (user owns or has share in)
-  // Get user's household member ID
-  const userMemberResult = await query(
-    'SELECT id FROM household_members WHERE user_id = $1',
-    [userId]
-  );
-  
-  let assetsResult;
-  if (userMemberResult.rows.length > 0) {
-    const userMemberId = userMemberResult.rows[0].id;
-    assetsResult = await query(
-      `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
-       FROM assets a
-       WHERE (a.user_id = $1 OR EXISTS (
-         SELECT 1 FROM shared_ownership_distribution 
-         WHERE asset_id = a.id AND household_member_id = $2
-       )) AND status = 'active'
-       GROUP BY currency`,
-      [userId, userMemberId]
+  // Check module access
+  const hasIncomeModule = await ModuleService.hasModuleAccess(userId, 'income');
+  const hasAssetsModule = await ModuleService.hasModuleAccess(userId, 'assets');
+
+  // Get total assets by currency (only if user has assets module)
+  let assetsResult = { rows: [] };
+  if (hasAssetsModule) {
+    // Show only personal assets (user owns or has share in)
+    // Get user's household member ID
+    const userMemberResult = await query(
+      'SELECT id FROM household_members WHERE user_id = $1',
+      [userId]
     );
-  } else {
-    // Fallback if no household member record
-    assetsResult = await query(
-      `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
-       FROM assets
-       WHERE user_id = $1 AND status = 'active'
-       GROUP BY currency`,
+    
+    if (userMemberResult.rows.length > 0) {
+      const userMemberId = userMemberResult.rows[0].id;
+      assetsResult = await query(
+        `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+         FROM assets a
+         WHERE (a.user_id = $1 OR EXISTS (
+           SELECT 1 FROM shared_ownership_distribution 
+           WHERE asset_id = a.id AND household_member_id = $2
+         )) AND status = 'active'
+         GROUP BY currency`,
+        [userId, userMemberId]
+      );
+    } else {
+      // Fallback if no household member record
+      assetsResult = await query(
+        `SELECT currency, SUM(COALESCE(current_value, amount)) as total_amount, COUNT(*) as count
+         FROM assets
+         WHERE user_id = $1 AND status = 'active'
+         GROUP BY currency`,
+        [userId]
+      );
+    }
+  }
+
+  // Get total income by currency (only if user has income module)
+  let incomeResult = { rows: [] };
+  if (hasIncomeModule) {
+    incomeResult = await query(
+      `SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
+       FROM income i
+       JOIN users u ON i.household_id = u.household_id
+       WHERE u.id = $1
+       GROUP BY i.currency`,
       [userId]
     );
   }
-
-  // Get total income by currency
-  const incomeResult = await query(
-    `SELECT i.currency, SUM(i.amount) as total_amount, COUNT(*) as count
-     FROM income i
-     JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1
-     GROUP BY i.currency`,
-    [userId]
-  );
 
   // Convert to main currency
   const currencyBreakdown = [];
@@ -110,50 +120,56 @@ router.get('/summary', asyncHandler(async (req, res) => {
     }
   }
 
-  // Get recent income entries (last 10)
-  const recentIncomeResult = await query(
-    `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-     ORDER BY a.date DESC, a.created_at DESC
-     LIMIT 10`,
-    [userId]
-  );
+  // Get recent income entries (last 10) - only if user has income module
+  let recentIncomeResult = { rows: [] };
+  let monthlyIncomeResult = { rows: [] };
+  let categoryIncomeResult = { rows: [] };
+  
+  if (hasIncomeModule) {
+    recentIncomeResult = await query(
+      `SELECT a.*, ac.name_en as category_name_en, ac.name_de as category_name_de, ac.name_tr as category_name_tr
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+       ORDER BY a.date DESC, a.created_at DESC
+       LIMIT 10`,
+      [userId]
+    );
 
-  // Get monthly income stats
-  const monthlyIncomeResult = await query(
-    `SELECT 
-       DATE_TRUNC('month', a.date) as month,
-       SUM(a.amount) as total_amount,
-       a.currency,
-       COUNT(*) as count
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-       AND a.date >= CURRENT_DATE - INTERVAL '12 months'
-     GROUP BY DATE_TRUNC('month', a.date), a.currency
-     ORDER BY month DESC`,
-    [userId]
-  );
+    // Get monthly income stats
+    monthlyIncomeResult = await query(
+      `SELECT 
+         DATE_TRUNC('month', a.date) as month,
+         SUM(a.amount) as total_amount,
+         a.currency,
+         COUNT(*) as count
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+         AND a.date >= CURRENT_DATE - INTERVAL '12 months'
+       GROUP BY DATE_TRUNC('month', a.date), a.currency
+       ORDER BY month DESC`,
+      [userId]
+    );
 
-  // Get income by category (last 6 months)
-  const categoryIncomeResult = await query(
-    `SELECT 
-       ac.name_en as category_name_en,
-       ac.name_de as category_name_de,
-       ac.name_tr as category_name_tr,
-       SUM(a.amount) as total_amount,
-       a.currency,
-       COUNT(*) as count
-     FROM assets a
-     JOIN asset_categories ac ON a.category_id = ac.id
-     WHERE a.user_id = $1 AND ac.type = 'income'
-       AND a.date >= CURRENT_DATE - INTERVAL '6 months'
-     GROUP BY ac.id, ac.name_en, ac.name_de, ac.name_tr, a.currency
-     ORDER BY total_amount DESC`,
-    [userId]
-  );
+    // Get income by category (last 6 months)
+    categoryIncomeResult = await query(
+      `SELECT 
+         ac.name_en as category_name_en,
+         ac.name_de as category_name_de,
+         ac.name_tr as category_name_tr,
+         SUM(a.amount) as total_amount,
+         a.currency,
+         COUNT(*) as count
+       FROM assets a
+       JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.user_id = $1 AND ac.type = 'income'
+         AND a.date >= CURRENT_DATE - INTERVAL '6 months'
+       GROUP BY ac.id, ac.name_en, ac.name_de, ac.name_tr, a.currency
+       ORDER BY total_amount DESC`,
+      [userId]
+    );
+  }
 
   // Get upcoming contract renewals (next 30 days)
   const upcomingRenewalsResult = await query(
@@ -178,18 +194,39 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [userId]
   );
 
-  // Get quick stats
-  const quickStatsResult = await query(
-    `SELECT 
+  // Get quick stats (filter by module access)
+  let quickStatsQuery = '';
+  const queryParams: any[] = [userId, req.user.household_id];
+  
+  if (hasIncomeModule && hasAssetsModule) {
+    quickStatsQuery = `SELECT 
        COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
        COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
-       COUNT(CASE WHEN c.status = 'active' THEN 1 END) as active_contracts
+       0 as active_contracts
      FROM assets a
      JOIN asset_categories ac ON a.category_id = ac.id
-     LEFT JOIN contracts c ON c.household_id = $2
-     WHERE a.user_id = $1`,
-    [userId, req.user.household_id]
-  );
+     WHERE a.user_id = $1`;
+  } else if (hasIncomeModule) {
+    quickStatsQuery = `SELECT 
+       COUNT(CASE WHEN ac.type = 'income' THEN 1 END) as income_entries,
+       0 as expense_entries,
+       0 as active_contracts
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     WHERE a.user_id = $1 AND ac.type = 'income'`;
+  } else if (hasAssetsModule) {
+    quickStatsQuery = `SELECT 
+       0 as income_entries,
+       COUNT(CASE WHEN ac.type = 'expense' THEN 1 END) as expense_entries,
+       0 as active_contracts
+     FROM assets a
+     JOIN asset_categories ac ON a.category_id = ac.id
+     WHERE a.user_id = $1 AND ac.type != 'income'`;
+  } else {
+    quickStatsQuery = `SELECT 0 as income_entries, 0 as expense_entries, 0 as active_contracts`;
+  }
+  
+  const quickStatsResult = await query(quickStatsQuery, queryParams);
 
   // Get household members count (total family members, not just users)
   const membersResult = await query(
@@ -199,36 +236,37 @@ router.get('/summary', asyncHandler(async (req, res) => {
     [req.user.household_id]
   );
 
-  // Get current month income and convert to main currency
-  // Calculate monthly income from all recurring income entries
-  const monthlyIncomeResult_RAW = await query(
-    `SELECT 
-       SUM(CASE 
-         WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
-         WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
-         WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
-         ELSE 0 
-       END) as monthly_amount,
-       i.currency
-     FROM income i
-     JOIN users u ON i.household_id = u.household_id
-     WHERE u.id = $1 AND i.is_recurring = true
-       AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
-     GROUP BY i.currency`,
-    [userId]
-  );
-
+  // Get current month income and convert to main currency (only if user has income module)
   let monthlyIncomeInMainCurrency = 0;
-  for (const income of monthlyIncomeResult_RAW.rows) {
-    try {
-      const convertedAmount = await exchangeRateService.convertCurrency(
-        parseFloat(income.monthly_amount || 0),
-        income.currency,
-        mainCurrency
-      );
-      monthlyIncomeInMainCurrency += convertedAmount;
-    } catch (error) {
-      console.error(`Error converting monthly income ${income.currency} to ${mainCurrency}:`, error);
+  if (hasIncomeModule) {
+    const monthlyIncomeResult_RAW = await query(
+      `SELECT 
+         SUM(CASE 
+           WHEN i.is_recurring = true AND i.frequency = 'monthly' THEN i.amount
+           WHEN i.is_recurring = true AND i.frequency = 'weekly' THEN i.amount * 4.33
+           WHEN i.is_recurring = true AND i.frequency = 'yearly' THEN i.amount / 12
+           ELSE 0 
+         END) as monthly_amount,
+         i.currency
+       FROM income i
+       JOIN users u ON i.household_id = u.household_id
+       WHERE u.id = $1 AND i.is_recurring = true
+         AND (i.end_date IS NULL OR i.end_date >= CURRENT_DATE)
+       GROUP BY i.currency`,
+      [userId]
+    );
+
+    for (const income of monthlyIncomeResult_RAW.rows) {
+      try {
+        const convertedAmount = await exchangeRateService.convertCurrency(
+          parseFloat(income.monthly_amount || 0),
+          income.currency,
+          mainCurrency
+        );
+        monthlyIncomeInMainCurrency += convertedAmount;
+      } catch (error) {
+        console.error(`Error converting monthly income ${income.currency} to ${mainCurrency}:`, error);
+      }
     }
   }
 
@@ -250,29 +288,43 @@ router.get('/summary', asyncHandler(async (req, res) => {
     rate.to_currency !== mainCurrency
   );
 
-  res.json({
-    summary: {
-      total_assets_main_currency: totalInMainCurrency,
-      total_income_main_currency: totalIncomeInMainCurrency,
-      main_currency: mainCurrency,
-      currency_breakdown: currencyBreakdown,
-      income_breakdown: incomeBreakdown,
-      member_count: parseInt(membersResult.rows[0].member_count) || 0,
-      quick_stats: {
-        income_entries: parseInt(quickStats.income_entries) || 0,
-        expense_entries: parseInt(quickStats.expense_entries) || 0,
-        active_contracts: parseInt(quickStats.active_contracts) || 0,
-        monthly_income: monthlyIncomeInMainCurrency
-      }
-    },
+  // Build summary response based on module access
+  const summary: any = {
+    main_currency: mainCurrency,
+    member_count: parseInt(membersResult.rows[0].member_count) || 0,
+    quick_stats: {
+      income_entries: parseInt(quickStats.income_entries) || 0,
+      expense_entries: parseInt(quickStats.expense_entries) || 0,
+      active_contracts: 0, // Contracts removed
+    }
+  };
+
+  if (hasAssetsModule) {
+    summary.total_assets_main_currency = totalInMainCurrency;
+    summary.currency_breakdown = currencyBreakdown;
+  }
+
+  if (hasIncomeModule) {
+    summary.total_income_main_currency = totalIncomeInMainCurrency;
+    summary.income_breakdown = incomeBreakdown;
+    summary.quick_stats.monthly_income = monthlyIncomeInMainCurrency;
+  }
+
+  const response: any = {
+    summary,
     exchange_rates: relevantRates,
-    recent_income: recentIncomeResult.rows,
-    monthly_income: monthlyIncomeResult.rows,
-    category_income: categoryIncomeResult.rows,
-    upcoming_renewals: upcomingRenewalsResult.rows,
     notifications: notificationsResult.rows,
     timestamp: new Date().toISOString()
-  });
+  };
+
+  // Only include income-related data if user has income module
+  if (hasIncomeModule) {
+    response.recent_income = recentIncomeResult.rows;
+    response.monthly_income = monthlyIncomeResult.rows;
+    response.category_income = categoryIncomeResult.rows;
+  }
+
+  res.json(response);
 }));
 
 // Get dashboard statistics for charts

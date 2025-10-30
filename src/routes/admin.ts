@@ -8,6 +8,8 @@ import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { PasswordService } from '../services/passwordService';
 import { NotificationService } from '../services/notificationService';
 import { LoginAttemptService } from '../services/loginAttemptService';
+import ModuleService from '../services/moduleService';
+import TokenAccountService from '../services/tokenAccountService';
 
 const router = express.Router();
 
@@ -924,6 +926,149 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
       hasNextPage: recentActivity.rows.length === itemsPerPage
     }
   });
+}));
+
+// ==================== Module Management Routes ====================
+
+/**
+ * GET /api/admin/modules
+ * List all modules (admin only)
+ */
+router.get('/modules', asyncHandler(async (req, res) => {
+  const modules = await ModuleService.getAllModules();
+  res.json(modules);
+}));
+
+/**
+ * GET /api/admin/users/:id/modules
+ * Get user's module access (admin only)
+ */
+router.get('/users/:id/modules', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  const modules = await ModuleService.getUserModules(userId);
+  const activeModules = await ModuleService.getUserActiveModulesWithExpiration(userId);
+  
+  res.json({
+    modules,
+    activeModules
+  });
+}));
+
+/**
+ * PUT /api/admin/users/:id/modules
+ * Update user's module access (bulk) - admin only
+ */
+router.put('/users/:id/modules', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { modules } = req.body; // Array of module updates: [{ moduleKey, action: 'grant' | 'revoke' }]
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  if (!Array.isArray(modules)) {
+    throw createValidationError('Modules must be an array');
+  }
+
+  const grantedBy = req.user!.id;
+  const results = [];
+
+  for (const moduleUpdate of modules) {
+    const { moduleKey, action, reason } = moduleUpdate;
+    
+    if (action === 'grant') {
+      await ModuleService.grantModule(userId, moduleKey, grantedBy, reason);
+      results.push({ moduleKey, action: 'granted' });
+    } else if (action === 'revoke') {
+      await ModuleService.revokeModule(userId, moduleKey);
+      results.push({ moduleKey, action: 'revoked' });
+    }
+  }
+
+  res.json({ results });
+}));
+
+/**
+ * POST /api/admin/users/:id/modules/:moduleKey/grant
+ * Grant single module to user (admin only - bypasses token system)
+ */
+router.post('/users/:id/modules/:moduleKey/grant', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const moduleKey = req.params.moduleKey;
+  const { reason } = req.body;
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  const grantedBy = req.user!.id;
+  const activation = await ModuleService.grantModule(userId, moduleKey, grantedBy, reason);
+  
+  res.json({ activation, message: `Module ${moduleKey} granted to user` });
+}));
+
+/**
+ * POST /api/admin/users/:id/modules/:moduleKey/revoke
+ * Revoke single module from user (admin only)
+ */
+router.post('/users/:id/modules/:moduleKey/revoke', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const moduleKey = req.params.moduleKey;
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  await ModuleService.revokeModule(userId, moduleKey);
+  
+  res.json({ message: `Module ${moduleKey} revoked from user` });
+}));
+
+/**
+ * GET /api/admin/users/:id/tokens
+ * Get user's token account (admin only)
+ */
+router.get('/users/:id/tokens', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  const account = await TokenAccountService.getUserTokenAccount(userId);
+  const price = await TokenAccountService.getTokenPrice();
+  
+  res.json({
+    balance: parseFloat(account.balance.toString()),
+    totalPurchased: parseFloat(account.total_tokens_purchased.toString()),
+    tokenPrice: price
+  });
+}));
+
+/**
+ * POST /api/admin/users/:id/tokens/grant
+ * Grant tokens to user (admin only)
+ */
+router.post('/users/:id/tokens/grant', asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const { amount, reason } = req.body;
+  
+  if (isNaN(userId)) {
+    throw createValidationError('Invalid user ID');
+  }
+
+  if (!amount || amount <= 0) {
+    throw createValidationError('Amount must be greater than 0');
+  }
+
+  const account = await TokenAccountService.addTokens(userId, amount, 'admin_grant', reason);
+  
+  res.json({ account, message: `${amount} tokens granted to user` });
 }));
 
 export default router;

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
+import { ModuleProvider, useModuleContext } from './contexts/ModuleContext';
 import { useTranslation } from 'react-i18next';
 import { i18nPromise } from './i18n';
 
@@ -44,6 +45,24 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boole
     return <Navigate to="/dashboard" replace />;
   }
 
+  return <>{children}</>;
+};
+
+// Module Protected Route Component
+const ModuleProtectedRoute: React.FC<{ 
+  children: React.ReactNode;
+  requiredModule?: string;
+}> = ({ children, requiredModule }) => {
+  const { hasModule, isLoading } = useModuleContext();
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  if (requiredModule && !hasModule(requiredModule)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
   return <>{children}</>;
 };
 
@@ -99,9 +118,11 @@ const AppContent: React.FC = () => {
           path="/assets"
           element={
             <ProtectedRoute>
-              <Layout>
-                <AssetsPage />
-              </Layout>
+              <ModuleProtectedRoute requiredModule="assets">
+                <Layout>
+                  <AssetsPage />
+                </Layout>
+              </ModuleProtectedRoute>
             </ProtectedRoute>
           }
         />
@@ -109,9 +130,11 @@ const AppContent: React.FC = () => {
           path="/income"
           element={
             <ProtectedRoute>
-              <Layout>
-                <IncomePage />
-              </Layout>
+              <ModuleProtectedRoute requiredModule="income">
+                <Layout>
+                  <IncomePage />
+                </Layout>
+              </ModuleProtectedRoute>
             </ProtectedRoute>
           }
         />
@@ -255,9 +278,11 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <CurrencyProvider>
-          <AppContent />
-        </CurrencyProvider>
+        <ModuleProvider>
+          <CurrencyProvider>
+            <AppContent />
+          </CurrencyProvider>
+        </ModuleProvider>
       </AuthProvider>
     </ThemeProvider>
   );

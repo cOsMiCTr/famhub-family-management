@@ -25,6 +25,7 @@ import assetCategoriesRoutes from './routes/asset-categories';
 import currenciesRoutes from './routes/currencies';
 import exportRoutes from './routes/export';
 import twoFactorRoutes from './routes/twoFactor';
+import modulesRoutes from './routes/modules';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -90,6 +91,7 @@ app.use('/api/asset-categories', assetCategoriesRoutes);
 app.use('/api/currencies', currenciesRoutes);
 app.use('/api/users/export', exportRoutes);
 app.use('/api/two-factor', twoFactorRoutes);
+app.use('/api/modules', modulesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

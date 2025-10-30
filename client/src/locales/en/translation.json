@@ -143,6 +143,28 @@
     "settings": "Settings",
     "users": "Users"
   },
+  "modules": {
+    "title": "Module Management",
+    "granted": "Granted",
+    "notGranted": "Not Granted",
+    "required": "Module access required",
+    "missingAccess": "You don't have access to this module",
+    "income": "Income Management",
+    "assets": "Assets Management",
+    "active": "Active",
+    "expired": "Expired",
+    "alwaysActive": "Always Active",
+    "manageModules": "Manage Modules",
+    "tokenAccount": "Token Account",
+    "currentBalance": "Current Balance",
+    "totalPurchased": "Total Purchased",
+    "grantTokens": "Grant Tokens",
+    "premiumModules": "Premium Modules",
+    "freeModules": "Free Modules",
+    "grant": "Grant",
+    "revoke": "Revoke",
+    "expires": "Expires"
+  },
   "notifications": {
     "failedLogin": "Failed Login Attempt",
     "markAllAsRead": "Mark All as Read",

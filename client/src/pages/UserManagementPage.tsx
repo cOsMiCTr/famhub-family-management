@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import UserGenerationModal from '../components/UserGenerationModal';
+import UserModuleManagement from '../components/UserModuleManagement';
 import { 
   UserGroupIcon, 
   PencilIcon, 
@@ -20,7 +21,8 @@ import {
   ClockIcon,
   UserMinusIcon,
   ShieldExclamationIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 interface User {
@@ -65,6 +67,7 @@ const UserManagementPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showHardDeleteModal, setShowHardDeleteModal] = useState(false);
+  const [showModuleModal, setShowModuleModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
   // Household modal states
@@ -630,6 +633,17 @@ const UserManagementPage: React.FC = () => {
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowModuleModal(true);
+                            }}
+                            className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                            title="Manage Modules"
+                          >
+                            <SparklesIcon className="h-4 w-4" />
+                          </button>
+                          
                           {user.account_status === 'locked' && (
                             <button
                               onClick={() => handleUnlockUser(user.id)}
@@ -1103,6 +1117,20 @@ const UserManagementPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Module Management Modal */}
+      {showModuleModal && selectedUser && (
+        <UserModuleManagement
+          userId={selectedUser.id}
+          onClose={() => {
+            setShowModuleModal(false);
+            setSelectedUser(null);
+          }}
+          onUpdate={() => {
+            loadData();
+          }}
+        />
       )}
     </div>
   );

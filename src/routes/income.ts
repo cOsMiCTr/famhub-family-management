@@ -2,6 +2,7 @@ import express from 'express';
 import { body, param, query as expressQuery, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
+import { requireModule } from '../middleware/moduleAuth';
 import { exchangeRateService } from '../services/exchangeRateService';
 import { getActiveCurrencyCodes } from '../utils/currencyHelpers';
 
@@ -9,6 +10,8 @@ const router = express.Router();
 
 // Apply authentication to all routes
 router.use(authenticateToken);
+// Apply module protection - income module required
+router.use(requireModule('income'));
 
 // Helper function to log income changes
 async function logIncomeChange(

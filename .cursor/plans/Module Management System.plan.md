@@ -1,4 +1,4 @@
-<!-- 91466788-b2f4-40c7-8daa-264ce5e5998b cd2d24bd-d3a3-4738-b992-38ce57259dfc -->
+<!-- 91466788-b2f4-40c7-8daa-264ce5e5998b a52cdd3e-9132-4e0a-b880-d93263f7399e -->
 # Module Management System Implementation Plan
 
 ## Overview
@@ -612,18 +612,18 @@ In User Management page, show:
 
 ### To-dos
 
-- [ ] Update assets table schema with new columns (name, member_id, purchase info, valuation, ownership, status, photo_url)
-- [ ] Create asset_valuation_history table for tracking value changes over time
-- [ ] Update asset_categories table with category_type, icon, and settings fields
-- [ ] Create seedAssetCategories.ts with predefined categories (Real Estate, Stocks, ETFs, etc.)
-- [ ] Update src/routes/assets.ts with new endpoints and enhanced existing routes
-- [ ] Create src/routes/asset-categories.ts for admin category management
-- [ ] Implement photo upload endpoint with file storage
-- [ ] Enhance assets summary endpoint with performance metrics and allocation
-- [ ] Implement full AssetsPage.tsx with filters, table, modals, and charts
-- [ ] Create AssetCategoriesPage.tsx for admin category management
-- [ ] Create asset-related components (AssetCard, ValuationHistoryChart, PhotoUpload)
-- [ ] Add asset helper functions (ROI calculation, formatting, ownership display)
-- [ ] Add ~65 translation keys for assets and asset categories
-- [ ] Update navigation to include Asset Categories in admin menu
-- [ ] Test all CRUD operations, filters, currency conversion, ROI calculations, and photo uploads
+- [ ] Install knex and @types/knex packages, update package.json scripts
+- [ ] Create src/database/knexfile.ts with Heroku-compatible configuration for development, staging, and production environments
+- [ ] Create src/database/connection.ts to export Knex instance and maintain backward compatibility with existing pool export
+- [ ] Create 0000000000000_initial_schema.ts migration with all 21 tables, respecting foreign key dependencies and converting PostgreSQL-specific types (JSONB, ARRAY, CHECK constraints)
+- [ ] Create sequential migrations for all column additions (user security columns, asset enhancements, etc.) with proper down() functions
+- [ ] Create migration for all 17+ indexes with down() functions
+- [ ] Create migration for foreign key constraint updates (CASCADE changes) with rollback support
+- [ ] Move seed files from src/migrations/ to src/database/seeds/ and rename to Knex convention (01_currencies.ts, etc.)
+- [ ] Convert all 4 seed files to use Knex instance, make idempotent with existence checks before insert
+- [ ] Update initializeDatabase() to use knex.migrate.latest() instead of runMigrations(), preserve seed conditional logic with Knex seeds
+- [ ] Update Procfile with release phase for migrations or update heroku-postbuild script, verify DATABASE_URL usage
+- [ ] Test migrations on fresh database and existing database locally, verify all tables/indexes created correctly
+- [ ] Deploy to staging Heroku instance, run migrations in release phase, verify data integrity and functionality
+- [ ] Create database backup, deploy to production with migrations, monitor for errors, verify application functionality
+- [ ] Remove runMigrations() function from database.ts after successful production migration, keep query() helper and pool export
