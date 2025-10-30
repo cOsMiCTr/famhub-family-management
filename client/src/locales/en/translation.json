@@ -239,7 +239,7 @@
     "twoFactorDisabled": "Two-Factor Authentication is disabled",
     "twoFactorEnabled": "Two-Factor Authentication is enabled",
     "twoFactorEnabledDescription": "Your account is protected with two-factor authentication",
-    "twoFactorEnableDescription": "Click the button below to set up two-factor authentication for your account.",
+    "twoFactorEnableDescription": "Add an extra layer of security to your account. After enabling, you'll need both your password and a code from your authenticator app to log in.",
     "enable2FA": "Enable 2FA",
     "disable2FA": "Disable 2FA",
     "2FAEnabledSuccess": "Two-factor authentication enabled successfully!",

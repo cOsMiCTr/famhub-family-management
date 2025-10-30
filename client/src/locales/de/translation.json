@@ -238,7 +238,7 @@
     "twoFactorDisabled": "Zwei-Faktor-Authentifizierung ist deaktiviert",
     "twoFactorEnabled": "Zwei-Faktor-Authentifizierung ist aktiviert",
     "twoFactorEnabledDescription": "Ihr Konto ist durch Zwei-Faktor-Authentifizierung geschützt",
-    "twoFactorEnableDescription": "Klicken Sie auf die Schaltfläche unten, um die Zwei-Faktor-Authentifizierung für Ihr Konto einzurichten.",
+    "twoFactorEnableDescription": "Fügen Sie Ihrem Konto eine zusätzliche Sicherheitsebene hinzu. Nach der Aktivierung benötigen Sie sowohl Ihr Passwort als auch einen Code aus Ihrer Authenticator-App zum Anmelden.",
     "enable2FA": "2FA aktivieren",
     "disable2FA": "2FA deaktivieren",
     "2FAEnabledSuccess": "Zwei-Faktor-Authentifizierung erfolgreich aktiviert!",
