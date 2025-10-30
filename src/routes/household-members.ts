@@ -21,9 +21,10 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ error: 'User is not assigned to a household' });
     }
 
-    // Get all members for this household, excluding Easy "Household (Shared)" legacy member
+    // Get all members for this household, excluding "Household (Shared)" legacy member
     const result = await query(
-      `SELECT hm.*, u.email as creator_email *( FROM household_members hm
+      `SELECT hm.*, u.email as creator_email
+       FROM household_members hm
        LEFT JOIN users u ON hm.created_by_user_id = u.id
        WHERE hm.household_id = $1 AND hm.name != 'Household (Shared)'
        ORDER BY hm.is_shared DESC, hm.created_at ASC`,
