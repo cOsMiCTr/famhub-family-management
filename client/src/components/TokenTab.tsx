@@ -19,7 +19,7 @@ interface Module {
   category: 'free' | 'premium';
   isActive?: boolean;
   expiresAt?: string | null;
- …}
+}
 
 interface TokenAccount {
   balance: number;
