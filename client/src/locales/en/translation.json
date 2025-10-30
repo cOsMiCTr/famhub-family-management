@@ -132,6 +132,12 @@
     "memberCount": "Member Count",
     "title": "Households"
   },
+  "income": {
+    "noMembersTitle": "No Family Members",
+    "noMembersMessage": "You need to add at least one family member before you can add income entries.",
+    "noMembersQuestion": "Would you like to go to Family Members and add one now?",
+    "goToFamilyMembers": "Go to Family Members"
+  },
   "navigation": {
     "admin": "Admin",
     "assets": "Assets",

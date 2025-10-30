@@ -132,6 +132,12 @@
     "memberCount": "Üye Sayısı",
     "title": "Hane"
   },
+  "income": {
+    "noMembersTitle": "Aile Üyesi Yok",
+    "noMembersMessage": "Gelir girişi ekleyebilmeniz için önce en az bir aile üyesi eklemeniz gerekir.",
+    "noMembersQuestion": "Aile Üyeleri bölümüne gidip şimdi bir tane eklemek ister misiniz?",
+    "goToFamilyMembers": "Aile Üyeleri'ne Git"
+  },
   "navigation": {
     "admin": "Yönetici",
     "assets": "Varlıklar",

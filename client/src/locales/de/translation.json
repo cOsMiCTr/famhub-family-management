@@ -132,6 +132,12 @@
     "memberCount": "Mitgliederanzahl",
     "title": "Haushalte"
   },
+  "income": {
+    "noMembersTitle": "Keine Familienmitglieder",
+    "noMembersMessage": "Sie müssen mindestens ein Familienmitglied hinzufügen, bevor Sie Einkommenseinträge hinzufügen können.",
+    "noMembersQuestion": "Möchten Sie zu Familienmitgliedern gehen und jetzt eines hinzufügen?",
+    "goToFamilyMembers": "Zu Familienmitgliedern gehen"
+  },
   "navigation": {
     "admin": "Admin",
     "assets": "Vermögen",
