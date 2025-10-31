@@ -575,6 +575,7 @@ export async function seed(knex: Knex): Promise<void> {
       { key: 'expenses.leaveEmptyForOngoing', category: 'expenses', en: 'Leave empty for ongoing expense', de: 'Für laufende Ausgabe leer lassen', tr: 'Devam eden gider için boş bırakın' },
       { key: 'expenses.selectCategory', category: 'expenses', en: 'Select Category', de: 'Kategorie auswählen', tr: 'Kategori Seçin' },
       { key: 'expenses.selectMember', category: 'expenses', en: 'Select Member', de: 'Mitglied auswählen', tr: 'Üye Seçin' },
+      { key: 'expenses.household', category: 'expenses', en: 'Household', de: 'Haushalt', tr: 'Hane' },
       { key: 'expenses.totalAmount', category: 'expenses', en: 'Total Amount', de: 'Gesamtbetrag', tr: 'Toplam Tutar' },
       { key: 'expenses.averageAmount', category: 'expenses', en: 'Average Amount', de: 'Durchschnittsbetrag', tr: 'Ortalama Tutar' },
       { key: 'expenses.recurringExpenses', category: 'expenses', en: 'Recurring Expenses', de: 'Wiederkehrende Ausgaben', tr: 'Tekrarlanan Gider' },
