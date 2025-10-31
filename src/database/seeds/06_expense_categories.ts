@@ -201,15 +201,9 @@ export async function seed(knex: Knex): Promise<void> {
     return;
   }
 
-  // Check if categories already exist
-  const existingCount = await knex('expense_categories').count('* as count').first();
-  
-  if (parseInt(existingCount?.count as string || '0') > 0) {
-    console.log('✅ Expense categories already seeded');
-    return;
-  }
-
   // Insert categories (idempotent - check before insert)
+  // This ensures all categories are present, even if some already exist
+  let insertedCount = 0;
   for (const category of categories) {
     const existing = await knex('expense_categories')
       .where('name_en', category.name_en)
@@ -227,9 +221,17 @@ export async function seed(knex: Knex): Promise<void> {
         requires_member_link: category.requires_member_link || false,
         allows_multiple_members: category.allows_multiple_members || false
       });
+      insertedCount++;
+      console.log(`  ✓ Added category: ${category.name_en}`);
     }
   }
 
+  if (insertedCount === 0) {
+    console.log('✅ All expense categories already exist');
+  } else {
+    console.log(`✅ Inserted ${insertedCount} new expense category(ies)`);
+  }
+
   const count = await knex('expense_categories').count('* as count').first();
-  console.log(`✅ Successfully seeded ${count?.count || 0} expense categories`);
+  console.log(`✅ Total expense categories: ${count?.count || 0}`);
 }

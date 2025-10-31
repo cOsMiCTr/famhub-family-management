@@ -114,6 +114,16 @@ async function initializeDatabase() {
         finally {
             assetCategoryClient.release();
         }
+        const expenseCategoryClient = await exports.pool.connect();
+        try {
+            console.log('🌱 Seeding expense categories...');
+            const { seed: seedExpenseCategories } = await Promise.resolve().then(() => __importStar(require('../database/seeds/06_expense_categories')));
+            await seedExpenseCategories(db);
+            console.log('✅ Expense categories seeded successfully');
+        }
+        finally {
+            expenseCategoryClient.release();
+        }
         const currencyClient = await exports.pool.connect();
         try {
             const currencyCount = await currencyClient.query('SELECT COUNT(*) as count FROM currencies');

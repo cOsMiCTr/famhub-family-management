@@ -86,6 +86,17 @@ export async function initializeDatabase(): Promise<void> {
       assetCategoryClient.release();
     }
 
+    // Seed expense categories (always run to ensure all categories are present)
+    const expenseCategoryClient = await pool.connect();
+    try {
+      console.log('🌱 Seeding expense categories...');
+      const { seed: seedExpenseCategories } = await import('../database/seeds/06_expense_categories');
+      await seedExpenseCategories(db);
+      console.log('✅ Expense categories seeded successfully');
+    } finally {
+      expenseCategoryClient.release();
+    }
+
     // Seed currencies if table is empty
     const currencyClient = await pool.connect();
     try {
