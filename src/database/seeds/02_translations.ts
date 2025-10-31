@@ -753,6 +753,20 @@ export async function seed(knex: Knex): Promise<void> {
       { key: 'externalPersons.updateSuccess', category: 'externalPersons', en: 'External person updated successfully', de: 'Externe Person erfolgreich aktualisiert', tr: 'Harici kişi başarıyla güncellendi' },
       { key: 'externalPersons.deleteSuccess', category: 'externalPersons', en: 'External person deleted successfully', de: 'Externe Person erfolgreich gelöscht', tr: 'Harici kişi başarıyla silindi' },
       
+      // Common - Relationship selection
+      { key: 'common.selectRelationship', category: 'common', en: 'Select relationship...', de: 'Beziehung auswählen...', tr: 'İlişki seçin...' },
+      
+      // Relationships
+      { key: 'relationships.friend', category: 'relationships', en: 'Friend', de: 'Freund', tr: 'Arkadaş' },
+      { key: 'relationships.relative', category: 'relationships', en: 'Relative', de: 'Verwandter', tr: 'Akraba' },
+      { key: 'relationships.colleague', category: 'relationships', en: 'Colleague', de: 'Kollege', tr: 'İş Arkadaşı' },
+      { key: 'relationships.neighbor', category: 'relationships', en: 'Neighbor', de: 'Nachbar', tr: 'Komşu' },
+      { key: 'relationships.acquaintance', category: 'relationships', en: 'Acquaintance', de: 'Bekannter', tr: 'Tanıdık' },
+      { key: 'relationships.businessPartner', category: 'relationships', en: 'Business Partner', de: 'Geschäftspartner', tr: 'İş Ortağı' },
+      { key: 'relationships.familyFriend', category: 'relationships', en: 'Family Friend', de: 'Freund der Familie', tr: 'Aile Dostu' },
+      { key: 'relationships.godparent', category: 'relationships', en: 'Godparent', de: 'Pate', tr: 'Vaftiz Ebeveyni' },
+      { key: 'relationships.other', category: 'relationships', en: 'Other', de: 'Sonstiges', tr: 'Diğer' },
+      
       // Settings - External Members
       { key: 'settings.externalMembers', category: 'settings', en: 'External Members', de: 'Externe Mitglieder', tr: 'Harici Üyeler' },
       { key: 'settings.externalMembersDescription', category: 'settings', en: 'Manage external persons (friends, relatives) for linking to expenses like birthday presents', de: 'Externe Personen (Freunde, Verwandte) verwalten, um sie mit Ausgaben wie Geburtstagsgeschenken zu verknüpfen', tr: 'Giderlerde (doğum günü hediyeleri gibi) bağlantı kurmak için harici kişileri (arkadaşlar, akrabalar) yönetin' },
