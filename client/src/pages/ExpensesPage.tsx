@@ -304,13 +304,10 @@ const ExpensesPage: React.FC = () => {
 
   // Update form data currency when user preferences are loaded
   useEffect(() => {
-    if (userPreferences?.currency && !showAddModal && !showEditModal) {
-      setFormData(prev => ({
-        ...prev,
-        currency: userPreferences.currency || 'USD'
-      }));
+    if (userPreferences?.currency && !showWizard) {
+      // Currency will be set in wizard when needed
     }
-  }, [userPreferences, showAddModal, showEditModal]);
+  }, [userPreferences, showWizard]);
 
   // Validate form with custom messages
   const validateForm = (): boolean => {
