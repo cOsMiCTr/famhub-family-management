@@ -124,7 +124,7 @@ const ExpenseInsuranceForm: React.FC<ExpenseInsuranceFormProps> = ({
         <select
           value={coverageType}
           onChange={(e) => handleCoverageTypeChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           required
         >
           <option value="">{t('expenses.selectCoverageType') || 'Select coverage type...'}</option>
@@ -150,7 +150,7 @@ const ExpenseInsuranceForm: React.FC<ExpenseInsuranceFormProps> = ({
             value={insuranceCompany}
             onChange={(e) => handleInputChange('insurance_company', e.target.value)}
             placeholder={t('expenses.typeToSearch') || 'Type to search or enter new...'}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           />
           {insuranceSuggestions.length > 0 && (
             <datalist id="insurance-companies">
@@ -217,7 +217,7 @@ const ExpenseInsuranceForm: React.FC<ExpenseInsuranceFormProps> = ({
             <select
               value={vehicleAssetId || ''}
               onChange={(e) => handleVehicleChange(e.target.value ? parseInt(e.target.value) : null)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               required
             >
               <option value="">{t('expenses.selectVehicle') || 'Select a vehicle...'}</option>

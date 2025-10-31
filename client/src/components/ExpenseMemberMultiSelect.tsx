@@ -5,9 +5,11 @@ import { apiService } from '../services/api';
 
 interface Member {
   id: number;
-  name: string;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
   relationship?: string;
-  is_shared: boolean;
+  is_shared?: boolean;
 }
 
 interface ExpenseMemberMultiSelectProps {
@@ -63,34 +65,36 @@ const ExpenseMemberMultiSelect: React.FC<ExpenseMemberMultiSelectProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
-        {t('expenses.selectRecipients')}
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {t('expenses.selectRecipients') || 'Select Recipients'}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       {loading ? (
-        <div className="text-sm text-gray-500">{t('common.loading')}</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">{t('common.loading') || 'Loading...'}</div>
       ) : errorMessage ? (
-        <div className="text-sm text-red-500">{errorMessage}</div>
+        <div className="text-sm text-red-600 dark:text-red-400">{errorMessage}</div>
       ) : members.length === 0 ? (
-        <div className="text-sm text-gray-500">{t('expenses.noMembersAvailable')}</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">{t('expenses.noMembersAvailable') || 'No members available'}</div>
       ) : (
         <>
-          <div className="border border-gray-300 rounded-md p-2 max-h-32 overflow-y-auto">
+          <div className="border border-gray-300 dark:border-gray-600 rounded-md p-2 max-h-32 overflow-y-auto bg-white dark:bg-gray-700">
             {members.map((member) => (
               <label
                 key={member.id}
-                className="flex items-center py-1 px-2 hover:bg-gray-50 rounded cursor-pointer"
+                className="flex items-center py-1 px-2 hover:bg-gray-50 dark:hover:bg-gray-600 rounded cursor-pointer"
               >
                 <input
                   type="checkbox"
                   checked={(value || []).includes(member.id)}
                   onChange={() => toggleMember(member.id)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
                 />
-                <span className="ml-2 text-sm text-gray-700">{member.name}</span>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                  {member.name || `${member.first_name || ''} ${member.last_name || ''}`.trim() || `Member ${member.id}`}
+                </span>
                 {member.relationship && (
-                  <span className="ml-2 text-xs text-gray-500">({member.relationship})</span>
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">({member.relationship})</span>
                 )}
               </label>
             ))}
@@ -101,14 +105,14 @@ const ExpenseMemberMultiSelect: React.FC<ExpenseMemberMultiSelectProps> = ({
               {selectedMembers.map((member) => (
                 <span
                   key={member.id}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
                 >
                   <UserIcon className="h-3 w-3 mr-1" />
-                  {member.name}
+                  {member.name || `${member.first_name || ''} ${member.last_name || ''}`.trim() || `Member ${member.id}`}
                   <button
                     type="button"
                     onClick={() => removeMember(member.id)}
-                    className="ml-1 text-indigo-600 hover:text-indigo-800"
+                    className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
                   >
                     <XMarkIcon className="h-3 w-3" />
                   </button>
@@ -118,13 +122,13 @@ const ExpenseMemberMultiSelect: React.FC<ExpenseMemberMultiSelectProps> = ({
           )}
 
           {required && (value || []).length === 0 && (
-            <p className="mt-1 text-sm text-red-600">{t('expenses.selectAtLeastOneRecipient')}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('expenses.selectAtLeastOneRecipient') || 'Please select at least one recipient'}</p>
           )}
         </>
       )}
 
       {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );

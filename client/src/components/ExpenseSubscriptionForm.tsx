@@ -39,7 +39,7 @@ const ExpenseSubscriptionForm: React.FC<ExpenseSubscriptionFormProps> = ({
         <select
           value={subscriptionProvider}
           onChange={(e) => handleInputChange('subscription_provider', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         >
           <option value="">{t('expenses.selectProvider') || 'Select provider...'}</option>
           <option value="netflix">{t('expenses.subscriptionProviders.netflix') || 'Netflix'}</option>
@@ -73,7 +73,7 @@ const ExpenseSubscriptionForm: React.FC<ExpenseSubscriptionFormProps> = ({
           value={subscriptionTier}
           onChange={(e) => handleInputChange('subscription_tier', e.target.value)}
           placeholder={t('expenses.tierPlaceholder') || 'e.g., Premium, Basic, Family Plan...'}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
       </div>
     </div>

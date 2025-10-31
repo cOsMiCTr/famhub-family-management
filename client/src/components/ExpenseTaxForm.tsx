@@ -27,8 +27,8 @@ const ExpenseTaxForm: React.FC<ExpenseTaxFormProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
           {t('expenses.taxDescription')}
         </p>
       </div>
@@ -41,7 +41,7 @@ const ExpenseTaxForm: React.FC<ExpenseTaxFormProps> = ({
         <select
           value={taxType || ''}
           onChange={(e) => handleTaxTypeChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           required
         >
           <option value="">{t('expenses.selectTaxType') || 'Select tax type...'}</option>

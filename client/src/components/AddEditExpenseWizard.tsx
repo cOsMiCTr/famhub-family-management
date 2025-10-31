@@ -113,25 +113,33 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
   // Get selected category
   const selectedCategory = flatCategories.find(cat => cat.id.toString() === formData.category_id);
   
+  // Get selected subcategory if one is chosen
+  const selectedSubcategory = formData.subcategory_id 
+    ? flatCategories.find(cat => cat.id.toString() === formData.subcategory_id)
+    : null;
+  
+  // Use subcategory if selected, otherwise use parent category
+  const activeCategory = selectedSubcategory || selectedCategory;
+  
   // Get subcategories for selected category
   const subcategories = useMemo(() => {
-    if (!selectedCategory || !selectedCategory.parent_category_id) {
-      // If selected is a parent, return its subcategories
-      const parent = categories.find(cat => cat.id.toString() === formData.category_id && !cat.parent_category_id);
-      return parent?.subcategories || [];
+    if (!selectedCategory || selectedCategory.parent_category_id) {
+      return [];
     }
-    return [];
+    // If selected is a parent, return its subcategories
+    const parent = categories.find(cat => cat.id.toString() === formData.category_id && !cat.parent_category_id);
+    return parent?.subcategories || [];
   }, [selectedCategory, formData.category_id, categories]);
 
   // Load external persons and insurance suggestions
   useEffect(() => {
-    if (isOpen && selectedCategory?.category_type === 'gift') {
+    if (isOpen && activeCategory?.category_type === 'gift') {
       loadExternalPersons();
     }
-    if (isOpen && selectedCategory?.category_type === 'insurance') {
+    if (isOpen && activeCategory?.category_type === 'insurance') {
       loadInsuranceSuggestions();
     }
-  }, [isOpen, selectedCategory?.category_type]);
+  }, [isOpen, activeCategory?.category_type]);
 
   const loadExternalPersons = async () => {
     try {
@@ -153,11 +161,16 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
 
   // Reset form when modal opens/closes or expense changes
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && categories.length > 0) {
       if (expense) {
+        // Check if the expense category_id is a subcategory
+        const expenseCategory = flatCategories.find(cat => cat.id === expense.category_id);
+        const isSubcategory = expenseCategory?.parent_category_id;
+        const parentCategoryId = isSubcategory ? expenseCategory.parent_category_id : expense.category_id;
+        
         setFormData({
-          category_id: expense.category_id?.toString() || '',
-          subcategory_id: '',
+          category_id: parentCategoryId?.toString() || expense.category_id?.toString() || '',
+          subcategory_id: isSubcategory ? expense.category_id?.toString() : '',
           household_member_id: expense.household_member_id?.toString() || '',
           amount: expense.amount?.toString() || '',
           currency: expense.currency || user?.main_currency || 'USD',
@@ -191,7 +204,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
       setErrors([]);
       setCurrentStep(1);
     }
-  }, [isOpen, expense, user]);
+  }, [isOpen, expense, user, categories, flatCategories]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -262,7 +275,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
         }
         break;
       case 5: // Ownership
-        if (selectedCategory?.requires_member_link && !formData.household_member_id) {
+        if (activeCategory?.requires_member_link && !formData.household_member_id) {
           newErrors.push(t('expenses.memberRequired') || 'Member is required for this category');
         }
         break;
@@ -415,7 +428,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 <select
                   value={formData.category_id}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">{t('expenses.selectCategory') || 'Select a category...'}</option>
                   {categories
@@ -437,7 +450,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   <select
                     value={formData.subcategory_id}
                     onChange={(e) => handleSubcategoryChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   >
                     <option value="">{t('expenses.selectSubcategory') || 'Select a subcategory...'}</option>
                     {subcategories.map(subcat => (
@@ -452,13 +465,13 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
           )}
 
           {/* Step 2: Category-Specific Details */}
-          {currentStep === 2 && selectedCategory && (
+          {currentStep === 2 && activeCategory && (
             <div>
               <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 {t('expenses.wizard.step2Title') || 'Additional Details'}
               </h4>
               <ExpenseCategoryForm
-                categoryType={selectedCategory.category_type || 'other'}
+                categoryType={activeCategory.category_type || 'other'}
                 linkedMemberIds={formData.customFormData.linked_member_ids || []}
                 linkedAssetId={formData.customFormData.linked_asset_id}
                 creditUseType={formData.customFormData.credit_use_type || ''}
@@ -500,7 +513,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   name="amount"
                   value={formData.amount}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
                 />
               </div>
@@ -513,7 +526,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   name="currency"
                   value={formData.currency}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
                   {allCurrencies
@@ -535,7 +548,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
             </div>
@@ -557,7 +570,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   name="start_date"
                   value={formData.start_date}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
                 />
               </div>
@@ -571,7 +584,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   name="end_date"
                   value={formData.end_date}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {t('expenses.leaveEmptyForOngoing') || 'Leave empty for ongoing expenses'}
@@ -600,7 +613,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                     name="frequency"
                     value={formData.frequency}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="daily">{t('expenses.daily') || 'Daily'}</option>
@@ -624,14 +637,14 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {t('expenses.member') || 'Member'}
-                  {selectedCategory?.requires_member_link && <span className="text-red-500">*</span>}
+                  {activeCategory?.requires_member_link && <span className="text-red-500">*</span>}
                 </label>
                 <select
                   name="household_member_id"
                   value={formData.household_member_id}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  required={selectedCategory?.requires_member_link}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  required={activeCategory?.requires_member_link}
                 >
                   <option value="">{t('expenses.household') || 'Household'}</option>
                   {members.map(member => (
@@ -659,7 +672,12 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">{t('expenses.category') || 'Category'}:</span>
                     <span className="ml-2 text-gray-900 dark:text-white">
-                      {selectedCategory ? getCategoryName(selectedCategory) : '-'}
+                      {activeCategory ? getCategoryName(activeCategory) : '-'}
+                      {selectedSubcategory && selectedCategory && (
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {' (' + getCategoryName(selectedCategory) + ')'}
+                        </span>
+                      )}
                     </span>
                   </div>
                   <div>
