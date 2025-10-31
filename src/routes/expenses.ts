@@ -402,6 +402,90 @@ router.get('/linkable-members', async (req, res) => {
   }
 });
 
+// GET /api/expenses/linkable-vehicles
+// Get list of vehicle assets that can be linked to car insurance expenses
+router.get('/linkable-vehicles', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Get user's household
+    const householdResult = await query(
+      'SELECT household_id FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (householdResult.rows.length === 0 || !householdResult.rows[0].household_id) {
+      return res.json([]);
+    }
+    
+    const householdId = householdResult.rows[0].household_id;
+    
+    // Get only vehicle assets
+    const vehiclesResult = await query(
+      `SELECT a.id, a.name, a.location, ac.category_type
+       FROM assets a
+       LEFT JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.household_id = $1 
+         AND ac.category_type = 'vehicles'
+         AND a.status != 'sold'
+       ORDER BY a.name ASC`,
+      [householdId]
+    );
+    
+    res.json(vehiclesResult.rows);
+  } catch (error) {
+    console.error('Error fetching linkable vehicles:', error);
+    res.status(500).json({ error: 'Failed to fetch linkable vehicles' });
+  }
+});
+
+// GET /api/expenses/insurance-companies-suggestions
+// Get suggested insurance companies from previous entries
+router.get('/insurance-companies-suggestions', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Get user's household
+    const householdResult = await query(
+      'SELECT household_id FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (householdResult.rows.length === 0 || !householdResult.rows[0].household_id) {
+      return res.json([]);
+    }
+    
+    const householdId = householdResult.rows[0].household_id;
+    
+    // Get insurance expenses and extract company names from metadata
+    const result = await query(
+      `SELECT 
+         metadata->>'insurance_company' as company_name,
+         COUNT(*) as usage_count,
+         MAX(created_at) as last_used_at
+       FROM expenses e
+       INNER JOIN expense_categories ec ON e.category_id = ec.id
+       WHERE e.household_id = $1
+         AND ec.category_type = 'insurance'
+         AND metadata->>'insurance_company' IS NOT NULL
+         AND metadata->>'insurance_company' != ''
+       GROUP BY metadata->>'insurance_company'
+       ORDER BY usage_count DESC, last_used_at DESC
+       LIMIT 20`,
+      [householdId]
+    );
+    
+    res.json(result.rows.map(row => ({
+      name: row.company_name,
+      usageCount: parseInt(row.usage_count),
+      lastUsed: row.last_used_at
+    })));
+  } catch (error) {
+    console.error('Error fetching insurance company suggestions:', error);
+    res.status(500).json({ error: 'Failed to fetch insurance company suggestions' });
+  }
+});
+
 router.get('/summary', async (req, res) => {
   try {
     const userId = req.user?.id;

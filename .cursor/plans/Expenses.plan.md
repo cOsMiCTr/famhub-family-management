@@ -681,3 +681,543 @@ Add all new translation keys for:
 8. **UI/UX**: Custom forms should feel integrated, not tacked on
 9. **Performance**: Efficient queries with proper joins and indexes
 10. **Error Handling**: Clear validation messages for required links and fields
+
+---
+
+# Enhanced Expense Wizard System Implementation Plan
+
+## Overview
+
+Transform the expenses form into a step-by-step wizard interface (similar to assets modal) with dynamic category-specific forms, subcategories support, external persons management, and intelligent field auto-suggestions.
+
+## Phase 1: Database Schema Enhancements
+
+### 1.1 Create External Persons Table
+
+**New Migration**: `src/database/migrations/XXXXXX_create_external_persons_table.ts`
+
+Create `external_persons` table:
+- `id` (primary key)
+- `household_id` (foreign key to households)
+- `name` (string, required)
+- `birth_date` (date, nullable)
+- `relationship` (string, nullable) - e.g., "Friend", "Relative", "Colleague"
+- `notes` (text, nullable)
+- `created_by_user_id` (foreign key to users)
+- `created_at`, `updated_at` (timestamps)
+
+Indexes:
+- `external_persons.household_id`
+- `external_persons.created_by_user_id`
+
+### 1.2 Add Subcategories Support to Expense Categories
+
+**New Migration**: `src/database/migrations/XXXXXX_add_expense_subcategories.ts`
+
+Add hierarchy support to `expense_categories`:
+- `parent_category_id` (integer, nullable, foreign key to expense_categories.id, ON DELETE CASCADE)
+- `display_order` (integer, default 0)
+
+Update existing categories: Set `parent_category_id = NULL` for top-level categories.
+
+Index:
+- `expense_categories.parent_category_id`
+
+### 1.3 Enhance Expenses Metadata
+
+**Enhancement**: Update `expenses.metadata` JSONB field to store:
+- Insurance: `insurance_company`, `insurance_number`, `recurring_date`, `coverage_type`
+- Subscriptions: `subscription_provider`, `subscription_tier`
+- Birthday Presents: `external_person_id`, `birth_date`
+- Car Insurance: `vehicle_asset_id`
+- And other category-specific fields
+
+### 1.4 Create Insurance Companies Suggestions Cache (Optional)
+
+**Note**: Instead of a new table, extract insurance companies from existing expenses metadata for auto-suggestions.
+
+**Enhancement**: Use existing `expenses.metadata` to extract:
+- Query expenses with `category_type = 'insurance'`
+- Extract unique `metadata->>'insurance_company'` values
+- Count usage frequency
+- Return sorted suggestions
+
+## Phase 2: Backend API Enhancements
+
+### 2.1 External Persons Routes
+
+**New File**: `src/routes/external-persons.ts`
+
+Endpoints:
+- `GET /api/external-persons` - Get all external persons for current household
+- `POST /api/external-persons` - Create external person
+- `PUT /api/external-persons/:id` - Update external person
+- `DELETE /api/external-persons/:id` - Delete external person
+
+All routes protected with `authenticateToken` middleware.
+
+### 2.2 Subcategories Routes
+
+**Enhancement**: Update `src/routes/expense-categories.ts`
+
+- Modify `GET /api/expense-categories` to return hierarchical structure (parent with children)
+- Add `GET /api/expense-categories/:id/subcategories` - Get subcategories for a category
+- Update `POST /api/expense-categories` to handle `parent_category_id`
+- Update `PUT /api/expense-categories/:id` to handle `parent_category_id`
+
+### 2.3 Insurance Company Suggestions
+
+**New Endpoint**: Add to `src/routes/expenses.ts`
+
+- `GET /api/expenses/insurance-companies-suggestions` - Get suggested insurance companies from previous entries
+  - Query expenses with category_type = 'insurance'
+  - Extract unique `metadata->>'insurance_company'` values
+  - Count occurrences, return sorted by frequency and recent usage
+
+### 2.4 Vehicle Assets for Car Insurance
+
+**Enhancement**: Update `src/routes/expenses.ts`
+
+- Modify `GET /api/expenses/linkable-assets` to accept optional `category_type` filter
+- Add `GET /api/expenses/linkable-vehicles` - Get vehicle assets (category_type = 'vehicles') for car insurance
+
+### 2.5 Enhanced Expense Creation/Update
+
+**Enhancement**: Update `src/routes/expenses.ts`
+
+- Update `POST /api/expenses` and `PUT /api/expenses/:id` to:
+  - Validate and store category-specific metadata
+  - Handle `external_person_id` for birthday presents (link to external_persons)
+  - Handle `vehicle_asset_id` for car insurance (stored in metadata)
+  - Store insurance company name in metadata for auto-suggest
+  - Validate subcategory relationships (subcategory must belong to selected category)
+
+## Phase 3: Frontend Wizard Component
+
+### 3.1 Create Expense Wizard Modal
+
+**New File**: `client/src/components/AddEditExpenseWizard.tsx`
+
+Create a wizard modal component similar to `AddEditAssetModal.tsx` with:
+- Step management (`currentStep`, `totalSteps`)
+- Progress indicator (step numbers with connecting lines)
+- Navigation buttons (Previous, Next, Save/Cancel)
+- Step validation before proceeding
+- Dynamic step count based on selected category
+
+**Steps Structure**:
+1. **What is it?** - Category selection (with subcategories if applicable)
+2. **Category-Specific Details** - Dynamic form based on category_type
+3. **Amount & Currency** - Amount, currency, description
+4. **Timing** - Start date, end date, recurring options
+5. **Ownership** - Member or Household selection
+6. **Confirmation** - Review and submit
+
+**Note**: Some categories may skip certain steps or have additional steps.
+
+### 3.2 Category-Specific Form Components
+
+**Enhanced Components**: Update existing and create new category-specific forms
+
+1. **Insurance Form** (`ExpenseInsuranceForm.tsx` - NEW):
+   - Insurance company (autocomplete with suggestions from previous entries)
+   - Insurance number
+   - Recurring payment date (date picker)
+   - Coverage type subcategory selector:
+     - Health Insurance
+     - Life Insurance
+     - Property Insurance (requires real estate link)
+     - Car Insurance (requires vehicle asset link)
+     - Family Insurance (allows member multi-select)
+     - General Household Insurance (no links needed)
+   - Conditional fields based on coverage type:
+     - Property Insurance → Show real estate selector
+     - Car Insurance → Show vehicle asset selector
+     - Family Insurance → Show member multi-select
+
+2. **Subscription Form** (`ExpenseSubscriptionForm.tsx` - NEW):
+   - Subscription provider subcategory selector:
+     - Netflix
+     - Spotify
+     - Amazon Prime
+     - Disney+
+     - Gym Membership
+     - Magazine Subscription
+     - Software Subscription
+     - Other (free text input)
+   - Subscription tier/plan (optional text input)
+
+3. **Birthday Present Form** (`ExpenseGiftForm.tsx` - ENHANCED):
+   - Recipient selection:
+     - Household members (multi-select)
+     - External persons (multi-select with "Add New" button)
+   - Birth date picker (if external person selected, required)
+   - "Add External Person" button opens inline modal/section to add new person:
+     - Name (required)
+     - Birth date (required)
+     - Relationship (optional)
+     - Notes (optional)
+   - Save external person to database immediately, then refresh list
+
+4. **Credit Form** (`ExpenseCreditForm.tsx` - ENHANCED):
+   - Credit use type selector (existing: free_use, renovation, property_purchase, other)
+   - Conditional asset linking based on use type (renovation/property_purchase → require asset)
+   - Credit provider name (text input)
+   - Interest rate (optional, decimal)
+   - Contract number (optional)
+
+5. **School Expenses Form** (`ExpenseSchoolForm.tsx` - NEW):
+   - Student selection (household members, multi-select, optional)
+   - Expense type subcategory selector:
+     - Tuition
+     - Books
+     - Supplies
+     - Uniforms
+     - Transportation
+     - Other
+
+6. **Bill Form** (`ExpenseBillForm.tsx` - ENHANCED):
+   - Linked property (required, real estate assets only)
+   - Bill type subcategory selector:
+     - Electricity
+     - Water
+     - Gas
+     - Maintenance
+     - Rent
+     - Internet
+     - Other
+
+7. **Tax Form** (`ExpenseTaxForm.tsx` - ENHANCED):
+   - Optional property link (for property tax)
+   - Tax type subcategory selector:
+     - Income Tax
+     - Property Tax
+     - Sales Tax
+     - Other
+
+8. **Bausparvertrag Form** (`ExpenseBausparvertragForm.tsx` - EXISTING):
+   - No changes needed (already has asset link, interest rate, contract number)
+
+### 3.3 External Persons Management UI
+
+**New File**: `client/src/pages/ExternalPersonsPage.tsx`
+
+Settings page section for managing external persons:
+- List all external persons for household
+- Add/Edit/Delete external persons
+- Fields: Name, Birth Date, Relationship, Notes
+- Search and filter functionality
+- Birth date display and sorting
+
+**Enhancement**: Update `client/src/pages/SettingsPage.tsx`
+
+- Add new tab/section: "External Members"
+- Link to external persons management or embed component directly
+
+**Enhancement**: Update `client/src/components/Layout.tsx`
+
+- Add navigation item for External Members (under Settings or as separate item)
+
+### 3.4 Subcategories UI in Expense Categories Admin
+
+**Enhancement**: Update `client/src/pages/ExpenseCategoriesPage.tsx`
+
+- Display hierarchical structure (parent → children, indented)
+- Add "Add Subcategory" button for each category
+- Show subcategories indented under parent in table
+- Display subcategory count for each category
+- Allow moving subcategories between parents (via edit)
+- Edit subcategories (same modal as categories)
+
+**New Component**: `ExpenseSubcategorySelector.tsx`
+
+- Dropdown/select component that shows categories and their subcategories
+- Used in expense wizard when category supports subcategories
+- Visual hierarchy: Parent category name, then subcategories indented or grouped
+
+## Phase 4: Wizard Step Implementation
+
+### 4.1 Step 1: Category Selection
+
+**Component**: Part of `AddEditExpenseWizard.tsx`
+
+- Use `SearchableCategorySelector` component (enhanced to show subcategories)
+- Show category icons and descriptions
+- If category has subcategories, show subcategory selector after category selection
+- Display category-specific information/hints
+- Validation: Category (and subcategory if applicable) must be selected
+
+### 4.2 Step 2: Category-Specific Details
+
+**Component**: Dynamic rendering based on `category_type`
+
+- Render appropriate category form component
+- Forms handle their own validation
+- Conditional fields based on selections (e.g., property link for property insurance)
+- Auto-suggestions for insurance companies (async loading)
+- "Add External Person" inline functionality for gifts
+- Validation: Category-specific requirements must be met
+
+### 4.3 Step 3: Amount & Currency
+
+**Component**: Standard form fields
+
+- Amount input (required, decimal with validation)
+- Currency selector (filtered by category's allowed currencies if applicable)
+- Description (optional, textarea)
+- Validation: Amount and currency required
+
+### 4.4 Step 4: Timing
+
+**Component**: Date and recurring fields
+
+- Start date (required, date picker)
+- End date (optional, date picker with "Leave empty for ongoing" hint)
+- Recurring checkbox
+- If recurring: Frequency selector (Monthly, Weekly, Yearly, Quarterly, etc.)
+- For insurance: Show recurring payment date picker if set in Step 2 (additional to start date)
+- Validation: Start date required, end date must be after start date if provided
+
+### 4.5 Step 5: Ownership
+
+**Component**: Member/Household selection
+
+- Radio buttons or selector:
+  - "Household" (default, no member selected)
+  - Individual household members (list)
+- For categories requiring member link: Validation ensures selection
+- For gift category: Multi-select with external persons option (from Step 2)
+- Display selected members/external persons as badges
+- Validation: Member required only if category requires it
+
+### 4.6 Step 6: Confirmation
+
+**Component**: Review summary
+
+- Display all entered information grouped by step:
+  - Category and subcategory
+  - Category-specific details (insurance company, subscription provider, etc.)
+  - Amount and currency
+  - Dates and recurring info
+  - Linked assets/members/external persons
+- Edit buttons to go back to specific steps
+- Final Save button
+- Loading state during submission
+
+## Phase 5: Subcategories Data
+
+### 5.1 Seed Default Subcategories
+
+**Enhancement**: Update `src/database/seeds/06_expense_categories.ts`
+
+Add subcategories for each main category:
+
+**Insurance Subcategories** (parent: Insurance, id=9):
+- Health Insurance
+- Life Insurance
+- Property Insurance
+- Car Insurance
+- Family Insurance
+- General Insurance
+
+**Subscription Subcategories** (parent: Subscriptions, id=7):
+- Netflix
+- Spotify
+- Amazon Prime
+- Disney+
+- Gym Membership
+- Magazine Subscription
+- Software Subscription
+- Other
+
+**School Expenses Subcategories** (parent: School Expenses, id=8):
+- Tuition
+- Books
+- Supplies
+- Uniforms
+- Transportation
+- Other
+
+**Bill Subcategories** (parent: Bills/Utilities, id=4 and id=11):
+- Electricity
+- Water
+- Gas
+- Maintenance
+- Rent (for Housing/Rent category)
+- Internet
+- Other
+
+**Tax Subcategories** (parent: Tax, id=5):
+- Income Tax
+- Property Tax
+- Sales Tax
+- Other
+
+**Note**: Update seed logic to handle `parent_category_id` and `display_order`.
+
+## Phase 6: Translations
+
+### 6.1 Add Translation Keys
+
+**Files**: 
+- `client/src/locales/en/translation.json`
+- `client/src/locales/de/translation.json`
+- `client/src/locales/tr/translation.json`
+- `src/database/seeds/02_translations.ts`
+
+**New Keys**:
+- Wizard step titles: `expenses.wizard.step1Title`, `step2Title`, etc.
+- Wizard step descriptions
+- External persons: `externalPersons.title`, `addExternalPerson`, `name`, `birthDate`, `relationship`, `notes`, etc.
+- Subcategory labels for all subcategories
+- Insurance-specific: `insuranceCompany`, `insuranceNumber`, `recurringPaymentDate`, `coverageType`
+- Subscription-specific: `subscriptionProvider`, `subscriptionTier`
+- School expense-specific: `studentSelection`, `expenseType`
+- Auto-suggestion placeholders: `typeToSearch`, `noSuggestionsFound`
+- Confirmation step: `reviewAndConfirm`, `editStep`
+
+## Phase 7: Integration
+
+### 7.1 Update Expenses Page
+
+**File**: `client/src/pages/ExpensesPage.tsx`
+
+- Replace `showAddModal` with wizard modal
+- Remove inline form, use `AddEditExpenseWizard` component
+- Update edit flow to use wizard
+- Handle wizard form data submission
+- Pass all required props (categories, members, linkableAssets, etc.)
+
+### 7.2 Update Settings Page
+
+**File**: `client/src/pages/SettingsPage.tsx`
+
+- Add "External Members" tab/section
+- Link to `ExternalPersonsPage` or embed component directly
+- Use tabs similar to existing tabs (Profile, Security, Activity, Tokens)
+
+### 7.3 Update Layout
+
+**File**: `client/src/components/Layout.tsx`
+
+- Option 1: Add navigation item for External Members under Settings
+- Option 2: Add separate navigation item (if needed)
+- Or handle via Settings page tabs (preferred)
+
+### 7.4 Register Routes
+
+**File**: `src/server.ts`
+
+- Add `app.use('/api/external-persons', externalPersonsRoutes);`
+
+## Phase 8: Testing & Validation
+
+### 8.1 Test Wizard Flow
+
+- Test all steps navigation (forward/backward)
+- Test step validation (cannot proceed without valid data)
+- Test category-specific form rendering
+- Test subcategory selection
+- Test dynamic step count changes
+
+### 8.2 Test Category-Specific Forms
+
+- Insurance form with all coverage types and conditional fields
+- Subscription form with provider selection
+- Gift form with external person addition (inline and from list)
+- Credit form with asset linking
+- School expenses with student selection
+- Bill form with property linking
+- Tax form with optional property
+
+### 8.3 Test External Persons
+
+- CRUD operations from Settings
+- Inline addition from gift form
+- Birth date handling and validation
+- Integration with gift form recipient selection
+
+### 8.4 Test Auto-Suggestions
+
+- Insurance company suggestions from previous entries
+- Sorted by frequency/recent usage
+- Real-time filtering as user types
+
+### 8.5 Test Subcategories
+
+- Display hierarchy in admin page
+- Selection in wizard
+- Validation (subcategory must belong to selected category)
+
+## Implementation Order
+
+### Priority 1: Core Infrastructure
+1. Database migrations (external persons, subcategories)
+2. Backend routes (external persons, subcategories endpoints)
+3. Seed subcategories data
+
+### Priority 2: Wizard Component
+4. Create `AddEditExpenseWizard` component
+5. Implement Step 1 (Category Selection with subcategories)
+6. Implement Step 2 (Category-Specific Details)
+7. Implement remaining steps (3-6)
+
+### Priority 3: Category Forms
+8. Create/enhance category-specific forms (Insurance, Subscription, School)
+9. Enhance existing forms (Gift, Credit, Bill, Tax)
+
+### Priority 4: External Persons
+10. Create External Persons page/component
+11. Integrate with Settings
+12. Integrate inline addition in Gift form
+
+### Priority 5: Integration & Polish
+13. Replace existing form with wizard in ExpensesPage
+14. Add translations
+15. Testing and bug fixes
+
+## Files to Create
+
+1. `src/database/migrations/0000000000012_create_external_persons_table.ts`
+2. `src/database/migrations/0000000000013_add_expense_subcategories.ts`
+3. `src/routes/external-persons.ts`
+4. `client/src/components/AddEditExpenseWizard.tsx`
+5. `client/src/components/ExpenseInsuranceForm.tsx`
+6. `client/src/components/ExpenseSubscriptionForm.tsx`
+7. `client/src/components/ExpenseSchoolForm.tsx`
+8. `client/src/components/ExpenseSubcategorySelector.tsx`
+9. `client/src/pages/ExternalPersonsPage.tsx`
+
+## Files to Modify
+
+1. `src/database/seeds/06_expense_categories.ts` - Add subcategories
+2. `src/routes/expense-categories.ts` - Add subcategories endpoints
+3. `src/routes/expenses.ts` - Add insurance suggestions, vehicle assets endpoints
+4. `src/server.ts` - Register external-persons routes
+5. `client/src/pages/ExpensesPage.tsx` - Replace form with wizard
+6. `client/src/pages/ExpenseCategoriesPage.tsx` - Add subcategories UI
+7. `client/src/components/ExpenseGiftForm.tsx` - Add external persons support
+8. `client/src/components/ExpenseBillForm.tsx` - Add subcategory selector
+9. `client/src/components/ExpenseTaxForm.tsx` - Add subcategory selector
+10. `client/src/components/ExpenseCreditForm.tsx` - Enhance with provider name
+11. `client/src/pages/SettingsPage.tsx` - Add External Members section
+12. `client/src/components/Layout.tsx` - Optionally add External Members navigation
+13. All locale files - Add new translations
+14. `src/database/seeds/02_translations.ts` - Add translation keys
+
+## Key Considerations
+
+1. **Wizard Step Count**: Dynamic based on category (some categories may skip steps or add steps)
+2. **Form State Management**: Maintain state across all steps, handle navigation back/forward
+3. **Validation**: Validate each step before proceeding to next
+4. **Subcategories**: Only show subcategory selector if category has subcategories
+5. **External Persons**: Inline addition in gift form (modal or inline form), or separate Settings page
+6. **Auto-suggestions**: Extract from existing expenses metadata, cache for performance
+7. **Vehicle Assets**: Filter assets by category_type = 'vehicles' for car insurance
+8. **Backward Compatibility**: Existing expenses without subcategories should still work
+9. **UI/UX**: Wizard should feel intuitive and guide user naturally through process
+10. **Performance**: Lazy load category-specific forms, optimize suggestion queries
+11. **Accessibility**: Proper ARIA labels for wizard steps, keyboard navigation
+12. **Error Handling**: Clear error messages at each step, highlight invalid fields
+13. **Data Consistency**: Ensure subcategory belongs to selected category
+14. **External Person Birth Dates**: Use for birthday reminders or age calculations (future feature)

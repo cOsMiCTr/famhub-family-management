@@ -15,6 +15,7 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import SearchableCategorySelector from '../components/SearchableCategorySelector';
 import ExpenseCategoryForm from '../components/ExpenseCategoryForm';
+import AddEditExpenseWizard from '../components/AddEditExpenseWizard';
 import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface ExpenseEntry {
@@ -130,8 +131,7 @@ const ExpensesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [linkableAssets, setLinkableAssets] = useState<Array<{id: number; name: string; location?: string}>>([]);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showNoMembersWarning, setShowNoMembersWarning] = useState(false);
@@ -370,18 +370,8 @@ const ExpensesPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Clear previous validation errors
-    setValidationErrors({});
-    
-    // Validate form
-    if (!validateForm()) {
-      return;
-    }
-    
+  // Handle wizard save
+  const handleWizardSave = async (expenseData: any) => {
     try {
       const url = selectedEntry 
         ? `/api/expenses/${selectedEntry.id}`
@@ -395,17 +385,7 @@ const ExpensesPage: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({
-          ...formData,
-          amount: parseFloat(formData.amount),
-          household_member_id: selectedCategory?.category_type === 'gift' ? null : (formData.household_member_id ? parseInt(formData.household_member_id) : null),
-          category_id: parseInt(formData.category_id),
-          end_date: formData.end_date || null,
-          linked_asset_id: customFormData.linkedAssetId || null,
-          linked_member_ids: customFormData.linkedMemberIds.length > 0 ? customFormData.linkedMemberIds : undefined,
-          credit_use_type: customFormData.creditUseType || undefined,
-          metadata: Object.keys(customFormData.metadata).length > 0 ? customFormData.metadata : undefined
-        })
+        body: JSON.stringify(expenseData)
       });
 
       if (!response.ok) {
@@ -414,23 +394,12 @@ const ExpensesPage: React.FC = () => {
       }
 
       await loadData();
-      setShowAddModal(false);
-      setShowEditModal(false);
+      setShowWizard(false);
       setSelectedEntry(null);
-      setFormData({
-        household_member_id: '',
-        category_id: '',
-        amount: '',
-        currency: userPreferences?.currency || 'USD',
-        description: '',
-        start_date: '',
-        end_date: '',
-        is_recurring: false,
-        frequency: 'one-time'
-      });
     } catch (error) {
       console.error('Error saving expense entry:', error);
       setError(error instanceof Error ? error.message : 'Failed to save expense entry');
+      throw error; // Re-throw for wizard to handle
     }
   };
 
@@ -460,39 +429,10 @@ const ExpensesPage: React.FC = () => {
     }
   };
 
-  // Handle edit
+  // Handle edit - format entry for wizard
   const handleEdit = (entry: ExpenseEntry) => {
     setSelectedEntry(entry);
-    
-    // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as monthly
-    const effectiveFrequency = (entry.is_recurring && entry.frequency === 'one-time') ? 'monthly' : entry.frequency;
-    
-    // Format dates for HTML date input (YYYY-MM-DD)
-    const formatDateForInput = (dateString: string | null | undefined): string => {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return date.toISOString().split('T')[0];
-    };
-    
-    setFormData({
-      household_member_id: entry.household_member_id?.toString() || '',
-      category_id: entry.category_id.toString(),
-      amount: entry.amount.toString(),
-      currency: entry.currency,
-      description: entry.description || '',
-      start_date: formatDateForInput(entry.start_date),
-      end_date: formatDateForInput(entry.end_date),
-      is_recurring: entry.is_recurring,
-      frequency: effectiveFrequency
-    });
-    // Load custom form data from entry
-    setCustomFormData({
-      linkedMemberIds: entry.linked_member_ids || [],
-      linkedAssetId: entry.linked_asset_id,
-      creditUseType: entry.credit_use_type || '',
-      metadata: entry.metadata || {}
-    });
-    setShowEditModal(true);
+    setShowWizard(true);
   };
 
   // Handle delete confirmation
@@ -604,21 +544,8 @@ const ExpensesPage: React.FC = () => {
                     setShowNoMembersWarning(true);
                     return;
                   }
-                  setShowAddModal(true);
-                  // Reset custom form data
-                  setCustomFormData({
-                    linkedMemberIds: [],
-                    linkedAssetId: undefined,
-                    creditUseType: '',
-                    metadata: {}
-                  });
-                  // Set currency to user's preference when opening add modal
-                  if (userPreferences?.currency) {
-                    setFormData(prev => ({
-                      ...prev,
-                      currency: userPreferences.currency || 'USD'
-                    }));
-                  }
+                  setSelectedEntry(null);
+                  setShowWizard(true);
                 }}
                 className="btn-primary"
               >
@@ -940,245 +867,24 @@ const ExpensesPage: React.FC = () => {
           )}
         </div>
 
-        {/* Add/Edit Modal */}
-        {(showAddModal || showEditModal) && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-4 mx-auto p-4 border w-[95vw] max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
-              <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                  {selectedEntry ? t('expenses.editExpense') : t('expenses.addExpense')}
-                </h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.member')}
-                      </label>
-                      <select
-                        value={formData.household_member_id}
-                        onChange={(e) => setFormData({ ...formData, household_member_id: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                          validationErrors.household_member_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      >
-                        <option value="">{t('expenses.household')}</option>
-                        {members.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name}
-                          </option>
-                        ))}
-                      </select>
-                      {validationErrors.household_member_id && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.household_member_id}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <SearchableCategorySelector
-                      categories={categories.map(cat => ({
-                        id: cat.id,
-                        name_en: cat.name_en,
-                        name_de: cat.name_de,
-                        name_tr: cat.name_tr,
-                        is_default: cat.is_default || false
-                      }))}
-                      selectedCategoryId={formData.category_id}
-                      onCategoryChange={(categoryId) => setFormData({ ...formData, category_id: categoryId })}
-                      error={validationErrors.category_id}
-                      placeholder={t('expenses.selectCategory')}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.amount')} *
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        inputMode="decimal"
-                        autoComplete="off"
-                        value={formData.amount}
-                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.amount ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.amount && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.amount}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.currency')} *
-                      </label>
-                      <select
-                        value={formData.currency}
-                        onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      >
-                        <option value="USD">US Dollar ($)</option>
-                        <option value="EUR">Euro (€)</option>
-                        <option value="GBP">British Pound (£)</option>
-                        <option value="TRY">Turkish Lira (₺)</option>
-                        <option value="GOLD">Gold (Au)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('expenses.description')}
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.startDate')} *
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.start_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.start_date && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.start_date}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.endDate')}
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.end_date}
-                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.end_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.end_date && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.end_date}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {t('expenses.leaveEmptyForOngoing')}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.is_recurring}
-                        onChange={(e) => setFormData({ ...formData, is_recurring: e.target.checked })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
-                        {t('expenses.isRecurring')}
-                      </label>
-                    </div>
-                    
-                    {formData.is_recurring && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {t('expenses.frequency')}
-                        </label>
-                        <select
-                          value={formData.frequency}
-                          onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                          className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        >
-                          <option value="monthly">{t('expenses.monthly')}</option>
-                          <option value="weekly">{t('expenses.weekly')}</option>
-                          <option value="yearly">{t('expenses.yearly')}</option>
-                          <option value="one-time">{t('expenses.oneTime')}</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Custom Form Component based on Category Type */}
-                  {selectedCategory?.has_custom_form && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <ExpenseCategoryForm
-                        categoryType={selectedCategory.category_type}
-                        linkedMemberIds={customFormData.linkedMemberIds}
-                        linkedAssetId={customFormData.linkedAssetId}
-                        creditUseType={customFormData.creditUseType}
-                        metadata={customFormData.metadata}
-                        onLinkedMembersChange={(memberIds) => setCustomFormData({ ...customFormData, linkedMemberIds: memberIds })}
-                        onLinkedAssetChange={(assetId) => setCustomFormData({ ...customFormData, linkedAssetId: assetId || undefined })}
-                        onCreditUseTypeChange={(useType, assetId) => setCustomFormData({ 
-                          ...customFormData, 
-                          creditUseType: useType,
-                          linkedAssetId: assetId
-                        })}
-                        onMetadataChange={(metadata) => setCustomFormData({ ...customFormData, metadata })}
-                        errors={{
-                          linkedMembers: validationErrors.linkedMembers,
-                          linkedAsset: validationErrors.linkedAsset,
-                          creditUseType: validationErrors.creditUseType
-                        }}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAddModal(false);
-                        setShowEditModal(false);
-                        setSelectedEntry(null);
-                        setFormData({
-                          household_member_id: '',
-                          category_id: '',
-                          amount: '',
-                          currency: userPreferences?.currency || 'USD',
-                          description: '',
-                          start_date: '',
-                          end_date: '',
-                          is_recurring: false,
-                          frequency: 'one-time'
-                        });
-                      }}
-                      className="px-6 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:active:bg-gray-500 min-h-[44px] touch-action:manipulation"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-action:manipulation"
-                    >
-                      {t('common.save')}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Add/Edit Wizard */}
+        <AddEditExpenseWizard
+          isOpen={showWizard}
+          onClose={() => {
+            setShowWizard(false);
+            setSelectedEntry(null);
+          }}
+          onSave={handleWizardSave}
+          expense={selectedEntry || null}
+          categories={categories}
+          members={members.map(m => ({
+            id: m.id,
+            first_name: m.name.split(' ')[0] || m.name,
+            last_name: m.name.split(' ').slice(1).join(' ') || '',
+            date_of_birth: undefined
+          }))}
+          linkableAssets={linkableAssets}
+        />
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedEntry && (

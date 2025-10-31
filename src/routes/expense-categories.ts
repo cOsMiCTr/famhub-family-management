@@ -10,6 +10,54 @@ router.get('/', async (req, res) => {
   try {
     const result = await query(
       `SELECT ec.*, 
+              COALESCE(expense_counts.count, 0) as expense_count,
+              ec.parent_category_id
+       FROM expense_categories ec
+       LEFT JOIN (
+         SELECT category_id, COUNT(*) as count
+         FROM expenses
+         GROUP BY category_id
+       ) expense_counts ON ec.id = expense_counts.category_id
+       ORDER BY ec.is_default DESC, ec.parent_category_id NULLS FIRST, ec.display_order ASC, ec.name_en ASC`
+    );
+
+    // Organize into hierarchical structure
+    const categories = result.rows;
+    const categoryMap = new Map();
+    const rootCategories: any[] = [];
+
+    // First pass: create map of all categories
+    categories.forEach(cat => {
+      categoryMap.set(cat.id, { ...cat, subcategories: [] });
+    });
+
+    // Second pass: build hierarchy
+    categories.forEach(cat => {
+      if (cat.parent_category_id) {
+        const parent = categoryMap.get(cat.parent_category_id);
+        if (parent) {
+          parent.subcategories.push(categoryMap.get(cat.id));
+        }
+      } else {
+        rootCategories.push(categoryMap.get(cat.id));
+      }
+    });
+
+    res.json(rootCategories);
+  } catch (error) {
+    console.error('Error fetching expense categories:', error);
+    res.status(500).json({ error: 'Failed to fetch expense categories' });
+  }
+});
+
+// GET /api/expense-categories/:id/subcategories
+// Get subcategories for a specific category
+router.get('/:id/subcategories', async (req, res) => {
+  try {
+    const categoryId = parseInt(req.params.id);
+    
+    const result = await query(
+      `SELECT ec.*, 
               COALESCE(expense_counts.count, 0) as expense_count
        FROM expense_categories ec
        LEFT JOIN (
@@ -17,13 +65,15 @@ router.get('/', async (req, res) => {
          FROM expenses
          GROUP BY category_id
        ) expense_counts ON ec.id = expense_counts.category_id
-       ORDER BY ec.is_default DESC, ec.name_en ASC`
+       WHERE ec.parent_category_id = $1
+       ORDER BY ec.display_order ASC, ec.name_en ASC`,
+      [categoryId]
     );
 
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching expense categories:', error);
-    res.status(500).json({ error: 'Failed to fetch expense categories' });
+    console.error('Error fetching subcategories:', error);
+    res.status(500).json({ error: 'Failed to fetch subcategories' });
   }
 });
 
@@ -58,14 +108,24 @@ router.post('/',
         has_custom_form,
         requires_asset_link,
         requires_member_link,
-        allows_multiple_members
+        allows_multiple_members,
+        parent_category_id,
+        display_order
       } = req.body;
+
+      // Validate parent_category_id if provided
+      if (parent_category_id) {
+        const parentCheck = await query('SELECT id FROM expense_categories WHERE id = $1', [parent_category_id]);
+        if (parentCheck.rows.length === 0) {
+          return res.status(400).json({ error: 'Parent category not found' });
+        }
+      }
 
       const result = await query(
         `INSERT INTO expense_categories 
          (name_en, name_de, name_tr, is_default, category_type, has_custom_form, 
-          requires_asset_link, requires_member_link, allows_multiple_members)
-         VALUES ($1, $2, $3, false, $4, $5, $6, $7, $8)
+          requires_asset_link, requires_member_link, allows_multiple_members, parent_category_id, display_order)
+         VALUES ($1, $2, $3, false, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
         [
           name_en, 
@@ -75,7 +135,9 @@ router.post('/',
           has_custom_form || false,
           requires_asset_link || false,
           requires_member_link || false,
-          allows_multiple_members || false
+          allows_multiple_members || false,
+          parent_category_id || null,
+          display_order || 0
         ]
       );
 
@@ -98,7 +160,9 @@ router.put('/:id',
     body('has_custom_form').optional().isBoolean(),
     body('requires_asset_link').optional().isBoolean(),
     body('requires_member_link').optional().isBoolean(),
-    body('allows_multiple_members').optional().isBoolean()
+    body('allows_multiple_members').optional().isBoolean(),
+    body('parent_category_id').optional().isInt(),
+    body('display_order').optional().isInt()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -116,8 +180,23 @@ router.put('/:id',
         has_custom_form,
         requires_asset_link,
         requires_member_link,
-        allows_multiple_members
+        allows_multiple_members,
+        parent_category_id,
+        display_order
       } = req.body;
+
+      // Validate parent_category_id if provided (and not self)
+      if (parent_category_id !== undefined) {
+        if (parent_category_id === parseInt(categoryId)) {
+          return res.status(400).json({ error: 'Category cannot be its own parent' });
+        }
+        if (parent_category_id !== null) {
+          const parentCheck = await query('SELECT id FROM expense_categories WHERE id = $1', [parent_category_id]);
+          if (parentCheck.rows.length === 0) {
+            return res.status(400).json({ error: 'Parent category not found' });
+          }
+        }
+      }
 
       // Check if category exists
       const checkResult = await query('SELECT * FROM expense_categories WHERE id = $1', [categoryId]);
@@ -162,6 +241,14 @@ router.put('/:id',
       if (allows_multiple_members !== undefined) {
         updateFields.push(`allows_multiple_members = $${valueIndex++}`);
         updateValues.push(allows_multiple_members);
+      }
+      if (parent_category_id !== undefined) {
+        updateFields.push(`parent_category_id = $${valueIndex++}`);
+        updateValues.push(parent_category_id || null);
+      }
+      if (display_order !== undefined) {
+        updateFields.push(`display_order = $${valueIndex++}`);
+        updateValues.push(display_order);
       }
 
       if (updateFields.length === 0) {

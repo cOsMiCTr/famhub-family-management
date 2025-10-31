@@ -5,6 +5,9 @@ import ExpenseCreditForm from './ExpenseCreditForm';
 import ExpenseBillForm from './ExpenseBillForm';
 import ExpenseTaxForm from './ExpenseTaxForm';
 import ExpenseBausparvertragForm from './ExpenseBausparvertragForm';
+import ExpenseInsuranceForm from './ExpenseInsuranceForm';
+import ExpenseSubscriptionForm from './ExpenseSubscriptionForm';
+import ExpenseSchoolForm from './ExpenseSchoolForm';
 
 interface ExpenseCategoryFormProps {
   categoryType?: string;
@@ -16,6 +19,8 @@ interface ExpenseCategoryFormProps {
   onLinkedAssetChange: (assetId: number | null) => void;
   onCreditUseTypeChange: (useType: 'free_use' | 'renovation' | 'property_purchase' | 'other' | '', assetId?: number) => void;
   onMetadataChange: (metadata: Record<string, any>) => void;
+  members?: Array<{id: number; first_name: string; last_name: string}>;
+  insuranceSuggestions?: Array<{name: string}>;
   errors?: {
     linkedMembers?: string;
     linkedAsset?: string;
@@ -33,6 +38,8 @@ const ExpenseCategoryForm: React.FC<ExpenseCategoryFormProps> = ({
   onLinkedAssetChange,
   onCreditUseTypeChange,
   onMetadataChange,
+  members = [],
+  insuranceSuggestions = [],
   errors
 }) => {
   const { t } = useTranslation();
@@ -43,7 +50,53 @@ const ExpenseCategoryForm: React.FC<ExpenseCategoryFormProps> = ({
       return (
         <ExpenseGiftForm
           linkedMemberIds={linkedMemberIds}
+          externalPersonIds={metadata.external_person_ids || []}
           onChange={onLinkedMembersChange}
+          onExternalPersonsChange={(externalIds) => onMetadataChange({ ...metadata, external_person_ids: externalIds })}
+          error={errors?.linkedMembers}
+        />
+      );
+
+    case 'insurance':
+      return (
+        <ExpenseInsuranceForm
+          coverageType={metadata.coverage_type}
+          linkedAssetId={linkedAssetId}
+          linkedMemberIds={linkedMemberIds}
+          insuranceCompany={metadata.insurance_company}
+          insuranceNumber={metadata.insurance_number}
+          recurringPaymentDate={metadata.recurring_payment_date}
+          vehicleAssetId={metadata.vehicle_asset_id}
+          onChange={(data) => onMetadataChange({ ...metadata, ...data })}
+          onLinkedAssetChange={onLinkedAssetChange}
+          onLinkedMembersChange={onLinkedMembersChange}
+          members={members}
+          insuranceSuggestions={insuranceSuggestions}
+          error={errors?.linkedAsset || errors?.linkedMembers}
+        />
+      );
+
+    case 'subscription':
+      return (
+        <ExpenseSubscriptionForm
+          subscriptionProvider={metadata.subscription_provider}
+          subscriptionTier={metadata.subscription_tier}
+          onChange={(data) => onMetadataChange({ ...metadata, ...data })}
+          error={errors?.linkedAsset}
+        />
+      );
+
+    case 'school':
+      return (
+        <ExpenseSchoolForm
+          expenseType={metadata.expense_type}
+          linkedMemberIds={linkedMemberIds}
+          onChange={(data) => {
+            if (data.linked_member_ids !== undefined) {
+              onLinkedMembersChange(data.linked_member_ids);
+            }
+            onMetadataChange({ ...metadata, expense_type: data.expense_type });
+          }}
           error={errors?.linkedMembers}
         />
       );

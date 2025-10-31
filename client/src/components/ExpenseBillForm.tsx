@@ -40,23 +40,28 @@ const ExpenseBillForm: React.FC<ExpenseBillFormProps> = ({
         error={error}
       />
 
+      {/* Bill Type (Subcategory) - Optional, stored in metadata */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {t('expenses.billType')}
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {t('expenses.billType') || 'Bill Type'} <span className="text-gray-500 text-xs">({t('expenses.optional') || 'Optional'})</span>
         </label>
         <select
           value={billType || ''}
           onChange={(e) => handleBillTypeChange(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
-          <option value="">{t('expenses.selectBillType')}</option>
-          <option value="electricity">{t('expenses.billTypes.electricity')}</option>
-          <option value="water">{t('expenses.billTypes.water')}</option>
-          <option value="gas">{t('expenses.billTypes.gas')}</option>
-          <option value="maintenance">{t('expenses.billTypes.maintenance')}</option>
-          <option value="rent">{t('expenses.billTypes.rent')}</option>
-          <option value="other">{t('expenses.billTypes.other')}</option>
+          <option value="">{t('expenses.selectBillType') || 'Select bill type...'}</option>
+          <option value="electricity">{t('expenses.billTypes.electricity') || 'Electricity'}</option>
+          <option value="water">{t('expenses.billTypes.water') || 'Water'}</option>
+          <option value="gas">{t('expenses.billTypes.gas') || 'Gas'}</option>
+          <option value="maintenance">{t('expenses.billTypes.maintenance') || 'Maintenance'}</option>
+          <option value="rent">{t('expenses.billTypes.rent') || 'Rent'}</option>
+          <option value="internet">{t('expenses.billTypes.internet') || 'Internet'}</option>
+          <option value="other">{t('expenses.billTypes.other') || 'Other'}</option>
         </select>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {t('expenses.billTypeHint') || 'Optional: Specify the type of bill for better categorization'}
+        </p>
       </div>
     </div>
   );

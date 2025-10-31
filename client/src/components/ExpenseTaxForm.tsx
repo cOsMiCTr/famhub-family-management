@@ -33,21 +33,22 @@ const ExpenseTaxForm: React.FC<ExpenseTaxFormProps> = ({
         </p>
       </div>
 
+      {/* Tax Type (Subcategory) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {t('expenses.taxType')}
-          <span className="text-red-500 ml-1">*</span>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {t('expenses.taxType') || 'Tax Type'} <span className="text-red-500">*</span>
         </label>
         <select
           value={taxType || ''}
           onChange={(e) => handleTaxTypeChange(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           required
         >
-          <option value="">{t('expenses.selectTaxType')}</option>
-          <option value="income_tax">{t('expenses.taxTypes.incomeTax')}</option>
-          <option value="property_tax">{t('expenses.taxTypes.propertyTax')}</option>
-          <option value="other">{t('expenses.taxTypes.other')}</option>
+          <option value="">{t('expenses.selectTaxType') || 'Select tax type...'}</option>
+          <option value="income_tax">{t('expenses.taxTypes.incomeTax') || 'Income Tax'}</option>
+          <option value="property_tax">{t('expenses.taxTypes.propertyTax') || 'Property Tax'}</option>
+          <option value="sales_tax">{t('expenses.taxTypes.salesTax') || 'Sales Tax'}</option>
+          <option value="other">{t('expenses.taxTypes.other') || 'Other'}</option>
         </select>
       </div>
 

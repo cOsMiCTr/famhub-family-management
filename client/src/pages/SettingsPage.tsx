@@ -11,6 +11,7 @@ import TwoFactorSetupModal from '../components/TwoFactorSetupModal';
 import FamilyMembersTab from '../components/FamilyMembersTab';
 import TokenTab from '../components/TokenTab';
 import ActivityTab from '../components/ActivityTab';
+import ExternalPersonsPage from './ExternalPersonsPage';
 import { reloadTranslations } from '../i18n';
 import { formatCurrencyWithSymbol } from '../utils/currencyHelpers';
 import { 
@@ -26,7 +27,8 @@ import {
   XMarkIcon,
   ChartBarIcon,
   UsersIcon,
-  SparklesIcon
+  SparklesIcon,
+  UserPlusIcon
 } from '@heroicons/react/24/outline';
 
 interface UserSettings {
@@ -302,6 +304,7 @@ const SettingsPage: React.FC = () => {
     { id: 'notifications', name: t('settings.notifications'), icon: BellIcon },
     { id: 'token', name: t('modules.title'), icon: SparklesIcon },
     { id: 'family-members', name: t('navigation.familyMembers'), icon: UsersIcon },
+    { id: 'external-members', name: t('settings.externalMembers') || 'External Members', icon: UserPlusIcon },
     { id: 'security', name: t('settings.security'), icon: ShieldCheckIcon },
     { id: 'activity', name: t('settings.activity'), icon: ChartBarIcon },
   ];
@@ -847,6 +850,11 @@ const SettingsPage: React.FC = () => {
       {/* Activity Tab */}
       {activeTab === 'activity' && (
         <ActivityTab />
+      )}
+
+      {/* External Members Tab */}
+      {activeTab === 'external-members' && (
+        <ExternalPersonsPage />
       )}
 
       {/* Two-Factor Authentication Modal */}

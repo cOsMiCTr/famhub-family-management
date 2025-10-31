@@ -16,6 +16,8 @@ interface ExpenseCategory {
   is_default: boolean;
   created_at: string;
   expense_count: number;
+  parent_category_id?: number | null;
+  subcategories?: ExpenseCategory[];
 }
 
 const ExpenseCategoriesPage: React.FC = () => {
@@ -205,38 +207,77 @@ const ExpenseCategoriesPage: React.FC = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {categories.map((category) => (
-                    <tr key={category.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {getCategoryName(category)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {category.expense_count} {t('expenses.entries')}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            onClick={() => openEditModal(category)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                            title={t('expenseCategories.editCategory')}
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          {!category.is_default && category.expense_count === 0 && (
+                    <React.Fragment key={category.id}>
+                      {/* Parent Category Row */}
+                      <tr className="bg-gray-50 dark:bg-gray-900/50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {getCategoryName(category)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {category.expense_count} {t('expenses.entries')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end space-x-2">
                             <button
-                              onClick={() => openDeleteModal(category)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              title={t('expenseCategories.deleteCategory')}
+                              onClick={() => openEditModal(category)}
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                              title={t('expenseCategories.editCategory')}
                             >
-                              <TrashIcon className="h-4 w-4" />
+                              <PencilIcon className="h-4 w-4" />
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                            {!category.is_default && category.expense_count === 0 && (
+                              <button
+                                onClick={() => openDeleteModal(category)}
+                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                title={t('expenseCategories.deleteCategory')}
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      {/* Subcategories */}
+                      {category.subcategories && category.subcategories.length > 0 && category.subcategories.map((subcategory) => (
+                        <tr key={subcategory.id} className="bg-white dark:bg-gray-800">
+                          <td className="px-6 py-3 whitespace-nowrap">
+                            <div className="text-sm text-gray-700 dark:text-gray-300 pl-6 flex items-center">
+                              <span className="text-gray-400 dark:text-gray-500 mr-2">└</span>
+                              {getCategoryName(subcategory)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-3 whitespace-nowrap">
+                            <div className="text-sm text-gray-700 dark:text-gray-300">
+                              {subcategory.expense_count} {t('expenses.entries')}
+                            </div>
+                          </td>
+                          <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => openEditModal(subcategory)}
+                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                title={t('expenseCategories.editCategory')}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </button>
+                              {!subcategory.is_default && subcategory.expense_count === 0 && (
+                                <button
+                                  onClick={() => openDeleteModal(subcategory)}
+                                  className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                  title={t('expenseCategories.deleteCategory')}
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
