@@ -331,6 +331,77 @@ router.get('/', async (req, res) => {
 });
 
 // Get expense summary (totals by period, member, category)
+// GET /api/expenses/linkable-assets
+// Get list of real estate assets that can be linked to expenses
+router.get('/linkable-assets', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Get user's household
+    const householdResult = await query(
+      'SELECT household_id FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (householdResult.rows.length === 0 || !householdResult.rows[0].household_id) {
+      return res.json([]);
+    }
+    
+    const householdId = householdResult.rows[0].household_id;
+    
+    // Get only real estate assets
+    const assetsResult = await query(
+      `SELECT a.id, a.name, a.location, ac.category_type
+       FROM assets a
+       LEFT JOIN asset_categories ac ON a.category_id = ac.id
+       WHERE a.household_id = $1 
+         AND ac.category_type = 'real_estate'
+         AND a.status != 'sold'
+       ORDER BY a.name ASC`,
+      [householdId]
+    );
+    
+    res.json(assetsResult.rows);
+  } catch (error) {
+    console.error('Error fetching linkable assets:', error);
+    res.status(500).json({ error: 'Failed to fetch linkable assets' });
+  }
+});
+
+// GET /api/expenses/linkable-members
+// Get list of household members that can be linked to expenses
+router.get('/linkable-members', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Get user's household
+    const householdResult = await query(
+      'SELECT household_id FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (householdResult.rows.length === 0 || !householdResult.rows[0].household_id) {
+      return res.json([]);
+    }
+    
+    const householdId = householdResult.rows[0].household_id;
+    
+    // Get household members
+    const membersResult = await query(
+      `SELECT id, first_name, last_name, date_of_birth
+       FROM household_members
+       WHERE household_id = $1
+       ORDER BY first_name ASC, last_name ASC`,
+      [householdId]
+    );
+    
+    res.json(membersResult.rows);
+  } catch (error) {
+    console.error('Error fetching linkable members:', error);
+    res.status(500).json({ error: 'Failed to fetch linkable members' });
+  }
+});
+
 router.get('/summary', async (req, res) => {
   try {
     const userId = req.user?.id;
