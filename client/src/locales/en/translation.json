@@ -63,6 +63,7 @@
     "name": "Name",
     "birthDate": "Birth Date",
     "relationship": "Relationship",
+    "selectRelationship": "Select relationship...",
     "notAvailable": "Not Available",
     "no": "No",
     "save": "Save",
@@ -593,5 +594,16 @@
   "user": {
     "admin": "Admin",
     "member": "Member"
+  },
+  "relationships": {
+    "friend": "Friend",
+    "relative": "Relative",
+    "colleague": "Colleague",
+    "neighbor": "Neighbor",
+    "acquaintance": "Acquaintance",
+    "businessPartner": "Business Partner",
+    "familyFriend": "Family Friend",
+    "godparent": "Godparent",
+    "other": "Other"
   }
 }

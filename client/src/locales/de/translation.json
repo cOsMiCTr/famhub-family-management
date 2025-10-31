@@ -63,6 +63,7 @@
     "name": "Name",
     "birthDate": "Geburtsdatum",
     "relationship": "Beziehung",
+    "selectRelationship": "Beziehung auswählen...",
     "notAvailable": "Nicht verfügbar",
     "no": "Nein",
     "save": "Speichern",
@@ -542,5 +543,16 @@
   "user": {
     "admin": "Administrator",
     "member": "Mitglied"
+  },
+  "relationships": {
+    "friend": "Freund",
+    "relative": "Verwandter",
+    "colleague": "Kollege",
+    "neighbor": "Nachbar",
+    "acquaintance": "Bekannter",
+    "businessPartner": "Geschäftspartner",
+    "familyFriend": "Freund der Familie",
+    "godparent": "Pate",
+    "other": "Sonstiges"
   }
 }

@@ -316,13 +316,22 @@ const ExternalPersonsPage: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {t('common.relationship') || 'Relationship'}
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.relationship}
                   onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
-                  placeholder="Friend, Relative, Colleague..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">{t('common.selectRelationship') || 'Select relationship...'}</option>
+                  <option value="friend">{t('relationships.friend') || 'Friend'}</option>
+                  <option value="relative">{t('relationships.relative') || 'Relative'}</option>
+                  <option value="colleague">{t('relationships.colleague') || 'Colleague'}</option>
+                  <option value="neighbor">{t('relationships.neighbor') || 'Neighbor'}</option>
+                  <option value="acquaintance">{t('relationships.acquaintance') || 'Acquaintance'}</option>
+                  <option value="business_partner">{t('relationships.businessPartner') || 'Business Partner'}</option>
+                  <option value="family_friend">{t('relationships.familyFriend') || 'Family Friend'}</option>
+                  <option value="godparent">{t('relationships.godparent') || 'Godparent'}</option>
+                  <option value="other">{t('relationships.other') || 'Other'}</option>
+                </select>
               </div>
 
               <div>

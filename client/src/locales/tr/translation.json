@@ -521,6 +521,7 @@
     "name": "Ad",
     "birthDate": "Doğum Tarihi",
     "relationship": "İlişki",
+    "selectRelationship": "İlişki seçin...",
     "notes": "Notlar",
     "noPersonsFound": "Harici kişi bulunamadı",
     "noPersonsDescription": "Giderlerde (doğum günü hediyeleri gibi) bağlantı kurmak için harici kişiler (arkadaşlar, akrabalar, meslektaşlar) ekleyin.",
@@ -552,5 +553,16 @@
   "user": {
     "admin": "Yönetici",
     "member": "Üye"
+  },
+  "relationships": {
+    "friend": "Arkadaş",
+    "relative": "Akraba",
+    "colleague": "İş Arkadaşı",
+    "neighbor": "Komşu",
+    "acquaintance": "Tanıdık",
+    "businessPartner": "İş Ortağı",
+    "familyFriend": "Aile Dostu",
+    "godparent": "Vaftiz Ebeveyni",
+    "other": "Diğer"
   }
 }
