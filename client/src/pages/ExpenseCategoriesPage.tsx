@@ -28,10 +28,14 @@ const ExpenseCategoriesPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ExpenseCategory | null>(null);
+  const [isSubcategory, setIsSubcategory] = useState(false);
+  const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     name_en: '',
     name_de: '',
-    name_tr: ''
+    name_tr: '',
+    parent_category_id: null as number | null,
+    display_order: 0
   });
 
   // Load categories
@@ -75,21 +79,31 @@ const ExpenseCategoriesPage: React.FC = () => {
       
       const method = selectedCategory ? 'PUT' : 'POST';
       
+      const payload = {
+        name_en: formData.name_en,
+        name_de: formData.name_de,
+        name_tr: formData.name_tr,
+        ...(formData.parent_category_id !== null && { parent_category_id: formData.parent_category_id }),
+        ...(formData.display_order !== undefined && { display_order: formData.display_order })
+      };
+
       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
         await loadCategories();
         setShowAddModal(false);
         setShowEditModal(false);
-        setFormData({ name_en: '', name_de: '', name_tr: '' });
+        setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
         setSelectedCategory(null);
+        setIsSubcategory(false);
+        setSelectedParentCategory(null);
       } else {
         console.error('Failed to save expense category');
       }
@@ -127,10 +141,14 @@ const ExpenseCategoriesPage: React.FC = () => {
   // Open edit modal
   const openEditModal = (category: ExpenseCategory) => {
     setSelectedCategory(category);
+    setIsSubcategory(!!category.parent_category_id);
+    setSelectedParentCategory(category.parent_category_id || null);
     setFormData({
       name_en: category.name_en,
       name_de: category.name_de,
-      name_tr: category.name_tr
+      name_tr: category.name_tr,
+      parent_category_id: category.parent_category_id || null,
+      display_order: (category as any).display_order || 0
     });
     setShowEditModal(true);
   };
@@ -168,7 +186,12 @@ const ExpenseCategoriesPage: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setIsSubcategory(false);
+            setSelectedParentCategory(null);
+            setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+            setShowAddModal(true);
+          }}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <PlusIcon className="h-4 w-4 mr-2" />
@@ -222,6 +245,18 @@ const ExpenseCategoriesPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-2">
+                            <button
+                              onClick={() => {
+                                setIsSubcategory(true);
+                                setSelectedParentCategory(category.id);
+                                setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: category.id, display_order: (category.subcategories?.length || 0) });
+                                setShowAddModal(true);
+                              }}
+                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                              title={t('expenseCategories.addSubcategory') || 'Add Subcategory'}
+                            >
+                              <PlusIcon className="h-4 w-4" />
+                            </button>
                             <button
                               onClick={() => openEditModal(category)}
                               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
@@ -292,10 +327,36 @@ const ExpenseCategoriesPage: React.FC = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                {t('expenseCategories.addCategory')}
+                {isSubcategory ? (t('expenseCategories.addSubcategory') || 'Add Subcategory') : t('expenseCategories.addCategory')}
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
+                  {isSubcategory && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.parentCategory') || 'Parent Category'}
+                      </label>
+                      <select
+                        value={formData.parent_category_id || ''}
+                        onChange={(e) => {
+                          const parentId = e.target.value ? parseInt(e.target.value) : null;
+                          setFormData({ ...formData, parent_category_id: parentId });
+                          setSelectedParentCategory(parentId);
+                        }}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                      >
+                        <option value="">{t('expenseCategories.selectParentCategory') || 'Select parent category...'}</option>
+                        {categories
+                          .filter(cat => !cat.parent_category_id && cat.id !== selectedCategory?.id)
+                          .map(cat => (
+                            <option key={cat.id} value={cat.id}>
+                              {getCategoryName(cat)}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       English Name *
@@ -335,13 +396,33 @@ const ExpenseCategoriesPage: React.FC = () => {
                       placeholder="e.g., Market"
                     />
                   </div>
+                  {isSubcategory && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.displayOrder') || 'Display Order'}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.display_order}
+                        onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="0"
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {t('expenseCategories.displayOrderHint') || 'Lower numbers appear first'}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '' });
+                      setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+                      setIsSubcategory(false);
+                      setSelectedParentCategory(null);
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
                   >
@@ -370,6 +451,33 @@ const ExpenseCategoriesPage: React.FC = () => {
               </h3>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t('expenseCategories.parentCategory') || 'Parent Category'} ({t('common.optional') || 'Optional'})
+                    </label>
+                    <select
+                      value={formData.parent_category_id || ''}
+                      onChange={(e) => {
+                        const parentId = e.target.value ? parseInt(e.target.value) : null;
+                        setFormData({ ...formData, parent_category_id: parentId });
+                        setSelectedParentCategory(parentId);
+                        setIsSubcategory(parentId !== null);
+                      }}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    >
+                      <option value="">{t('expenseCategories.noParent') || 'No parent (top-level category)'}</option>
+                      {categories
+                        .filter(cat => !cat.parent_category_id && cat.id !== selectedCategory?.id)
+                        .map(cat => (
+                          <option key={cat.id} value={cat.id}>
+                            {getCategoryName(cat)}
+                          </option>
+                        ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {t('expenseCategories.parentCategoryHint') || 'Select a parent to make this a subcategory, or leave empty for top-level'}
+                    </p>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       English Name *
@@ -406,14 +514,34 @@ const ExpenseCategoriesPage: React.FC = () => {
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
+                  {(isSubcategory || formData.parent_category_id) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.displayOrder') || 'Display Order'}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.display_order}
+                        onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        placeholder="0"
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {t('expenseCategories.displayOrderHint') || 'Lower numbers appear first'}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setShowEditModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '' });
+                      setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
                       setSelectedCategory(null);
+                      setIsSubcategory(false);
+                      setSelectedParentCategory(null);
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
                   >

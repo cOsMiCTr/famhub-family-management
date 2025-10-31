@@ -824,6 +824,7 @@ export async function seed(knex: Knex): Promise<void> {
       // Expense Categories
       { key: 'expenseCategories.title', category: 'expenseCategories', en: 'Expense Categories', de: 'Ausgabekategorien', tr: 'Gider Kategorileri' },
       { key: 'expenseCategories.addCategory', category: 'expenseCategories', en: 'Add Category', de: 'Kategorie hinzufügen', tr: 'Kategori Ekle' },
+      { key: 'expenseCategories.addSubcategory', category: 'expenseCategories', en: 'Add Subcategory', de: 'Unterkategorie hinzufügen', tr: 'Alt Kategori Ekle' },
       { key: 'expenseCategories.editCategory', category: 'expenseCategories', en: 'Edit Category', de: 'Kategorie bearbeiten', tr: 'Kategori Düzenle' },
       { key: 'expenseCategories.deleteCategory', category: 'expenseCategories', en: 'Delete Category', de: 'Kategorie löschen', tr: 'Kategoriyi Sil' },
       { key: 'expenseCategories.manageCategories', category: 'expenseCategories', en: 'Manage expense categories for your household', de: 'Ausgabekategorien für Ihren Haushalt verwalten', tr: 'Hane gider kategorilerini yönetin' },
@@ -834,6 +835,12 @@ export async function seed(knex: Knex): Promise<void> {
       { key: 'expenseCategories.allCategories', category: 'expenseCategories', en: 'All Categories', de: 'Alle Kategorien', tr: 'Tüm Kategoriler' },
       { key: 'expenseCategories.deleteConfirmation', category: 'expenseCategories', en: 'Are you sure you want to delete this category? This action cannot be undone.', de: 'Sind Sie sicher, dass Sie diese Kategorie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', tr: 'Bu kategoriyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.' },
       { key: 'expenseCategories.expenseCount', category: 'expenseCategories', en: 'Expense Items', de: 'Ausgabeeinträge', tr: 'Gider Öğeleri' },
+      { key: 'expenseCategories.parentCategory', category: 'expenseCategories', en: 'Parent Category', de: 'Übergeordnete Kategorie', tr: 'Üst Kategori' },
+      { key: 'expenseCategories.selectParentCategory', category: 'expenseCategories', en: 'Select parent category...', de: 'Übergeordnete Kategorie auswählen...', tr: 'Üst kategori seçin...' },
+      { key: 'expenseCategories.noParent', category: 'expenseCategories', en: 'No parent (top-level category)', de: 'Keine Überkategorie (Hauptkategorie)', tr: 'Üst kategori yok (ana kategori)' },
+      { key: 'expenseCategories.parentCategoryHint', category: 'expenseCategories', en: 'Select a parent to make this a subcategory, or leave empty for top-level', de: 'Wählen Sie eine Überkategorie, um dies zu einer Unterkategorie zu machen, oder lassen Sie es leer für eine Hauptkategorie', tr: 'Bunu alt kategori yapmak için bir üst kategori seçin veya ana kategori için boş bırakın' },
+      { key: 'expenseCategories.displayOrder', category: 'expenseCategories', en: 'Display Order', de: 'Anzeigereihenfolge', tr: 'Görüntüleme Sırası' },
+      { key: 'expenseCategories.displayOrderHint', category: 'expenseCategories', en: 'Lower numbers appear first', de: 'Niedrigere Zahlen erscheinen zuerst', tr: 'Daha düşük sayılar önce görünür' },
 
       // Additional Income Keys (missing from Income page)
       { key: 'common.saving', category: 'common', en: 'Saving...', de: 'Speichern...', tr: 'Kaydediliyor...' },

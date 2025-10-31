@@ -403,6 +403,7 @@
   "expenseCategories": {
     "title": "Gider Kategorileri",
     "addCategory": "Kategori Ekle",
+    "addSubcategory": "Alt Kategori Ekle",
     "editCategory": "Kategori Düzenle",
     "deleteCategory": "Kategoriyi Sil",
     "manageCategories": "Hane gider kategorilerini yönetin",
@@ -411,7 +412,13 @@
     "name": "Ad",
     "allCategories": "Tüm Kategoriler",
     "deleteConfirmation": "Bu kategoriyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-    "expenseCount": "Gider Öğeleri"
+    "expenseCount": "Gider Öğeleri",
+    "parentCategory": "Üst Kategori",
+    "selectParentCategory": "Üst kategori seçin...",
+    "noParent": "Üst kategori yok (ana kategori)",
+    "parentCategoryHint": "Bunu alt kategori yapmak için bir üst kategori seçin veya ana kategori için boş bırakın",
+    "displayOrder": "Görüntüleme Sırası",
+    "displayOrderHint": "Daha düşük sayılar önce görünür"
   },
   "navigation": {
     "admin": "Yönetici",

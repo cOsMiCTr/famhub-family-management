@@ -395,6 +395,7 @@
   "expenseCategories": {
     "title": "Expense Categories",
     "addCategory": "Add Category",
+    "addSubcategory": "Add Subcategory",
     "editCategory": "Edit Category",
     "deleteCategory": "Delete Category",
     "manageCategories": "Manage expense categories for your household",
@@ -403,7 +404,13 @@
     "name": "Name",
     "allCategories": "All Categories",
     "deleteConfirmation": "Are you sure you want to delete this category? This action cannot be undone.",
-    "expenseCount": "Expense Items"
+    "expenseCount": "Expense Items",
+    "parentCategory": "Parent Category",
+    "selectParentCategory": "Select parent category...",
+    "noParent": "No parent (top-level category)",
+    "parentCategoryHint": "Select a parent to make this a subcategory, or leave empty for top-level",
+    "displayOrder": "Display Order",
+    "displayOrderHint": "Lower numbers appear first"
   },
   "navigation": {
     "admin": "Admin",

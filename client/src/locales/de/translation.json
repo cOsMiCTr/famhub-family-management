@@ -394,6 +394,7 @@
   "expenseCategories": {
     "title": "Ausgabekategorien",
     "addCategory": "Kategorie hinzufügen",
+    "addSubcategory": "Unterkategorie hinzufügen",
     "editCategory": "Kategorie bearbeiten",
     "deleteCategory": "Kategorie löschen",
     "manageCategories": "Ausgabekategorien für Ihren Haushalt verwalten",
@@ -402,7 +403,13 @@
     "name": "Name",
     "allCategories": "Alle Kategorien",
     "deleteConfirmation": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "expenseCount": "Ausgabeeinträge"
+    "expenseCount": "Ausgabeeinträge",
+    "parentCategory": "Übergeordnete Kategorie",
+    "selectParentCategory": "Übergeordnete Kategorie auswählen...",
+    "noParent": "Keine Überkategorie (Hauptkategorie)",
+    "parentCategoryHint": "Wählen Sie eine Überkategorie, um dies zu einer Unterkategorie zu machen, oder lassen Sie es leer für eine Hauptkategorie",
+    "displayOrder": "Anzeigereihenfolge",
+    "displayOrderHint": "Niedrigere Zahlen erscheinen zuerst"
   },
   "navigation": {
     "admin": "Admin",
