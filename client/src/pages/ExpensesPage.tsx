@@ -329,7 +329,7 @@ const ExpensesPage: React.FC = () => {
     
     // Category-specific validations
     if (selectedCategory) {
-      // Check member requirement
+      // Check member requirement (only if category explicitly requires it)
       if (selectedCategory.requires_member_link) {
         if (selectedCategory.category_type === 'gift') {
           // For gifts, check linked_member_ids
@@ -337,17 +337,13 @@ const ExpensesPage: React.FC = () => {
             errors.linkedMembers = t('expenses.memberLinkRequired');
           }
         } else {
-          // For other categories, check household_member_id
+          // For other categories that require member link, check household_member_id
           if (!formData.household_member_id) {
             errors.household_member_id = t('expenses.memberLinkRequired');
           }
         }
-      } else if (!selectedCategory.category_type || selectedCategory.category_type === 'other') {
-        // Standard categories still require household_member_id
-        if (!formData.household_member_id) {
-          errors.household_member_id = t('expenses.selectMember');
-        }
       }
+      // All other categories can belong to household (household_member_id is optional)
 
       // Check asset requirement
       if (selectedCategory.requires_asset_link && !customFormData.linkedAssetId) {
@@ -358,12 +354,8 @@ const ExpensesPage: React.FC = () => {
       if (selectedCategory.category_type === 'credit' && !customFormData.creditUseType) {
         errors.creditUseType = t('expenses.creditUseTypeRequired');
       }
-    } else {
-      // Fallback: require member if no category selected yet
-      if (!formData.household_member_id) {
-        errors.household_member_id = t('expenses.selectMember');
-      }
     }
+    // No fallback validation - household_member_id is optional
     
     // Date validation
     if (formData.start_date && formData.end_date) {
@@ -861,11 +853,11 @@ const ExpensesPage: React.FC = () => {
                               </span>
                             ))
                           ) : (
-                            // For other expenses, show regular member
+                            // For other expenses, show regular member or household
                             <>
                               <UserIcon className="h-5 w-5 text-gray-400 mr-2" />
                               <div className="text-sm text-gray-900 dark:text-white">
-                                {entry.member_name || '-'}
+                                {entry.member_name || t('expenses.household')}
                                 {entry.member_is_shared && (
                                   <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                     Shared
@@ -960,7 +952,7 @@ const ExpensesPage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('expenses.member')} *
+                        {t('expenses.member')}
                       </label>
                       <select
                         value={formData.household_member_id}
@@ -969,7 +961,7 @@ const ExpensesPage: React.FC = () => {
                           validationErrors.household_member_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
                         }`}
                       >
-                        <option value="">{t('expenses.selectMember')}</option>
+                        <option value="">{t('expenses.household')}</option>
                         {members.map((member) => (
                           <option key={member.id} value={member.id}>
                             {member.name}

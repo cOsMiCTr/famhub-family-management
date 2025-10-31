@@ -201,6 +201,7 @@
     "leaveEmptyForOngoing": "Leave empty for ongoing expense",
     "selectCategory": "Select Category",
     "selectMember": "Select Member",
+    "household": "Household",
     "totalAmount": "Total Amount",
     "averageAmount": "Average Amount",
     "recurringExpenses": "Recurring Expenses",
