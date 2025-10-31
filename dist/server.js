@@ -31,8 +31,12 @@ const export_1 = __importDefault(require("./routes/export"));
 const twoFactor_1 = __importDefault(require("./routes/twoFactor"));
 const modules_1 = __importDefault(require("./routes/modules"));
 const vouchers_1 = __importDefault(require("./routes/vouchers"));
+const invitations_1 = __importDefault(require("./routes/invitations"));
+const user_notifications_1 = __importDefault(require("./routes/user-notifications"));
+const linked_data_1 = __importDefault(require("./routes/linked-data"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const database_1 = require("./config/database");
+const expireInvitations_1 = require("./jobs/expireInvitations");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 app.use((0, helmet_1.default)({
@@ -83,6 +87,9 @@ app.use('/api/users/export', export_1.default);
 app.use('/api/two-factor', twoFactor_1.default);
 app.use('/api/modules', modules_1.default);
 app.use('/api/vouchers', vouchers_1.default);
+app.use('/api/invitations', invitations_1.default);
+app.use('/api/user/notifications', user_notifications_1.default);
+app.use('/api/linked-data', linked_data_1.default);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
@@ -101,6 +108,7 @@ async function startServer() {
     try {
         await (0, database_1.initializeDatabase)();
         console.log('✅ Database connected successfully');
+        (0, expireInvitations_1.startExpireInvitationsJob)();
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`📱 Environment: ${process.env.NODE_ENV}`);

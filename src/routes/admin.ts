@@ -82,6 +82,42 @@ router.post('/users', [
   // Create admin notification
   await NotificationService.createUserCreatedNotification(user.id, email);
 
+  // Check if any external persons in this household have matching email
+  // This allows household members to invite the newly registered user
+  let externalPersonMatch: { found: boolean; external_person_id: number | null } = { found: false, external_person_id: null };
+  
+  // Check for external persons with this email in the same household
+  const externalPersonResult = await query(
+    `SELECT id FROM external_persons 
+     WHERE household_id = $1 AND LOWER(email) = LOWER($2) AND email IS NOT NULL`,
+    [household_id, email]
+  );
+  
+  if (externalPersonResult.rows.length > 0) {
+    externalPersonMatch = {
+      found: true,
+      external_person_id: externalPersonResult.rows[0].id
+    };
+    
+    // Create user notification for all household members (they can now invite this person)
+    const householdMembersResult = await query(
+      `SELECT id FROM users WHERE household_id = $1 AND id != $2`,
+      [household_id, user.id]
+    );
+    
+    for (const member of householdMembersResult.rows) {
+      const { UserNotificationService } = await import('../services/userNotificationService');
+      await UserNotificationService.createNotification(
+        member.id,
+        'external_person_match',
+        'External person can now be invited',
+        `A user with email ${email} has been registered. You can now send an invitation to link them with their external person profile.`,
+        'external_person',
+        externalPersonMatch.external_person_id
+      );
+    }
+  }
+
   res.status(201).json({
     message: 'User created successfully',
     user: {
@@ -95,6 +131,7 @@ router.post('/users', [
       account_status: 'pending_password_change'
     },
     temporary_password: temporaryPassword,
+    external_person_match: externalPersonMatch,
     warning: 'This password is shown only once. Please provide it to the user securely.'
   });
 }));

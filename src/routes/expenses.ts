@@ -139,7 +139,7 @@ async function validateCategoryRequirements(categoryId: number, expenseData: any
 router.get('/', async (req, res) => {
   try {
     const userId = req.user?.id;
-    const { start_date, end_date, member_id, category_id, is_recurring } = req.query;
+    const { start_date, end_date, member_id, category_id, is_recurring, shared_with_me } = req.query;
 
     // Get user's household_id and main_currency
     const userResult = await query('SELECT household_id, main_currency FROM users WHERE id = $1', [userId]);
@@ -233,6 +233,19 @@ router.get('/', async (req, res) => {
       paramIndex++;
     }
 
+    // Filter by shared_with_me - show expenses shared via accepted connections
+    if (shared_with_me === 'true') {
+      queryText += ` AND EXISTS (
+        SELECT 1 FROM external_person_user_connections c
+        INNER JOIN expense_external_person_links epl ON epl.external_person_id = c.external_person_id
+        WHERE epl.expense_id = e.id
+        AND c.status = 'accepted'
+        AND (c.invited_user_id = $${paramIndex} OR c.invited_by_user_id = $${paramIndex})
+      )`;
+      queryParams.push(userId);
+      paramIndex++;
+    }
+
     queryText += ' ORDER BY e.start_date DESC, e.created_at DESC';
 
     const result = await query(queryText, queryParams);
@@ -277,6 +290,30 @@ router.get('/', async (req, res) => {
       }
     }
 
+    // Get shared info if shared_with_me filter is active
+    let sharedExpensesMap: { [key: number]: { shared_from_user_id: number; is_read_only: boolean } } = {};
+    if (shared_with_me === 'true') {
+      const expenseIds = result.rows.map((e: any) => e.id);
+      if (expenseIds.length > 0) {
+        const sharedInfoResult = await query(
+          `SELECT DISTINCT epl.expense_id, c.invited_by_user_id as shared_from_user_id
+           FROM expense_external_person_links epl
+           INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+           WHERE epl.expense_id = ANY($1::int[])
+           AND c.status = 'accepted'
+           AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)`,
+          [expenseIds, userId]
+        );
+        
+        for (const row of sharedInfoResult.rows) {
+          sharedExpensesMap[row.expense_id] = {
+            shared_from_user_id: row.shared_from_user_id,
+            is_read_only: true
+          };
+        }
+      }
+    }
+
     // Convert amounts to user's main currency and add linked members
     const expensesWithConvertedAmounts = await Promise.all(
       result.rows.map(async (expense) => {
@@ -300,24 +337,32 @@ router.get('/', async (req, res) => {
             }
           }
 
+          const sharedInfo = sharedExpensesMap[expense.id];
           return {
             ...expense,
             amount_in_main_currency: convertedAmount,
             main_currency: mainCurrency,
             linked_member_ids: linkedMembersMap[expense.id]?.map((m: any) => m.id) || [],
             linked_member_names: linkedMembersMap[expense.id]?.map((m: any) => m.name) || [],
-            metadata: metadata
+            metadata: metadata,
+            is_shared: !!sharedInfo,
+            shared_from_user_id: sharedInfo?.shared_from_user_id || null,
+            is_read_only: sharedInfo?.is_read_only || false
           };
         } catch (error) {
           console.error(`Failed to convert ${expense.currency} to ${mainCurrency}:`, error);
           // Return original amount if conversion fails
+          const sharedInfo = sharedExpensesMap[expense.id];
           return {
             ...expense,
             amount_in_main_currency: expense.amount,
             main_currency: mainCurrency,
             linked_member_ids: linkedMembersMap[expense.id]?.map((m: any) => m.id) || [],
             linked_member_names: linkedMembersMap[expense.id]?.map((m: any) => m.name) || [],
-            metadata: typeof expense.metadata === 'string' ? (() => { try { return JSON.parse(expense.metadata); } catch { return null; } })() : expense.metadata
+            metadata: typeof expense.metadata === 'string' ? (() => { try { return JSON.parse(expense.metadata); } catch { return null; } })() : expense.metadata,
+            is_shared: !!sharedInfo,
+            shared_from_user_id: sharedInfo?.shared_from_user_id || null,
+            is_read_only: sharedInfo?.is_read_only || false
           };
         }
       })

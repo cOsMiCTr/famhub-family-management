@@ -30,6 +30,9 @@ import exportRoutes from './routes/export';
 import twoFactorRoutes from './routes/twoFactor';
 import modulesRoutes from './routes/modules';
 import vouchersRoutes from './routes/vouchers';
+import invitationsRoutes from './routes/invitations';
+import userNotificationsRoutes from './routes/user-notifications';
+import linkedDataRoutes from './routes/linked-data';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -37,6 +40,9 @@ import { authenticateToken } from './middleware/auth';
 
 // Import database connection
 import { initializeDatabase } from './config/database';
+
+// Import background jobs
+import { startExpireInvitationsJob } from './jobs/expireInvitations';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -100,6 +106,9 @@ app.use('/api/users/export', exportRoutes);
 app.use('/api/two-factor', twoFactorRoutes);
 app.use('/api/modules', modulesRoutes);
 app.use('/api/vouchers', vouchersRoutes);
+app.use('/api/invitations', invitationsRoutes);
+app.use('/api/user/notifications', userNotificationsRoutes);
+app.use('/api/linked-data', linkedDataRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -129,6 +138,9 @@ async function startServer() {
   try {
     await initializeDatabase();
     console.log('✅ Database connected successfully');
+    
+    // Start background jobs
+    startExpireInvitationsJob();
     
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

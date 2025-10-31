@@ -503,7 +503,8 @@ router.get('/', asyncHandler(async (req, res) => {
     status,
     ownership_type,
     household_member_id,
-    household_view = false 
+    household_view = false,
+    shared_with_me 
   } = req.query;
 
   const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -664,6 +665,22 @@ router.get('/', asyncHandler(async (req, res) => {
     params.push(ownership_type);
   }
 
+  // Filter by shared_with_me - show assets shared via accepted connections
+  if (shared_with_me === 'true') {
+    // Assets linked via expenses that have external person connections
+    const sharedCondition = `EXISTS (
+      SELECT 1 FROM expenses e
+      INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
+      INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+      WHERE e.linked_asset_id = a.id
+      AND c.status = 'accepted'
+      AND (c.invited_user_id = $${paramCount} OR c.invited_by_user_id = $${paramCount})
+    )`;
+    conditions.push(sharedCondition);
+    params.push(req.user.id);
+    paramCount++;
+  }
+
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   // Get assets with pagination
@@ -728,11 +745,41 @@ router.get('/', asyncHandler(async (req, res) => {
     }
   }
 
+  // Get shared info if shared_with_me filter is active
+  let sharedAssetsMap: { [key: number]: { shared_from_user_id: number; is_read_only: boolean } } = {};
+  if (shared_with_me === 'true') {
+    if (assetIds.length > 0) {
+      const sharedInfoResult = await query(
+        `SELECT DISTINCT e.linked_asset_id as asset_id, c.invited_by_user_id as shared_from_user_id
+         FROM expenses e
+         INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
+         INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+         WHERE e.linked_asset_id = ANY($1::int[])
+         AND c.status = 'accepted'
+         AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)`,
+        [assetIds, req.user.id]
+      );
+      
+      for (const row of sharedInfoResult.rows) {
+        sharedAssetsMap[row.asset_id] = {
+          shared_from_user_id: row.shared_from_user_id,
+          is_read_only: true
+        };
+      }
+    }
+  }
+
   // Attach shared ownership to each asset
-  let assetsWithOwnership = assetsResult.rows.map(asset => ({
-    ...asset,
-    shared_ownership: sharedOwnershipMap[asset.id] || []
-  }));
+  let assetsWithOwnership = assetsResult.rows.map(asset => {
+    const sharedInfo = sharedAssetsMap[asset.id];
+    return {
+      ...asset,
+      shared_ownership: sharedOwnershipMap[asset.id] || [],
+      is_shared: !!sharedInfo,
+      shared_from_user_id: sharedInfo?.shared_from_user_id || null,
+      is_read_only: sharedInfo?.is_read_only || false
+    };
+  });
 
   // For assets with shared ownership but no distribution entries yet, 
   // get all household members and create default distribution

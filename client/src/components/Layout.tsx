@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useModuleContext } from '../contexts/ModuleContext';
 import ThemeToggle from './ThemeToggle';
 import AdminNotificationBell from './AdminNotificationBell';
+import UserNotificationBell from './UserNotificationBell';
 import {
   HomeIcon,
   CurrencyDollarIcon,
@@ -295,6 +296,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {/* Admin Notification Bell - floated to right */}
               <div className="flex items-center">
                 <AdminNotificationBell />
+                <UserNotificationBell />
               </div>
             </div>
           </div>

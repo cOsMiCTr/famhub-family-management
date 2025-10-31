@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon, UserIcon, EnvelopeIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { apiService } from '../services/api';
 
 interface ExternalPerson {
   id: number;
   name: string;
+  email: string | null;
   birth_date: string | null;
   relationship: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+  can_invite?: boolean;
+  linked_user_id?: number | null;
+  has_pending_invitation?: boolean;
+  invitation_status?: string | null;
+  invitation_expires_at?: string | null;
 }
 
 const ExternalPersonsPage: React.FC = () => {
@@ -25,6 +31,7 @@ const ExternalPersonsPage: React.FC = () => {
   const [selectedPerson, setSelectedPerson] = useState<ExternalPerson | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     birth_date: '',
     relationship: '',
     notes: ''
@@ -50,7 +57,7 @@ const ExternalPersonsPage: React.FC = () => {
   };
 
   const handleAdd = () => {
-    setFormData({ name: '', birth_date: '', relationship: '', notes: '' });
+    setFormData({ name: '', email: '', birth_date: '', relationship: '', notes: '' });
     setFormErrors([]);
     setSelectedPerson(null);
     setShowAddModal(true);
@@ -59,6 +66,7 @@ const ExternalPersonsPage: React.FC = () => {
   const handleEdit = (person: ExternalPerson) => {
     setFormData({
       name: person.name,
+      email: person.email || '',
       birth_date: person.birth_date || '',
       relationship: person.relationship || '',
       notes: person.notes || ''
@@ -94,6 +102,7 @@ const ExternalPersonsPage: React.FC = () => {
     try {
       const payload = {
         name: formData.name.trim(),
+        email: formData.email.trim() || null,
         birth_date: formData.birth_date || null,
         relationship: formData.relationship.trim() || null,
         notes: formData.notes.trim() || null
@@ -109,7 +118,7 @@ const ExternalPersonsPage: React.FC = () => {
       setShowAddModal(false);
       setShowEditModal(false);
       setSelectedPerson(null);
-      setFormData({ name: '', birth_date: '', relationship: '', notes: '' });
+      setFormData({ name: '', email: '', birth_date: '', relationship: '', notes: '' });
     } catch (err: any) {
       setFormErrors([err.response?.data?.error || 'Failed to save external person']);
       console.error('Error saving external person:', err);
@@ -127,6 +136,50 @@ const ExternalPersonsPage: React.FC = () => {
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete external person');
       console.error('Error deleting external person:', err);
+    }
+  };
+
+  const handleInvite = async (person: ExternalPerson) => {
+    try {
+      await apiService.sendExternalPersonInvitation(person.id);
+      await loadExternalPersons();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to send invitation');
+      console.error('Error sending invitation:', err);
+    }
+  };
+
+  const handleDisconnect = async (person: ExternalPerson) => {
+    if (!confirm(t('invitations.disconnectConfirmation') || 'Are you sure you want to disconnect? This will revoke access to linked data.')) {
+      return;
+    }
+    
+    // Find the connection ID from invitation status
+    try {
+      // Get invite status to find connection ID
+      const statusResponse = await apiService.get(`/external-persons/${person.id}/invite-status`);
+      const statusData = statusResponse.data || statusResponse;
+      if (statusData.has_connection && statusData.connection_id) {
+        await apiService.disconnectExternalPersonInvitation(statusData.connection_id);
+        await loadExternalPersons();
+      } else {
+        // Try to find connection from invitations list
+        const invitationsResponse = await apiService.getExternalPersonInvitations('all');
+        const allConnections = [
+          ...(invitationsResponse.invitations || []),
+          ...(invitationsResponse.connections || [])
+        ];
+        const connection = allConnections.find((conn: any) => 
+          conn.external_person_id === person.id && conn.status === 'accepted'
+        );
+        if (connection) {
+          await apiService.disconnectExternalPersonInvitation(connection.id);
+          await loadExternalPersons();
+        }
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to disconnect');
+      console.error('Error disconnecting:', err);
     }
   };
 
@@ -191,6 +244,9 @@ const ExternalPersonsPage: React.FC = () => {
                 {t('common.name') || 'Name'}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {t('common.email') || 'Email'}
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {t('common.birthDate') || 'Birth Date'}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -207,7 +263,7 @@ const ExternalPersonsPage: React.FC = () => {
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {filteredPersons.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   {searchTerm ? 'No external persons found' : 'No external persons yet'}
                 </td>
               </tr>
@@ -223,6 +279,26 @@ const ExternalPersonsPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {person.email ? (
+                      <div className="flex items-center">
+                        <EnvelopeIcon className="h-4 w-4 mr-1" />
+                        {person.email}
+                        {person.can_invite && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                            {t('invitations.canInvite') || 'Can invite'}
+                          </span>
+                        )}
+                        {person.has_pending_invitation && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                            {t('invitations.pending') || 'Pending'}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {formatDate(person.birth_date)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -234,18 +310,42 @@ const ExternalPersonsPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(person)}
-                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(person)}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                    <div className="flex items-center justify-end space-x-2">
+                      {person.can_invite && !person.has_pending_invitation && (
+                        <button
+                          onClick={() => handleInvite(person)}
+                          className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700"
+                          title={t('invitations.invite') || 'Invite'}
+                        >
+                          <EnvelopeIcon className="h-4 w-4 mr-1" />
+                          {t('invitations.invite') || 'Invite'}
+                        </button>
+                      )}
+                      {person.invitation_status === 'accepted' && (
+                        <button
+                          onClick={() => handleDisconnect(person)}
+                          className="inline-flex items-center px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700"
+                          title={t('invitations.disconnect') || 'Disconnect'}
+                        >
+                          <XMarkIcon className="h-4 w-4 mr-1" />
+                          {t('invitations.disconnect') || 'Disconnect'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleEdit(person)}
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        title={t('common.edit') || 'Edit'}
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(person)}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        title={t('common.delete') || 'Delete'}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -267,7 +367,7 @@ const ExternalPersonsPage: React.FC = () => {
                   setShowAddModal(false);
                   setShowEditModal(false);
                   setSelectedPerson(null);
-                  setFormData({ name: '', birth_date: '', relationship: '', notes: '' });
+                  setFormData({ name: '', email: '', birth_date: '', relationship: '', notes: '' });
                   setFormErrors([]);
                 }}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -298,6 +398,22 @@ const ExternalPersonsPage: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t('common.email') || 'Email'}
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder={t('invitations.emailPlaceholder') || 'email@example.com'}
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {t('invitations.emailHint') || 'Add email to enable invitations to registered users'}
+                </p>
               </div>
 
               <div>
@@ -353,7 +469,7 @@ const ExternalPersonsPage: React.FC = () => {
                     setShowAddModal(false);
                     setShowEditModal(false);
                     setSelectedPerson(null);
-                    setFormData({ name: '', birth_date: '', relationship: '', notes: '' });
+                    setFormData({ name: '', email: '', birth_date: '', relationship: '', notes: '' });
                     setFormErrors([]);
                   }}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"

@@ -347,7 +347,7 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     if (!req.user) {
         throw new Error('User not authenticated');
     }
-    const { page = 1, limit = 50, category_id, currency, start_date, end_date, status, ownership_type, household_member_id, household_view = false } = req.query;
+    const { page = 1, limit = 50, category_id, currency, start_date, end_date, status, ownership_type, household_member_id, household_view = false, shared_with_me } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const conditions = [];
     const params = [];
@@ -462,6 +462,19 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
         conditions.push(`a.ownership_type = $${paramCount++}`);
         params.push(ownership_type);
     }
+    if (shared_with_me === 'true') {
+        const sharedCondition = `EXISTS (
+      SELECT 1 FROM expenses e
+      INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
+      INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+      WHERE e.linked_asset_id = a.id
+      AND c.status = 'accepted'
+      AND (c.invited_user_id = $${paramCount} OR c.invited_by_user_id = $${paramCount})
+    )`;
+        conditions.push(sharedCondition);
+        params.push(req.user.id);
+        paramCount++;
+    }
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     let assetsResult;
     try {
@@ -507,10 +520,34 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             console.error('Error fetching shared ownership:', error);
         }
     }
-    let assetsWithOwnership = assetsResult.rows.map(asset => ({
-        ...asset,
-        shared_ownership: sharedOwnershipMap[asset.id] || []
-    }));
+    let sharedAssetsMap = {};
+    if (shared_with_me === 'true') {
+        if (assetIds.length > 0) {
+            const sharedInfoResult = await (0, database_1.query)(`SELECT DISTINCT e.linked_asset_id as asset_id, c.invited_by_user_id as shared_from_user_id
+         FROM expenses e
+         INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
+         INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+         WHERE e.linked_asset_id = ANY($1::int[])
+         AND c.status = 'accepted'
+         AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)`, [assetIds, req.user.id]);
+            for (const row of sharedInfoResult.rows) {
+                sharedAssetsMap[row.asset_id] = {
+                    shared_from_user_id: row.shared_from_user_id,
+                    is_read_only: true
+                };
+            }
+        }
+    }
+    let assetsWithOwnership = assetsResult.rows.map(asset => {
+        const sharedInfo = sharedAssetsMap[asset.id];
+        return {
+            ...asset,
+            shared_ownership: sharedOwnershipMap[asset.id] || [],
+            is_shared: !!sharedInfo,
+            shared_from_user_id: sharedInfo?.shared_from_user_id || null,
+            is_read_only: sharedInfo?.is_read_only || false
+        };
+    });
     for (const asset of assetsWithOwnership) {
         if (asset.ownership_type === 'shared' &&
             (!asset.shared_ownership || asset.shared_ownership.length === 0)) {

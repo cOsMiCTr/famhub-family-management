@@ -84,6 +84,20 @@ router.post('/users', [
        DO UPDATE SET can_view_contracts = $3, can_view_income = $4, can_edit = $5`, [household_id, user.id, can_view_contracts, can_view_income, can_edit]);
     }
     await notificationService_1.NotificationService.createUserCreatedNotification(user.id, email);
+    let externalPersonMatch = { found: false, external_person_id: null };
+    const externalPersonResult = await (0, database_1.query)(`SELECT id FROM external_persons 
+     WHERE household_id = $1 AND LOWER(email) = LOWER($2) AND email IS NOT NULL`, [household_id, email]);
+    if (externalPersonResult.rows.length > 0) {
+        externalPersonMatch = {
+            found: true,
+            external_person_id: externalPersonResult.rows[0].id
+        };
+        const householdMembersResult = await (0, database_1.query)(`SELECT id FROM users WHERE household_id = $1 AND id != $2`, [household_id, user.id]);
+        for (const member of householdMembersResult.rows) {
+            const { UserNotificationService } = await Promise.resolve().then(() => __importStar(require('../services/userNotificationService')));
+            await UserNotificationService.createNotification(member.id, 'external_person_match', 'External person can now be invited', `A user with email ${email} has been registered. You can now send an invitation to link them with their external person profile.`, 'external_person', externalPersonMatch.external_person_id);
+        }
+    }
     res.status(201).json({
         message: 'User created successfully',
         user: {
@@ -97,6 +111,7 @@ router.post('/users', [
             account_status: 'pending_password_change'
         },
         temporary_password: temporaryPassword,
+        external_person_match: externalPersonMatch,
         warning: 'This password is shown only once. Please provide it to the user securely.'
     });
 }));

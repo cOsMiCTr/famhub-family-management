@@ -487,6 +487,98 @@ class ApiService {
     const response = await this.api.get('/users/activity');
     return response.data;
   }
+
+  // User notifications
+  async getUserNotifications(page: number = 1, limit: number = 20, readFilter?: boolean) {
+    const params: any = { page, limit };
+    if (readFilter !== undefined) {
+      params.read = readFilter.toString();
+    }
+    const response = await this.api.get('/user/notifications', { params });
+    return response.data;
+  }
+
+  async markUserNotificationRead(id: string) {
+    const response = await this.api.put(`/user/notifications/${id}/read`);
+    return response.data;
+  }
+
+  async markAllUserNotificationsRead(notificationIds?: number[]) {
+    const response = await this.api.put('/user/notifications/read-all', { notification_ids: notificationIds });
+    return response.data;
+  }
+
+  async getUserNotificationUnreadCount() {
+    const response = await this.api.get('/user/notifications/unread-count');
+    return response.data;
+  }
+
+  async deleteUserNotification(id: string) {
+    const response = await this.api.delete(`/user/notifications/${id}`);
+    return response.data;
+  }
+
+  // External person invitations (not admin invitation tokens)
+  async sendExternalPersonInvitation(externalPersonId: number) {
+    const response = await this.api.post('/invitations', { external_person_id: externalPersonId });
+    return response.data;
+  }
+
+  async getExternalPersonInvitations(status?: 'pending' | 'accepted' | 'all') {
+    const params: any = {};
+    if (status) {
+      params.status = status;
+    }
+    const response = await this.api.get('/invitations', { params });
+    return response.data;
+  }
+
+  async acceptExternalPersonInvitation(connectionId: number) {
+    const response = await this.api.post(`/invitations/${connectionId}/accept`);
+    return response.data;
+  }
+
+  async rejectExternalPersonInvitation(connectionId: number) {
+    const response = await this.api.post(`/invitations/${connectionId}/reject`);
+    return response.data;
+  }
+
+  async revokeExternalPersonInvitation(connectionId: number) {
+    const response = await this.api.delete(`/invitations/${connectionId}`);
+    return response.data;
+  }
+
+  async disconnectExternalPersonInvitation(connectionId: number) {
+    const response = await this.api.post(`/invitations/${connectionId}/disconnect`);
+    return response.data;
+  }
+
+  // Linked data
+  async getLinkedDataConnections() {
+    const response = await this.api.get('/linked-data/connections');
+    return response.data;
+  }
+
+  async getLinkedExpenses(connectionId: number, filters?: any) {
+    const params = new URLSearchParams(filters || {});
+    const response = await this.api.get(`/linked-data/${connectionId}/expenses?${params}`);
+    return response.data;
+  }
+
+  async getLinkedIncome(connectionId: number) {
+    const response = await this.api.get(`/linked-data/${connectionId}/income`);
+    return response.data;
+  }
+
+  async getLinkedAssets(connectionId: number) {
+    const response = await this.api.get(`/linked-data/${connectionId}/assets`);
+    return response.data;
+  }
+
+  async getLinkedDataSummary(connectionId: number) {
+    const response = await this.api.get(`/linked-data/${connectionId}/summary`);
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

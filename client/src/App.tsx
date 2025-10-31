@@ -26,6 +26,7 @@ import ExpenseCategoriesPage from './pages/ExpenseCategoriesPage';
 import ExpensesPage from './pages/ExpensesPage';
 import CurrencyManagementPage from './pages/CurrencyManagementPage';
 import VoucherManagementPage from './pages/VoucherManagementPage';
+import NotificationsPage from './pages/NotificationsPage';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -169,6 +170,16 @@ const AppContent: React.FC = () => {
             <ProtectedRoute>
               <Layout>
                 <SettingsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <NotificationsPage />
               </Layout>
             </ProtectedRoute>
           }
