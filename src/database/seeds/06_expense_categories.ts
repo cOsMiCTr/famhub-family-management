@@ -24,7 +24,7 @@ const categories = [
     allows_multiple_members: false
   },
   { 
-    name_en: 'Bausparvertrag', 
+    name_en: 'Building Savings Contract', 
     name_de: 'Bausparvertrag', 
     name_tr: 'Bausparvertrag', 
     is_default: true,
