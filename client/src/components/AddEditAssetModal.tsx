@@ -138,6 +138,39 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
   // Get selected category details
   const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
   
+  // Get fields to show based on field requirements
+  const visibleFields = useMemo(() => {
+    if (!selectedCategory?.field_requirements) {
+      // Default visible fields if no field requirements
+      return {
+        name: true,
+        category_id: true,
+        value: true,
+        currency: true,
+        location: true,
+        purchase_date: true,
+        purchase_price: true,
+        description: true,
+        ownership_type: true,
+        ticker: selectedCategory?.requires_ticker || false
+      };
+    }
+    
+    const reqs = selectedCategory.field_requirements;
+    return {
+      name: reqs.name !== undefined,
+      category_id: reqs.category_id !== undefined,
+      value: reqs.value !== undefined,
+      currency: reqs.currency !== undefined,
+      location: reqs.location !== undefined,
+      purchase_date: reqs.purchase_date !== undefined,
+      purchase_price: reqs.purchase_price !== undefined,
+      description: reqs.description !== undefined,
+      ownership_type: reqs.ownership_type !== undefined,
+      ticker: reqs.ticker !== undefined
+    };
+  }, [selectedCategory]);
+  
   // Get all currencies from context
   const { allCurrencies } = useCurrencyContext();
   
@@ -490,9 +523,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       </p>
                     </div>
 
+                    {visibleFields.name && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Asset Name *
+                        Asset Name {selectedCategory?.field_requirements?.name?.required && '*'}
                       </label>
                       <input
                         type="text"
@@ -508,7 +542,9 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.nameRequired')}</p>
                       )}
                     </div>
+                    )}
 
+                    {visibleFields.category_id && (
                     <SearchableAssetCategorySelector
                       categories={categories as any}
                       selectedCategoryId={formData.category_id}
@@ -517,6 +553,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                       placeholder="Select a category"
                       getCategoryIcon={getCategoryIcon}
                     />
+                    )}
                   </div>
                 )}
 
@@ -741,7 +778,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                   </div>
                 )}
 
-                {currentStep === 3 && (
+                {currentStep === 3 && (visibleFields.value || visibleFields.currency || visibleFields.purchase_price || visibleFields.purchase_date) && (
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
@@ -753,9 +790,10 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
+                      {visibleFields.value && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Current Value *
+                          Current Value {selectedCategory?.field_requirements?.value?.required && '*'}
                         </label>
                         <input
                           type="number"
@@ -773,9 +811,11 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.amountRequired')}</p>
                         )}
                       </div>
+                      )}
+                      {visibleFields.currency && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Currency *
+                          Currency {selectedCategory?.field_requirements?.currency?.required && '*'}
                         </label>
                         <select
                           name="currency"
@@ -793,16 +833,19 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{t('common.currencyRequired')}</p>
                         )}
                       </div>
+                      )}
                     </div>
 
+                    {(visibleFields.purchase_price || visibleFields.purchase_date) && (
                     <div className="border-t pt-6">
                       <h5 className="text-md font-medium text-gray-900 dark:text-white mb-4">
-                        Purchase Information (Optional)
+                        Purchase Information {!(selectedCategory?.field_requirements?.purchase_price?.required || selectedCategory?.field_requirements?.purchase_date?.required) && '(Optional)'}
                       </h5>
                       <div className="grid grid-cols-2 gap-4">
+                        {visibleFields.purchase_price && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Purchase Price
+                            Purchase Price {selectedCategory?.field_requirements?.purchase_price?.required && '*'}
                           </label>
                           <input
                             type="number"
@@ -815,9 +858,11 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                             placeholder="0.00"
                           />
                         </div>
+                        )}
+                        {visibleFields.purchase_date && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Purchase Date
+                            Purchase Date {selectedCategory?.field_requirements?.purchase_date?.required && '*'}
                           </label>
                           <input
                             type="date"
@@ -827,25 +872,28 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                             className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                           />
                         </div>
+                        )}
                       </div>
                     </div>
+                    )}
                   </div>
                 )}
 
-                {currentStep === 4 && (
+                {currentStep === 4 && (visibleFields.description || visibleFields.location) && (
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                        Additional Details (Optional)
+                        Additional Details {!(selectedCategory?.field_requirements?.description?.required || selectedCategory?.field_requirements?.location?.required) && '(Optional)'}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
                         Add any additional information about this asset.
                       </p>
                     </div>
 
+                    {visibleFields.description && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Description
+                        Description {selectedCategory?.field_requirements?.description?.required && '*'}
                       </label>
                       <textarea
                         name="description"
@@ -856,10 +904,12 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         placeholder="Additional details about this asset..."
                       />
                     </div>
+                    )}
 
+                    {visibleFields.location && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Location
+                        Location {selectedCategory?.field_requirements?.location?.required && '*'}
                       </label>
                       <GooglePlacesAutocomplete
                         value={formData.location}
@@ -873,20 +923,7 @@ const AddEditAssetModal: React.FC<AddEditAssetModalProps> = ({
                         className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Notes
-                      </label>
-                      <textarea
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleInputChange}
-                        rows={2}
-                        className="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="Any additional notes..."
-                      />
-                    </div>
+                    )}
                   </div>
                 )}
 

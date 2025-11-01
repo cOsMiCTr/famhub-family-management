@@ -211,6 +211,17 @@ export async function seed(knex: Knex): Promise<void> {
       .first();
     
     if (!existing) {
+      // Default field requirements for all expense categories
+      const defaultFieldRequirements = {
+        amount: { required: true },
+        currency: { required: true },
+        description: { required: false },
+        start_date: { required: true },
+        end_date: { required: false },
+        is_recurring: { required: false },
+        frequency: { required: false, conditional: { field: 'is_recurring', value: true } }
+      };
+
       await knex('expense_categories').insert({
         name_en: category.name_en,
         name_de: category.name_de,
@@ -223,7 +234,8 @@ export async function seed(knex: Knex): Promise<void> {
         allows_multiple_members: category.allows_multiple_members || false,
         allow_sharing_with_external_persons: category.allow_sharing_with_external_persons !== undefined 
           ? category.allow_sharing_with_external_persons 
-          : true
+          : true,
+        field_requirements: JSON.stringify(defaultFieldRequirements)
       });
       insertedCount++;
       console.log(`  ✓ Added category: ${category.name_en}`);
@@ -269,6 +281,22 @@ export async function seed(knex: Knex): Promise<void> {
         .first();
       
       if (!existing) {
+        const insuranceFieldRequirements = {
+          amount: { required: true },
+          currency: { required: true },
+          description: { required: false },
+          start_date: { required: true },
+          end_date: { required: false },
+          is_recurring: { required: false },
+          frequency: { required: false, conditional: { field: 'is_recurring', value: true } },
+          linked_asset_id: { required: sub.name_en === 'Property Insurance' },
+          household_member_id: { required: false },
+          metadata: {
+            insurance_company: { required: true },
+            insurance_number: { required: true }
+          }
+        };
+
         await knex('expense_categories').insert({
           name_en: sub.name_en,
           name_de: sub.name_de,
@@ -280,7 +308,8 @@ export async function seed(knex: Knex): Promise<void> {
           requires_member_link: false,
           allows_multiple_members: sub.name_en === 'Family Insurance',
           parent_category_id: insuranceParent.id,
-          display_order: sub.display_order
+          display_order: sub.display_order,
+          field_requirements: JSON.stringify(insuranceFieldRequirements)
         });
         console.log(`  ✓ Added insurance subcategory: ${sub.name_en}`);
       }

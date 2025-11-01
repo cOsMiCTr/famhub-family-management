@@ -57,6 +57,7 @@ export interface AssetCategory {
   is_default: boolean;
   asset_count: number;
   allowed_currency_types?: string[];
+  field_requirements?: Record<string, any>;
 }
 
 // Currency formatting

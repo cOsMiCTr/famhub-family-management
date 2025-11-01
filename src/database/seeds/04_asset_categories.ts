@@ -145,6 +145,20 @@ const categories = [
 export async function seed(knex: Knex): Promise<void> {
   console.log('🌱 Starting asset categories seeding...');
 
+  // Default field requirements for all asset categories
+  const defaultFieldRequirements = {
+    name: { required: true },
+    category_id: { required: true },
+    value: { required: false },
+    currency: { required: false },
+    location: { required: false },
+    purchase_date: { required: false },
+    purchase_price: { required: false },
+    description: { required: false },
+    ownership_type: { required: false },
+    ticker: { required: false, conditional: { field: 'category_type', value: 'stocks' } }
+  };
+
   // Clear existing asset categories (idempotent - check before clearing)
   const existingCount = await knex('asset_categories').count('* as count').first();
   
@@ -159,6 +173,12 @@ export async function seed(knex: Knex): Promise<void> {
       .first();
     
     if (!existing) {
+      // Customize field requirements for stocks (ticker required)
+      const fieldReqs = { ...defaultFieldRequirements };
+      if (category.category_type === 'stocks' || category.requires_ticker) {
+        fieldReqs.ticker = { required: true, conditional: { field: 'category_type', value: 'stocks' } };
+      }
+
       await knex('asset_categories').insert({
         name_en: category.name_en,
         name_de: category.name_de,
@@ -169,7 +189,8 @@ export async function seed(knex: Knex): Promise<void> {
         requires_ticker: category.requires_ticker,
         depreciation_enabled: category.depreciation_enabled,
         is_default: category.is_default,
-        allowed_currency_types: category.allowed_currency_types
+        allowed_currency_types: category.allowed_currency_types,
+        field_requirements: JSON.stringify(fieldReqs)
       });
     }
   }

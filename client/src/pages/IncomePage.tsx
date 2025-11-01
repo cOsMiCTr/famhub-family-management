@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SearchableCategorySelector from '../components/SearchableCategorySelector';
+import AddEditIncomeWizard from '../components/AddEditIncomeWizard';
 import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface IncomeEntry {
@@ -43,6 +44,7 @@ interface IncomeCategory {
   name_de: string;
   name_tr: string;
   is_default: boolean;
+  field_requirements?: Record<string, any>;
 }
 
 interface HouseholdMember {
@@ -91,8 +93,7 @@ const IncomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showNoMembersWarning, setShowNoMembersWarning] = useState(false);
@@ -238,13 +239,13 @@ const IncomePage: React.FC = () => {
 
   // Update form data currency when user preferences are loaded
   useEffect(() => {
-    if (userPreferences?.currency && !showAddModal && !showEditModal) {
+    if (userPreferences?.currency && !showWizard) {
       setFormData(prev => ({
         ...prev,
         currency: userPreferences.currency || 'USD'
       }));
     }
-  }, [userPreferences, showAddModal, showEditModal]);
+  }, [userPreferences, showWizard]);
 
   // Validate form with custom messages
   const validateForm = (): boolean => {
@@ -366,37 +367,26 @@ const IncomePage: React.FC = () => {
   // Handle edit
   const handleEdit = (entry: IncomeEntry) => {
     setSelectedEntry(entry);
+    setShowWizard(true);
+  };
+
+  const handleWizardSave = async () => {
+    await loadData();
+    setShowWizard(false);
+    setSelectedEntry(null);
+  };
+
+  const handleAdd = () => {
+    setSelectedEntry(null);
+    setShowWizard(true);
+  };
+
+  // Legacy handleSubmit - kept for backwards compatibility but not used
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Handle contradictory data: if is_recurring is true but frequency is one-time, treat as monthly
-    const effectiveFrequency = (entry.is_recurring && entry.frequency === 'one-time') ? 'monthly' : entry.frequency;
-    
-    // Debug logging for dates
-    console.log('Edit entry dates:', {
-      start_date: entry.start_date,
-      end_date: entry.end_date,
-      start_date_type: typeof entry.start_date,
-      end_date_type: typeof entry.end_date
-    });
-    
-    // Format dates for HTML date input (YYYY-MM-DD)
-    const formatDateForInput = (dateString: string | null | undefined): string => {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return date.toISOString().split('T')[0];
-    };
-    
-    setFormData({
-      household_member_id: entry.household_member_id.toString(),
-      category_id: entry.category_id.toString(),
-      amount: entry.amount.toString(),
-      currency: entry.currency,
-      description: entry.description || '',
-      start_date: formatDateForInput(entry.start_date),
-      end_date: formatDateForInput(entry.end_date),
-      is_recurring: entry.is_recurring,
-      frequency: effectiveFrequency
-    });
-    setShowEditModal(true);
+    // This function is no longer used - wizard handles submission
+    console.warn('handleSubmit called but should use wizard instead');
   };
 
   // Handle delete confirmation
@@ -508,8 +498,8 @@ const IncomePage: React.FC = () => {
                     setShowNoMembersWarning(true);
                     return;
                   }
-                  setShowAddModal(true);
-                  // Set currency to user's preference when opening add modal
+                  handleAdd();
+                  // Set currency to user's preference when opening wizard
                   if (userPreferences?.currency) {
                     setFormData(prev => ({
                       ...prev,
@@ -749,212 +739,29 @@ const IncomePage: React.FC = () => {
           )}
         </div>
 
-        {/* Add/Edit Modal */}
-        {(showAddModal || showEditModal) && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-4 mx-auto p-4 border w-[95vw] max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
-              <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                  {selectedEntry ? t('income.editIncome') : t('income.addIncome')}
-                </h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.member')} *
-                      </label>
-                      <select
-                        value={formData.household_member_id}
-                        onChange={(e) => setFormData({ ...formData, household_member_id: e.target.value })}
-                        className={`mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                          validationErrors.household_member_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      >
-                        <option value="">{t('income.selectMember')}</option>
-                        {members.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name}
-                          </option>
-                        ))}
-                      </select>
-                      {validationErrors.household_member_id && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.household_member_id}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <SearchableCategorySelector
-                      categories={categories}
-                      selectedCategoryId={formData.category_id}
-                      onCategoryChange={(categoryId) => setFormData({ ...formData, category_id: categoryId })}
-                      error={validationErrors.category_id}
-                      placeholder={t('income.selectCategory')}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.amount')} *
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        inputMode="decimal"
-                        autoComplete="off"
-                        value={formData.amount}
-                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.amount ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.amount && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.amount}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.currency')} *
-                      </label>
-                      <select
-                        value={formData.currency}
-                        onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                        className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      >
-                        <option value="USD">US Dollar ($)</option>
-                        <option value="EUR">Euro (€)</option>
-                        <option value="GBP">British Pound (£)</option>
-                        <option value="TRY">Turkish Lira (₺)</option>
-                        <option value="GOLD">Gold (Au)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('income.description')}
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.startDate')} *
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.start_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.start_date && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.start_date}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('income.endDate')}
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.end_date}
-                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className={`mt-1 block w-full px-3 py-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-base ${
-                          validationErrors.end_date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''
-                        }`}
-                      />
-                      {validationErrors.end_date && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                          {validationErrors.end_date}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {t('income.leaveEmptyForOngoing')}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.is_recurring}
-                        onChange={(e) => setFormData({ ...formData, is_recurring: e.target.checked })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
-                        {t('income.isRecurring')}
-                      </label>
-                    </div>
-                    
-                    {formData.is_recurring && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {t('income.frequency')}
-                        </label>
-                        <select
-                          value={formData.frequency}
-                          onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                          className="mt-1 block w-full px-3 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        >
-                          <option value="monthly">{t('income.monthly')}</option>
-                          <option value="weekly">{t('income.weekly')}</option>
-                          <option value="yearly">{t('income.yearly')}</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex justify-end space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAddModal(false);
-                        setShowEditModal(false);
-                        setSelectedEntry(null);
-                        setFormData({
-                          household_member_id: '',
-                          category_id: '',
-                          amount: '',
-                          currency: userPreferences?.currency || 'USD',
-                          description: '',
-                          start_date: '',
-                          end_date: '',
-                          is_recurring: false,
-                          frequency: 'one-time'
-                        });
-                      }}
-                      className="px-6 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:active:bg-gray-500 min-h-[44px] touch-action:manipulation"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px] touch-action:manipulation"
-                    >
-                      {t('common.save')}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Add/Edit Wizard */}
+        <AddEditIncomeWizard
+          isOpen={showWizard}
+          onClose={() => {
+            setShowWizard(false);
+            setSelectedEntry(null);
+          }}
+          onSave={handleWizardSave}
+          income={selectedEntry ? {
+            id: selectedEntry.id,
+            household_member_id: selectedEntry.household_member_id,
+            category_id: selectedEntry.category_id,
+            amount: selectedEntry.amount,
+            currency: selectedEntry.currency,
+            description: selectedEntry.description,
+            start_date: selectedEntry.start_date,
+            end_date: selectedEntry.end_date,
+            is_recurring: selectedEntry.is_recurring,
+            frequency: selectedEntry.frequency
+          } : null}
+          categories={categories}
+          members={members}
+        />
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedEntry && (

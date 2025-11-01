@@ -37,6 +37,7 @@ interface ExpenseCategory {
   allows_multiple_members?: boolean;
   parent_category_id?: number;
   subcategories?: ExpenseCategory[];
+  field_requirements?: Record<string, any>;
 }
 
 interface HouseholdMember {
@@ -131,6 +132,39 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
     const parent = categories.find(cat => cat.id.toString() === formData.category_id && !cat.parent_category_id);
     return parent?.subcategories || [];
   }, [selectedCategory, formData.category_id, categories]);
+
+  // Get fields to show based on field requirements
+  const visibleFields = useMemo(() => {
+    if (!activeCategory?.field_requirements) {
+      // Default visible fields if no field requirements
+      return {
+        amount: true,
+        currency: true,
+        description: true,
+        start_date: true,
+        end_date: true,
+        is_recurring: true,
+        frequency: true,
+        linked_asset_id: true,
+        linked_member_ids: true,
+        household_member_id: true
+      };
+    }
+    
+    const reqs = activeCategory.field_requirements;
+    return {
+      amount: reqs.amount !== undefined,
+      currency: reqs.currency !== undefined,
+      description: reqs.description !== undefined,
+      start_date: reqs.start_date !== undefined,
+      end_date: reqs.end_date !== undefined,
+      is_recurring: reqs.is_recurring !== undefined,
+      frequency: reqs.frequency !== undefined,
+      linked_asset_id: reqs.linked_asset_id !== undefined,
+      linked_member_ids: reqs.linked_member_ids !== undefined,
+      household_member_id: reqs.household_member_id !== undefined
+    };
+  }, [activeCategory]);
 
   // Load external persons and insurance suggestions
   useEffect(() => {
@@ -470,7 +504,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
           )}
 
           {/* Step 2: Category-Specific Details */}
-          {currentStep === 2 && activeCategory && (
+          {currentStep === 2 && activeCategory && (visibleFields.linked_asset_id || visibleFields.linked_member_ids || activeCategory.has_custom_form) && (
             <div>
               <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 {t('expenses.wizard.step2Title') || 'Additional Details'}
@@ -512,9 +546,10 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 {t('expenses.wizard.step3Title') || 'Amount & Currency'}
               </h4>
               
+              {visibleFields.amount && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('expenses.amount') || 'Amount'} <span className="text-red-500">*</span>
+                  {t('expenses.amount') || 'Amount'} {activeCategory?.field_requirements?.amount?.required && <span className="text-red-500">*</span>}
                 </label>
                 <input
                   type="number"
@@ -524,20 +559,22 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   value={formData.amount}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  required
+                  required={activeCategory?.field_requirements?.amount?.required}
                 />
               </div>
+              )}
 
+              {visibleFields.currency && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('expenses.currency') || 'Currency'} <span className="text-red-500">*</span>
+                  {t('expenses.currency') || 'Currency'} {activeCategory?.field_requirements?.currency?.required && <span className="text-red-500">*</span>}
                 </label>
                 <select
                   name="currency"
                   value={formData.currency || user?.main_currency || 'USD'}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  required
+                  required={activeCategory?.field_requirements?.currency?.required}
                 >
                   {(activeCurrencies.length > 0 ? activeCurrencies : allCurrencies.filter(c => c.is_active))
                     .map(c => (
@@ -547,10 +584,12 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                     ))}
                 </select>
               </div>
+              )}
 
+              {visibleFields.description && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('expenses.description') || 'Description'}
+                  {t('expenses.description') || 'Description'} {activeCategory?.field_requirements?.description?.required && <span className="text-red-500">*</span>}
                 </label>
                 <textarea
                   name="description"
@@ -560,6 +599,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
+              )}
             </div>
           )}
 
@@ -570,9 +610,10 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 {t('expenses.wizard.step4Title') || 'When does this expense occur?'}
               </h4>
               
+              {visibleFields.start_date && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('expenses.startDate') || 'Start Date'} <span className="text-red-500">*</span>
+                  {t('expenses.startDate') || 'Start Date'} {activeCategory?.field_requirements?.start_date?.required && <span className="text-red-500">*</span>}
                 </label>
                 <input
                   type="date"
@@ -580,13 +621,16 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   value={formData.start_date}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  required
+                  required={activeCategory?.field_requirements?.start_date?.required}
                 />
               </div>
+              )}
 
+              {visibleFields.end_date && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('expenses.endDate') || 'End Date'} <span className="text-gray-500 text-xs">({t('expenses.optional') || 'Optional'})</span>
+                  {t('expenses.endDate') || 'End Date'} {activeCategory?.field_requirements?.end_date?.required && <span className="text-red-500">*</span>}
+                  {!activeCategory?.field_requirements?.end_date?.required && <span className="text-gray-500 text-xs"> ({t('expenses.optional') || 'Optional'})</span>}
                 </label>
                 <input
                   type="date"
@@ -595,11 +639,15 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 />
+                {!activeCategory?.field_requirements?.end_date?.required && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {t('expenses.leaveEmptyForOngoing') || 'Leave empty for ongoing expenses'}
                 </p>
+                )}
               </div>
+              )}
 
+              {visibleFields.is_recurring && (
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -612,18 +660,19 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   {t('expenses.recurring') || 'This is a recurring expense'}
                 </label>
               </div>
+              )}
 
-              {formData.is_recurring && (
+              {visibleFields.frequency && formData.is_recurring && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {t('expenses.frequency') || 'Frequency'} <span className="text-red-500">*</span>
+                    {t('expenses.frequency') || 'Frequency'} {activeCategory?.field_requirements?.frequency?.required && <span className="text-red-500">*</span>}
                   </label>
                   <select
                     name="frequency"
                     value={formData.frequency}
                     onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    required
+                    required={activeCategory?.field_requirements?.frequency?.required}
                   >
                     <option value="daily">{t('expenses.daily') || 'Daily'}</option>
                     <option value="weekly">{t('expenses.weekly') || 'Weekly'}</option>
@@ -643,10 +692,11 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 {t('expenses.wizard.step5Title') || 'Who does this expense belong to?'}
               </h4>
               
+              {visibleFields.household_member_id && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {t('expenses.member') || 'Member'}
-                  {activeCategory?.requires_member_link && <span className="text-red-500">*</span>}
+                  {(activeCategory?.requires_member_link || activeCategory?.field_requirements?.household_member_id?.required) && <span className="text-red-500">*</span>}
                 </label>
                 <select
                   name="household_member_id"

@@ -141,6 +141,18 @@ const categories = [
 export async function seed(knex: Knex): Promise<void> {
   console.log('🌱 Starting income categories seeding...');
 
+  // Default field requirements for all income categories
+  const defaultFieldRequirements = {
+    amount: { required: true },
+    currency: { required: true },
+    description: { required: false },
+    start_date: { required: true },
+    end_date: { required: false },
+    is_recurring: { required: false },
+    frequency: { required: false, conditional: { field: 'is_recurring', value: true } },
+    household_member_id: { required: false }
+  };
+
   // Clear existing income categories (idempotent - check before clearing)
   const existingCount = await knex('income_categories').count('* as count').first();
   
@@ -159,7 +171,8 @@ export async function seed(knex: Knex): Promise<void> {
         name_en: category.name_en,
         name_de: category.name_de,
         name_tr: category.name_tr,
-        is_default: category.is_default
+        is_default: category.is_default,
+        field_requirements: JSON.stringify(defaultFieldRequirements)
       });
     }
   }
