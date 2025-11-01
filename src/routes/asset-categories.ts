@@ -27,7 +27,7 @@ router.post('/', requireAdmin, [
   body('name_en').trim().notEmpty().withMessage('English name is required'),
   body('name_de').trim().notEmpty().withMessage('German name is required'),
   body('name_tr').trim().notEmpty().withMessage('Turkish name is required'),
-  body('type').isIn(['income', 'expense', 'asset']).withMessage('Invalid type'),
+  body('type').optional().isIn(['income', 'expense', 'asset']).withMessage('Invalid type'),
   body('category_type').optional().isIn(['real_estate', 'stocks', 'etf', 'bonds', 'crypto', 'gold', 'vehicles', 'collectibles', 'cash', 'other']).withMessage('Invalid category type'),
   body('icon').optional().isLength({ max: 50 }).withMessage('Icon name too long'),
   body('requires_ticker').optional().isBoolean().withMessage('requires_ticker must be boolean'),
@@ -55,6 +55,9 @@ router.post('/', requireAdmin, [
     allow_sharing_with_external_persons,
     field_requirements
   } = req.body;
+
+  // Default type to 'asset' if not provided
+  const categoryType = type || 'asset';
 
   // Check if category with same name already exists
   const existingCategory = await query(
@@ -89,7 +92,7 @@ router.post('/', requireAdmin, [
       name_en, 
       name_de, 
       name_tr, 
-      type, 
+      categoryType, 
       category_type || 'other', 
       icon || null, 
       requires_ticker || false, 

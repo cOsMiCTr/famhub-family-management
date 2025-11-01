@@ -84,7 +84,7 @@ interface AssetCategory {
   name_en: string;
   name_de: string;
   name_tr: string;
-  type: string;
+  type?: string;
   category_type: string;
   icon?: string;
   requires_ticker: boolean;
@@ -374,7 +374,6 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     name_en: '',
     name_de: '',
     name_tr: '',
-    type: 'income',
     category_type: 'other',
     icon: '',
     requires_ticker: false,
@@ -393,7 +392,6 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
         name_en: category.name_en,
         name_de: category.name_de,
         name_tr: category.name_tr,
-        type: category.type,
         category_type: category.category_type,
         icon: category.icon || '',
         requires_ticker: category.requires_ticker,
@@ -431,7 +429,9 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     setLoading(true);
 
     try {
-      await onSave(formData);
+      // Always set type to 'asset' for asset categories
+      const submitData = { ...formData, type: 'asset' };
+      await onSave(submitData);
     } catch (error) {
       console.error('Error saving category:', error);
     } finally {
@@ -512,26 +512,10 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
               </div>
             </div>
 
-            {/* Type and Category Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('assetCategories.typeLabel')} *
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="income">{t('assetCategories.income')}</option>
-                  <option value="expense">{t('assetCategories.expense')}</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t('assetCategories.categoryType')}
+            {/* Category Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('assetCategories.categoryType')}
                 </label>
                 <select
                   name="category_type"
