@@ -716,6 +716,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                   {t('expenses.memberHint') || 'Select a member or leave as "Household" for shared expenses'}
                 </p>
               </div>
+              )}
             </div>
           )}
 
