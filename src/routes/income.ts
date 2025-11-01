@@ -320,7 +320,8 @@ router.post('/',
     body('start_date').isISO8601().withMessage('Invalid start date'),
     body('end_date').optional({ nullable: true }).isISO8601().withMessage('Invalid end date'),
     body('is_recurring').isBoolean().withMessage('is_recurring must be boolean'),
-    body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time'])
+    body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time']),
+    body('share_with_external_persons').optional().isBoolean()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -339,7 +340,8 @@ router.post('/',
         start_date,
         end_date,
         is_recurring,
-        frequency
+        frequency,
+        share_with_external_persons
       } = req.body;
 
       // Get user's household_id
@@ -360,12 +362,54 @@ router.post('/',
         return res.status(400).json({ error: 'Invalid household member' });
       }
 
+      // Get category to check default sharing setting and field requirements
+      const categoryResult = await query(
+        'SELECT allow_sharing_with_external_persons, field_requirements FROM income_categories WHERE id = $1',
+        [category_id]
+      );
+      
+      const category = categoryResult.rows[0];
+      let finalShareWithExternalPersons: boolean | null = null;
+      
+      // Determine share_with_external_persons value
+      if (share_with_external_persons !== undefined) {
+        finalShareWithExternalPersons = share_with_external_persons === true;
+      } else {
+        // Use category default if not specified
+        finalShareWithExternalPersons = category?.allow_sharing_with_external_persons ?? true;
+      }
+
+      // Validate field requirements if category has them
+      if (category?.field_requirements) {
+        const { validateIncomeFieldRequirements } = require('../utils/fieldRequirementsValidator');
+        const fieldReqsValidation = validateIncomeFieldRequirements(
+          category.field_requirements,
+          {
+            amount,
+            currency,
+            description,
+            start_date,
+            end_date,
+            is_recurring,
+            frequency,
+            household_member_id
+          }
+        );
+        
+        if (!fieldReqsValidation.valid) {
+          return res.status(400).json({ 
+            error: 'Field validation failed',
+            details: fieldReqsValidation.errors 
+          });
+        }
+      }
+
       // Create income entry
       const result = await query(
         `INSERT INTO income 
          (household_id, household_member_id, category_id, amount, currency,
-          description, start_date, end_date, is_recurring, frequency, created_by_user_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          description, start_date, end_date, is_recurring, frequency, share_with_external_persons, created_by_user_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
          RETURNING *`,
         [
           householdId,
@@ -378,6 +422,7 @@ router.post('/',
           end_date || null,
           is_recurring,
           frequency || 'one-time',
+          finalShareWithExternalPersons,
           userId
         ]
       );
@@ -405,7 +450,8 @@ router.put('/:id',
     body('start_date').optional().isISO8601(),
     body('end_date').optional({ nullable: true }).isISO8601(),
     body('is_recurring').optional().isBoolean(),
-    body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time'])
+    body('frequency').optional().isIn(['monthly', 'weekly', 'yearly', 'one-time']),
+    body('share_with_external_persons').optional().isBoolean()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -416,6 +462,7 @@ router.put('/:id',
     try {
       const userId = req.user?.id;
       const incomeId = req.params.id;
+      const { share_with_external_persons } = req.body;
 
       // Get user's household_id
       const userResult = await query('SELECT household_id FROM users WHERE id = $1', [userId]);
@@ -453,6 +500,8 @@ router.put('/:id',
         is_recurring,
         frequency
       } = req.body;
+      
+      // Handle share_with_external_persons separately (can be boolean or null)
 
       if (household_member_id !== undefined) {
         // Verify member belongs to user's household
@@ -467,6 +516,43 @@ router.put('/:id',
         updateValues.push(household_member_id);
       }
       if (category_id !== undefined) {
+        // Get category field requirements for validation
+        const categoryFieldReqsResult = await query(
+          'SELECT field_requirements FROM income_categories WHERE id = $1',
+          [category_id]
+        );
+        
+        // If category has field requirements, validate the update data
+        if (categoryFieldReqsResult.rows.length > 0 && categoryFieldReqsResult.rows[0].field_requirements) {
+          // Merge old values with new values for validation
+          const mergedData = {
+            ...oldValues,
+            ...req.body
+          };
+          
+          const { validateIncomeFieldRequirements } = require('../utils/fieldRequirementsValidator');
+          const fieldReqsValidation = validateIncomeFieldRequirements(
+            categoryFieldReqsResult.rows[0].field_requirements,
+            {
+              amount: mergedData.amount,
+              currency: mergedData.currency,
+              description: mergedData.description,
+              start_date: mergedData.start_date,
+              end_date: mergedData.end_date,
+              is_recurring: mergedData.is_recurring,
+              frequency: mergedData.frequency,
+              household_member_id: mergedData.household_member_id
+            }
+          );
+          
+          if (!fieldReqsValidation.valid) {
+            return res.status(400).json({ 
+              error: 'Field validation failed',
+              details: fieldReqsValidation.errors 
+            });
+          }
+        }
+        
         updateFields.push(`category_id = $${valueIndex++}`);
         updateValues.push(category_id);
       }
@@ -497,6 +583,10 @@ router.put('/:id',
       if (frequency !== undefined) {
         updateFields.push(`frequency = $${valueIndex++}`);
         updateValues.push(frequency);
+      }
+      if (share_with_external_persons !== undefined) {
+        updateFields.push(`share_with_external_persons = $${valueIndex++}`);
+        updateValues.push(share_with_external_persons === true ? true : share_with_external_persons === false ? false : null);
       }
 
       if (updateFields.length === 0) {

@@ -67,7 +67,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { allCurrencies } = useCurrencyContext();
+  const { allCurrencies, activeCurrencies } = useCurrencyContext();
   
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
@@ -79,14 +79,15 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
     subcategory_id: '',
     household_member_id: '',
     amount: '',
-    currency: user?.main_currency || 'USD',
+    currency: user?.main_currency || activeCurrencies[0]?.code || 'USD',
     description: '',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
     is_recurring: false,
     frequency: 'monthly',
     // Category-specific data
-    customFormData: {} as Record<string, any>
+    customFormData: {} as Record<string, any>,
+    share_with_external_persons: undefined as boolean | undefined
   });
   
   const [errors, setErrors] = useState<string[]>([]);
@@ -173,7 +174,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
           subcategory_id: isSubcategory ? expense.category_id?.toString() : '',
           household_member_id: expense.household_member_id?.toString() || '',
           amount: expense.amount?.toString() || '',
-          currency: expense.currency || user?.main_currency || 'USD',
+          currency: expense.currency || user?.main_currency || activeCurrencies[0]?.code || 'USD',
           description: expense.description || '',
           start_date: expense.start_date || new Date().toISOString().split('T')[0],
           end_date: expense.end_date || '',
@@ -184,27 +185,30 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
             linked_asset_id: expense.linked_asset_id,
             linked_member_ids: expense.linked_member_ids || [],
             credit_use_type: expense.credit_use_type
-          }
+          },
+          share_with_external_persons: (expense as any).share_with_external_persons
         });
       } else {
+        const defaultCurrency = user?.main_currency || activeCurrencies[0]?.code || 'USD';
         setFormData({
           category_id: '',
           subcategory_id: '',
           household_member_id: '',
           amount: '',
-          currency: user?.main_currency || 'USD',
+          currency: defaultCurrency,
           description: '',
           start_date: new Date().toISOString().split('T')[0],
           end_date: '',
           is_recurring: false,
           frequency: 'monthly',
-          customFormData: {}
+          customFormData: {},
+          share_with_external_persons: undefined
         });
       }
       setErrors([]);
       setCurrentStep(1);
     }
-  }, [isOpen, expense, user, categories, flatCategories]);
+  }, [isOpen, expense, user, categories, flatCategories, activeCurrencies]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -319,6 +323,7 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
         end_date: formData.end_date || null,
         is_recurring: formData.is_recurring,
         frequency: formData.is_recurring ? formData.frequency : null,
+        share_with_external_persons: formData.share_with_external_persons,
         ...formData.customFormData
       };
 
@@ -486,6 +491,11 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 onMetadataChange={handleCustomFormDataChange}
                 members={members}
                 insuranceSuggestions={insuranceSuggestions}
+                isSubcategory={!!selectedSubcategory}
+                shareWithExternalPersons={formData.share_with_external_persons === true}
+                onShareWithExternalPersonsChange={(share) => {
+                  setFormData(prev => ({ ...prev, share_with_external_persons: share }));
+                }}
                 errors={{
                   linkedMembers: errors.find(e => e.includes('member')) || undefined,
                   linkedAsset: errors.find(e => e.includes('asset') || e.includes('property')) || undefined,
@@ -524,13 +534,12 @@ const AddEditExpenseWizard: React.FC<AddEditExpenseWizardProps> = ({
                 </label>
                 <select
                   name="currency"
-                  value={formData.currency}
+                  value={formData.currency || user?.main_currency || 'USD'}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
-                  {allCurrencies
-                    .filter(c => c.is_active)
+                  {(activeCurrencies.length > 0 ? activeCurrencies : allCurrencies.filter(c => c.is_active))
                     .map(c => (
                       <option key={c.code} value={c.code}>
                         {c.name} ({c.symbol})

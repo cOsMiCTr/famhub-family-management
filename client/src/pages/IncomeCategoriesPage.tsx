@@ -7,6 +7,7 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
+import FieldRequirementsEditor from '../components/FieldRequirementsEditor';
 
 interface IncomeCategory {
   id: number;
@@ -16,6 +17,8 @@ interface IncomeCategory {
   is_default: boolean;
   created_at: string;
   income_count: number;
+  allow_sharing_with_external_persons?: boolean;
+  field_requirements?: Record<string, any>;
 }
 
 const IncomeCategoriesPage: React.FC = () => {
@@ -29,7 +32,9 @@ const IncomeCategoriesPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name_en: '',
     name_de: '',
-    name_tr: ''
+    name_tr: '',
+    allow_sharing_with_external_persons: true,
+    field_requirements: null as Record<string, any> | null
   });
 
   // Load categories
@@ -86,7 +91,13 @@ const IncomeCategoriesPage: React.FC = () => {
         await loadCategories();
         setShowAddModal(false);
         setShowEditModal(false);
-        setFormData({ name_en: '', name_de: '', name_tr: '' });
+        setFormData({ 
+          name_en: '', 
+          name_de: '', 
+          name_tr: '',
+          allow_sharing_with_external_persons: true,
+          field_requirements: null
+        });
         setSelectedCategory(null);
       } else {
         console.error('Failed to save income category');
@@ -128,7 +139,9 @@ const IncomeCategoriesPage: React.FC = () => {
     setFormData({
       name_en: category.name_en,
       name_de: category.name_de,
-      name_tr: category.name_tr
+      name_tr: category.name_tr,
+      allow_sharing_with_external_persons: category.allow_sharing_with_external_persons ?? true,
+      field_requirements: category.field_requirements || null
     });
     setShowEditModal(true);
   };
@@ -294,13 +307,35 @@ const IncomeCategoriesPage: React.FC = () => {
                       placeholder="e.g., Maaş"
                     />
                   </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.allow_sharing_with_external_persons}
+                        onChange={(e) => setFormData({ ...formData, allow_sharing_with_external_persons: e.target.checked })}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.allowSharingWithExternalPersons') || 'Allow sharing with external persons'}
+                      </span>
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {t('expenseCategories.allowSharingHint') || 'If disabled, income in this category will not be shared with external users by default'}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '' });
+                      setFormData({ 
+                        name_en: '', 
+                        name_de: '', 
+                        name_tr: '',
+                        allow_sharing_with_external_persons: true,
+                        field_requirements: null
+                      });
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
                   >
@@ -365,13 +400,42 @@ const IncomeCategoriesPage: React.FC = () => {
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.allow_sharing_with_external_persons}
+                        onChange={(e) => setFormData({ ...formData, allow_sharing_with_external_persons: e.target.checked })}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.allowSharingWithExternalPersons') || 'Allow sharing with external persons'}
+                      </span>
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {t('expenseCategories.allowSharingHint') || 'If disabled, income in this category will not be shared with external users by default'}
+                    </p>
+                  </div>
+                  <div className="border-t pt-4 mt-4">
+                    <FieldRequirementsEditor
+                      value={formData.field_requirements}
+                      onChange={(value) => setFormData({ ...formData, field_requirements: value })}
+                      entityType="income"
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setShowEditModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '' });
+                      setFormData({ 
+                        name_en: '', 
+                        name_de: '', 
+                        name_tr: '',
+                        allow_sharing_with_external_persons: true,
+                        field_requirements: null
+                      });
                       setSelectedCategory(null);
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"

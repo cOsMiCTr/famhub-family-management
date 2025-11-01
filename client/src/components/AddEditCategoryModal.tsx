@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import FieldRequirementsEditor from './FieldRequirementsEditor';
 import { 
   XMarkIcon, 
   HomeIcon, 
@@ -90,6 +91,8 @@ interface AssetCategory {
   depreciation_enabled: boolean;
   is_default: boolean;
   allowed_currency_types?: string[];
+  allow_sharing_with_external_persons?: boolean;
+  field_requirements?: Record<string, any>;
 }
 
 interface AddEditCategoryModalProps {
@@ -377,7 +380,9 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
     requires_ticker: false,
     depreciation_enabled: false,
     is_default: false,
-    allowed_currency_types: ['fiat'] as string[]
+    allowed_currency_types: ['fiat'] as string[],
+    allow_sharing_with_external_persons: true,
+    field_requirements: null as Record<string, any> | null
   });
   
   const [showIconDropdown, setShowIconDropdown] = useState(false);
@@ -394,7 +399,9 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
         requires_ticker: category.requires_ticker,
         depreciation_enabled: category.depreciation_enabled,
         is_default: category.is_default,
-        allowed_currency_types: category.allowed_currency_types || ['fiat']
+        allowed_currency_types: category.allowed_currency_types || ['fiat'],
+        allow_sharing_with_external_persons: category.allow_sharing_with_external_persons ?? true,
+        field_requirements: category.field_requirements || null
       });
     }
   }, [category, mode]);
@@ -702,6 +709,34 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Privacy Settings */}
+            <div className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="allow_sharing_with_external_persons"
+                  checked={formData.allow_sharing_with_external_persons}
+                  onChange={handleChange}
+                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('expenseCategories.allowSharingWithExternalPersons') || 'Allow sharing with external persons'}
+                </span>
+              </label>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {t('expenseCategories.allowSharingHint') || 'If disabled, assets in this category will not be shared with external users by default'}
+              </p>
+            </div>
+
+            {/* Field Requirements */}
+            <div className="mb-6 border-t pt-4">
+              <FieldRequirementsEditor
+                value={formData.field_requirements}
+                onChange={(value) => setFormData({ ...formData, field_requirements: value })}
+                entityType="asset"
+              />
             </div>
 
             {/* Actions */}

@@ -10,7 +10,8 @@ const categories = [
     has_custom_form: true,
     requires_asset_link: false,
     requires_member_link: true,
-    allows_multiple_members: true
+    allows_multiple_members: true,
+    allow_sharing_with_external_persons: false
   },
   { 
     name_en: 'Credits', 
@@ -219,7 +220,10 @@ export async function seed(knex: Knex): Promise<void> {
         has_custom_form: category.has_custom_form || false,
         requires_asset_link: category.requires_asset_link || false,
         requires_member_link: category.requires_member_link || false,
-        allows_multiple_members: category.allows_multiple_members || false
+        allows_multiple_members: category.allows_multiple_members || false,
+        allow_sharing_with_external_persons: category.allow_sharing_with_external_persons !== undefined 
+          ? category.allow_sharing_with_external_persons 
+          : true
       });
       insertedCount++;
       console.log(`  ✓ Added category: ${category.name_en}`);

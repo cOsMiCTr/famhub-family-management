@@ -299,9 +299,19 @@ router.get('/', async (req, res) => {
           `SELECT DISTINCT epl.expense_id, c.invited_by_user_id as shared_from_user_id
            FROM expense_external_person_links epl
            INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+           INNER JOIN expenses e ON epl.expense_id = e.id
+           INNER JOIN expense_categories ec ON e.category_id = ec.id
            WHERE epl.expense_id = ANY($1::int[])
            AND c.status = 'accepted'
-           AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)`,
+           AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)
+           AND (
+             -- Expense explicitly allows sharing
+             e.share_with_external_persons = true
+             OR
+             -- Category allows sharing AND expense hasn't explicitly disabled it
+             (ec.allow_sharing_with_external_persons = true 
+              AND (e.share_with_external_persons IS NULL OR e.share_with_external_persons = true))
+           )`,
           [expenseIds, userId]
         );
         
@@ -792,7 +802,8 @@ router.post('/',
     body('linked_asset_id').optional().isInt(),
     body('linked_member_ids').optional().isArray(),
     body('credit_use_type').optional().isIn(['free_use', 'renovation', 'property_purchase', 'other']),
-    body('metadata').optional().isObject()
+    body('metadata').optional().isObject(),
+    body('share_with_external_persons').optional().isBoolean()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -815,7 +826,8 @@ router.post('/',
         linked_asset_id,
         linked_member_ids,
         credit_use_type,
-        metadata
+        metadata,
+        share_with_external_persons
       } = req.body;
 
       // Get user's household_id
@@ -826,9 +838,9 @@ router.post('/',
         return res.status(400).json({ error: 'User is not assigned to a household' });
       }
 
-      // Get category to check requirements
+      // Get category to check requirements and privacy settings
       const categoryResult = await query(
-        `SELECT category_type, requires_asset_link, requires_member_link, allows_multiple_members
+        `SELECT category_type, requires_asset_link, requires_member_link, allows_multiple_members, allow_sharing_with_external_persons
          FROM expense_categories WHERE id = $1`,
         [category_id]
       );
@@ -838,6 +850,16 @@ router.post('/',
       }
 
       const category = categoryResult.rows[0];
+
+      // Determine share_with_external_persons value
+      let finalShareWithExternalPersons: boolean | null = null;
+      if (share_with_external_persons !== undefined) {
+        // Use explicitly provided value
+        finalShareWithExternalPersons = share_with_external_persons === true;
+      } else {
+        // Default to category setting
+        finalShareWithExternalPersons = category.allow_sharing_with_external_persons ?? true;
+      }
 
       // Validate category requirements
       const categoryValidation = await validateCategoryRequirements(category_id, {
@@ -849,6 +871,38 @@ router.post('/',
 
       if (!categoryValidation.valid) {
         return res.status(400).json({ error: categoryValidation.error });
+      }
+
+      // Validate field requirements if category has them
+      const categoryFieldReqsResult = await query(
+        'SELECT field_requirements FROM expense_categories WHERE id = $1',
+        [category_id]
+      );
+      
+      if (categoryFieldReqsResult.rows.length > 0 && categoryFieldReqsResult.rows[0].field_requirements) {
+        const { validateExpenseFieldRequirements } = require('../utils/fieldRequirementsValidator');
+        const fieldReqsValidation = validateExpenseFieldRequirements(
+          categoryFieldReqsResult.rows[0].field_requirements,
+          {
+            amount,
+            currency,
+            description,
+            start_date,
+            end_date,
+            is_recurring,
+            frequency,
+            linked_asset_id,
+            linked_member_ids,
+            metadata
+          }
+        );
+        
+        if (!fieldReqsValidation.valid) {
+          return res.status(400).json({ 
+            error: 'Field validation failed',
+            details: fieldReqsValidation.errors 
+          });
+        }
       }
 
       // Validate asset link if provided
@@ -908,8 +962,8 @@ router.post('/',
         `INSERT INTO expenses 
          (household_id, household_member_id, category_id, amount, currency,
           description, start_date, end_date, is_recurring, frequency, 
-          linked_asset_id, credit_use_type, metadata, created_by_user_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+          linked_asset_id, credit_use_type, metadata, share_with_external_persons, created_by_user_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
          RETURNING *`,
         [
           householdId,
@@ -925,6 +979,7 @@ router.post('/',
           linked_asset_id || null,
           credit_use_type || null,
           metadataJson,
+          finalShareWithExternalPersons,
           userId
         ]
       );
@@ -1013,7 +1068,8 @@ router.put('/:id',
     body('linked_asset_id').optional().isInt(),
     body('linked_member_ids').optional().isArray(),
     body('credit_use_type').optional().isIn(['free_use', 'renovation', 'property_purchase', 'other']),
-    body('metadata').optional().isObject()
+    body('metadata').optional().isObject(),
+    body('share_with_external_persons').optional().isBoolean()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -1063,7 +1119,8 @@ router.put('/:id',
         linked_asset_id,
         linked_member_ids,
         credit_use_type,
-        metadata
+        metadata,
+        share_with_external_persons
       } = req.body;
 
       if (household_member_id !== undefined) {
@@ -1079,6 +1136,45 @@ router.put('/:id',
         updateValues.push(household_member_id);
       }
       if (category_id !== undefined) {
+        // Get category field requirements for validation
+        const categoryFieldReqsResult = await query(
+          'SELECT field_requirements FROM expense_categories WHERE id = $1',
+          [category_id]
+        );
+        
+        // If category has field requirements, validate the update data
+        if (categoryFieldReqsResult.rows.length > 0 && categoryFieldReqsResult.rows[0].field_requirements) {
+          // Merge old values with new values for validation
+          const mergedData = {
+            ...oldValues,
+            ...req.body
+          };
+          
+          const { validateExpenseFieldRequirements } = require('../utils/fieldRequirementsValidator');
+          const fieldReqsValidation = validateExpenseFieldRequirements(
+            categoryFieldReqsResult.rows[0].field_requirements,
+            {
+              amount: mergedData.amount,
+              currency: mergedData.currency,
+              description: mergedData.description,
+              start_date: mergedData.start_date,
+              end_date: mergedData.end_date,
+              is_recurring: mergedData.is_recurring,
+              frequency: mergedData.frequency,
+              linked_asset_id: mergedData.linked_asset_id,
+              linked_member_ids: mergedData.linked_member_ids,
+              metadata: mergedData.metadata
+            }
+          );
+          
+          if (!fieldReqsValidation.valid) {
+            return res.status(400).json({ 
+              error: 'Field validation failed',
+              details: fieldReqsValidation.errors 
+            });
+          }
+        }
+        
         updateFields.push(`category_id = $${valueIndex++}`);
         updateValues.push(category_id);
       }
@@ -1154,6 +1250,11 @@ router.put('/:id',
         const metadataJson = metadata && typeof metadata === 'object' ? JSON.stringify(metadata) : null;
         updateFields.push(`metadata = $${valueIndex++}`);
         updateValues.push(metadataJson);
+      }
+
+      if (share_with_external_persons !== undefined) {
+        updateFields.push(`share_with_external_persons = $${valueIndex++}`);
+        updateValues.push(share_with_external_persons === true ? true : share_with_external_persons === false ? false : null);
       }
 
       if (updateFields.length === 0) {

@@ -33,6 +33,8 @@ interface AssetCategory {
   is_default: boolean;
   asset_count: number;
   allowed_currency_types?: string[];
+  allow_sharing_with_external_persons?: boolean;
+  field_requirements?: Record<string, any>;
 }
 
 const AssetCategoriesPage: React.FC = () => {

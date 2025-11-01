@@ -7,6 +7,7 @@ import {
   DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
+import FieldRequirementsEditor from '../components/FieldRequirementsEditor';
 
 interface ExpenseCategory {
   id: number;
@@ -18,6 +19,8 @@ interface ExpenseCategory {
   expense_count: number;
   parent_category_id?: number | null;
   subcategories?: ExpenseCategory[];
+  allow_sharing_with_external_persons?: boolean;
+  field_requirements?: Record<string, any>;
 }
 
 const ExpenseCategoriesPage: React.FC = () => {
@@ -35,7 +38,9 @@ const ExpenseCategoriesPage: React.FC = () => {
     name_de: '',
     name_tr: '',
     parent_category_id: null as number | null,
-    display_order: 0
+    display_order: 0,
+    allow_sharing_with_external_persons: true,
+    field_requirements: null as Record<string, any> | null
   });
 
   // Load categories
@@ -84,7 +89,9 @@ const ExpenseCategoriesPage: React.FC = () => {
         name_de: formData.name_de,
         name_tr: formData.name_tr,
         ...(formData.parent_category_id !== null && { parent_category_id: formData.parent_category_id }),
-        ...(formData.display_order !== undefined && { display_order: formData.display_order })
+        ...(formData.display_order !== undefined && { display_order: formData.display_order }),
+        allow_sharing_with_external_persons: formData.allow_sharing_with_external_persons,
+        ...(formData.field_requirements && { field_requirements: formData.field_requirements })
       };
 
       const response = await fetch(url, {
@@ -148,7 +155,11 @@ const ExpenseCategoriesPage: React.FC = () => {
       name_de: category.name_de,
       name_tr: category.name_tr,
       parent_category_id: category.parent_category_id || null,
-      display_order: (category as any).display_order || 0
+      display_order: (category as any).display_order || 0,
+      allow_sharing_with_external_persons: category.allow_sharing_with_external_persons !== undefined 
+        ? category.allow_sharing_with_external_persons 
+        : true,
+      field_requirements: category.field_requirements || null
     });
     setShowEditModal(true);
   };
@@ -299,7 +310,7 @@ const ExpenseCategoriesPage: React.FC = () => {
                               >
                                 <PencilIcon className="h-4 w-4" />
                               </button>
-                              {!subcategory.is_default && subcategory.expense_count === 0 && (
+                              {!subcategory.is_default && (
                                 <button
                                   onClick={() => openDeleteModal(subcategory)}
                                   className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -396,6 +407,29 @@ const ExpenseCategoriesPage: React.FC = () => {
                       placeholder="e.g., Market"
                     />
                   </div>
+                  <div className="border-t pt-4 mt-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.allow_sharing_with_external_persons}
+                        onChange={(e) => setFormData({ ...formData, allow_sharing_with_external_persons: e.target.checked })}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.allowSharingWithExternalPersons') || 'Allow sharing with external persons'}
+                      </span>
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {t('expenseCategories.allowSharingHint') || 'If disabled, expenses in this category will not be shared with external users by default'}
+                    </p>
+                  </div>
+                  <div className="border-t pt-4 mt-4">
+                    <FieldRequirementsEditor
+                      value={formData.field_requirements}
+                      onChange={(value) => setFormData({ ...formData, field_requirements: value })}
+                      entityType="expense"
+                    />
+                  </div>
                   {isSubcategory && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -420,7 +454,15 @@ const ExpenseCategoriesPage: React.FC = () => {
                     type="button"
                     onClick={() => {
                       setShowAddModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+                      setFormData({ 
+                        name_en: '', 
+                        name_de: '', 
+                        name_tr: '', 
+                        parent_category_id: null, 
+                        display_order: 0,
+                        allow_sharing_with_external_persons: true,
+                        field_requirements: null
+                      });
                       setIsSubcategory(false);
                       setSelectedParentCategory(null);
                     }}
@@ -514,6 +556,29 @@ const ExpenseCategoriesPage: React.FC = () => {
                       className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
+                  <div className="border-t pt-4 mt-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.allow_sharing_with_external_persons}
+                        onChange={(e) => setFormData({ ...formData, allow_sharing_with_external_persons: e.target.checked })}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t('expenseCategories.allowSharingWithExternalPersons') || 'Allow sharing with external persons'}
+                      </span>
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {t('expenseCategories.allowSharingHint') || 'If disabled, expenses in this category will not be shared with external users by default'}
+                    </p>
+                  </div>
+                  <div className="border-t pt-4 mt-4">
+                    <FieldRequirementsEditor
+                      value={formData.field_requirements}
+                      onChange={(value) => setFormData({ ...formData, field_requirements: value })}
+                      entityType="expense"
+                    />
+                  </div>
                   {(isSubcategory || formData.parent_category_id) && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -538,7 +603,15 @@ const ExpenseCategoriesPage: React.FC = () => {
                     type="button"
                     onClick={() => {
                       setShowEditModal(false);
-                      setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+                      setFormData({ 
+                        name_en: '', 
+                        name_de: '', 
+                        name_tr: '', 
+                        parent_category_id: null, 
+                        display_order: 0,
+                        allow_sharing_with_external_persons: true,
+                        field_requirements: null
+                      });
                       setSelectedCategory(null);
                       setIsSubcategory(false);
                       setSelectedParentCategory(null);

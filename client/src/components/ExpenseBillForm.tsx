@@ -7,13 +7,15 @@ interface ExpenseBillFormProps {
   billType?: string;
   onChange: (linkedAssetId: number | null, billType?: string) => void;
   error?: string;
+  hideBillType?: boolean; // Hide bill type selector if subcategory already selected
 }
 
 const ExpenseBillForm: React.FC<ExpenseBillFormProps> = ({
   linkedAssetId,
   billType,
   onChange,
-  error
+  error,
+  hideBillType = false
 }) => {
   const { t } = useTranslation();
 
@@ -40,29 +42,31 @@ const ExpenseBillForm: React.FC<ExpenseBillFormProps> = ({
         error={error}
       />
 
-      {/* Bill Type (Subcategory) - Optional, stored in metadata */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {t('expenses.billType') || 'Bill Type'} <span className="text-gray-500 text-xs">({t('expenses.optional') || 'Optional'})</span>
-        </label>
-        <select
-          value={billType || ''}
-          onChange={(e) => handleBillTypeChange(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-        >
-          <option value="">{t('expenses.selectBillType') || 'Select bill type...'}</option>
-          <option value="electricity">{t('expenses.billTypes.electricity') || 'Electricity'}</option>
-          <option value="water">{t('expenses.billTypes.water') || 'Water'}</option>
-          <option value="gas">{t('expenses.billTypes.gas') || 'Gas'}</option>
-          <option value="maintenance">{t('expenses.billTypes.maintenance') || 'Maintenance'}</option>
-          <option value="rent">{t('expenses.billTypes.rent') || 'Rent'}</option>
-          <option value="internet">{t('expenses.billTypes.internet') || 'Internet'}</option>
-          <option value="other">{t('expenses.billTypes.other') || 'Other'}</option>
-        </select>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          {t('expenses.billTypeHint') || 'Optional: Specify the type of bill for better categorization'}
-        </p>
-      </div>
+      {/* Bill Type (Subcategory) - Hide if subcategory already selected */}
+      {!hideBillType && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {t('expenses.billType') || 'Bill Type'} <span className="text-gray-500 text-xs">({t('expenses.optional') || 'Optional'})</span>
+          </label>
+          <select
+            value={billType || ''}
+            onChange={(e) => handleBillTypeChange(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">{t('expenses.selectBillType') || 'Select bill type...'}</option>
+            <option value="electricity">{t('expenses.billTypes.electricity') || 'Electricity'}</option>
+            <option value="water">{t('expenses.billTypes.water') || 'Water'}</option>
+            <option value="gas">{t('expenses.billTypes.gas') || 'Gas'}</option>
+            <option value="maintenance">{t('expenses.billTypes.maintenance') || 'Maintenance'}</option>
+            <option value="rent">{t('expenses.billTypes.rent') || 'Rent'}</option>
+            <option value="internet">{t('expenses.billTypes.internet') || 'Internet'}</option>
+            <option value="other">{t('expenses.billTypes.other') || 'Other'}</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {t('expenses.billTypeHint') || 'Optional: Specify the type of bill for better categorization'}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

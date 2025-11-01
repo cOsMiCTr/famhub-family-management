@@ -36,7 +36,9 @@ router.post('/',
   [
     body('name_en').trim().notEmpty().withMessage('English name is required'),
     body('name_de').trim().notEmpty().withMessage('German name is required'),
-    body('name_tr').trim().notEmpty().withMessage('Turkish name is required')
+    body('name_tr').trim().notEmpty().withMessage('Turkish name is required'),
+    body('allow_sharing_with_external_persons').optional().isBoolean(),
+    body('field_requirements').optional().isObject()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -45,13 +47,30 @@ router.post('/',
     }
 
     try {
-      const { name_en, name_de, name_tr } = req.body;
+      const { 
+        name_en, 
+        name_de, 
+        name_tr,
+        allow_sharing_with_external_persons,
+        field_requirements
+      } = req.body;
+
+      // Prepare field_requirements JSON
+      const fieldRequirementsJson = field_requirements && typeof field_requirements === 'object' 
+        ? JSON.stringify(field_requirements) 
+        : null;
 
       const result = await query(
-        `INSERT INTO income_categories (name_en, name_de, name_tr, is_default)
-         VALUES ($1, $2, $3, false)
+        `INSERT INTO income_categories (name_en, name_de, name_tr, is_default, allow_sharing_with_external_persons, field_requirements)
+         VALUES ($1, $2, $3, false, $4, $5)
          RETURNING *`,
-        [name_en, name_de, name_tr]
+        [
+          name_en, 
+          name_de, 
+          name_tr,
+          allow_sharing_with_external_persons !== undefined ? allow_sharing_with_external_persons : true,
+          fieldRequirementsJson
+        ]
       );
 
       res.status(201).json(result.rows[0]);
@@ -68,7 +87,9 @@ router.put('/:id',
     param('id').isInt().withMessage('Invalid category ID'),
     body('name_en').optional().trim().notEmpty(),
     body('name_de').optional().trim().notEmpty(),
-    body('name_tr').optional().trim().notEmpty()
+    body('name_tr').optional().trim().notEmpty(),
+    body('allow_sharing_with_external_persons').optional().isBoolean(),
+    body('field_requirements').optional().isObject()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -78,7 +99,13 @@ router.put('/:id',
 
     try {
       const categoryId = req.params.id;
-      const { name_en, name_de, name_tr } = req.body;
+      const { 
+        name_en, 
+        name_de, 
+        name_tr,
+        allow_sharing_with_external_persons,
+        field_requirements
+      } = req.body;
 
       // Check if category exists
       const checkResult = await query('SELECT * FROM income_categories WHERE id = $1', [categoryId]);
@@ -103,6 +130,17 @@ router.put('/:id',
       if (name_tr !== undefined) {
         updateFields.push(`name_tr = $${valueIndex++}`);
         updateValues.push(name_tr);
+      }
+      if (allow_sharing_with_external_persons !== undefined) {
+        updateFields.push(`allow_sharing_with_external_persons = $${valueIndex++}`);
+        updateValues.push(allow_sharing_with_external_persons);
+      }
+      if (field_requirements !== undefined) {
+        const fieldRequirementsJson = field_requirements && typeof field_requirements === 'object' 
+          ? JSON.stringify(field_requirements) 
+          : null;
+        updateFields.push(`field_requirements = $${valueIndex++}`);
+        updateValues.push(fieldRequirementsJson);
       }
 
       if (updateFields.length === 0) {

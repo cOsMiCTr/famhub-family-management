@@ -75,7 +75,8 @@ router.post('/', [
   body('ownership_percentage').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 0, max: 100 }).withMessage('Ownership percentage must be between 0 and 100'),
   body('status').optional().isIn(['active', 'sold', 'transferred', 'inactive']).withMessage('Invalid status'),
   body('location').optional().isLength({ max: 500 }).withMessage('Location too long'),
-  body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long')
+  body('notes').optional().isLength({ max: 1000 }).withMessage('Notes too long'),
+  body('share_with_external_persons').optional().isBoolean()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -89,7 +90,8 @@ router.post('/', [
   const { 
     name, amount, currency, category_id, description, date, household_member_id,
     purchase_date, purchase_price, purchase_currency, current_value, valuation_method,
-    ownership_type, ownership_percentage, status, location, notes
+    ownership_type, ownership_percentage, status, location, notes,
+    share_with_external_persons, metadata
   } = req.body;
 
   // Use user's household
@@ -107,14 +109,49 @@ router.post('/', [
     throw createValidationError(`Invalid purchase currency: ${purchase_currency}`);
   }
 
-  // Verify category exists
+  // Verify category exists and get privacy setting and field requirements
   const categoryResult = await query(
-    'SELECT id FROM asset_categories WHERE id = $1',
+    'SELECT id, allow_sharing_with_external_persons, field_requirements FROM asset_categories WHERE id = $1',
     [category_id]
   );
 
   if (categoryResult.rows.length === 0) {
     throw createNotFoundError('Asset category');
+  }
+  
+  const category = categoryResult.rows[0];
+  let finalShareWithExternalPersons: boolean | null = null;
+  
+  // Determine share_with_external_persons value
+  if (share_with_external_persons !== undefined) {
+    finalShareWithExternalPersons = share_with_external_persons === true;
+  } else {
+    // Use category default if not specified
+    finalShareWithExternalPersons = category?.allow_sharing_with_external_persons ?? true;
+  }
+
+  // Validate field requirements if category has them
+  if (category?.field_requirements) {
+    const { validateAssetFieldRequirements } = require('../utils/fieldRequirementsValidator');
+    const fieldReqsValidation = validateAssetFieldRequirements(
+      category.field_requirements,
+      {
+        name,
+        category_id,
+        current_value: current_value || amount,
+        currency,
+        location,
+        purchase_date,
+        purchase_price,
+        description,
+        ownership_type,
+        ticker: metadata?.ticker || null
+      }
+    );
+    
+    if (!fieldReqsValidation.valid) {
+      throw createValidationError(fieldReqsValidation.errors.join('; '));
+    }
   }
 
   // Verify household member exists if specified
@@ -135,14 +172,15 @@ router.post('/', [
       user_id, household_id, household_member_id, name, amount, currency, 
       category_id, description, date, purchase_date, purchase_price, 
       purchase_currency, current_value, last_valuation_date, valuation_method,
-      ownership_type, ownership_percentage, status, location, notes
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+      ownership_type, ownership_percentage, status, location, notes, share_with_external_persons
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
     RETURNING *`,
     [
       req.user.id, householdId, household_member_id || null, name, amount, currency,
       category_id, description || null, date, purchase_date || null, purchase_price || null,
       purchase_currency || null, current_value || amount, current_value ? new Date().toISOString().split('T')[0] : null, valuation_method || null,
-      ownership_type || 'single', ownership_percentage || 100.00, status || 'active', location || null, notes || null
+      ownership_type || 'single', ownership_percentage || 100.00, status || 'active', location || null, notes || null,
+      finalShareWithExternalPersons
     ]
   );
 
@@ -754,9 +792,19 @@ router.get('/', asyncHandler(async (req, res) => {
          FROM expenses e
          INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
          INNER JOIN external_person_user_connections c ON c.external_person_id = epl.external_person_id
+         INNER JOIN assets a ON e.linked_asset_id = a.id
+         INNER JOIN asset_categories ac ON a.category_id = ac.id
          WHERE e.linked_asset_id = ANY($1::int[])
          AND c.status = 'accepted'
-         AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)`,
+         AND (c.invited_user_id = $2 OR c.invited_by_user_id = $2)
+         AND (
+           -- Asset explicitly allows sharing
+           a.share_with_external_persons = true
+           OR
+           -- Category allows sharing AND asset hasn't explicitly disabled it
+           (ac.allow_sharing_with_external_persons = true 
+            AND (a.share_with_external_persons IS NULL OR a.share_with_external_persons = true))
+         )`,
         [assetIds, req.user.id]
       );
       
@@ -958,13 +1006,57 @@ router.put('/:id', [
     'name', 'amount', 'currency', 'category_id', 'description', 'date',
     'household_member_id', 'purchase_date', 'purchase_price', 'purchase_currency',
     'current_value', 'valuation_method', 'ownership_type', 'ownership_percentage',
-    'status', 'location', 'notes'
+    'status', 'location', 'notes', 'share_with_external_persons'
   ];
 
   for (const field of allowedFields) {
     if (updateData[field] !== undefined) {
+      // Handle category_id separately to validate field requirements
+      if (field === 'category_id') {
+        // Get category field requirements for validation
+        const categoryFieldReqsResult = await query(
+          'SELECT field_requirements FROM asset_categories WHERE id = $1',
+          [updateData[field]]
+        );
+        
+        // If category has field requirements, validate the update data
+        if (categoryFieldReqsResult.rows.length > 0 && categoryFieldReqsResult.rows[0].field_requirements) {
+          // Merge old values with new values for validation
+          const mergedData = {
+            ...existingAsset,
+            ...updateData
+          };
+          
+          const { validateAssetFieldRequirements } = require('../utils/fieldRequirementsValidator');
+          const fieldReqsValidation = validateAssetFieldRequirements(
+            categoryFieldReqsResult.rows[0].field_requirements,
+            {
+              name: mergedData.name,
+              category_id: mergedData.category_id,
+              current_value: mergedData.current_value || mergedData.amount,
+              currency: mergedData.currency,
+              location: mergedData.location,
+              purchase_date: mergedData.purchase_date,
+              purchase_price: mergedData.purchase_price,
+              description: mergedData.description,
+              ownership_type: mergedData.ownership_type,
+              ticker: (mergedData.metadata && typeof mergedData.metadata === 'object' ? mergedData.metadata.ticker : null) || null
+            }
+          );
+          
+          if (!fieldReqsValidation.valid) {
+            throw createValidationError(fieldReqsValidation.errors.join('; '));
+          }
+        }
+      }
+      
       updateFields.push(`${field} = $${paramCount++}`);
-      updateValues.push(updateData[field]);
+      // Handle share_with_external_persons - can be boolean or null
+      if (field === 'share_with_external_persons') {
+        updateValues.push(updateData[field] === true ? true : updateData[field] === false ? false : null);
+      } else {
+        updateValues.push(updateData[field]);
+      }
     }
   }
 

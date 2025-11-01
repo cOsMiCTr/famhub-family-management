@@ -91,7 +91,9 @@ router.post('/',
     body('has_custom_form').optional().isBoolean(),
     body('requires_asset_link').optional().isBoolean(),
     body('requires_member_link').optional().isBoolean(),
-    body('allows_multiple_members').optional().isBoolean()
+    body('allows_multiple_members').optional().isBoolean(),
+    body('allow_sharing_with_external_persons').optional().isBoolean(),
+    body('field_requirements').optional().isObject()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -110,7 +112,9 @@ router.post('/',
         requires_member_link,
         allows_multiple_members,
         parent_category_id,
-        display_order
+        display_order,
+        allow_sharing_with_external_persons,
+        field_requirements
       } = req.body;
 
       // Validate parent_category_id if provided
@@ -121,11 +125,17 @@ router.post('/',
         }
       }
 
+      // Prepare field_requirements JSON
+      const fieldRequirementsJson = field_requirements && typeof field_requirements === 'object' 
+        ? JSON.stringify(field_requirements) 
+        : null;
+
       const result = await query(
         `INSERT INTO expense_categories 
          (name_en, name_de, name_tr, is_default, category_type, has_custom_form, 
-          requires_asset_link, requires_member_link, allows_multiple_members, parent_category_id, display_order)
-         VALUES ($1, $2, $3, false, $4, $5, $6, $7, $8, $9, $10)
+          requires_asset_link, requires_member_link, allows_multiple_members, parent_category_id, display_order,
+          allow_sharing_with_external_persons, field_requirements)
+         VALUES ($1, $2, $3, false, $4, $5, $6, $7, $8, $9, $10, $11, $12)
          RETURNING *`,
         [
           name_en, 
@@ -137,7 +147,9 @@ router.post('/',
           requires_member_link || false,
           allows_multiple_members || false,
           parent_category_id || null,
-          display_order || 0
+          display_order || 0,
+          allow_sharing_with_external_persons !== undefined ? allow_sharing_with_external_persons : true,
+          fieldRequirementsJson
         ]
       );
 
@@ -162,7 +174,9 @@ router.put('/:id',
     body('requires_member_link').optional().isBoolean(),
     body('allows_multiple_members').optional().isBoolean(),
     body('parent_category_id').optional().isInt(),
-    body('display_order').optional().isInt()
+    body('display_order').optional().isInt(),
+    body('allow_sharing_with_external_persons').optional().isBoolean(),
+    body('field_requirements').optional().isObject()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -182,7 +196,9 @@ router.put('/:id',
         requires_member_link,
         allows_multiple_members,
         parent_category_id,
-        display_order
+        display_order,
+        allow_sharing_with_external_persons,
+        field_requirements
       } = req.body;
 
       // Validate parent_category_id if provided (and not self)
@@ -250,6 +266,17 @@ router.put('/:id',
         updateFields.push(`display_order = $${valueIndex++}`);
         updateValues.push(display_order);
       }
+      if (allow_sharing_with_external_persons !== undefined) {
+        updateFields.push(`allow_sharing_with_external_persons = $${valueIndex++}`);
+        updateValues.push(allow_sharing_with_external_persons);
+      }
+      if (field_requirements !== undefined) {
+        const fieldRequirementsJson = field_requirements && typeof field_requirements === 'object' 
+          ? JSON.stringify(field_requirements) 
+          : null;
+        updateFields.push(`field_requirements = $${valueIndex++}`);
+        updateValues.push(fieldRequirementsJson);
+      }
 
       if (updateFields.length === 0) {
         return res.status(400).json({ error: 'No fields to update' });
@@ -296,6 +323,9 @@ router.delete('/:id',
         return res.status(400).json({ error: 'Cannot delete default expense category' });
       }
 
+      // Check if it's a subcategory (has parent)
+      const isSubcategory = !!checkResult.rows[0].parent_category_id;
+
       // Check for dependencies
       const expenseCheck = await query(
         'SELECT COUNT(*) as count FROM expenses WHERE category_id = $1',
@@ -304,11 +334,21 @@ router.delete('/:id',
 
       const expenseCount = parseInt(expenseCheck.rows[0].count);
 
-      if (expenseCount > 0) {
+      // For subcategories, allow deletion even if expenses exist (expenses will be moved to parent)
+      // For parent categories, prevent deletion if expenses exist
+      if (!isSubcategory && expenseCount > 0) {
         return res.status(400).json({
-          error: 'Cannot delete category with assigned expense entries',
+          error: 'Cannot delete parent category with assigned expense entries',
           dependencies: { expenses: expenseCount }
         });
+      }
+
+      // If subcategory has expenses, move them to parent category
+      if (isSubcategory && expenseCount > 0 && checkResult.rows[0].parent_category_id) {
+        await query(
+          'UPDATE expenses SET category_id = $1 WHERE category_id = $2',
+          [checkResult.rows[0].parent_category_id, categoryId]
+        );
       }
 
       // Delete category

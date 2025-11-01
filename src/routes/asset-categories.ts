@@ -32,7 +32,9 @@ router.post('/', requireAdmin, [
   body('icon').optional().isLength({ max: 50 }).withMessage('Icon name too long'),
   body('requires_ticker').optional().isBoolean().withMessage('requires_ticker must be boolean'),
   body('depreciation_enabled').optional().isBoolean().withMessage('depreciation_enabled must be boolean'),
-  body('is_default').optional().isBoolean().withMessage('is_default must be boolean')
+  body('is_default').optional().isBoolean().withMessage('is_default must be boolean'),
+  body('allow_sharing_with_external_persons').optional().isBoolean(),
+  body('field_requirements').optional().isObject()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -49,7 +51,9 @@ router.post('/', requireAdmin, [
     requires_ticker, 
     depreciation_enabled, 
     is_default,
-    allowed_currency_types
+    allowed_currency_types,
+    allow_sharing_with_external_persons,
+    field_requirements
   } = req.body;
 
   // Check if category with same name already exists
@@ -72,9 +76,14 @@ router.post('/', requireAdmin, [
     }
   }
 
+  // Prepare field_requirements JSON
+  const fieldRequirementsJson = field_requirements && typeof field_requirements === 'object' 
+    ? JSON.stringify(field_requirements) 
+    : null;
+
   const result = await query(
-    `INSERT INTO asset_categories (name_en, name_de, name_tr, type, category_type, icon, requires_ticker, depreciation_enabled, is_default, allowed_currency_types)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `INSERT INTO asset_categories (name_en, name_de, name_tr, type, category_type, icon, requires_ticker, depreciation_enabled, is_default, allowed_currency_types, allow_sharing_with_external_persons, field_requirements)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING *`,
     [
       name_en, 
@@ -86,7 +95,9 @@ router.post('/', requireAdmin, [
       requires_ticker || false, 
       depreciation_enabled || false, 
       is_default || false,
-      JSON.stringify(currencyTypes)
+      JSON.stringify(currencyTypes),
+      allow_sharing_with_external_persons !== undefined ? allow_sharing_with_external_persons : true,
+      fieldRequirementsJson
     ]
   );
 
@@ -124,7 +135,9 @@ router.put('/:id', requireAdmin, [
   body('icon').optional().isLength({ max: 50 }).withMessage('Icon name too long'),
   body('requires_ticker').optional().isBoolean().withMessage('requires_ticker must be boolean'),
   body('depreciation_enabled').optional().isBoolean().withMessage('depreciation_enabled must be boolean'),
-  body('is_default').optional().isBoolean().withMessage('is_default must be boolean')
+  body('is_default').optional().isBoolean().withMessage('is_default must be boolean'),
+  body('allow_sharing_with_external_persons').optional().isBoolean(),
+  body('field_requirements').optional().isObject()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -174,7 +187,8 @@ router.put('/:id', requireAdmin, [
 
   const allowedFields = [
     'name_en', 'name_de', 'name_tr', 'type', 'category_type', 
-    'icon', 'requires_ticker', 'depreciation_enabled', 'is_default', 'allowed_currency_types'
+    'icon', 'requires_ticker', 'depreciation_enabled', 'is_default', 'allowed_currency_types',
+    'allow_sharing_with_external_persons', 'field_requirements'
   ];
 
   for (const field of allowedFields) {
@@ -186,6 +200,13 @@ router.put('/:id', requireAdmin, [
           ? JSON.parse(updateData[field]) 
           : updateData[field];
         updateValues.push(JSON.stringify(currencyTypes));
+      } else if (field === 'field_requirements') {
+        // Handle JSONB object
+        updateFields.push(`${field} = $${paramCount++}`);
+        const fieldRequirementsJson = updateData[field] && typeof updateData[field] === 'object' 
+          ? JSON.stringify(updateData[field]) 
+          : null;
+        updateValues.push(fieldRequirementsJson);
       } else {
         updateFields.push(`${field} = $${paramCount++}`);
         updateValues.push(updateData[field]);

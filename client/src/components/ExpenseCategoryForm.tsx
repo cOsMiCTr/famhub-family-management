@@ -21,6 +21,9 @@ interface ExpenseCategoryFormProps {
   onMetadataChange: (metadata: Record<string, any>) => void;
   members?: Array<{id: number; first_name: string; last_name: string}>;
   insuranceSuggestions?: Array<{name: string}>;
+  isSubcategory?: boolean; // If true, hide bill type selector since subcategory already selected
+  shareWithExternalPersons?: boolean;
+  onShareWithExternalPersonsChange?: (share: boolean) => void;
   errors?: {
     linkedMembers?: string;
     linkedAsset?: string;
@@ -40,7 +43,10 @@ const ExpenseCategoryForm: React.FC<ExpenseCategoryFormProps> = ({
   onMetadataChange,
   members = [],
   insuranceSuggestions = [],
-  errors
+  isSubcategory = false,
+  shareWithExternalPersons = false,
+  onShareWithExternalPersonsChange,
+  errors = {}
 }) => {
   const { t } = useTranslation();
 
@@ -53,6 +59,12 @@ const ExpenseCategoryForm: React.FC<ExpenseCategoryFormProps> = ({
           externalPersonIds={metadata.external_person_ids || []}
           onChange={onLinkedMembersChange}
           onExternalPersonsChange={(externalIds) => onMetadataChange({ ...metadata, external_person_ids: externalIds })}
+          shareWithExternalPersons={shareWithExternalPersons}
+          onShareChange={(share) => {
+            if (onShareWithExternalPersonsChange) {
+              onShareWithExternalPersonsChange(share);
+            }
+          }}
           error={errors?.linkedMembers}
         />
       );
@@ -126,6 +138,7 @@ const ExpenseCategoryForm: React.FC<ExpenseCategoryFormProps> = ({
             onMetadataChange({ ...metadata, bill_type: billType });
           }}
           error={errors?.linkedAsset}
+          hideBillType={isSubcategory} // Hide if subcategory already selected
         />
       );
 

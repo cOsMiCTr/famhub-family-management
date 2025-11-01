@@ -15,6 +15,8 @@ interface ExpenseGiftFormProps {
   externalPersonIds?: number[];
   onChange: (linkedMemberIds: number[]) => void;
   onExternalPersonsChange?: (externalPersonIds: number[]) => void;
+  shareWithExternalPersons?: boolean;
+  onShareChange?: (share: boolean) => void;
   error?: string;
 }
 
@@ -23,6 +25,8 @@ const ExpenseGiftForm: React.FC<ExpenseGiftFormProps> = ({
   externalPersonIds = [],
   onChange,
   onExternalPersonsChange,
+  shareWithExternalPersons = false,
+  onShareChange,
   error
 }) => {
   const { t } = useTranslation();
@@ -181,6 +185,31 @@ const ExpenseGiftForm: React.FC<ExpenseGiftFormProps> = ({
           </p>
         )}
       </div>
+
+      {/* Privacy Toggle - Only show if external persons are selected */}
+      {(externalPersonIds && externalPersonIds.length > 0) && onShareChange && (
+        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+          <label className="flex items-start">
+            <input
+              type="checkbox"
+              checked={shareWithExternalPersons}
+              onChange={(e) => onShareChange(e.target.checked)}
+              className="mt-1 mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <div className="flex-1">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('expenses.shareWithRecipients') || 'Share this expense with recipients'}
+              </span>
+              <p className="mt-1 text-xs text-yellow-800 dark:text-yellow-200">
+                {shareWithExternalPersons 
+                  ? (t('expenses.shareWarning') || 'Recipients will see the amount spent on their gift')
+                  : (t('expenses.privacyNote') || 'This expense will not be visible to recipients when shared')
+                }
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
 
       {/* Add External Person Modal */}
       {showAddExternalModal && (

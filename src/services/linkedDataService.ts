@@ -57,13 +57,25 @@ export class LinkedDataService {
       const sharedFromUserId = connection.invited_by_user_id;
 
       // Get expenses linked to this external person
+      // Only share expenses where:
+      // 1. Category allows sharing AND expense doesn't explicitly disallow, OR
+      // 2. Expense explicitly allows sharing (overrides category)
       const result = await query(
         `SELECT DISTINCT e.*,
                 $3::boolean as is_read_only,
                 $4::integer as shared_from_user_id
          FROM expenses e
          INNER JOIN expense_external_person_links epl ON e.id = epl.expense_id
+         INNER JOIN expense_categories ec ON e.category_id = ec.id
          WHERE epl.external_person_id = $1
+           AND (
+             -- Expense explicitly allows sharing
+             e.share_with_external_persons = true
+             OR
+             -- Category allows sharing AND expense hasn't explicitly disabled it
+             (ec.allow_sharing_with_external_persons = true 
+              AND (e.share_with_external_persons IS NULL OR e.share_with_external_persons = true))
+           )
          ORDER BY e.start_date DESC`,
         [externalPersonId, userId, true, sharedFromUserId]
       );
@@ -146,6 +158,7 @@ export class LinkedDataService {
       // Get assets where:
       // 1. External person is linked (via metadata or direct link), OR
       // 2. User's household members have shared ownership
+      // Only share assets where privacy settings allow it
       const result = await query(
         `SELECT DISTINCT a.*,
                 $3::boolean as is_read_only,
@@ -155,6 +168,7 @@ export class LinkedDataService {
                 )) as user_household_ownership
          FROM assets a
          LEFT JOIN shared_ownership_distribution sod ON a.id = sod.asset_id
+         INNER JOIN asset_categories ac ON a.category_id = ac.id
          WHERE (
            -- External person linked (check metadata if needed)
            EXISTS (
@@ -169,6 +183,14 @@ export class LinkedDataService {
              INNER JOIN household_members hm ON sod2.household_member_id = hm.id
              WHERE sod2.asset_id = a.id AND hm.household_id = $5
            )
+         )
+         AND (
+           -- Asset explicitly allows sharing
+           a.share_with_external_persons = true
+           OR
+           -- Category allows sharing AND asset hasn't explicitly disabled it
+           (ac.allow_sharing_with_external_persons = true 
+            AND (a.share_with_external_persons IS NULL OR a.share_with_external_persons = true))
          )
          GROUP BY a.id
          ORDER BY a.created_at DESC`,
