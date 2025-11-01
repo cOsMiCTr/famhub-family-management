@@ -107,7 +107,15 @@ const ExpenseCategoriesPage: React.FC = () => {
         await loadCategories();
         setShowAddModal(false);
         setShowEditModal(false);
-        setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+        setFormData({ 
+          name_en: '', 
+          name_de: '', 
+          name_tr: '', 
+          parent_category_id: null, 
+          display_order: 0,
+          allow_sharing_with_external_persons: true,
+          field_requirements: null
+        });
         setSelectedCategory(null);
         setIsSubcategory(false);
         setSelectedParentCategory(null);
@@ -200,7 +208,15 @@ const ExpenseCategoriesPage: React.FC = () => {
           onClick={() => {
             setIsSubcategory(false);
             setSelectedParentCategory(null);
-            setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: null, display_order: 0 });
+            setFormData({ 
+          name_en: '', 
+          name_de: '', 
+          name_tr: '', 
+          parent_category_id: null, 
+          display_order: 0,
+          allow_sharing_with_external_persons: true,
+          field_requirements: null
+        });
             setShowAddModal(true);
           }}
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -260,7 +276,15 @@ const ExpenseCategoriesPage: React.FC = () => {
                               onClick={() => {
                                 setIsSubcategory(true);
                                 setSelectedParentCategory(category.id);
-                                setFormData({ name_en: '', name_de: '', name_tr: '', parent_category_id: category.id, display_order: (category.subcategories?.length || 0) });
+                                setFormData({ 
+                                  name_en: '', 
+                                  name_de: '', 
+                                  name_tr: '', 
+                                  parent_category_id: category.id, 
+                                  display_order: (category.subcategories?.length || 0),
+                                  allow_sharing_with_external_persons: true,
+                                  field_requirements: null
+                                });
                                 setShowAddModal(true);
                               }}
                               className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"

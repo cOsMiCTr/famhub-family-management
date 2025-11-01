@@ -157,7 +157,7 @@ const FieldRequirementsEditor: React.FC<FieldRequirementsEditorProps> = ({
                     <label className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={req.required || false}
+                        checked={((req as FieldRequirement).required) || false}
                         onChange={(e) => updateFieldRequirement(key, { required: e.target.checked })}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
@@ -171,7 +171,7 @@ const FieldRequirementsEditor: React.FC<FieldRequirementsEditorProps> = ({
                       <label className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={!!req.conditional}
+                          checked={!!(req as FieldRequirement).conditional}
                           onChange={(e) => {
                             if (e.target.checked) {
                               updateFieldRequirement(key, {
@@ -181,7 +181,8 @@ const FieldRequirementsEditor: React.FC<FieldRequirementsEditorProps> = ({
                                 }
                               });
                             } else {
-                              const { conditional, ...rest } = req;
+                              const reqObj = req as FieldRequirement;
+                              const { conditional, ...rest } = reqObj;
                               updateFieldRequirement(key, rest);
                             }
                           }}
@@ -198,7 +199,7 @@ const FieldRequirementsEditor: React.FC<FieldRequirementsEditorProps> = ({
                       <label className="flex items-center">
                         <input
                           type="checkbox"
-                          checked={req.multiple_allowed !== false}
+                          checked={(req as FieldRequirement).multiple_allowed !== false}
                           onChange={(e) => updateFieldRequirement(key, { multiple_allowed: e.target.checked })}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
