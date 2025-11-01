@@ -570,6 +570,17 @@ class ApiService {
     return response.data;
   }
 
+  // Income endpoints
+  async createIncome(data: any) {
+    const response = await this.api.post('/income', data);
+    return response.data;
+  }
+
+  async updateIncome(id: number, data: any) {
+    const response = await this.api.put(`/income/${id}`, data);
+    return response.data;
+  }
+
   async getLinkedAssets(connectionId: number) {
     const response = await this.api.get(`/linked-data/${connectionId}/assets`);
     return response.data;

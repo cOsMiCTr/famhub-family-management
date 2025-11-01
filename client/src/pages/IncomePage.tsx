@@ -278,65 +278,7 @@ const IncomePage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Clear previous validation errors
-    setValidationErrors({});
-    
-    // Validate form
-    if (!validateForm()) {
-      return;
-    }
-    
-    try {
-      const url = selectedEntry 
-        ? `/api/income/${selectedEntry.id}`
-        : '/api/income';
-      
-      const method = selectedEntry ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          amount: parseFloat(formData.amount),
-          household_member_id: parseInt(formData.household_member_id),
-          category_id: parseInt(formData.category_id),
-          end_date: formData.end_date || null
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save income entry');
-      }
-
-      await loadData();
-      setShowAddModal(false);
-      setShowEditModal(false);
-      setSelectedEntry(null);
-      setFormData({
-        household_member_id: '',
-        category_id: '',
-        amount: '',
-        currency: userPreferences?.currency || 'USD',
-        description: '',
-        start_date: '',
-        end_date: '',
-        is_recurring: false,
-        frequency: 'one-time'
-      });
-    } catch (error) {
-      console.error('Error saving income entry:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save income entry');
-    }
-  };
+  // Legacy handleSubmit - removed, now using wizard
 
   // Handle delete
   const handleDelete = async () => {
