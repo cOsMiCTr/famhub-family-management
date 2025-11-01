@@ -433,10 +433,10 @@ router.get('/linkable-members', async (req, res) => {
     
     // Get household members
     const membersResult = await query(
-      `SELECT id, first_name, last_name, date_of_birth
+      `SELECT id, name, date_of_birth
        FROM household_members
        WHERE household_id = $1
-       ORDER BY first_name ASC, last_name ASC`,
+       ORDER BY name ASC`,
       [householdId]
     );
     
